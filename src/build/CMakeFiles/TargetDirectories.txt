@@ -1,0 +1,3 @@
+/home/abrolhus/cs/projects/ufjf/2E-EVRP/src/build/CMakeFiles/rebuild_cache.dir
+/home/abrolhus/cs/projects/ufjf/2E-EVRP/src/build/CMakeFiles/edit_cache.dir
+/home/abrolhus/cs/projects/ufjf/2E-EVRP/src/build/CMakeFiles/run.dir
