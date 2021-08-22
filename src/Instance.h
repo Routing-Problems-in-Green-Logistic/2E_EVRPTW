@@ -12,6 +12,12 @@ public:
                                     // https://stackoverflow.com/questions/751681/meaning-of-const-last-in-a-function-declaration-of-a-class
     float getDistance(int n1, int n2) const;
     int getFirstClientIndex() const;
+    /** returns the index of the first Recharging station.
+     *
+     * @return index of the first recharging station (RS)
+     */
+    int getFirstRsIndex() const;
+    int getFirstSatIndex() const;
     float getTruckCap() const;
     float getEvCap() const;
     float getEvBattery() const;

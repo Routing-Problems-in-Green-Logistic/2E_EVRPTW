@@ -44,10 +44,19 @@ int Instance::getNrs() const {
 }
 
 float Instance::getDistance(int n1, int n2) const {
-    return (float)this->distMat[n1][n2];
+    float dist = (float)this->distMat.at(n1).at(n2);
+    return dist;
 }
 
 int Instance::getFirstClientIndex() const {
-    return (int)this->demands.size() - this->getNClients(); // the last nodes are clients;
+    return (int)this->demands.size() - this->getNClients() - this->getNrs(); // the last nodes are clients;
 
+}
+
+int Instance::getFirstRsIndex() const {
+    return (int)this->demands.size() - this->getNrs();
+}
+
+int Instance::getFirstSatIndex() const {
+    return 1;
 }
