@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Instance.h"
+#include "algorithm.h"
 #include <fstream>
 #include <sstream>
 #include <math.h>
@@ -76,6 +77,8 @@ Instance* getInstanceFromFile(std::string fileName){
 int main(int argc, char** argv){
     Instance* getInstanceFromFile(std::string fileName);
     Instance* Inst = getInstanceFromFile(argv[1]);
+
+    construtivo(*Inst); // TODO: see if passing the Inst like this uses the copy operator or not
     delete Inst;
 }
 
