@@ -41,9 +41,11 @@ plt.legend()
 plt.xlabel("x")
 plt.ylabel("y")
 demand_float = [float(x) for x in demand[1:15]]
+floatFlag = [int(i[1:])+3 for i in flag[1:15]]
 for j in range(len(demand_float)):
     if demand_float[j] != 0:
-        plt.annotate(demand_float[j],(floatx[j],floaty[j]),color='r')
+        #plt.annotate(demand_float[j],(floatx[j],floaty[j]),color='r')
+        plt.annotate(floatFlag[j],(floatx[j],floaty[j]),color='r')
 for i,j in enumerate(x):
     if flag[i].startswith('S'):
         color = 'green'
