@@ -9,3 +9,6 @@
  * @return true if feasible
  */
 bool isFeasibleSolution(Solution& Sol, Instance& Inst);
+void getCheapestInsertionTo(int node, const std::vector<int>& route, const Instance& Inst, float& cost, int& place);
+Solution* construtivo(Instance& instance);
+void insertInRoute(int node, std::vector<int>& route, int position, const Instance& Inst);
