@@ -62,12 +62,24 @@ public:
     }
 };
 Solution* construtivo(Instance& Inst){
+    std::vector<std::vector<int>> firstRoutes;
+    std::vector<std::vector<int>> secondRoutes;
+    secondEchelonRoutes(Inst, secondRoutes);
+    firstEchelonRoutes(secondRoutes, Inst, firstRoutes);
+    std::vector<std::vector<int>> allRoutes = firstRoutes;
+    //TODO: DONT USE the copy operator twice. Prob use pointers to store routes.
+    allRoutes.insert(allRoutes.end(), secondRoutes.begin(), secondRoutes.end()); // concat first and second routes arrays.
+    auto* Sol = new Solution(allRoutes, (int)firstRoutes.size(), (int)secondRoutes.size());
+    return Sol;
+}
+std::vector<std::vector<int>>& secondEchelonRoutes(Instance& Inst, std::vector<std::vector<int>>& routes){
     auto* Sol = new Solution();
     std::vector<bool> wasVisited(Inst.getNClients(), false);
     //std::vector<Item> reservedList;
     std::set<Item> reservedList;
     std::set<int> unvisitedClients;
-    std::vector<std::vector<int>> routes;
+    // std::vector<std::vector<int>> routes;
+    routes.clear();
     std::vector<float> evCaps;
     std::vector<float> evBatteries;
 
@@ -96,17 +108,10 @@ Solution* construtivo(Instance& Inst){
     }
     while(!unvisitedClients.empty()){
         if(reservedList.empty()){
-            return Sol;
+            return routes;
         }
         auto topItem = reservedList.begin();
-        //while(topItem != reservedList.end() && wasVisited[topItem->node]){
-        //   reservedList.erase(topItem);
-        //  topItem = reservedList.begin();
-        //}
-        //if(topItem == reservedList.end()){
-        //   return Sol;
-        //}
-        insertInRoute(topItem->node, routes[topItem->routeIndex], topItem->insertionPosition, Inst);
+        insertInRoute(topItem->node, routes[topItem->routeIndex], topItem->insertionPosition);
         // updadte states ( vehicleCap, vehicleBattery, unvisitedClients...)
         unvisitedClients.erase(topItem->node);
         evCaps.at(topItem->routeIndex) -= topItem->capacityCost;
@@ -120,7 +125,8 @@ Solution* construtivo(Instance& Inst){
         }
 
         //update RL (Rebuilding actually)
-        reservedList = std::set<Item>();
+        // reservedList = std::set<Item>();
+        reservedList.clear();
         for(auto client : unvisitedClients){
             for(int j = 0; j < routes.size(); j++){
                 getCheapestInsertionTo(client, routes.at(j), Inst, cost, place); // TODO: avoid recalculating on some invalid inserts;
@@ -130,7 +136,7 @@ Solution* construtivo(Instance& Inst){
             }
         }
     }
-    return Sol;
+    return routes;
 }
 void getCheapestInsertionTo(int node, const std::vector<int>& route, const Instance& Inst, float& cost, int& place){
     int bestInsertion = 1;
@@ -147,20 +153,79 @@ void getCheapestInsertionTo(int node, const std::vector<int>& route, const Insta
     place = bestInsertion;
     cost = bestCost;
 }
-void insertInRoute(int node, std::vector<int>& route, int position, const Instance& Inst){
+void insertInRoute(int node, std::vector<int>& route, int position){
     // O(n) (!!)
     route.insert(route.begin() + position, node); // inserts node in the middle of the route.
 
 }
-void firstEchelonRoutes(std::vector<std::vector<int>>& secondEchelonRoutes, Instance& Inst){
+
+std::vector<std::vector<int>> &firstEchelonRoutes(std::vector<std::vector<int>> &firstEchelonRoutes, Instance &Inst,
+                                                  std::vector<std::vector<int>> &routes) {
     //std::map<int, float> satDemands;
-    std::vector<int> satDemands(Inst.getNSats(), 0); // array with the total demand needed in each Satelite ( #0 is the Inst->getFirstSat)
+    std::map<int, float> satDemands; // array with the total demand needed in each Satelite ( #0 is the Inst->getFirstSat)
+    for(int i = Inst.getFirstSatIndex(); i < Inst.getFirstSatIndex() + Inst.getNSats(); i++){
+        satDemands.insert(std::pair<int,float>(i, 0));
+    }
+    std::set<int> unvisitedSats;
+    // std::vector<std::vector<int>> routes;
+    routes.clear();
+    std::set<Item> reservedList;
+    std::vector<float> trucksCap(1, Inst.getTruckCap()); // trucks capacities; Starts with "one" truck in the depot
     float aux_demand;
-    for(const auto& route : secondEchelonRoutes){ // sums the demands in each
+    for(const auto& route : firstEchelonRoutes){ // sums the demands in each
         aux_demand = 0;
         for(const auto node : route){
             aux_demand += Inst.getDemand(node);
         }
-        satDemands.at(route.at(0) - Inst.getFirstSatIndex()) += aux_demand; // adds the route total demand to the satelite position of the sat. demand array
+        satDemands.at(route.at(0)) += aux_demand; // adds the route total demand to the satelite position of the sat. demand array
     }
+    for(int i = Inst.getFirstSatIndex(); i < Inst.getFirstSatIndex() + Inst.getNSats(); i++){
+        if(satDemands.at(i) == 0){ // if no demand for sat, this sat doesnt need to be visited
+            continue;
+        }
+        unvisitedSats.insert(i);
+    }
+    routes.push_back(std::vector<int>{0, 0}); //creates an empty route at the depot;
+    int place; float cost;
+    for(const auto sat : unvisitedSats){
+        for(int i = 0; i < routes.size(); i++){
+            if(trucksCap.at(i) == 0){
+                continue;
+            }
+            getCheapestInsertionTo(sat, routes.at(i), Inst, cost, place);
+            reservedList.insert(Item(sat, i, place, Inst.getDemand(sat), 0)); // batteryCost = 0 cus first echelon is with ICVs
+        }
+    }
+    while(!unvisitedSats.empty()){
+        if(reservedList.empty()){
+            std::cerr << "Infeasible solution, " << std::endl; // TODO: inform user infeasible solution
+            return routes;
+        }
+
+        auto topItem = reservedList.begin();
+        insertInRoute(topItem->node, routes[topItem->routeIndex], topItem->insertionPosition);
+        if(satDemands.at(topItem->node) > trucksCap.at(topItem->routeIndex)){
+            satDemands.at(topItem->node) -= trucksCap.at(topItem->routeIndex);
+            trucksCap.at(topItem->routeIndex) = 0;
+        } else { // trucksCap >= satDemands, so after visit sat is empty, so erase it from the unvisitedSats list
+            trucksCap.at(topItem->routeIndex) -= satDemands.at(topItem->node);
+            satDemands.at(topItem->node) = 0;
+            unvisitedSats.erase(topItem->node);
+        }
+        if(routes.at(topItem->routeIndex).size() == 3){
+            routes.push_back(std::vector<int>{0,0});
+            trucksCap.push_back(Inst.getTruckCap());
+        }
+        reservedList.clear();
+        for(const auto sat : unvisitedSats){
+            for(int i = 0; i < routes.size(); i++){
+                if(trucksCap.at(i) == 0){
+                    continue;
+                }
+                getCheapestInsertionTo(sat, routes.at(i), Inst, cost, place);
+                reservedList.insert(Item(sat, i, place, Inst.getDemand(sat), 0)); // batteryCost = 0 cus first echelon is with ICVs
+            }
+        }
+    }
+    return routes;
 }

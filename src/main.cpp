@@ -78,7 +78,8 @@ int main(int argc, char** argv){
     Instance* getInstanceFromFile(std::string fileName);
     Instance* Inst = getInstanceFromFile(argv[1]);
 
-    construtivo(*Inst); // TODO: see if passing the Inst like this uses the copy operator or not
+    Solution* Sol = construtivo(*Inst); // TODO: see if passing the Inst like this uses the copy operator or not
+    bool isFeasible = isFeasibleSolution(*Sol,*Inst);
     delete Inst;
 }
 
