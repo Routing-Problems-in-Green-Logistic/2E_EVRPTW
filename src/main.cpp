@@ -71,15 +71,44 @@ Instance* getInstanceFromFile(std::string fileName){
     }
 
 
-    Instance* Inst = new Instance(distMat, truckCap, evCap, evBattery, nSats, nClients, nRS, coordinates, demands);
+    auto* Inst = new Instance(distMat, truckCap, evCap, evBattery, nSats, nClients, nRS, coordinates, demands);
     return Inst;
 }
-int main(int argc, char** argv){
+void solutionToCsv(Solution& Sol, Instance& Inst){
+    for(int i = 0; i < Sol.getRoutes().size(); i++){
+        bool truckRoute = false;
+        const auto& route = Sol.getRoutes().at(i);
+        if(i < Sol.getNTrucks()){
+            truckRoute = true;
+        }
+        std::ofstream file("route" + std::string(truckRoute? "T":"E") + std::to_string(i) + ".csv"); // if truck route: routeT2.csv, else routeE4.csv
+        file << "x,y,node,type"<< std::endl;
+        for(int j = 0; j < route.size(); j++){
+            int node = route.at(j);
+            std::string type;
+            if(Inst.isClient(node)) { type = "client"; }
+            else if(Inst.isRechargingStation(node)) { type = "rs"; }
+            else if(Inst.isSatelite(node)) { type = "sat"; }
+            else if(Inst.isDepot(node)) { type = "depot"; }
+            else{ return; }
+            file << Inst.getCoordinate(node).first << "," << Inst.getCoordinate(node).second << "," << node << "," << type << std::endl;
+        }
+        file.close();
+    }
+}
+int main(int argc, char* argv[]){
     Instance* getInstanceFromFile(std::string fileName);
-    Instance* Inst = getInstanceFromFile(argv[1]);
+    std::cout << argc;
+    // for(int i = 1; i < argc; i++){
+        // cout << argv[i] << endl;
+        // Instance* Inst = getInstanceFromFile(argv[i]);
+        // char* debug = argv[1];
 
+    Instance* Inst = getInstanceFromFile(argv[1]);
     Solution* Sol = construtivo(*Inst); // TODO: see if passing the Inst like this uses the copy operator or not
     bool isFeasible = isFeasibleSolution(*Sol,*Inst);
-    delete Inst;
-}
+    solutionToCsv(*Sol, *Inst);
+        delete Inst;
+    //}
 
+}
