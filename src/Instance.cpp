@@ -60,3 +60,22 @@ int Instance::getFirstRsIndex() const {
 int Instance::getFirstSatIndex() const {
     return 1;
 }
+std::pair<float,float> Instance::getCoordinate(int node) const {
+    return this->coordinates.at(node);
+}
+
+bool Instance::isClient(int node) const {
+    return node >= this->getFirstClientIndex() && node < this->getFirstClientIndex() + this->getNClients();
+}
+
+bool Instance::isRechargingStation(int node) const {
+    return node >= this->getFirstRsIndex() && node < this->getFirstRsIndex() + this->getNrs();
+}
+
+bool Instance::isSatelite(int node) const {
+    return node >= this->getFirstSatIndex() && node < this->getFirstSatIndex() + this->getNSats();
+}
+
+bool Instance::isDepot(int node) const {
+    return node == 0;
+}

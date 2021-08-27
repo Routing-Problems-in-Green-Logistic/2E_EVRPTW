@@ -11,6 +11,7 @@ public:
     float getDemand(int node) const; // the const means that the method promises not to alter any members of the class.
                                     // https://stackoverflow.com/questions/751681/meaning-of-const-last-in-a-function-declaration-of-a-class
     float getDistance(int n1, int n2) const;
+    std::pair<float,float> getCoordinate(int node) const;
     int getFirstClientIndex() const;
     /** returns the index of the first Recharging station.
      *
@@ -27,6 +28,11 @@ public:
      * @return number of Recharging Stations
      */
     int getNrs() const;
+
+    bool isClient(int node) const;
+    bool isRechargingStation(int node) const;
+    bool isSatelite(int node) const;
+    bool isDepot(int node) const;
 
 private:
     std::vector<std::vector<double>> distMat;
