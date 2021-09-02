@@ -2,7 +2,7 @@
 #include <set>
 #include <map>
 
-bool isFeasibleSolution(Solution& Sol, Instance& Inst){
+bool isFeasibleSolution(Solution& Sol, const Instance& Inst){
     float trucksCurrentCap;
     float evCurrentCap, evCurrentBattery;
     std::vector<bool> clientVisited(Inst.getNClients(), false);
@@ -72,11 +72,12 @@ public:
         return true;
     }
 };
-Solution* construtivo(Instance& Inst){
+Solution* construtivo(const Instance& Inst){
+    float totalCost = 0;
     std::vector<std::vector<int>> firstRoutes;
     std::vector<std::vector<int>> secondRoutes;
-    secondEchelonRoutes(Inst, secondRoutes);
-    firstEchelonRoutes(secondRoutes, Inst, firstRoutes);
+    secondEchelonRoutes(Inst, secondRoutes, totalCost);
+    firstEchelonRoutes(secondRoutes, Inst, firstRoutes, totalCost);
     //TODO: DONT USE the copy operator twice. Prob use pointers to store routes.
     for(int i = 0; i < firstRoutes.size(); i++){
         if(firstRoutes.at(i).size() == 2){
@@ -92,11 +93,12 @@ Solution* construtivo(Instance& Inst){
     }
     std::vector<std::vector<int>> allRoutes = firstRoutes;
     allRoutes.insert(allRoutes.end(), secondRoutes.begin(), secondRoutes.end()); // concat first and second routes arrays.
-    auto* Sol = new Solution(allRoutes, (int)firstRoutes.size(), (int)secondRoutes.size());
+    auto* Sol = new Solution(allRoutes, (int)firstRoutes.size(), (int)secondRoutes.size(), totalCost);
     return Sol;
 }
-std::vector<std::vector<int>>& secondEchelonRoutes(Instance& Inst, std::vector<std::vector<int>>& routes){
-    auto* Sol = new Solution();
+std::vector<std::vector<int>>& secondEchelonRoutes(const Instance& Inst, std::vector<std::vector<int>>& routes, float& totalCost){
+
+    totalCost = 0;
     std::vector<bool> wasVisited(Inst.getNClients(), false);
     //std::vector<Item> reservedList;
     std::set<Item> reservedList;
@@ -119,16 +121,6 @@ std::vector<std::vector<int>>& secondEchelonRoutes(Instance& Inst, std::vector<s
     }
     int place;
     float cost;
-
-    // for each pair <unvisited client, route>, inserts in reservedList if possible
-    // for(auto client : unvisitedClients){
-        // for(int j = 0; j < routes.size(); j++){
-            // getCheapestInsertionTo(client, routes.at(j), Inst, cost, place);
-            // if(cost <= evBatteries.at(j) && Inst.getDemand(client) <= evCaps.at(j)){
-                // reservedList.insert(Item(client, j, place, Inst.getDemand(client), cost));
-            // }
-        // }
-    // }
     while(!unvisitedClients.empty()){
         reservedList.clear();
         for(auto client : unvisitedClients){
@@ -137,7 +129,6 @@ std::vector<std::vector<int>>& secondEchelonRoutes(Instance& Inst, std::vector<s
                 if(Inst.getDemand(client) <= evCaps.at(j)){
                     if(cost <= evBatteries.at(j)){
                         reservedList.insert(Item(client, j, place, Inst.getDemand(client), cost, cost));
-
                     } else{
                         // TODO: create a separated function to do this (finding the best recharging station to go before going to the client.
                         int bestRs = -1;
@@ -147,7 +138,6 @@ std::vector<std::vector<int>>& secondEchelonRoutes(Instance& Inst, std::vector<s
                         float rsCost = 1e7; // TODO: be lazier
                         // float rsCost = Inst.getDistance(routes.at(j).at(place-1), Inst.getFirstRsIndex()) + Inst.getDistance(Inst.getFirstRsIndex(), client);
                         for(int r = Inst.getFirstRsIndex(); r < Inst.getFirstRsIndex() + Inst.getNrs(); r++){
-
                             float toRsCost = Inst.getDistance(routes.at(j).at(place-1), r);
                             float toClientCost = Inst.getDistance(r, client);
                             float clientToRouteCost = Inst.getDistance(client, place);
@@ -172,8 +162,9 @@ std::vector<std::vector<int>>& secondEchelonRoutes(Instance& Inst, std::vector<s
         auto topItem = reservedList.begin();
         auto& route = routes.at(topItem->routeIndex);
         insertInRoute(topItem->node, route, topItem->insertionPosition);
+        totalCost += topItem->solutionCost;
         if(topItem->rs != -1){
-            insertInRoute(topItem->rs, route, topItem->insertionPosition); // inserts rechargin station before the client;
+            insertInRoute(topItem->rs, route, topItem->insertionPosition); // inserts recharging station before the client;
             evBatteries.at(topItem->routeIndex) = Inst.getEvBattery();
         }
         // updadte states ( vehicleCap, vehicleBattery, unvisitedClients...)
@@ -186,6 +177,7 @@ std::vector<std::vector<int>>& secondEchelonRoutes(Instance& Inst, std::vector<s
             routes.push_back(std::vector<int>{routeSat, routeSat});
             evBatteries.push_back(Inst.getEvBattery());
             evCaps.push_back(Inst.getEvCap());
+            totalCost += Inst.getEvCost();
         }
 
         //update RL (Rebuilding actually)
@@ -194,11 +186,12 @@ std::vector<std::vector<int>>& secondEchelonRoutes(Instance& Inst, std::vector<s
     return routes;
 }
 void getCheapestInsertionTo(int node, const std::vector<int>& route, const Instance& Inst, float& cost, int& place){
-    int bestInsertion = 1;
+    int bestInsertion = -1;
     float bestCost, insertionCost;
-    bestCost = Inst.getDistance(route[0], node) + Inst.getDistance(route[1], node) - Inst.getDistance(route[1], route[0]);
+    //bestCost = Inst.getDistance(route[0], node) + Inst.getDistance(route[1], node) - Inst.getDistance(route[1], route[0]);
+    bestCost = 1e8;
 
-    for(int i = 2; i < route.size()-1; i++){ // as rotas se iniciam e terminam com 0 (satelite);
+    for(int i = 1; i < route.size()-1; i++){ // as rotas se iniciam e terminam com 0 (satelite);
         insertionCost = Inst.getDistance(route[i], node) + Inst.getDistance(route[i -1], node) - Inst.getDistance(route[i], route[i - 1]);
         if(insertionCost < bestCost){
             bestCost = insertionCost;
@@ -214,8 +207,8 @@ void insertInRoute(int node, std::vector<int>& route, int position){
 
 }
 
-std::vector<std::vector<int>> &firstEchelonRoutes(std::vector<std::vector<int>> &firstEchelonRoutes, Instance &Inst,
-                                                  std::vector<std::vector<int>> &routes) {
+std::vector<std::vector<int>>& firstEchelonRoutes(std::vector<std::vector<int>> &firstEchelonRoutes, const Instance &Inst,
+                                                  std::vector<std::vector<int>> &routes, float totalCost) {
     //std::map<int, float> satDemands;
     std::map<int, float> satDemands; // array with the total demand needed in each Satelite ( #0 is the Inst->getFirstSat)
     for(int i = Inst.getFirstSatIndex(); i < Inst.getFirstSatIndex() + Inst.getNSats(); i++){
@@ -259,6 +252,7 @@ std::vector<std::vector<int>> &firstEchelonRoutes(std::vector<std::vector<int>> 
 
         auto topItem = reservedList.begin();
         insertInRoute(topItem->node, routes[topItem->routeIndex], topItem->insertionPosition);
+        totalCost += topItem->solutionCost;
         if(satDemands.at(topItem->node) > trucksCap.at(topItem->routeIndex)){
             satDemands.at(topItem->node) -= trucksCap.at(topItem->routeIndex);
             trucksCap.at(topItem->routeIndex) = 0;
@@ -270,6 +264,7 @@ std::vector<std::vector<int>> &firstEchelonRoutes(std::vector<std::vector<int>> 
         if(routes.at(topItem->routeIndex).size() == 3){
             routes.push_back(std::vector<int>{0,0});
             trucksCap.push_back(Inst.getTruckCap());
+            totalCost += Inst.getTruckCost();
         }
         reservedList.clear();
         for(const auto sat : unvisitedSats){
@@ -283,5 +278,68 @@ std::vector<std::vector<int>> &firstEchelonRoutes(std::vector<std::vector<int>> 
         }
     }
     return routes;
+}
+
+float getRouteCost(const std::vector<int>& route, const Instance &Inst) {
+    float cost = 0;
+    int node;
+    int lastNode = route.at(0);
+    for(int i = 1; i < route.size(); i++){
+        node = route.at(i);
+        cost += Inst.getDistance(lastNode, node);
+        lastNode = node;
+    }
+    return cost;
+}
+
+float getRouteDemand(const std::vector<int> &route, const Instance &Inst) {
+    float totalDemand = 0;
+    for(int node : route){
+        totalDemand += Inst.getDemand(node);
+    }
+    return totalDemand;
+}
+
+bool getCheapestSafeInsertionIn(const std::vector<int> &route, int nodeIndex, const Instance &Inst, float &evCost, int &place) {
+    int bestNode = -1;
+    float bestCost, insertionCost;
+    bestCost = 1e8; // TODO: find better way than using BIG number
+    // float evBattery = Inst.getEvBattery();
+    float evCapacity = Inst.getEvCap();
+    std::vector<std::pair<int, float>> rechargesInRoute;
+    std::vector<float> evBattery;
+
+    float routeDemand = getRouteDemand(route, Inst); // O(n) // TODO: get route demand inside another for loop; (maybe not, because 30 + 30 = 30*2).
+    if(Inst.getDemand(nodeIndex) + routeDemand > evCapacity){
+        return false;
+    }
+
+    float auxCurrentBat = Inst.getEvBattery();
+    for(int i = 1; i < route.size()-1; i++){
+        int node = route.at(i);
+        auxCurrentBat -= Inst.getDistance(i - 1, i);
+        if(auxCurrentBat < 0){
+            exit(-1);
+        }
+        evBattery.push_back(auxCurrentBat); // the vehicle arrives at the recharging station with this much battery
+        auxCurrentBat = Inst.getEvBattery();
+    }
+    for(int i = 1; i < route.size()-1; i++){
+        int node = route.at(i);
+        insertionCost = Inst.getDistance(route[i], node) + Inst.getDistance(route[i -1], node) - Inst.getDistance(route[i], route[i - 1]);
+        if(insertionCost >= evBattery.at(i)){
+            continue;
+        }
+        if(insertionCost < bestCost){
+            bestCost = insertionCost;
+            bestNode = i;
+        }
+    }
+    place = bestNode;
+    evCost = bestCost;
+    if(bestNode == -1){
+        return false;
+    }
+    return true;
 }
 
