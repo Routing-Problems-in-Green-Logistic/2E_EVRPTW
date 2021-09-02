@@ -12,6 +12,8 @@ Instance::Instance(std::vector<std::vector<double>> &distMat, float truckCap, fl
     this->nRS = nRS;
     this->nClients = nClients;
     this->nSats = nSats;
+    this->evCost = 0;
+    this->truckCost = 0;
 }
 
 // Getters and Setters
@@ -48,6 +50,14 @@ float Instance::getDistance(int n1, int n2) const {
     return dist;
 }
 
+float Instance::getEvCost() const {
+    return evCost;
+}
+
+float Instance::getTruckCost() const {
+    return truckCost;
+}
+
 int Instance::getFirstClientIndex() const {
     return (int)this->demands.size() - this->getNClients() - this->getNrs(); // the last nodes are clients;
 
@@ -65,7 +75,7 @@ std::pair<float,float> Instance::getCoordinate(int node) const {
 }
 
 bool Instance::isClient(int node) const {
-    return node >= this->getFirstClientIndex() && node < this->getFirstClientIndex() + this->getNClients();
+    return node >= this->getFirstClientIndex() && node < (this->getFirstClientIndex() + this->getNClients());
 }
 
 bool Instance::isRechargingStation(int node) const {
