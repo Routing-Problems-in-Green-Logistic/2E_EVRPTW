@@ -17,6 +17,7 @@ public:
     float getCost() const;
 
     const std::vector<std::vector<int>>& getRoutes();
+    std::vector<std::vector<int>>& acessRoutes();
 };
 
 #endif //INC_2E_EVRP_SOLUTION_H

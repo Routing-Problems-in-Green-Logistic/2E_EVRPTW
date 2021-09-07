@@ -26,3 +26,7 @@ const std::vector<std::vector<int>>& Solution::getRoutes() {
 float Solution::getCost() const {
     return cost;
 }
+
+std::vector<std::vector<int>> &Solution::acessRoutes() {
+    return this->routes;
+}
