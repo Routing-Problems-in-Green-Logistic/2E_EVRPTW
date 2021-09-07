@@ -11,13 +11,16 @@ namespace lsh {
     /** swaps routeI[i] and routeJ[j].
      *
      */
-    void swapMove(std::vector<int>& routeI, std::vector<int>& routeJ, int i, int j);
+    bool swapMove(std::vector<int>& routeI, std::vector<int>& routeJ, int i, int j, const Instance& Inst, float& discount);
+    bool swap(Solution& Sol, const Instance& Inst);
+
     /** moves loserRoute[i] to winnerRoute[j].
      *
      */
-    void shiftMove(std::vector<int>& loserRoute, std::vector<int>& winnerRoute, int i, int j);
+    bool shiftMove(std::vector<int>& loserRoute, std::vector<int>& winnerRoute, int i, const Instance& Inst, float& discount);
     bool reinsertMove(std::vector<int> &route, int position, const Instance& Inst);
     bool reinsertion(Solution& Sol, const Instance& Inst);
+    bool shift(Solution& Sol, const Instance& Inst);
 
 
 }

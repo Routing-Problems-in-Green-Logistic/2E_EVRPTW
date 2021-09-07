@@ -121,6 +121,11 @@ int main(int argc, char* argv[]){
     //ls::intra2opt(cpyRoutes, *Inst, costs);
     Solution cpySol = *Sol; // hoping the copy operator will do the job just fine
     lsh::reinsertion(cpySol, *Inst);
+    isFeasible = isFeasibleSolution(cpySol,*Inst);
+    lsh::shift(cpySol, *Inst);
+    isFeasible = isFeasibleSolution(cpySol,*Inst);
+    lsh::swap(cpySol, *Inst);
+    isFeasible = isFeasibleSolution(cpySol,*Inst);
     solutionToCsv(*Sol, *Inst);
     delete Inst;
     //}
