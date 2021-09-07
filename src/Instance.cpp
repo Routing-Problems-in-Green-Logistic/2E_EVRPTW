@@ -12,7 +12,7 @@ Instance::Instance(std::vector<std::vector<double>> &distMat, float truckCap, fl
     this->nRS = nRS;
     this->nClients = nClients;
     this->nSats = nSats;
-    this->evCost = 0;
+    this->evCost = 200;
     this->truckCost = 0;
 }
 

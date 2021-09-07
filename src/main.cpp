@@ -1,6 +1,8 @@
 #include <iostream>
 #include "Instance.h"
 #include "algorithm.h"
+#include "localsearches.h"
+#include "localSearch.h"
 #include <fstream>
 #include <sstream>
 #include <math.h>
@@ -82,16 +84,17 @@ void solutionToCsv(Solution& Sol, Instance& Inst){
             truckRoute = true;
         }
         std::ofstream file("route" + std::string(truckRoute? "T":"E") + std::to_string(i) + ".csv"); // if truck route: routeT2.csv, else routeE4.csv
-        file << "x,y,node,type"<< std::endl;
+        file << "x,y,node,type,demand"<< std::endl;
         for(int j = 0; j < route.size(); j++){
             int node = route.at(j);
             std::string type;
             if(Inst.isClient(node)) { type = "client"; }
-            else if(Inst.isRechargingStation(node)) { type = "rs"; }
+            else if(Inst.isRechargingStation(node)) {
+                type = "rs"; }
             else if(Inst.isSatelite(node)) { type = "sat"; }
             else if(Inst.isDepot(node)) { type = "depot"; }
             else{ return; }
-            file << Inst.getCoordinate(node).first << "," << Inst.getCoordinate(node).second << "," << node << "," << type << std::endl;
+            file << Inst.getCoordinate(node).first << "," << Inst.getCoordinate(node).second << "," << node << "," << type << "," << Inst.getDemand(node)<< std::endl;
         }
         file.close();
     }
@@ -105,10 +108,21 @@ int main(int argc, char* argv[]){
         // char* debug = argv[1];
 
     Instance* Inst = getInstanceFromFile(argv[1]);
-    Solution* Sol = construtivo(*Inst); // TODO: see if passing the Inst like this uses the copy operator or not
+    Solution *Sol;
+    std::vector<std::vector<int>> ser;
+    Sol = construtivo(*Inst, ser); // TODO: see if passing the Inst like this uses the copy operator or not
     bool isFeasible = isFeasibleSolution(*Sol,*Inst);
+    cout << "feasible: " << isFeasible << endl;
+    cout << "Cost:" << (double)Sol->getCost() << endl;
+    cout << "teste";
+
+    std::vector<std::pair<float,float>> costs;
+    auto cpyRoutes = Sol->getRoutes();
+    //ls::intra2opt(cpyRoutes, *Inst, costs);
+    Solution cpySol = *Sol; // hoping the copy operator will do the job just fine
+    lsh::reinsertion(cpySol, *Inst);
     solutionToCsv(*Sol, *Inst);
-        delete Inst;
+    delete Inst;
     //}
 
 }
