@@ -496,3 +496,19 @@ bool getSafeInsertionIn(const std::vector<int>& route, int nodeIndex, const Inst
     }
     return true;
 }
+
+float getSolCost(const Solution &Sol, const Instance &Inst) {
+    const std::vector<std::vector<int>>& routes = Sol.getRoutes();
+    float cost = 0;
+    for(const auto& route : routes){
+        if(Inst.isSatelite(route.at(0))){
+            cost += Inst.getEvCost();
+        } else{
+            cost += Inst.getTruckCost();
+        }
+        for(int i = 1; i < route.size(); i++){
+            cost += Inst.getDistance(route.at(i-1), route.at(i));
+        }
+    }
+    return cost;
+}

@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Instance.h"
 #include "algorithm.h"
-#include "localsearches.h"
+#include "vns.h"
 #include "localSearch.h"
 #include <fstream>
 #include <sstream>
@@ -107,6 +107,8 @@ int main(int argc, char* argv[]){
         // Instance* Inst = getInstanceFromFile(argv[i]);
         // char* debug = argv[1];
 
+
+    float solCost, localSearchCost;
     Instance* Inst = getInstanceFromFile(argv[1]);
     Solution *Sol;
     std::vector<std::vector<int>> ser;
@@ -120,11 +122,19 @@ int main(int argc, char* argv[]){
     auto cpyRoutes = Sol->getRoutes();
     //ls::intra2opt(cpyRoutes, *Inst, costs);
     Solution cpySol = *Sol; // hoping the copy operator will do the job just fine
+
+    float autoSolCost = getSolCost(cpySol, *Inst);
+    solCost = getSolCost(cpySol, *Inst);
+    vns::rvnd(cpySol, *Inst);
+    localSearchCost = getSolCost(cpySol, *Inst);
+    isFeasible = isFeasibleSolution(cpySol,*Inst);
     lsh::reinsertion(cpySol, *Inst);
     isFeasible = isFeasibleSolution(cpySol,*Inst);
     lsh::shift(cpySol, *Inst);
     isFeasible = isFeasibleSolution(cpySol,*Inst);
     lsh::swap(cpySol, *Inst);
+    isFeasible = isFeasibleSolution(cpySol,*Inst);
+    lsh::twoOpt(cpySol, *Inst);
     isFeasible = isFeasibleSolution(cpySol,*Inst);
     solutionToCsv(*Sol, *Inst);
     delete Inst;

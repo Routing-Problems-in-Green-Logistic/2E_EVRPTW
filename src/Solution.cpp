@@ -19,7 +19,7 @@ int Solution::getNEvs() const {
     return nEvs;
 }
 
-const std::vector<std::vector<int>>& Solution::getRoutes() {
+const std::vector<std::vector<int>>& Solution::getRoutes() const{
     return routes;
 }
 

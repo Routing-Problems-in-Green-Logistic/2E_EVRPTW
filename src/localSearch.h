@@ -13,6 +13,8 @@ namespace lsh {
      */
     bool swapMove(std::vector<int>& routeI, std::vector<int>& routeJ, int i, int j, const Instance& Inst, float& discount);
     bool swap(Solution& Sol, const Instance& Inst);
+    bool twoOptMove(std::vector<int>& route, int i, int j, const Instance& Inst, float& discount);
+    bool twoOpt(Solution& Sol, const Instance& Inst);
 
     /** moves loserRoute[i] to winnerRoute[j].
      *
@@ -21,6 +23,7 @@ namespace lsh {
     bool reinsertMove(std::vector<int> &route, int position, const Instance& Inst);
     bool reinsertion(Solution& Sol, const Instance& Inst);
     bool shift(Solution& Sol, const Instance& Inst);
+    void swapVectorElements(std::vector<int>& v, int i, int j);
 
 
 }

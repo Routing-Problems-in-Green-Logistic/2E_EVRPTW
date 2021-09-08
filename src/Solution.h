@@ -16,7 +16,7 @@ public:
 
     float getCost() const;
 
-    const std::vector<std::vector<int>>& getRoutes();
+    const std::vector<std::vector<int>>& getRoutes() const;
     std::vector<std::vector<int>>& acessRoutes();
 };
 
