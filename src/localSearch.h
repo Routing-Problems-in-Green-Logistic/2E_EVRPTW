@@ -25,6 +25,8 @@ namespace lsh {
     bool shift(Solution& Sol, const Instance& Inst);
     void swapVectorElements(std::vector<int>& v, int i, int j);
 
+    bool swap22Moves();
+
 
 }
 #endif //INC_2E_EVRP_LOCALSEARCH_H

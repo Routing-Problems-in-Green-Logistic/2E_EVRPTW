@@ -12,5 +12,7 @@ namespace vns {
     void rvnd(Solution &Sol, const Instance &Inst);
 
     void gvns(Solution &Sol, const Instance &Inst);
+    bool randomSwap22(Solution& Sol, const Instance& Inst);
+    bool randomClientReinsertion(Solution& Sol, const Instance& Inst);
 }
 #endif //INC_2E_EVRP_VNS_H

@@ -28,6 +28,9 @@ bool isFeasibleSolution(Solution& Sol, const Instance& Inst){
         evCurrentCap = Inst.getEvCap();
         evCurrentBattery = Inst.getEvBattery();
         for(int c = 1; c < evRoute.size()-1; c++){ // for each client in route // whereas c=0 is the satelite;
+            if(Inst.isRechargingStation(c-1) && Inst.isRechargingStation(c)){
+                return false;
+            }
             if(evRoute.at(c) < Inst.getFirstRsIndex() && clientVisited.at(evRoute[c] - firstClient)){
                 return false;
             }
@@ -91,9 +94,7 @@ Solution* construtivo(const Instance& Inst, std::vector<std::vector<int>>& secon
     }
     //std::vector<std::vector<int>> allRoutes = firstRoutes;
     // allRoutes.insert(allRoutes.end(), secondRoutes.begin(), secondRoutes.end()); // concat first and second routes arrays.
-    std::cout << "teste0";
-    // secondRoutes.clear();
-    std::cout << "teste";
+        // secondRoutes.clear();
     //auto* Sol = new Solution(allRoutes, (int)firstRoutes.size(), (int)secondRoutes.size(), totalCost);
     auto* Sol = new Solution(allRoutes, nFirstRoutes, nSecondRoutes, totalCost);
     return Sol;
@@ -143,18 +144,62 @@ std::vector<std::vector<int>>& secondEchelonRoutes(const Instance& Inst, std::ve
                 }
                 else if (canSafeInsert && rs != -1) {
                     reservedList.insert(item);
-                } else {
-                    continue;
-
                 }
                     // TODO: create a separated function to do this (finding the best recharging station to go before going to the client.
                 //}
             }
         }
+        bool inserted;
         if(reservedList.empty()){
-            return routes;
+            for(auto& client : unvisitedClients) {
+                for (auto &route: routes) {
+                    if (route.size() == 2) {
+                        for (int rs = Inst.getFirstRsIndex(); rs < Inst.getFirstRsIndex() + Inst.getNrs(); rs++) {
+                            if(insertInNewRoute(route, client, Inst, -1, rs)){
+                                unvisitedClients.erase(client);
+                                inserted = true;
+                                int routeSat = route.at(0);
+                                routes.push_back(std::vector<int>{routeSat, routeSat});
+                                evBatteries.push_back(Inst.getEvBattery());
+                                evCaps.push_back(Inst.getEvCap());
+                                totalCost += Inst.getEvCost();
+                                break;
+                            }
+                            for(int rs2 = Inst.getFirstRsIndex(); rs2 < Inst.getFirstRsIndex() + Inst.getNrs(); rs2++){
+                                if(insertInNewRoute(route, client, Inst, rs, rs2)){
+                                    unvisitedClients.erase(client);
+                                    inserted = true;
+                                    int routeSat = route.at(0);
+                                    routes.push_back(std::vector<int>{routeSat, routeSat});
+                                    evBatteries.push_back(Inst.getEvBattery());
+                                    evCaps.push_back(Inst.getEvCap());
+                                    totalCost += Inst.getEvCost();
+                                    break;
+                                }
+
+                            }
+                            if(inserted){
+                                break;
+                            }
+                        }
+                        if(inserted){
+                            break;
+                        }
+                    }
+                }
+                if(inserted){
+                    break;
+                }
+            }
+            if(!inserted){
+                return routes;
+            }
+            continue;
         }
-        auto topItem = reservedList.begin();
+        // float alpha = 0.01;
+        int randIndex = rand()%((int)(0.3*(int)reservedList.size() + 1));
+        auto topItem = std::next(reservedList.begin(), randIndex); // gets the randomIndex element in the set //O(n)
+        // auto topItem = reservedList.begin();
         auto& route = routes.at(topItem->routeIndex);
         insertInRoute(topItem->node, route, topItem->insertionPosition);
         totalCost += topItem->solutionCost;
@@ -167,7 +212,7 @@ std::vector<std::vector<int>>& secondEchelonRoutes(const Instance& Inst, std::ve
         evCaps.at(topItem->routeIndex) -= topItem->capacityCost;
         evBatteries.at(topItem->routeIndex) -= topItem->batteryCost;
         // if route was a empty route, create another empty route to replace it;
-        if(route.size() == 3){
+        if(route.size() == 3 || (route.size() == 4 && Inst.isRechargingStation(route.at(1)))){
             int routeSat = route.at(0);
             routes.push_back(std::vector<int>{routeSat, routeSat});
             evBatteries.push_back(Inst.getEvBattery());
@@ -412,7 +457,6 @@ bool getSafeInsertionIn(const std::vector<int>& route, int nodeIndex, const Inst
     item.insertionPosition = -1;
     item.rs = -1;
 
-    // finalPlace = -1; // "AAAAAAAAAAAAAAAAAAAAAAAAAAAA" ~ Me
     for(int i = 1; i < route.size(); i++){
         routeDemand += Inst.getDistance(route.at(i - 1), route.at(i));
     }
@@ -511,4 +555,110 @@ float getSolCost(const Solution &Sol, const Instance &Inst) {
         }
     }
     return cost;
+}
+bool getExpensiveSafeInsertionIn(const std::vector<int>& route, int nodeIndex, const Instance& Inst, Item& item){
+    float routeDemand = 0, evCapacity;
+    evCapacity = Inst.getEvCap();
+    std::vector<float> avaliableBattery(route.size());
+    std::vector<std::pair<int, float>> recharges; // {recharge_station_index, battery before recharge}
+    item.insertionPosition = -1;
+    item.rs = -1;
+
+    for(int i = 1; i < route.size(); i++){
+        routeDemand += Inst.getDistance(route.at(i - 1), route.at(i));
+    }
+    // checks if no capacity
+    if(Inst.getDemand(nodeIndex) + routeDemand > evCapacity){
+        return false;
+    }
+    float avBattery = Inst.getEvBattery();
+    for(int i = 1; i < route.size(); i++){
+        int node = route.at(i);
+        int prevNode = route.at(i-1);
+        float dist = Inst.getDistance(prevNode, node);;;
+        avBattery -= dist;
+        if(Inst.isRechargingStation(route.at(i)) || Inst.isSatelite(route.at(i))){
+            recharges.emplace_back(i, avBattery);
+            avBattery = Inst.getEvBattery();
+        }
+    }
+    //const auto& nextStation = recharges.at(0);
+    int nextStation = 0;
+    for(int i = 0; i < route.size(); i++){
+        int node = route.at(i);
+        avaliableBattery.at(i) = recharges.at(nextStation).second;
+        if(Inst.isRechargingStation(node) || (Inst.isSatelite(node) && i != 0)){
+            nextStation++;
+        }
+    }
+
+    float insertionCost, bestCost;
+    int bestRs = -1;// errrrrrr
+    float bestBatteryCost, batteryCost;
+    bestCost = 1e8;
+    for(int i = 1; i < route.size(); i++){
+        int nextNode = route.at(i);
+        int prevNode = route.at(i-1);
+        insertionCost = Inst.getDistance(prevNode, nodeIndex) + Inst.getDistance(nodeIndex, nextNode) - Inst.getDistance(prevNode, nextNode);
+        batteryCost = insertionCost;
+
+        if(batteryCost > avaliableBattery.at(i)){ // se n acaba a bateria
+            float bestRsCost = 1e8; // the solution cost;
+            // checks for each Recharging station if by visiting it first than the client, can the EV complete the tour w/out emptying its battery
+            for(int r = Inst.getFirstRsIndex(); r < Inst.getFirstRsIndex() + Inst.getNrs(); r++){
+                float toRsCost = Inst.getDistance(prevNode, r);
+                float clientVisitCost = Inst.getDistance(r, nodeIndex) + Inst.getDistance(nodeIndex, nextNode);
+                float rsCost = toRsCost + clientVisitCost;
+                // prevNode -> RS -> node -> nextNode
+
+                if(toRsCost > avaliableBattery.at(i) || clientVisitCost > Inst.getEvBattery()){
+                    continue;
+                }
+                if(rsCost < bestRsCost){
+                    bestRsCost = rsCost;
+                    batteryCost = clientVisitCost;
+                    insertionCost = rsCost;
+                    bestRs = r;
+                }
+            }
+        }
+        else{
+            bestRs = -1;
+            item.rs = -1;
+        }
+        if(insertionCost < bestCost && batteryCost <= avaliableBattery.at(i)){
+            bestCost = insertionCost;
+            // item.routeIndex = -1;
+            item.insertionPosition = i;
+            item.node = nodeIndex;
+            item.solutionCost = bestCost;
+            item.rs = bestRs;
+            //item.batteryCost = bestBatteryCost;
+            item.batteryCost = batteryCost;
+            item.capacityCost =  Inst.getDemand(nodeIndex);
+            // finalRs = bestRs;
+            // finalPlace = i;
+            // finalEvCost = batteryCost;
+            // finalSolCost = bestCost;
+        }
+    }
+    if(item.insertionPosition == -1){
+        return false;
+    }
+    return true;
+}
+bool insertInNewRoute(std::vector<int>& route, int nodeIndex, const Instance& Inst, int rs1, int rs2){
+    int sat = route.at(0);
+    insertInRoute(nodeIndex, route, 1);
+    if(rs1 != -1){
+        insertInRoute(rs1, route, 1);
+    }
+    if(rs2 != -1){
+        insertInRoute(rs2, route, route.size()-1);
+    }
+    if(isFeasibleRoute(route, Inst)){
+        return true;
+    }
+    route = {sat, sat};
+    return false;
 }

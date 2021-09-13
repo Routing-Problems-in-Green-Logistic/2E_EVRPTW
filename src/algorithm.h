@@ -61,5 +61,6 @@ bool getSafeInsertionIn(const std::vector<int>& route, int nodeIndex, const Inst
 
 bool isFeasibleRoute(const std::vector<int>& route, const Instance& Inst);
 float getSolCost(const Solution& Sol, const Instance& Inst);
+bool insertInNewRoute(std::vector<int>& route, int nodeIndex, const Instance& Inst, int rs1, int rs2);
 
 #endif
