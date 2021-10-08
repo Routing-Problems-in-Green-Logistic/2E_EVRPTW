@@ -124,27 +124,29 @@ int main(int argc, char* argv[]){
     routine(argv, argc);
     return 0;
     /*
-    Instance* getInstanceFromFile(std::string fileName);
-    std::cout << argc;
-    // for(int i = 1; i < argc; i++){
-        // cout << argv[i] << endl;
-        // Instance* Inst = getInstanceFromFile(argv[i]);
-        // char* debug = argv[1];
-
-
+    for(int i = 1; i < argc; i++) {
+        cout << argv[i] << endl;
+        Instance *Inst = getInstanceFromFile(argv[i]);
+        if(Inst == nullptr){ return -1; }
+        float solCost, localSearchCost;
+        //Instance* Inst = getInstanceFromFile(argv[1]);
+        Solution *Sol;
+        std::vector<std::vector<int>> ser;
+        Sol = construtivo(*Inst, ser); // TODO: see if passing the Inst like this uses the copy operator or not
+        bool isFeasible = isFeasibleSolution(*Sol, *Inst);
+        cout << "feasible: " << isFeasible << endl;
+        cout << "Cost:" << (double) Sol->getCost() << endl;
+        cout << "teste";
+        delete Inst;
+    }
+    */
     float solCost, localSearchCost;
     Instance* Inst = getInstanceFromFile(argv[1]);
     Solution *Sol;
     std::vector<std::vector<int>> ser;
     Sol = construtivo(*Inst, ser); // TODO: see if passing the Inst like this uses the copy operator or not
-    bool isFeasible = isFeasibleSolution(*Sol,*Inst);
-    cout << "feasible: " << isFeasible << endl;
-    cout << "Cost:" << (double)Sol->getCost() << endl;
-    cout << "teste";
-
+    bool isFeasible = isFeasibleSolution(*Sol, *Inst);
     std::vector<std::pair<float,float>> costs;
-    auto cpyRoutes = Sol->getRoutes();
-    //ls::intra2opt(cpyRoutes, *Inst, costs);
     Solution cpySol = *Sol; // hoping the copy operator will do the job just fine
     solutionToCsv(cpySol, *Inst);
 
@@ -156,20 +158,6 @@ int main(int argc, char* argv[]){
     getchar();
     solutionToCsv(cpySol, *Inst);
     return -11;
-
-    isFeasible = isFeasibleSolution(cpySol,*Inst);
-    lsh::reinsertion(cpySol, *Inst);
-    isFeasible = isFeasibleSolution(cpySol,*Inst);
-    lsh::shift(cpySol, *Inst);
-    isFeasible = isFeasibleSolution(cpySol,*Inst);
-    lsh::swap(cpySol, *Inst);
-    isFeasible = isFeasibleSolution(cpySol,*Inst);
-    lsh::twoOpt(cpySol, *Inst);
-    isFeasible = isFeasibleSolution(cpySol,*Inst);
-    solutionToCsv(*Sol, *Inst);
-    delete Inst;
-    //}
-     */
 }
 void routine(char** filenames, int nFileNames){
     Instance* getInstanceFromFile(std::string fileName);
@@ -184,10 +172,10 @@ void routine(char** filenames, int nFileNames){
         float bestConstrCost = 1e8;
         Solution bestSol;
         bool hasSolution = false;
-        for(int c = 0; c < 10; c++) {
+        for(int c = 0; c < 50; c++) {
             Sol = construtivo(*Inst, ser); // TODO: see if passing the Inst like this uses the copy operator or not
-            //bool isFeasible = isFeasibleSolution(*Sol, *Inst);
-            bool isFeasible = true;
+            bool isFeasible = isFeasibleSolution(*Sol, *Inst);
+            //bool isFeasible = true;
             float ccost = -1;
             if(isFeasible) {
                 ccost = getSolCost(*Sol, *Inst);
@@ -202,26 +190,28 @@ void routine(char** filenames, int nFileNames){
         }
         cout << "greedy cost: " << bestConstrCost << endl;
         cout << "feasibility: " << hasSolution << endl;
+        bool foundFeasibleGVNSSolution = false;
         if(hasSolution){
             for(int j = 0; j < 10; j++){
-                // cout << "------" << j << "-----" << endl;
                 Solution cpySol = bestSol;
                 vns::gvns(cpySol, *Inst);
                 float localSearchCost = getSolCost(cpySol, *Inst);
-                // cout << "gvns Cost(" << j << "): " << localSearchCost << endl;
-                media += localSearchCost;
-                if(localSearchCost < best){
-                    //if(isFeasibleSolution(cpySol, *Inst)){
-                        //cout << "not feasible!"<< endl;
-                        //continue;
-                    //}
-                    best = localSearchCost;
+                cout << "gvns Cost(" << j << "): " << localSearchCost << endl;
+                if(!isFeasibleSolution(cpySol, *Inst)) {
+                    cout << "not feasible!" << endl;
+                    continue;
                 }
+                if(localSearchCost < best) {
+                    best = localSearchCost;
+                    foundFeasibleGVNSSolution = true;
+                }
+                media += localSearchCost;
             }
         }
         media /= 10;
         cout << "best: " << best << endl;
         cout << "mean: " << media << endl;
+        cout << "feasible GVNS Sol:" <<  foundFeasibleGVNSSolution << endl;
     }
         cout << endl;
 }

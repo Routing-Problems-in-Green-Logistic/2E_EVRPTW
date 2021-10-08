@@ -71,6 +71,7 @@ void vns::gvns(Solution &Sol, const Instance &Inst) {
     bool hasImproved;
     bool hasMoved;
     int n = 0;
+    std::cout << "rvnd: ";
     for(int it = 0; it < MAX_ITER; it++){
         shuffleVector(neighbourhoods);
         hasImproved = false;
@@ -79,8 +80,10 @@ void vns::gvns(Solution &Sol, const Instance &Inst) {
         Solution cpySol = Sol;
         switch (nh) {
             case 0:
-                //hasMoved = vns::randomSwap22(cpySol, Inst);
+                hasMoved = vns::randomSwap22(cpySol, Inst);
+                //hasMoved = true;
                 break;
+                /*
             case 1:
                 //hasMoved = vns::randomClientReinsertion(cpySol, Inst);
                 //hasMoved = vns::randomSwap22(cpySol, Inst);
@@ -94,6 +97,7 @@ void vns::gvns(Solution &Sol, const Instance &Inst) {
                 //hasMoved = false;
                 it++;
                 break;
+                */
         }
         if(!hasMoved){
             continue;
@@ -103,6 +107,7 @@ void vns::gvns(Solution &Sol, const Instance &Inst) {
         float newSolCost = getSolCost(cpySol, Inst);
         if(newSolCost < solCost){
             hasImproved = true;
+            std::cout << newSolCost << ", ";
             Sol = cpySol; // copy
         }
         else{
@@ -126,14 +131,22 @@ void vns::gvns(Solution &Sol, const Instance &Inst) {
     }
     auto first = solRoutes.begin() + Sol.getNTrucks();
     auto last = solRoutes.end();
-    /*
+
     std::vector<std::vector<int>> secEchelonRoutes(first, last);
     std::vector<std::vector<int>> routes;
     float totalCost=0;
     firstEchelonRoutes(secEchelonRoutes, Inst, routes, totalCost);
-    Sol.acessRoutes() = routes;
+    Sol.acessRoutes().clear();
+
+    for(auto& route : routes){
+        if(route.size() > 2){
+            Sol.acessRoutes().push_back(route);
+        }
+    }
+    //Sol.acessRoutes() = routes;
     Sol.acessRoutes().insert(Sol.acessRoutes().end(), secEchelonRoutes.begin(), secEchelonRoutes.end());
-     */
+    std::cout << std::endl;
+    //removeEmptyRoutes(Sol.acessRoutes());
 
 }
 bool swap22Move(std::vector<int> &routeI, std::vector<int> &routeJ, int i, int j, const Instance& Inst, float& discount) {

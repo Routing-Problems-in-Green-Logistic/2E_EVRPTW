@@ -1,6 +1,7 @@
 #include "algorithm.h"
 #include <set>
 #include <map>
+#include <numeric>
 
 bool isFeasibleSolution(Solution& Sol, const Instance& Inst){
     float trucksCurrentCap;
@@ -149,7 +150,7 @@ std::vector<std::vector<int>>& secondEchelonRoutes(const Instance& Inst, std::ve
                 //}
             }
         }
-        bool inserted;
+        bool inserted = false;
         if(reservedList.empty()){
             for(auto& client : unvisitedClients) {
                 for (auto &route: routes) {
@@ -458,7 +459,8 @@ bool getSafeInsertionIn(const std::vector<int>& route, int nodeIndex, const Inst
     item.rs = -1;
 
     for(int i = 1; i < route.size(); i++){
-        routeDemand += Inst.getDistance(route.at(i - 1), route.at(i));
+        //routeDemand += Inst.getDistance(route.at(i - 1), route.at(i));
+        routeDemand += Inst.getDemand(route.at(i));
     }
     // checks if no capacity
     if(Inst.getDemand(nodeIndex) + routeDemand > evCapacity){
@@ -661,4 +663,8 @@ bool insertInNewRoute(std::vector<int>& route, int nodeIndex, const Instance& In
     }
     route = {sat, sat};
     return false;
+}
+
+void removeEmptyRoutes(std::vector<std::vector<int>> &routes) {
+    std::erase_if(routes, [](std::vector<int>& route){ return route.size() <= 2;});
 }

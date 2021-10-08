@@ -125,7 +125,9 @@ bool lsh::shiftMove(std::vector<int> &loserRoute, std::vector<int> &winnerRoute,
     beforeCost = loserCost + winnerCost;
     Item insertion;
     bool canInsert = getSafeInsertionIn(winnerRoute, loserRoute.at(i), Inst, insertion);
-    if(!canInsert){ return false; }
+    if(!canInsert){
+        return false;
+    }
     loserCostAfter = loserCost + Inst.getDistance(loserRoute.at(i-1), loserRoute.at(i+1)) - Inst.getDistance(loserRoute.at(i), loserRoute.at(i-1)) -Inst.getDistance(loserRoute.at(i), loserRoute.at(i+1));
     winnerCostAfter = winnerCost + insertion.solutionCost;
     afterCost = loserCostAfter + winnerCostAfter;
@@ -150,18 +152,26 @@ bool lsh::shift(Solution &Sol, const Instance &Inst) {
     // std::vector<float> bestDiscounts(routes.size(), 0);
     //int bestRouteIndex = -1;
 
-    for(int r = Sol.getNTrucks(); r < routes.size(); r++){
-        for(int s = Sol.getNTrucks(); s < routes.size(); s++) {
-            if (r == s) { continue; }
-            std::vector<int> &loserRoute = routes.at(r);
-            std::vector<int> &winnerRoute = routes.at(s);
-            bool improving = true;
+    bool improving = true;
+    float currentDiscount, bestDiscount = 0;
+    std::vector<int> bestWinnerRoute, bestLoserRoute;
+    std::vector<int>* loserRoute = &routes.at(0);
+    std::vector<int>* winnerRoute = &routes.at(0);
+    int loserPosition = -1;
+    int winnerPosition = -1;
+    while (improving) {
+        improving = false;
+        bestDiscount = 0;
+        for (int r = Sol.getNTrucks(); r < routes.size(); r++) {
+            for (int s = Sol.getNTrucks(); s < routes.size(); s++) {
+                if (r == s) { continue; }
+                loserRoute = &routes.at(r);
+                winnerRoute = &routes.at(s);
 
-            float currentDiscount, bestDiscount;
-            std::vector<int> bestWinnerRoute, bestLoserRoute;
-            while (improving) {
-                improving = false;
-                for (int i = 1; i < loserRoute.size() - 1; i++) {
+                for (int i = 1; i < loserRoute->size() - 1; i++) {
+                    if (Inst.isRechargingStation(loserRoute->at(i))) {
+                        continue;
+                    }
                     std::vector<int> cpyloserRoute = routes.at(r); //copy route;
                     std::vector<int> cpywinnerRoute = routes.at(s);
                     // float routeCost = getRouteCost(cpyRoute, Inst);
@@ -173,14 +183,21 @@ bool lsh::shift(Solution &Sol, const Instance &Inst) {
                         bestLoserRoute = cpyloserRoute;
                         bestWinnerRoute = cpywinnerRoute;
                         bestDiscount = currentDiscount;
+                        loserPosition = r;
+                        winnerPosition = s;
                         improving = true;
                     }
                 }
-                if (improving) {
-                    winnerRoute = bestWinnerRoute;
-                    loserRoute = bestLoserRoute;
-                    hasImproved = true;
-                }
+            }
+        }
+        if (improving) {
+            // *winnerRoute = bestWinnerRoute;
+            // *loserRoute = bestLoserRoute;
+            routes.at(winnerPosition) = bestWinnerRoute;
+            routes.at(loserPosition) = bestLoserRoute;
+            hasImproved = true;
+            if (routes.at(loserPosition).size() == 2) {
+                routes.erase(routes.begin() + loserPosition);
             }
         }
     }
