@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 20)
 cmake_minimum_required(VERSION 2.8)
 project(2E_EVRP)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
