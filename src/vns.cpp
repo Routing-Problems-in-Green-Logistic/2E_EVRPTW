@@ -8,7 +8,7 @@
 #include <random>
 
 
-#define MAX_ITER 200
+#define MAX_ITER 300
 /*
 void swapVectorElements(std::vector<int>& v, int i, int j){
     int aux;
@@ -45,7 +45,8 @@ void vns::rvnd(Solution &Sol, const Instance &Inst) {
                     hasImproved = lsh::swap(Sol, Inst);
                     break;
                 case 1:
-                    hasImproved = lsh::shift(Sol, Inst);
+                    //hasImproved = lsh::shift(Sol, Inst);
+                    hasImproved = lsh::shiftWithoutRecharge(Sol, Inst);
                     it++;
                     break;
                 case 2:
@@ -78,6 +79,9 @@ void vns::gvns(Solution &Sol, const Instance &Inst) {
         hasMoved = false;
         int nh = neighbourhoods.at(n);
         Solution cpySol = Sol;
+        //hasMoved = lsh::randomShifts(cpySol, Inst, 5);
+        hasMoved = true;
+        /*
         switch (nh) {
             case 0:
                 hasMoved = vns::randomSwap22(cpySol, Inst);
@@ -97,8 +101,8 @@ void vns::gvns(Solution &Sol, const Instance &Inst) {
                 //hasMoved = false;
                 it++;
                 break;
-                */
         }
+        */
         if(!hasMoved){
             continue;
         }
@@ -125,9 +129,9 @@ void vns::gvns(Solution &Sol, const Instance &Inst) {
     for(int i = 0; i < routesSize; i++){
         if(solRoutes.at(i).size() <= 2){
             solRoutes.erase(solRoutes.begin() + i);
-        }
         i--;
         routesSize--;
+        }
     }
     auto first = solRoutes.begin() + Sol.getNTrucks();
     auto last = solRoutes.end();

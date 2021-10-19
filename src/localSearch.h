@@ -23,7 +23,12 @@ namespace lsh {
     bool reinsertMove(std::vector<int> &route, int position, const Instance& Inst);
     bool reinsertion(Solution& Sol, const Instance& Inst);
     bool shift(Solution& Sol, const Instance& Inst);
+    bool shiftWithoutRecharge(Solution& Sol, const Instance& Inst);
+    bool shiftMoveWithoutRecharge(Solution &Sol, const Instance &Inst);
     void swapVectorElements(std::vector<int>& v, int i, int j);
+    void swapVectorElements(std::vector<std::pair<int,int>>& v, int i, int j);
+    bool randomShiftMove(std::vector<int>& loserRoute, std::vector<int>& winnerRoute, int i, const Instance& Inst, float& discount);
+    bool randomShifts(Solution& Sol, const Instance& Inst, int n); // n = how many shifts
 
     bool swap22Moves();
 

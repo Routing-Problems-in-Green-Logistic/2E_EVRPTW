@@ -63,5 +63,7 @@ bool isFeasibleRoute(const std::vector<int>& route, const Instance& Inst);
 float getSolCost(const Solution& Sol, const Instance& Inst);
 bool insertInNewRoute(std::vector<int>& route, int nodeIndex, const Instance& Inst, int rs1, int rs2);
 void removeEmptyRoutes(std::vector<std::vector<int>>& routes); // TODO: maybe (mayyybe) get a list of indexes as parameters and then check each element with index in the list;
+void removeFromRoute(std::vector<int>& route, int i);
+void printRoute(const std::vector<int>& route);
 
 #endif

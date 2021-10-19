@@ -4,6 +4,8 @@
 
 #include "localSearch.h"
 
+bool shiftMoveWithoutRecharge(Solution &Sol, const Instance &Inst);
+
 bool lsh::swapMove(std::vector<int> &routeI, std::vector<int> &routeJ, int i, int j, const Instance& Inst, float& discount) {
     std::vector<int> cpyRI = routeI;
     std::vector<int> cpyRJ = routeJ;
@@ -210,6 +212,11 @@ void lsh::swapVectorElements(std::vector<int>& v, int i, int j){
     v[i] = v[j];
     v[j] = aux;
 }
+void lsh::swapVectorElements(std::vector<std::pair<int,int>>& v, int i, int j){
+    auto aux = v[i];
+    v[i] = v[j];
+    v[j] = aux;
+}
 bool lsh::twoOptMove(std::vector<int> &route, int a, int b, const Instance &Inst, float &discount) {
 
     std::vector<int> cpyRoute = route;
@@ -266,4 +273,143 @@ bool lsh::twoOpt(Solution &Sol, const Instance &Inst) {
         }
     }
     return hasImproved;
+}
+
+bool lsh::shiftWithoutRecharge(Solution &Sol, const Instance &Inst) {
+    bool improving = true;
+    bool everImproved = false;
+    while(improving){
+        improving = false;
+        improving = lsh::shiftMoveWithoutRecharge(Sol, Inst);
+        if(!everImproved && improving){ everImproved = true; }
+    }
+    return everImproved;
+}
+
+bool lazyShiftMove(std::vector<int> &loserRoute, std::vector<int> &winnerRoute, int i, const Instance &Inst) {
+    float loserCost, winnerCost, beforeCost, loserCostAfter, winnerCostAfter, afterCost;
+    if(Inst.isRechargingStation(loserRoute.at(i))){ return false; }
+    loserCost = getRouteCost(loserRoute, Inst);
+    winnerCost = getRouteCost(loserRoute, Inst);
+    Item insertion;
+    bool canInsert = getSafeInsertionIn(winnerRoute, loserRoute.at(i), Inst, insertion);
+    if(!canInsert){
+        return false;
+    }
+    insertInRoute(loserRoute.at(i), winnerRoute, insertion.insertionPosition);
+    if(insertion.rs != -1) {
+        insertInRoute(insertion.rs, winnerRoute, insertion.insertionPosition); // inserts recharging station before the client;
+    }
+    loserRoute.erase(loserRoute.begin() + i);
+    return true;
+}
+bool lsh::randomShifts(Solution &Sol, const Instance &Inst, int n) {
+    auto& routes = Sol.acessRoutes();
+    // add empty routes in each satelite
+    for(int i = 0; i < Inst.getNSats(); i++){
+        routes.push_back({i+1, i+1});
+        routes.push_back({i+1, i+1});
+        routes.push_back({i+1, i+1});
+    }
+    std::vector<std::pair<int,int>> routePairs;
+    for(int i = Sol.getNTrucks(); i < routes.size(); i++){
+        for(int j = Sol.getNTrucks(); j < routes.size(); j++){
+            if(i == j){
+                continue;
+            }
+            routePairs.emplace_back(i,j);
+        }
+    }
+    int count = 0; // how many shifts
+    for(int i = 0; i < routePairs.size(); i++){
+        int randIndex = rand()%routePairs.size();
+        swapVectorElements(routePairs, i, randIndex);
+        std::pair<int,int>& routePair = routePairs.at(i);
+        std::vector<int>& loserRoute = routes.at(routePair.first);
+        std::vector<int>& winnerRoute = routes.at(routePair.second);
+
+        if(loserRoute.size() == 2){
+            continue;
+        }
+        int randClientIndex = 1 + rand()%(loserRoute.size()-2);
+        if(Inst.isRechargingStation(loserRoute.at(randClientIndex))){
+            continue;
+        }
+        float discount;
+        bool hasInserted = lazyShiftMove(loserRoute, winnerRoute, randClientIndex, Inst);
+        if(hasInserted){
+            count++;
+        }
+        if(count >= n){
+            //std::erase_if(Sol.acessRoutes(), [](const std::vector<int>& route){ return route.size() <= 2;});
+            int sizee = routes.size();
+            for(int i = 0; i < sizee; i++){
+                if(routes.at(i).size() <= 2){
+                    routes.erase(routes.begin() + i);
+                    i--;
+                    sizee--;
+                }
+            }
+            return true;
+        }
+    }
+    //std::erase_if(Sol.acessRoutes(), [](const std::vector<int>& route){ return route.size() <= 2;});
+    int sizee = routes.size();
+    for(int i = 0; i < sizee; i++){
+        if(routes.at(i).size() <= 2){
+            routes.erase(routes.begin() + i);
+            i--;
+            sizee--;
+        }
+    }
+    return false;
+}
+
+bool lsh::shiftMoveWithoutRecharge(Solution &Sol, const Instance &Inst) {
+    std::vector<std::vector<int>>& routes = Sol.acessRoutes();
+    float bestCost;
+    float currentCost;
+    for(int i = Sol.getNTrucks(); i < routes.size(); i++){
+        std::vector<int>& r1 = routes.at(i);
+        for(int j = Sol.getNTrucks(); j < routes.size(); j++) {
+            std::vector<int>& r2 = routes.at(j);
+            if(i != j && true){
+                for(int c = 1; c < r1.size() - 1; c++){
+                    // makes sure its shifting a client. Also checks if its not connecting 2 recharging stations (forbidden).
+                    if(!Inst.isRechargingStation(r1.at(c)) && !(Inst.isRechargingStation(r1.at(c-1)) && Inst.isRechargingStation(r1.at(c+1)))){
+                        for(int pos = 1; pos < r2.size() - 1; pos++){
+                            currentCost = Inst.getDistance(r1.at(c-1), r1.at(c+1))
+                                    - Inst.getDistance(r1.at(c-1), r1.at(c))
+                                    - Inst.getDistance(r1.at(c), r1.at(c+1))
+                                    + Inst.getDistance(r2.at(pos-1), r1.at(c))
+                                    + Inst.getDistance(r1.at(c), r2.at(pos))
+                                    - Inst.getDistance(r2.at(pos-1), r2.at(pos));
+                            if(currentCost < -0.0001){
+                                std::vector<int> r2copy = r2;
+                                insertInRoute(r1.at(c), r2copy, pos);
+                                if(isFeasibleRoute(r2copy, Inst)){
+                                    /*
+                                    std::cout << "r1: ";
+                                    printRoute(r1);
+                                    std::cout << "r2: ";
+                                    printRoute(r2);
+                                     */
+                                    insertInRoute(r1.at(c), r2, pos);
+                                    removeFromRoute(r1, c);
+                                    /*
+                                    std::cout << "new_r1: ";
+                                    printRoute(r1);
+                                    std::cout << "new_r2: ";
+                                    printRoute(r2);
+                                     */
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }

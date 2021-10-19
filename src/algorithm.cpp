@@ -2,6 +2,7 @@
 #include <set>
 #include <map>
 #include <numeric>
+#include <stdexcept>
 
 bool isFeasibleSolution(Solution& Sol, const Instance& Inst){
     float trucksCurrentCap;
@@ -666,5 +667,19 @@ bool insertInNewRoute(std::vector<int>& route, int nodeIndex, const Instance& In
 }
 
 void removeEmptyRoutes(std::vector<std::vector<int>> &routes) {
-    std::erase_if(routes, [](std::vector<int>& route){ return route.size() <= 2;});
+    std::erase_if(routes, [](const std::vector<int>& route){ return route.size() <= 2;});
+}
+void removeFromRoute(std::vector<int>& route, int i){
+    if(i >= route.size()){
+        throw std::out_of_range("out of range!");
+    }
+    route.erase(route.begin() + i);
+}
+
+void printRoute(const std::vector<int> &route) {
+    for(auto node : route) {
+        std::cout << node << ", ";
+    }
+    std::cout << std::endl;
+
 }

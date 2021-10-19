@@ -120,6 +120,7 @@ void solutionToCsv(Solution& Sol, Instance& Inst){
 }
 int main(int argc, char* argv[]){
     srand(time(NULL));
+    //srand(1);
     void routine(char** filenames, int nFileNames);
     routine(argv, argc);
     return 0;
