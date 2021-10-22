@@ -7,7 +7,19 @@
 #include <sstream>
 #include <math.h>
 #include <time.h>
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
+
 using namespace std;
+using namespace boost;
+using namespace numeric::ublas;
+
+void func()
+{
+    matrix<int> m(5,5);
+
+
+}
 
 float distance(std::pair<float, float> p1, std::pair<float,float> p2)
 {
