@@ -6,6 +6,7 @@
 #include "localSearch.h"
 #include "algorithm.h"
 #include <random>
+#include <stdexcept>
 
 
 #define MAX_ITER 300
@@ -66,6 +67,66 @@ void vns::rvnd(Solution &Sol, const Instance &Inst) {
         }
     }
 }
+void rvndIntra(Solution &Sol, const Instance &Inst) {
+    std::vector<int> neighbourhoods = getRandomNeighbourhoodList(4);
+    bool hasImproved;
+    for(int it = 0; it < MAX_ITER; it++) {
+        shuffleVector(neighbourhoods);
+        for(int nh : neighbourhoods) {
+            switch (nh) {
+                case 0:
+                    hasImproved = lsh::twoOpt(Sol, Inst);
+                    break;
+                case 1:
+                    //hasImproved = lsh::shift(Sol, Inst);
+                    hasImproved = lsh::shiftWithoutRecharge(Sol, Inst);
+                    it++;
+                    break;
+                case 2:
+                    hasImproved = lsh::twoOpt(Sol, Inst);
+                    it++;
+                    break;
+                case 3:
+                    hasImproved = lsh::reinsertion(Sol, Inst);
+                    it++;
+                    break;
+                default:
+                    break;
+            }
+            if(hasImproved) {
+                break;
+            }
+        }
+    }
+}
+void rvndInter(Solution &Sol, const Instance &Inst) {
+    std::vector<int> neighbourhoods = getRandomNeighbourhoodList(4);
+    bool hasImproved;
+    for(int it = 0; it < MAX_ITER; it++) {
+        shuffleVector(neighbourhoods);
+        for(int nh : neighbourhoods) {
+            switch (nh) {
+                case 0:
+                    hasImproved = lsh::swap(Sol, Inst);
+                    break;
+                case 1:
+                    //hasImproved = lsh::shift(Sol, Inst);
+                    hasImproved = lsh::shiftWithoutRecharge(Sol, Inst);
+                    it++;
+                    break;
+                case 2:
+                    hasImproved = lsh::cross(Sol, Inst);
+                    it++;
+                    break;
+                default:
+                    break;
+            }
+            if(hasImproved) {
+                break;
+            }
+        }
+    }
+}
 
 void vns::gvns(Solution &Sol, const Instance &Inst) {
     std::vector<int> neighbourhoods = getRandomNeighbourhoodList(3);
@@ -79,40 +140,18 @@ void vns::gvns(Solution &Sol, const Instance &Inst) {
         hasMoved = false;
         int nh = neighbourhoods.at(n);
         Solution cpySol = Sol;
-        //hasMoved = lsh::randomShifts(cpySol, Inst, 5);
-        hasMoved = true;
-        /*
-        switch (nh) {
-            case 0:
-                hasMoved = vns::randomSwap22(cpySol, Inst);
-                //hasMoved = true;
-                break;
-                /*
-            case 1:
-                //hasMoved = vns::randomClientReinsertion(cpySol, Inst);
-                //hasMoved = vns::randomSwap22(cpySol, Inst);
-                it++;
-                break;
-            case 2:
-                //hasMoved = vns::randomSwap22(cpySol, Inst);
-                it++;
-                break;
-            default:
-                //hasMoved = false;
-                it++;
-                break;
-        }
-        */
+        hasMoved = lsh::randomShifts(cpySol, Inst, 5);
         if(!hasMoved){
             continue;
         }
-        rvnd(cpySol, Inst);
+        rvndInter(cpySol, Inst);
         float solCost = getSolCost(Sol, Inst);
         float newSolCost = getSolCost(cpySol, Inst);
         if(newSolCost < solCost){
             hasImproved = true;
             std::cout << newSolCost << ", ";
             Sol = cpySol; // copy
+            rvndIntra(Sol, Inst);
         }
         else{
             hasImproved = false;
@@ -128,6 +167,9 @@ void vns::gvns(Solution &Sol, const Instance &Inst) {
     int routesSize = solRoutes.size();
     for(int i = 0; i < routesSize; i++){
         if(solRoutes.at(i).size() <= 2){
+            if(i >= solRoutes.size()){
+                throw std::out_of_range("OUT OF RANGE!");
+            }
             solRoutes.erase(solRoutes.begin() + i);
         i--;
         routesSize--;
@@ -151,6 +193,73 @@ void vns::gvns(Solution &Sol, const Instance &Inst) {
     Sol.acessRoutes().insert(Sol.acessRoutes().end(), secEchelonRoutes.begin(), secEchelonRoutes.end());
     std::cout << std::endl;
     //removeEmptyRoutes(Sol.acessRoutes());
+
+}
+void gvnsIntraInter(Solution &Sol, const Instance &Inst){
+    std::vector<int> neighbourhoods = getRandomNeighbourhoodList(3);
+    bool hasImproved;
+    bool hasMoved;
+    int n = 0;
+    std::cout << "rvnd: ";
+    for(int it = 0; it < MAX_ITER; it++){
+        shuffleVector(neighbourhoods);
+        hasImproved = false;
+        hasMoved = false;
+        int nh = neighbourhoods.at(n);
+        Solution cpySol = Sol;
+        hasMoved = lsh::randomShifts(cpySol, Inst, 5);
+        if(!hasMoved){
+            continue;
+        }
+        vns::rvnd(cpySol, Inst);
+        float solCost = getSolCost(Sol, Inst);
+        float newSolCost = getSolCost(cpySol, Inst);
+        if(newSolCost < solCost){
+            hasImproved = true;
+            std::cout << newSolCost << ", ";
+            Sol = cpySol; // copy
+        }
+        else{
+            hasImproved = false;
+        }
+        n++;
+        if(n >= neighbourhoods.size()){
+            n = 0;
+        } else if(hasImproved){
+            n = 0;
+        }
+    }
+    auto& solRoutes = Sol.acessRoutes();
+    int routesSize = solRoutes.size();
+    for(int i = 0; i < routesSize; i++){
+        if(solRoutes.at(i).size() <= 2){
+            if(i >= solRoutes.size()){
+                throw std::out_of_range("OUT OF RANGE!");
+            }
+            solRoutes.erase(solRoutes.begin() + i);
+            i--;
+            routesSize--;
+        }
+    }
+    auto first = solRoutes.begin() + Sol.getNTrucks();
+    auto last = solRoutes.end();
+
+    std::vector<std::vector<int>> secEchelonRoutes(first, last);
+    std::vector<std::vector<int>> routes;
+    float totalCost=0;
+    firstEchelonRoutes(secEchelonRoutes, Inst, routes, totalCost);
+    Sol.acessRoutes().clear();
+
+    for(auto& route : routes){
+        if(route.size() > 2){
+            Sol.acessRoutes().push_back(route);
+        }
+    }
+    //Sol.acessRoutes() = routes;
+    Sol.acessRoutes().insert(Sol.acessRoutes().end(), secEchelonRoutes.begin(), secEchelonRoutes.end());
+    std::cout << std::endl;
+    //removeEmptyRoutes(Sol.acessRoutes());
+
 
 }
 bool swap22Move(std::vector<int> &routeI, std::vector<int> &routeJ, int i, int j, const Instance& Inst, float& discount) {

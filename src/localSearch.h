@@ -29,9 +29,9 @@ namespace lsh {
     void swapVectorElements(std::vector<std::pair<int,int>>& v, int i, int j);
     bool randomShiftMove(std::vector<int>& loserRoute, std::vector<int>& winnerRoute, int i, const Instance& Inst, float& discount);
     bool randomShifts(Solution& Sol, const Instance& Inst, int n); // n = how many shifts
+    bool crossMove(Solution& Sol, const Instance& Inst);
+    bool cross(Solution &Sol, const Instance &Inst);
 
     bool swap22Moves();
-
-
 }
 #endif //INC_2E_EVRP_LOCALSEARCH_H

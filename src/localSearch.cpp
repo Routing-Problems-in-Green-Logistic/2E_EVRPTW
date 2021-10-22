@@ -4,7 +4,6 @@
 
 #include "localSearch.h"
 
-bool shiftMoveWithoutRecharge(Solution &Sol, const Instance &Inst);
 
 bool lsh::swapMove(std::vector<int> &routeI, std::vector<int> &routeJ, int i, int j, const Instance& Inst, float& discount) {
     std::vector<int> cpyRI = routeI;
@@ -413,3 +412,57 @@ bool lsh::shiftMoveWithoutRecharge(Solution &Sol, const Instance &Inst) {
     }
     return false;
 }
+
+bool lsh::cross(Solution &Sol, const Instance &Inst) {
+    bool improving = true;
+    bool everImproved = false;
+    while(improving){
+        improving = false;
+        improving = lsh::shiftMoveWithoutRecharge(Sol, Inst);
+        if(!everImproved && improving){ everImproved = true; }
+    }
+    return everImproved;
+}
+
+bool lsh::crossMove(Solution &Sol, const Instance &Inst) {
+    std::vector<std::vector<int>>& routes = Sol.acessRoutes();
+    float bestCost;
+    float currentCost;
+    for(int i = Sol.getNTrucks(); i < routes.size(); i++) {
+        std::vector<int> &r1 = routes.at(i);
+        for (int j = Sol.getNTrucks(); j < routes.size(); j++) {
+            std::vector<int> &r2 = routes.at(j);
+            if (i != j && true) {
+                for (int c = 1; c < r1.size() - 2; c++) {
+                    // makes sure its shifting a client. Also checks if its not connecting 2 recharging stations (forbidden).
+                    if (!Inst.isRechargingStation(r1.at(c)) &&
+                        !(Inst.isRechargingStation(r1.at(c - 1)) && Inst.isRechargingStation(r1.at(c + 1)))) {
+                        for (int pos = 1; pos < r2.size() - 2; pos++) {
+                            if (!Inst.isRechargingStation(r2.at(pos)) &&
+                                !(Inst.isRechargingStation(r2.at(pos - 1)) && Inst.isRechargingStation(r1.at(c + 1)))) {
+                                currentCost = -Inst.getDistance(r1.at(c), r1.at(c + 1))
+                                              - Inst.getDistance(r2.at(pos), r2.at(pos + 1))
+                                              + Inst.getDistance(r1.at(c), r2.at(pos + 1))
+                                              + Inst.getDistance(r2.at(pos), r1.at(c + 1));
+                                if (currentCost < 0) {
+                                    std::vector<int> r2copy = r2;
+                                    std::vector<int> r1copy = r1;
+                                    r2copy.at(pos) = r1.at(c);
+                                    r1copy.at(c) = r2.at(pos);
+                                    if (isFeasibleRoute(r2copy, Inst) && isFeasibleRoute(r1copy, Inst)) {
+                                        int aux = r2.at(pos);
+                                        insertInRoute(r1.at(c), r2, pos);
+                                        insertInRoute(aux, r1, c);
+                                        //removeFromRoute(r1, c);
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
