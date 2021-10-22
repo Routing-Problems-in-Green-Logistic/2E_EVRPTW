@@ -118,8 +118,16 @@ void solutionToCsv(Solution& Sol, Instance& Inst){
         file.close();
     }
 }
+
 int main(int argc, char* argv[]){
-    srand(time(NULL));
+
+    /*
+     * seed(time(NULL));
+     * rand_u32();
+     */
+    long seend = time(NULL);
+    cout<<"Semente: "<<seend<<'\n';
+    srand(seend);
     //srand(1);
     void routine(char** filenames, int nFileNames);
     routine(argv, argc);
@@ -169,22 +177,31 @@ void routine(char** filenames, int nFileNames){
         cout << "<< " << fileName << " >>" << endl;
         Instance* Inst = getInstanceFromFile(fileName);
         for(int j = 0; j < 10; j++){
-        Solution *Sol;
+        Solution *sol = nullptr;
         std::vector<std::vector<int>> ser;
         float bestConstrCost = 1e8;
-        Solution bestSol;
+        Solution *bestSol = nullptr;
         bool hasSolution = false;
+
         for(int c = 0; c < 50; c++) {
-            Sol = construtivo(*Inst, ser); // TODO: see if passing the Inst like this uses the copy operator or not
+            sol = construtivo(*Inst, ser); // TODO: see if passing the Inst like this uses the copy operator or not
             //bool isFeasible = isFeasibleSolution(*Sol, *Inst);
             //bool isFeasible = true;
             float ccost = -1;
             //if(isFeasible) {
-            ccost = getSolCost(*Sol, *Inst);
+            ccost = getSolCost(*sol, *Inst);
             if(ccost < bestConstrCost){
                 bestConstrCost = ccost;
-                bestSol = *Sol;
+                delete bestSol;
+                bestSol = sol;
                 hasSolution = true;
+                sol = nullptr;
+
+            }
+            else
+            {
+                delete sol;
+                sol = nullptr;
             }
             //}
             //cout << "Greedy Alg Cost: " << bestConstrCost << endl;
@@ -194,9 +211,8 @@ void routine(char** filenames, int nFileNames){
         //cout << "feasibility: " << hasSolution << endl;
         bool foundFeasibleGVNSSolution = false;
         if(hasSolution){
-                Solution cpySol = bestSol;
-                vns::gvns(cpySol, *Inst);
-                float localSearchCost = getSolCost(cpySol, *Inst);
+                vns::gvns(*bestSol, *Inst);
+                float localSearchCost = getSolCost(*bestSol, *Inst);
                 cout << "gvns Cost(" << j << "): " << localSearchCost << endl;
                 /*
                 if(!isFeasibleSolution(cpySol, *Inst)) {
@@ -210,11 +226,15 @@ void routine(char** filenames, int nFileNames){
                 }
                 media += localSearchCost;
             }
+
+            delete bestSol;
         }
         media /= 10;
         cout << "best: " << best << endl;
         cout << "mean: " << media << endl;
         //cout << "feasible GVNS Sol:" <<  foundFeasibleGVNSSolution << endl;
+
+        delete Inst;
     }
         cout << endl;
 }
