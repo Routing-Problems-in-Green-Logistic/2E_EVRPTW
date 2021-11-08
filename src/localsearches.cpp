@@ -17,7 +17,7 @@ void ls::intra2opt(std::vector<std::vector<int>> &routes, const Instance &Inst, 
             improvement = false;
             for (int j = 1; j < route.size()-1; j++) {
                 for (int k = j + 1; k < route.size()-1; k++) {
-                    // std::vector<int> cpyRoute = route;
+                    // std::vector<int> cpyRoute = vet_route;
                     intra2optMov(route, j, k);
                     currentCost = getRouteCost(route, Inst);
                     if (currentCost < bestRouteCost && isFeasibleRoute(route, Inst)) {
@@ -48,7 +48,7 @@ void ls::intraReverseRoute(std::vector<std::vector<int>> &routes, const Instance
         while(improvement) {
             for (int j = 1; j < route.size()-1; j++) {
                 for (int k = j + 1; k < route.size()-1; k++) {
-                    // std::vector<int> cpyRoute = route;
+                    // std::vector<int> cpyRoute = vet_route;
                     intraReverseRouteMov(route);
                     currentCost = getRouteCost(route, Inst);
                     if (currentCost < bestRouteCost) {
@@ -67,8 +67,8 @@ void ls::intraReverseRoute(std::vector<std::vector<int>> &routes, const Instance
 }
 
 void ls::interShift01(std::vector<std::vector<int>> &routes, const Instance &Inst) {
-    //bool shift01Mov(std::vector<int>& route, int node, const Instance& Inst, float& evCost, float& solCost, int& place, int& rs);
-//    bool shift01Mov(std::vector<int>& route, int node, const Instance& Inst);
+    //bool shift01Mov(std::vector<int>& vet_route, int node, const Instance& Inst, float& evCost, float& solCost, int& place, int& rs);
+//    bool shift01Mov(std::vector<int>& vet_route, int node, const Instance& Inst);
     for(int i = 0; i < routes.size(); i++){
         std::vector<int>& route = routes.at(i);
         float minDemand = getRouteDemand(route, Inst);
@@ -105,7 +105,7 @@ void interSwapMove(std::vector<int>& route1, std::vector<int> route2, int n1, in
     route2.at(n2) = aux;
 };
 
-void intra2optMov(std::vector<int>& route, int a, int b){ // TODO: currently (generally) the user will pass a copy route. so its O(n2)
+void intra2optMov(std::vector<int>& route, int a, int b){ // TODO: currently (generally) the user will pass a copy vet_route. so its O(n2)
     for(int i = 0; i < route.size(); i++){
         if(route.size() < 4){ return; }
         if(i >=a && i <= a + (b - a)/2){
@@ -124,7 +124,7 @@ void intraReverseRouteMov(std::vector<int> &route) {
 bool shift01Mov(std::vector<int>& route, int node, const Instance& Inst){
     // float evCost, solCost;
     // int place, rs;
-    //return getCheapestSafeInsertionIn(route, node, Inst, evCost, place, rs, solCost);
+    //return getCheapestSafeInsertionIn(vet_route, node, Inst, evCost, place, rs, solCost);
     float cost;
     int place;
     getCheapestInsertionTo(node, route, Inst, cost, place);

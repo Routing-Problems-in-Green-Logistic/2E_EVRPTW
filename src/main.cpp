@@ -114,7 +114,7 @@ void solutionToCsv(Solution& Sol, Instance& Inst){
             truckRoute = true;
         }
 
-        std::ofstream file("route" + std::string(truckRoute? "T":"E") + std::to_string(i) + ".csv"); // if truck route: routeT2.csv, else routeE4.csv
+        std::ofstream file("vet_route" + std::string(truckRoute? "T":"E") + std::to_string(i) + ".csv"); // if truck vet_route: routeT2.csv, else routeE4.csv
         file << "x,y,node,type,demand"<< std::endl;
         for(int j = 0; j < route.size(); j++){
             int node = route.at(j);

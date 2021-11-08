@@ -39,6 +39,7 @@ public:
     float getTruckCost() const;
 
 private:
+
     std::vector<std::vector<double>> distMat;
     std::vector<float> demands;
     std::vector<std::pair<float,float>> coordinates;

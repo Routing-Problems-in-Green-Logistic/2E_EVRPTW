@@ -296,7 +296,7 @@ bool vns::randomSwap22(Solution& Sol, const Instance& Inst){
             std::vector<int> &routeJ = routes.at(s);
             for (int i = 1; i < routeI.size() - 2; i++) {
                 for (int j = 1; j < routeJ.size() - 2; j++) {
-                    std::vector<int> cpyRouteI = routes.at(r); //copy route;
+                    std::vector<int> cpyRouteI = routes.at(r); //copy vet_route;
                     std::vector<int> cpyRouteJ = routes.at(s);
                     bool inserted = swap22Move(cpyRouteI, cpyRouteJ, i, j, Inst, currentDiscount);
                     if (!inserted) { continue; }
@@ -354,7 +354,7 @@ bool vns::randomClientReinsertion(Solution &Sol, const Instance &Inst) {
             float currentDiscount, bestDiscount;
             std::vector<int> bestWinnerRoute, bestLoserRoute;
             for (int i = 1; i < loserRoute.size() - 1; i++) {
-                std::vector<int> cpyloserRoute = routes.at(r); //copy route;
+                std::vector<int> cpyloserRoute = routes.at(r); //copy vet_route;
                 std::vector<int> cpywinnerRoute = routes.at(s);
                 bool inserted = clientReinsertionMove(cpyloserRoute, cpywinnerRoute, i, Inst);
                 if (!inserted) { continue; }
@@ -378,9 +378,9 @@ bool vns::randomClientReinsertion(Solution &Sol, const Instance &Inst) {
 bool vns::recalculateFirstEchelon(Solution& Sol, const Instance& Inst){
     std::vector<std::vector<int>> firstEchelon;
     std::vector<std::vector<int>> secondEchelon;
-    for(auto& route : Sol.acessRoutes()){
-        if(route.at(0) != 0){
-            secondEchelon.push_back(route);
+    for(auto& vet_route : Sol.acessRoutes()){
+        if(vet_route.at(0) != 0){
+            secondEchelon.push_back(vet_route);
         }
     }
     float cost;

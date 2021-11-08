@@ -9,7 +9,7 @@
 
 void intra2optMov(std::vector<int>& route, int a, int b);
 void intraReverseRouteMov(std::vector<int> &route);
-// inter route
+// inter vet_route
 void interShift01Mov(std::vector<int>& route, int node);
 bool shift01Mov(std::vector<int>& route, int node, const Instance& Inst);
 void interSwapMove(std::vector<int>& route1, std::vector<int> route2, int n1, int n2);

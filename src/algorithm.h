@@ -46,7 +46,7 @@ std::vector<std::vector<int>>& secondEchelonRoutes(const Instance& Inst, std::ve
 std::vector<std::vector<int>>& firstEchelonRoutes(std::vector<std::vector<int>>& firstEchelonRoutes, const Instance& Inst, std::vector<std::vector<int>>& routes, float totalCost);
 float getRouteCost(const std::vector<int>& route, const Instance& Inst);
 float getRouteDemand(const std::vector<int>& route, const Instance& Inst);
-/** Finds best spot to insert node (nodeIndex) in route. if unable, returns false;
+/** Finds best spot to insert node (nodeIndex) in vet_route. if unable, returns false;
  *
  * @param route
  * @param nodeIndex
@@ -56,7 +56,7 @@ float getRouteDemand(const std::vector<int>& route, const Instance& Inst);
  * @return if is possible to insert or not
  */
 bool getCheapestSafeInsertionIn(const std::vector<int>& route, int nodeIndex, const Instance& Inst, float& evCost, int& place, int& rs, float& solCost);
-//bool getSafeInsertionIn(const std::vector<int>& route, int nodeIndex, const Instance& Inst, float& finalEvCost, int& finalPlace, int& finalRs, float& finalSolCost);
+//bool getSafeInsertionIn(const std::vector<int>& vet_route, int nodeIndex, const Instance& Inst, float& finalEvCost, int& finalPlace, int& finalRs, float& finalSolCost);
 bool getSafeInsertionIn(const std::vector<int>& route, int nodeIndex, const Instance& Inst, Item& insertion);
 
 bool isFeasibleRoute(const std::vector<int>& route, const Instance& Inst);

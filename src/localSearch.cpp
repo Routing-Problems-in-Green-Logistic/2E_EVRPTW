@@ -38,7 +38,7 @@ bool lsh::swap(Solution &Sol, const Instance &Inst) {
                 improving = false;
                 for (int i = 1; i < routeI.size() - 1; i++) {
                     for (int j = 1; j < routeJ.size() - 1; j++) {
-                        std::vector<int> cpyRouteI = routes.at(r); //copy route;
+                        std::vector<int> cpyRouteI = routes.at(r); //copy vet_route;
                         std::vector<int> cpyRouteJ = routes.at(s);
                         bool inserted = swapMove(cpyRouteI, cpyRouteJ, i, j, Inst, currentDiscount);
                         if (!inserted) { continue; }
@@ -97,7 +97,7 @@ bool lsh::reinsertion(Solution& Sol, const Instance& Inst) {
         while(improving){
             improving = false;
             for(int i = 1; i < route.size()-1; i++) {
-                std::vector<int> cpyRoute = routes.at(r); //copy route;
+                std::vector<int> cpyRoute = routes.at(r); //copy vet_route;
                 routeCost = getRouteCost(cpyRoute, Inst);
                 bool inserted = reinsertMove(cpyRoute, i, Inst);
                 if(!inserted){ continue; }
@@ -173,7 +173,7 @@ bool lsh::shift(Solution &Sol, const Instance &Inst) {
                     if (Inst.isRechargingStation(loserRoute->at(i))) {
                         continue;
                     }
-                    std::vector<int> cpyloserRoute = routes.at(r); //copy route;
+                    std::vector<int> cpyloserRoute = routes.at(r); //copy vet_route;
                     std::vector<int> cpywinnerRoute = routes.at(s);
                     // float routeCost = getRouteCost(cpyRoute, Inst);
                     //bool inserted = reinsertMove(cpyRoute, i, Inst);
@@ -254,7 +254,7 @@ bool lsh::twoOpt(Solution &Sol, const Instance &Inst) {
             improving = false;
             for(int i = 1; i < route.size()-1; i++) {
                 for(int j = i+1; j < route.size()-1; j++) {
-                    std::vector<int> cpyRoute = routes.at(r); //copy route;
+                    std::vector<int> cpyRoute = routes.at(r); //copy vet_route;
                     bool inserted = twoOptMove(cpyRoute, i, j, Inst, currentDiscount);
                     if (!inserted) { continue; }
                     //currentDiscount = getRouteCost(cpyRoute, Inst) - routeCost;
@@ -340,7 +340,7 @@ bool lsh::randomShifts(Solution &Sol, const Instance &Inst, int n) {
             count++;
         }
         if(count >= n){
-            //std::erase_if(Sol.acessRoutes(), [](const std::vector<int>& route){ return route.size() <= 2;});
+            //std::erase_if(Sol.acessRoutes(), [](const std::vector<int>& vet_route){ return vet_route.size() <= 2;});
             int sizee = routes.size();
             for(int i = 0; i < sizee; i++){
                 if(routes.at(i).size() <= 2){
@@ -352,7 +352,7 @@ bool lsh::randomShifts(Solution &Sol, const Instance &Inst, int n) {
             return true;
         }
     }
-    //std::erase_if(Sol.acessRoutes(), [](const std::vector<int>& route){ return route.size() <= 2;});
+    //std::erase_if(Sol.acessRoutes(), [](const std::vector<int>& vet_route){ return vet_route.size() <= 2;});
     int sizee = routes.size();
     for(int i = 0; i < sizee; i++){
         if(routes.at(i).size() <= 2){

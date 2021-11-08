@@ -9,27 +9,27 @@ bool isFeasibleSolution(Solution& Sol, const Instance& Inst){
     float evCurrentCap, evCurrentBattery;
     std::vector<bool> clientVisited(Inst.getNClients(), false);
     int firstClient = Inst.getFirstClientIndex();
-    for(int i = 0; i < Sol.getNTrucks(); i++){ // for each truck route:
+    for(int i = 0; i < Sol.getNTrucks(); i++){ // for each truck vet_route:
         const std::vector<int>& route = Sol.getRoutes()[i]; // TODO: test this const reference;
-        if(route[0] != 0 || route[route.size()-1] != 0){ // if the route doesn't start at the depot ("0");
+        if(route[0] != 0 || route[route.size()-1] != 0){ // if the vet_route doesn't start at the depot ("0");
             return false;
         }
         trucksCurrentCap = Inst.getTruckCap();trucksCurrentCap = (float)200;
-        for(int s = 1; s < route.size()-1; s++){ // for each satelite in route
+        for(int s = 1; s < route.size()-1; s++){ // for each satelite in vet_route
             trucksCurrentCap -= Inst.getDemand(route.at(s));
             if(trucksCurrentCap < 0){
                 return false;
             }
         }
     }
-    for(int i = Sol.getNTrucks(); i < Sol.getNEvs() + Sol.getNTrucks(); i++){ // for each EV route:
+    for(int i = Sol.getNTrucks(); i < Sol.getNEvs() + Sol.getNTrucks(); i++){ // for each EV vet_route:
         const std::vector<int>& evRoute = Sol.getRoutes()[i];
-        if(evRoute[0] != evRoute[evRoute.size()-1]){ // if the route doesn't start at the depot ("0"); // TODO: check if the route starts at a satelite. Currently it only checks if it ends in the same node it starts;
+        if(evRoute[0] != evRoute[evRoute.size()-1]){ // if the vet_route doesn't start at the depot ("0"); // TODO: check if the vet_route starts at a satelite. Currently it only checks if it ends in the same node it starts;
             return false;
         }
         evCurrentCap = Inst.getEvCap();
         evCurrentBattery = Inst.getEvBattery();
-        for(int c = 1; c < evRoute.size()-1; c++){ // for each client in route // whereas c=0 is the satelite;
+        for(int c = 1; c < evRoute.size()-1; c++){ // for each client in vet_route // whereas c=0 is the satelite;
             if(Inst.isRechargingStation(c-1) && Inst.isRechargingStation(c)){
                 return false;
             }
@@ -118,7 +118,7 @@ std::vector<std::vector<int>>& secondEchelonRoutes(const Instance& Inst, std::ve
         unvisitedClients.insert(i);
     }
 
-    // creates an empty route in each satelite
+    // creates an empty vet_route in each satelite
     for(int i = 1; i < Inst.getNSats() + 1; i++){
         routes.push_back(std::vector<int>{i, i});
         evCaps.push_back(Inst.getEvCap());
@@ -213,7 +213,7 @@ std::vector<std::vector<int>>& secondEchelonRoutes(const Instance& Inst, std::ve
         unvisitedClients.erase(topItem->node);
         evCaps.at(topItem->routeIndex) -= topItem->capacityCost;
         evBatteries.at(topItem->routeIndex) -= topItem->batteryCost;
-        // if route was a empty route, create another empty route to replace it;
+        // if vet_route was a empty vet_route, create another empty vet_route to replace it;
         if(route.size() == 3 || (route.size() == 4 && Inst.isRechargingStation(route.at(1)))){
             int routeSat = route.at(0);
             routes.push_back(std::vector<int>{routeSat, routeSat});
@@ -230,7 +230,7 @@ std::vector<std::vector<int>>& secondEchelonRoutes(const Instance& Inst, std::ve
 void getCheapestInsertionTo(int node, const std::vector<int>& route, const Instance& Inst, float& cost, int& place){
     int bestInsertion = -1;
     float bestCost, insertionCost;
-    //bestCost = Inst.getDistance(route[0], node) + Inst.getDistance(route[1], node) - Inst.getDistance(route[1], route[0]);
+    //bestCost = Inst.getDistance(vet_route[0], node) + Inst.getDistance(vet_route[1], node) - Inst.getDistance(vet_route[1], vet_route[0]);
     bestCost = 1e8;
 
     for(int i = 1; i < route.size(); i++){ // as rotas se iniciam e terminam com 0 (satelite);
@@ -245,7 +245,7 @@ void getCheapestInsertionTo(int node, const std::vector<int>& route, const Insta
 }
 void insertInRoute(int node, std::vector<int>& route, int position){
     // O(n) (!!)
-    route.insert(route.begin() + position, node); // inserts node in the middle of the route.
+    route.insert(route.begin() + position, node); // inserts node in the middle of the vet_route.
 
 }
 
@@ -267,7 +267,7 @@ std::vector<std::vector<int>>& firstEchelonRoutes(std::vector<std::vector<int>> 
         for(const auto node : route){
             aux_demand += Inst.getDemand(node);
         }
-        satDemands.at(route.at(0)) += aux_demand; // adds the route total demand to the satelite position of the sat. demand array
+        satDemands.at(route.at(0)) += aux_demand; // adds the vet_route total demand to the satelite position of the sat. demand array
     }
     for(int i = Inst.getFirstSatIndex(); i < Inst.getFirstSatIndex() + Inst.getNSats(); i++){
         if(satDemands.at(i) == 0){ // if no demand for sat, this sat doesnt need to be visited
@@ -275,7 +275,7 @@ std::vector<std::vector<int>>& firstEchelonRoutes(std::vector<std::vector<int>> 
         }
         unvisitedSats.insert(i);
     }
-    routes.push_back(std::vector<int>{0, 0}); //creates an empty route at the depot;
+    routes.push_back(std::vector<int>{0, 0}); //creates an empty vet_route at the depot;
     int place; float cost;
     for(const auto sat : unvisitedSats){
         for(int i = 0; i < routes.size(); i++){
@@ -352,7 +352,7 @@ bool getCheapestSafeInsertionIn(const std::vector<int> &route, int nodeIndex, co
     float evCapacity = Inst.getEvCap();
     std::vector<std::pair<int, float>> rechargesInRoute;
     std::vector<float> evBattery(route.size());
-    float routeDemand = getRouteDemand(route, Inst); // O(n) // TODO: get route demand inside another for loop; (maybe not, because 30 + 30 = 30*2).
+    float routeDemand = getRouteDemand(route, Inst); // O(n) // TODO: get vet_route demand inside another for loop; (maybe not, because 30 + 30 = 30*2).
     if(Inst.getDemand(nodeIndex) + routeDemand > evCapacity){
         return false;
     }
@@ -366,10 +366,10 @@ bool getCheapestSafeInsertionIn(const std::vector<int> &route, int nodeIndex, co
             comulativeBattery = Inst.getEvBattery();
         }
     }
-    //recharges.emplace_back(*route.end(), Inst.getEvBattery());
-    float batteryWaste = recharges.at(0).second; //= recharges.at(route.at(0));
+    //recharges.emplace_back(*vet_route.end(), Inst.getEvBattery());
+    float batteryWaste = recharges.at(0).second; //= recharges.at(vet_route.at(0));
     for(int i = 0; i < route.size(); i++){
-        // auto it = recharges.find({route.at(i), });
+        // auto it = recharges.find({vet_route.at(i), });
         for(int j = 0; j < recharges.size() - 1; j++) {
             auto& station = recharges.at(j);
             if (route.at(i) == station.first){
@@ -450,7 +450,7 @@ bool isFeasibleRoute(const std::vector<int>& route, const Instance& Inst){
     }
     return true;
 }
-//bool getSafeInsertionIn(const std::vector<int>& route, int nodeIndex, const Instance& Inst, float& finalEvCost, int& finalPlace, int& finalRs, float& finalSolCost){
+//bool getSafeInsertionIn(const std::vector<int>& vet_route, int nodeIndex, const Instance& Inst, float& finalEvCost, int& finalPlace, int& finalRs, float& finalSolCost){
 bool getSafeInsertionIn(const std::vector<int>& route, int nodeIndex, const Instance& Inst, Item& item){
     float routeDemand = 0, evCapacity;
     evCapacity = Inst.getEvCap();
@@ -460,7 +460,7 @@ bool getSafeInsertionIn(const std::vector<int>& route, int nodeIndex, const Inst
     item.rs = -1;
 
     for(int i = 1; i < route.size(); i++){
-        //routeDemand += Inst.getDistance(route.at(i - 1), route.at(i));
+        //routeDemand += Inst.getDistance(vet_route.at(i - 1), vet_route.at(i));
         routeDemand += Inst.getDemand(route.at(i));
     }
     // checks if no capacity
