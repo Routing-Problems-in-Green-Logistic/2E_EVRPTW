@@ -109,7 +109,7 @@ std::string ElectricVehicle::getRoute(const bool cost) const
     for(auto &it:vet_route)
     {
         if(it.type == TYPE_RECHARGING_STATION)
-            route += "RS("+ std::to_string(it.id) + ") ";
+            route += "RECHARGING_S.("+ std::to_string(it.id) + ") ";
         else
             route += std::to_string(it.id) + " ";
     }
