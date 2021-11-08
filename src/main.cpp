@@ -8,7 +8,6 @@
 #include <math.h>
 #include <time.h>
 #include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/io.hpp>
 
 using namespace std;
 using namespace boost;
@@ -92,7 +91,7 @@ Instance* getInstanceFromFile(std::string fileName){
 void solutionToCsv(Solution& Sol, Instance& Inst){
     std::ofstream instanceFile("instance.csv");
     instanceFile <<  "x,y,node,type,demand" << endl;
-    for(int i = 0; i < Inst.getNrs()+ Inst.getNSats()+ Inst.getNClients() + 1; i++){
+    for(int i = 0; i < Inst.getNumRechargingS() + Inst.getNSats() + Inst.getNClients() + 1; i++){
         int node = i;
         std::string type;
         if(Inst.isClient(node)) { type = "client"; }

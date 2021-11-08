@@ -33,7 +33,7 @@ bool isFeasibleSolution(Solution& Sol, const Instance& Inst){
             if(Inst.isRechargingStation(c-1) && Inst.isRechargingStation(c)){
                 return false;
             }
-            if(evRoute.at(c) < Inst.getFirstRsIndex() && clientVisited.at(evRoute[c] - firstClient)){
+            if(evRoute.at(c) < Inst.getFirstRechargingStationIndex() && clientVisited.at(evRoute[c] - firstClient)){
                 return false;
             }
             evCurrentCap -= Inst.getDemand(evRoute[c]);
@@ -41,8 +41,8 @@ bool isFeasibleSolution(Solution& Sol, const Instance& Inst){
             if(evCurrentBattery < 0 || evCurrentCap < 0){
                 return false;
             }
-            int frs = Inst.getFirstRsIndex();
-            if(evRoute.at(c) >= Inst.getFirstRsIndex()){
+            int frs = Inst.getFirstRechargingStationIndex();
+            if(evRoute.at(c) >= Inst.getFirstRechargingStationIndex()){
                 evCurrentBattery = Inst.getEvBattery();
                 int a = 0;
             } else {
@@ -156,7 +156,8 @@ std::vector<std::vector<int>>& secondEchelonRoutes(const Instance& Inst, std::ve
             for(auto& client : unvisitedClients) {
                 for (auto &route: routes) {
                     if (route.size() == 2) {
-                        for (int rs = Inst.getFirstRsIndex(); rs < Inst.getFirstRsIndex() + Inst.getNrs(); rs++) {
+                        for (int rs = Inst.getFirstRechargingStationIndex(); rs <
+                                Inst.getFirstRechargingStationIndex() + Inst.getNumRechargingS(); rs++) {
                             if(insertInNewRoute(route, client, Inst, -1, rs)){
                                 unvisitedClients.erase(client);
                                 inserted = true;
@@ -167,7 +168,8 @@ std::vector<std::vector<int>>& secondEchelonRoutes(const Instance& Inst, std::ve
                                 totalCost += Inst.getEvCost();
                                 break;
                             }
-                            for(int rs2 = Inst.getFirstRsIndex(); rs2 < Inst.getFirstRsIndex() + Inst.getNrs(); rs2++){
+                            for(int rs2 = Inst.getFirstRechargingStationIndex(); rs2 < Inst.getFirstRechargingStationIndex() +
+                                                                                       Inst.getNumRechargingS(); rs2++){
                                 if(insertInNewRoute(route, client, Inst, rs, rs2)){
                                     unvisitedClients.erase(client);
                                     inserted = true;
@@ -391,11 +393,11 @@ bool getCheapestSafeInsertionIn(const std::vector<int> &route, int nodeIndex, co
         if(insertionCost > evBattery.at(i-1)){
             bestRs = -1;
             float finalBatteryCost;
-            //float rsCost = Inst.getDistance(place-1, Inst.getFirstRsIndex()); // TODO: handle instances without recharging stations
+            //float rsCost = Inst.getDistance(place-1, Inst.getFirstRechargingStationIndex()); // TODO: handle instances without recharging stations
             //float bestTotalCost = -1;
             float rsCost = 1e8; // TODO: be lazier
-            // float rsCost = Inst.getDistance(routes.at(j).at(place-1), Inst.getFirstRsIndex()) + Inst.getDistance(Inst.getFirstRsIndex(), client);
-            for(int r = Inst.getFirstRsIndex(); r < Inst.getFirstRsIndex() + Inst.getNrs(); r++){
+            // float rsCost = Inst.getDistance(routes.at(j).at(place-1), Inst.getFirstRsIndex()) + Inst.getDistance(Inst.getFirstRechargingStationIndex(), client);
+            for(int r = Inst.getFirstRechargingStationIndex(); r < Inst.getFirstRechargingStationIndex() + Inst.getNumRechargingS(); r++){
                 float toRsCost = Inst.getDistance(route.at(i-1), r);
                 int client = nodeIndex;
                 float toClientCost = Inst.getDistance(r, client);
@@ -501,7 +503,7 @@ bool getSafeInsertionIn(const std::vector<int>& route, int nodeIndex, const Inst
         if(batteryCost > avaliableBattery.at(i)){ // se n acaba a bateria
             float bestRsCost = 1e8; // the solution cost;
             // checks for each Recharging station if by visiting it first than the client, can the EV complete the tour w/out emptying its battery
-            for(int r = Inst.getFirstRsIndex(); r < Inst.getFirstRsIndex() + Inst.getNrs(); r++){
+            for(int r = Inst.getFirstRechargingStationIndex(); r < Inst.getFirstRechargingStationIndex() + Inst.getNumRechargingS(); r++){
                 float toRsCost = Inst.getDistance(prevNode, r);
                 float clientVisitCost = Inst.getDistance(r, nodeIndex) + Inst.getDistance(nodeIndex, nextNode);
                 float rsCost = toRsCost + clientVisitCost;
@@ -608,7 +610,7 @@ bool getExpensiveSafeInsertionIn(const std::vector<int>& route, int nodeIndex, c
         if(batteryCost > avaliableBattery.at(i)){ // se n acaba a bateria
             float bestRsCost = 1e8; // the solution cost;
             // checks for each Recharging station if by visiting it first than the client, can the EV complete the tour w/out emptying its battery
-            for(int r = Inst.getFirstRsIndex(); r < Inst.getFirstRsIndex() + Inst.getNrs(); r++){
+            for(int r = Inst.getFirstRechargingStationIndex(); r < Inst.getFirstRechargingStationIndex() + Inst.getNumRechargingS(); r++){
                 float toRsCost = Inst.getDistance(prevNode, r);
                 float clientVisitCost = Inst.getDistance(r, nodeIndex) + Inst.getDistance(nodeIndex, nextNode);
                 float rsCost = toRsCost + clientVisitCost;

@@ -12,13 +12,17 @@ public:
                                     // https://stackoverflow.com/questions/751681/meaning-of-const-last-in-a-function-declaration-of-a-class
     float getDistance(int n1, int n2) const;
     std::pair<float,float> getCoordinate(int node) const;
+    static int getDepotIndex() {return 0;}
     int getFirstClientIndex() const;
+    int getLastClienteIndex() const {return getFirstRechargingStationIndex();};
     /** returns the index of the first Recharging station.
      *
      * @return index of the first recharging station (RS)
      */
-    int getFirstRsIndex() const;
+    int getFirstRechargingStationIndex() const;
+    int getLastRechargingStationIndex()const{return demands.size()-1;};
     int getFirstSatIndex() const;
+    int getLastSatIndex() const {return getFirstClientIndex()-1;};
     float getTruckCap() const;
     float getEvCap() const;
     float getEvBattery() const;
@@ -27,7 +31,7 @@ public:
     /** gets the number of Recharging Stations.
      * @return number of Recharging Stations
      */
-    int getNrs() const;
+    int getNumRechargingS() const;
 
     bool isClient(int node) const;
     bool isRechargingStation(int node) const;
@@ -44,7 +48,7 @@ private:
     std::vector<float> demands;
     std::vector<std::pair<float,float>> coordinates;
     float truckCap, evCap, evBattery;
-    int nSats, nClients, nRS;
+    int nSats, nClients, nRechargingS;
     float evCost, truckCost;
 };
 

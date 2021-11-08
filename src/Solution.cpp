@@ -33,18 +33,21 @@ std::vector<std::vector<int>> &Solution::acessRoutes() {
 
 
 
-ElectricVehicle::ElectricVehicle(const int NumMax_, const int SatelliteId) : NumMax(NumMax_)
+ElectricVehicle::ElectricVehicle(const int numCustomers, const int numRechargingS, const int SatelliteId)
 {
     // Inicializa o veiculo vazio
+    numAttendances = 2;
 
-    numCustomers = 2;
+    numAttendances = 2 + numCustomers + numRechargingS;
+
+    idSatellite = SatelliteId;
 
     // Reserva memoria para vet_route e vet_batteryCapacity
-    vet_route.reserve(NumMax);
-    vet_batteryCapacity.reserve(NumMax);
+    vet_route.reserve(NumMaxAttendances);
+    vet_batteryCapacity.reserve(NumMaxAttendances);
 
-    // Prenche os dois vetores com NumMax
-    for(int i=0; i < NumMax; ++i)
+    // Prenche os dois vetores com NumMaxAttendances
+    for(int i=0; i < NumMaxAttendances; ++i)
     {
         vet_route.emplace_back(Index(0, -1));
         vet_batteryCapacity.emplace_back(0.0);
@@ -60,9 +63,9 @@ ElectricVehicle::ElectricVehicle(const int NumMax_, const int SatelliteId) : Num
 
 }
 
-ElectricVehicle::ElectricVehicle(ElectricVehicle &electricVehicleAux):NumMax(electricVehicleAux.NumMax)
+ElectricVehicle::ElectricVehicle(ElectricVehicle &electricVehicleAux): NumMaxAttendances(electricVehicleAux.NumMaxAttendances)
 {
-    numCustomers  = electricVehicleAux.numCustomers;
+    numAttendances  = electricVehicleAux.numAttendances;
     demands       = electricVehicleAux.demands;
     transportCost = electricVehicleAux.transportCost;
     energyConsum  = electricVehicleAux.energyConsum;
@@ -74,17 +77,17 @@ ElectricVehicle::ElectricVehicle(ElectricVehicle &electricVehicleAux):NumMax(ele
 void ElectricVehicle::swap(ElectricVehicle &electricVehicleAux)
 {
 
-    int numCustomersSW = numCustomers;
-    numCustomers = electricVehicleAux.numCustomers;
-    electricVehicleAux.numCustomers = numCustomersSW;
+    int numCustomersSW = numAttendances;
+    numAttendances = electricVehicleAux.numAttendances;
+    electricVehicleAux.numAttendances = numCustomersSW;
 
     int demandsSW = demands;
     demands = electricVehicleAux.demands;
     electricVehicleAux.demands = demandsSW;
 
-    int numMaxSW = NumMax;
-    NumMax = electricVehicleAux.NumMax;
-    electricVehicleAux.NumMax = numMaxSW;
+    int numMaxSW = NumMaxAttendances;
+    NumMaxAttendances = electricVehicleAux.NumMaxAttendances;
+    electricVehicleAux.NumMaxAttendances = numMaxSW;
 
     double transportCostSW = transportCost;
     transportCost = electricVehicleAux.transportCost;
@@ -99,7 +102,7 @@ void ElectricVehicle::swap(ElectricVehicle &electricVehicleAux)
 
 }
 
-std::string ElectricVehicle::getRoute(const int idSatellite, const bool cost) const
+std::string ElectricVehicle::getRoute(const bool cost) const
 {
     std::string route = "SATELLITE ID"+ std::to_string(idSatellite) + ": ";
 
@@ -117,7 +120,7 @@ std::string ElectricVehicle::getRoute(const int idSatellite, const bool cost) co
     return route;
 }
 
-void ElectricVehicle::getRoute(const int idSatellite, std::string &routeStr, const bool cost) const
+void ElectricVehicle::getRoute(std::string &routeStr, const bool cost) const
 {
     routeStr = "SATELLITE ID"+ std::to_string(idSatellite) + ": ";
 
@@ -134,19 +137,129 @@ void ElectricVehicle::getRoute(const int idSatellite, std::string &routeStr, con
 
 }
 
-Satellite::Satellite(const Instance &instance, const int satelliteId):NumVhicles(instance.getNSats())
+Satellite::Satellite(const Instance &instance, const int satelliteId):numMaxVhicles(instance.getNSats()), idSatellite(satelliteId)
 {
 
-    vetElectricVehicle.reserve(NumVhicles);
+    vetElectricVehicle.reserve(numMaxVhicles);
 
-    int numMax = instance.getNClients() + instance.getNrs() + 1;
-
-    for(int i=0; i < NumVhicles; ++i)
+    for(int i=0; i < numMaxVhicles; ++i)
     {
-        vetElectricVehicle.emplace_back(numMax, satelliteId);
+        vetElectricVehicle.emplace_back(instance.getNClients(), instance.getNumRechargingS(), satelliteId);
     }
 
+    const int TamVetServeCustomers = instance.getNClients() + instance.getNSats() + instance.getNumRechargingS() + 1;
 
-    // Falta adicionar o vetServeCustomer.
+    vetServeCustomer.reserve(TamVetServeCustomers);
+
+    // A diciona deposito
+    vetServeCustomer.emplace_back(-1);
+
+    // Adiciona satellite
+    for(int i=1; i <= instance.getLastSatIndex(); ++i)
+        vetServeCustomer.emplace_back(-1);
+
+    // Adiciona cliente
+    for(int i=instance.getFirstClientIndex(); i <= instance.getLastClienteIndex(); ++i)
+        vetServeCustomer.emplace_back(0);
+
+    // Adiciona RechargingStation
+    for(int i=instance.getFirstRechargingStationIndex(); i <= instance.getLastClienteIndex(); ++i)
+        vetServeCustomer.emplace_back(0);
+
+
 
 }
+
+Satellite::Satellite(Satellite &satellite)
+{
+    numMaxVhicles   = satellite.numMaxVhicles;
+    numVhicles      = satellite.numVhicles;
+
+    vetServeCustomer = satellite.vetServeCustomer;
+    vetElectricVehicle.reserve(numMaxVhicles);
+
+    for(int i=0; i < numMaxVhicles; ++i)
+        vetElectricVehicle.emplace_back(satellite.vetElectricVehicle[i]);
+
+    sumDemands          = satellite.sumDemands;
+    sumEnergyConsum     = satellite.sumEnergyConsum;
+    sumTransportCost    = satellite.sumTransportCost;
+}
+
+void Satellite::swap(Satellite &satellite)
+{
+
+    std::swap(satellite.numMaxVhicles, numMaxVhicles);
+    std::swap(satellite.numVhicles, numVhicles);
+
+    std::swap(satellite.sumDemands, sumDemands);
+    std::swap(satellite.sumTransportCost, sumTransportCost);
+    std::swap(satellite.sumEnergyConsum, sumEnergyConsum);
+
+    std::swap(satellite.vetServeCustomer, vetServeCustomer);
+    std::swap(satellite.vetElectricVehicle, vetElectricVehicle);
+
+}
+
+
+Truck::Truck(Instance &instance, const int _truckId): truckId(_truckId)
+{
+    // Inicializa o truck vazio
+
+    tamMaxVetRoute = 2 + instance.getNSats();
+    numVetRoute    = 2;
+
+    vetRoute.reserve(tamMaxVetRoute);
+
+    for(int i=0; i < tamMaxVetRoute; ++i)
+        vetRoute.emplace_back();
+
+    // Inicio e final da rota eh composta pelo deposito
+
+    vetRoute[0].id   = vetRoute[1].id   = 0;
+    vetRoute[0].type = vetRoute[1].type = TYPE_DEPOT;
+
+    // Calcula o tamaho do vetor como numero de satellites e de clientes
+
+    tamVetDemand = 1 + instance.getNSats() + instance.getNClients();
+    vetDemand.reserve(tamVetDemand);
+
+    // Inicializa cada possicao com 0
+
+    for(int i=0; i < tamVetDemand; ++i)
+        vetDemand.emplace_back(0);
+
+
+}
+
+Truck::Truck(Truck &truck)
+{
+
+    tamMaxVetRoute  = truck.tamMaxVetRoute;
+    numVetRoute     = truck.numVetRoute;
+    vetRoute        = truck.vetRoute;
+
+    sumDemand       = truck.sumDemand;
+    sumDistance     = truck.sumDistance;
+    truckId         = truck.truckId;
+
+    tamVetDemand    = truck.tamVetDemand;
+    vetDemand       = truck.vetDemand;
+}
+
+void Truck::swap(Truck &truck)
+{
+
+    std::swap(tamMaxVetRoute, truck.tamMaxVetRoute);
+    std::swap(numVetRoute, truck.numVetRoute);
+    std::swap(vetRoute, truck.vetRoute);
+
+    std::swap(sumDemand, truck.sumDemand);
+    std::swap(sumDistance, truck.sumDistance);
+    std::swap(truckId, truck.truckId);
+
+    std::swap(tamVetDemand, truck.tamVetDemand);
+    std::swap(vetDemand, truck.vetDemand);
+
+}
+

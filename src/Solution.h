@@ -42,16 +42,17 @@ class ElectricVehicle
 
 public:
 
-    int numCustomers = 0;
-    int NumMax = -1;
-    std::vector<Index> vet_route;                                           // Armazena a sequencia de Index (cliente, recharging s., satellite)
-    std::vector<float> vet_batteryCapacity;                                 // Armazena a capacidade atual da bateria no cliente
+    int numAttendances      = 0;
+    int NumMaxAttendances   = -1;                              // Customers + Recharging S. + 2
+    std::vector<Index> vet_route;                              // Armazena a sequencia de Index (cliente, recharging s., satellite)
+    std::vector<float> vet_batteryCapacity;                    // Armazena a capacidade atual da bateria no cliente
 
     int     demands       = 0;
     double  transportCost = 0.0;
     double  energyConsum  = 0.0;
+    int     idSatellite   = -1;
 
-    ElectricVehicle(int NumMax_, int SatelliteId);
+    ElectricVehicle(int numCustomers, int numRechargingS, int SatelliteId);
     ElectricVehicle(ElectricVehicle &electricVehicleAux);
     ~ElectricVehicle()=default;
     ElectricVehicle()=default;
@@ -60,8 +61,8 @@ public:
     ElectricVehicle(ElectricVehicle&&)=default;
 
     void swap(ElectricVehicle &electricVehicleAux);
-    std::string getRoute(int idSatellite, bool cost) const;
-    void getRoute(int idSatellite, std::string &routeStr, bool cost)  const;
+    std::string getRoute(bool cost) const;
+    void getRoute(std::string &routeStr, bool cost)  const;
 
 
 
@@ -72,14 +73,15 @@ class Satellite
 
 public:
 
-    int NumVhicles;
+    int numMaxVhicles   = 0;
+    int numVhicles      = 0;
     std::vector<ElectricVehicle> vetElectricVehicle;
 
     /*
      *  Indica se o cliente eh atendido por esse satellite.
-     *  Possui tamanho: Customer + satellites + Depot
+     *  Possui tamanho: Customer + satellites + Depot + rechargingStation
      *
-     *  Possicao de customer: 1 ou 0
+     *  Possicao de customer e rechargingStation: 1 ou 0
      *  Possicao de satellite e depot -1
      */
     std::vector<int8_t> vetServeCustomer;
@@ -87,9 +89,60 @@ public:
     double sumTransportCost = 0.0;
     double sumEnergyConsum  = 0.0;
     int    sumDemands       = 0;
+    int    idSatellite      = -1;
 
     Satellite(const Instance &instance, int satelliteId);
+    Satellite(Satellite &satellite);
 
+    Satellite(const Satellite&)=delete;
+    Satellite(Satellite&&)=default;
+    Satellite()=default;
+    ~Satellite()=default;
+
+    void swap(Satellite &satellite);
+
+    std::string getSatellite(bool cost)=delete;
+    void getSatellite(std::string &string, bool cost)=delete;
+
+
+};
+
+class Truck
+{
+
+public:
+
+    std::vector<Index> vetRoute;
+    int tamMaxVetRoute              =   -1;                   // Numero de satellites + 2
+    int numVetRoute                 =   -1;                   // Numero de possicoes ocupadas em vetRoute
+
+    double sumDistance              =   0.0;
+    double sumDemand                =   0.0;
+
+    /*
+     * Indica a quantidade de demanda que eh atendida por esse truck
+     * Possui tamanho: Depot + Satellite + customers
+     * Utiliza o mesmo indice de customrs
+     *
+     * Depot:      0
+     * Satellite: demand(satelliteId)
+     * Customrs:  [0,demand(customrId)]
+     */
+    std::vector<int> vetDemand;
+
+    int tamVetDemand = 0;
+    int truckId = -1;
+
+    Truck()=default;
+    Truck(Instance &instance, int truckId);
+    Truck(Truck &truck);
+    Truck(const Truck &truck)=delete;
+    ~Truck()=default;
+
+    std::string getTruck(bool cost)=delete;
+    void getTruck(std::string &string, bool cost)=delete;
+
+    void swap(Truck &truck);
 
 };
 
