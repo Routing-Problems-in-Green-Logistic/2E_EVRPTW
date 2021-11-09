@@ -139,8 +139,8 @@ public:
     Truck(const Truck &truck)=delete;
     ~Truck()=default;
 
-    std::string getTruck(bool cost)=delete;
-    void getTruck(std::string &string, bool cost)=delete;
+    std::string getTruck(bool cost, bool demand);
+    void getTruck(std::string &strTruck, bool cost, bool demand);
 
     void swap(Truck &truck);
 

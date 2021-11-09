@@ -28,6 +28,13 @@ float distance(std::pair<float, float> p1, std::pair<float,float> p2)
 
 Instance* getInstanceFromFile(std::string fileName){
     std::ifstream file(fileName);
+
+    if(!file.is_open())
+    {
+        cerr<<"ERRO AO ABRIR O ARQUIVO: "<<fileName<<"\n";
+        exit(-1);
+    }
+
     std::string line;
     stringstream ss, ssaux, ssaux2;
     int nSats=0, nClients=0, nRS=0;
@@ -180,7 +187,15 @@ int main(int argc, char* argv[]){
     return -11;
 }
 void routine(char** filenames, int nFileNames){
-    Instance* getInstanceFromFile(std::string fileName);
+
+    //Instance* getInstanceFromFile(std::string fileName);
+
+    if(nFileNames <= 1)
+    {
+        cerr<<"NUMERO INCORRETO DE PARAMETROS\n";
+        exit(-1);
+    }
+
     float media = 0;
     float best = 1e8;
     for(int i = 1; i < nFileNames; i++){

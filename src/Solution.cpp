@@ -263,3 +263,57 @@ void Truck::swap(Truck &truck)
 
 }
 
+std::string Truck::getTruck(const bool cost, const bool demand)
+{
+    std::string strTruck;
+
+    strTruck += "TRUCK ID: " + std::to_string(truckId) + ":";
+
+    if(demand)
+        strTruck += "\n\t";
+
+    for(auto &it:vetRoute)
+        strTruck += " " + std::to_string(it.id);
+
+    if(demand)
+    {
+        strTruck += "\n\tDEMAND: ";
+
+        for(auto it:vetDemand)
+            strTruck += std::to_string(it) + " ";
+
+        strTruck += "\n\t";
+    }
+
+    if(cost)
+        strTruck += "DISTANCE: " + std::to_string(sumDistance) + "; DEMAND: " + std::to_string(sumDemand) + "\n";
+
+    return strTruck;
+
+}
+
+void Truck::getTruck(std::string &strTruck, const bool cost, const bool demand)
+{
+
+    strTruck += "TRUCK ID: " + std::to_string(truckId) + ":";
+
+    if(demand)
+        strTruck += "\n\t";
+
+    for(auto &it:vetRoute)
+        strTruck += " " + std::to_string(it.id);
+
+    if(demand)
+    {
+        strTruck += "\n\tDEMAND: ";
+
+        for(auto it:vetDemand)
+            strTruck += std::to_string(it) + " ";
+
+        strTruck += "\n\t";
+    }
+
+    if(cost)
+        strTruck += "DISTANCE: " + std::to_string(sumDistance) + "; DEMAND: " + std::to_string(sumDemand) + "\n";
+}
+
