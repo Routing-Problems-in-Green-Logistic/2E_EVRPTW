@@ -1,8 +1,6 @@
 #include <iostream>
 #include "Instance.h"
-#include "algorithm.h"
-#include "vns.h"
-#include "localSearch.h"
+#include "Solution.h"
 #include <fstream>
 #include <sstream>
 #include <math.h>
@@ -77,151 +75,11 @@ Instance* getInstanceFromFile(std::string fileName){
     auto* Inst = new Instance(distMat, truckCap, evCap, evBattery, nSats, nClients, nRS, coordinates, demands);
     return Inst;
 }
-void solutionToCsv(Solution& Sol, Instance& Inst){
-    std::ofstream instanceFile("instance.csv");
-    instanceFile <<  "x,y,node,type,demand" << endl;
-    for(int i = 0; i < Inst.getNrs()+ Inst.getNSats()+ Inst.getNClients() + 1; i++){
-        int node = i;
-        std::string type;
-        if(Inst.isClient(node)) { type = "client"; }
-        else if(Inst.isRechargingStation(node)) { type = "rs"; }
-        else if(Inst.isSatelite(node)) { type = "sat"; }
-        else if(Inst.isDepot(node)) { type = "depot"; }
-        else{
-            return; }
-        //instanceFile << Inst.getCoordinate(node).first << "," << Inst.getCoordinate(node).second << "," << node << "," << type << "," << Inst.getDemand(node) << endl;
-        instanceFile << Inst.getCoordinate(node).first << "," << Inst.getCoordinate(node).second << "," << node << "," << type << "," << Inst.getDemand(node)<< std::endl;
-
-    }
-    instanceFile.close();
-
-    for(int i = 0; i < Sol.getRoutes().size(); i++){
-        bool truckRoute = false;
-        const auto& route = Sol.getRoutes().at(i);
-        if(i < Sol.getNTrucks()){
-            truckRoute = true;
-        }
-
-        std::ofstream file("route" + std::string(truckRoute? "T":"E") + std::to_string(i) + ".csv"); // if truck route: routeT2.csv, else routeE4.csv
-        file << "x,y,node,type,demand"<< std::endl;
-        for(int j = 0; j < route.size(); j++){
-            int node = route.at(j);
-            std::string type;
-            if(Inst.isClient(node)) { type = "client"; }
-            else if(Inst.isRechargingStation(node)) {
-                type = "rs"; }
-            else if(Inst.isSatelite(node)) { type = "sat"; }
-            else if(Inst.isDepot(node)) { type = "depot"; }
-            else{ return; }
-            file << Inst.getCoordinate(node).first << "," << Inst.getCoordinate(node).second << "," << node << "," << type << "," << Inst.getDemand(node)<< std::endl;
-        }
-        file.close();
-    }
-}
 int main(int argc, char* argv[]){
     srand(time(NULL));
     void routine(char** filenames, int nFileNames);
     routine(argv, argc);
     return 0;
-    /*
-    Instance* getInstanceFromFile(std::string fileName);
-    std::cout << argc;
-    // for(int i = 1; i < argc; i++){
-        // cout << argv[i] << endl;
-        // Instance* Inst = getInstanceFromFile(argv[i]);
-        // char* debug = argv[1];
-
-
-    float solCost, localSearchCost;
-    Instance* Inst = getInstanceFromFile(argv[1]);
-    Solution *Sol;
-    std::vector<std::vector<int>> ser;
-    Sol = construtivo(*Inst, ser); // TODO: see if passing the Inst like this uses the copy operator or not
-    bool isFeasible = isFeasibleSolution(*Sol,*Inst);
-    cout << "feasible: " << isFeasible << endl;
-    cout << "Cost:" << (double)Sol->getCost() << endl;
-    cout << "teste";
-
-    std::vector<std::pair<float,float>> costs;
-    auto cpyRoutes = Sol->getRoutes();
-    //ls::intra2opt(cpyRoutes, *Inst, costs);
-    Solution cpySol = *Sol; // hoping the copy operator will do the job just fine
-    solutionToCsv(cpySol, *Inst);
-
-    float autoSolCost = getSolCost(cpySol, *Inst);
-    solCost = getSolCost(cpySol, *Inst);
-    //vns::rvnd(cpySol, *Inst);
-    vns::gvns(cpySol, *Inst);
-    localSearchCost = getSolCost(cpySol, *Inst);
-    getchar();
-    solutionToCsv(cpySol, *Inst);
-    return -11;
-
-    isFeasible = isFeasibleSolution(cpySol,*Inst);
-    lsh::reinsertion(cpySol, *Inst);
-    isFeasible = isFeasibleSolution(cpySol,*Inst);
-    lsh::shift(cpySol, *Inst);
-    isFeasible = isFeasibleSolution(cpySol,*Inst);
-    lsh::swap(cpySol, *Inst);
-    isFeasible = isFeasibleSolution(cpySol,*Inst);
-    lsh::twoOpt(cpySol, *Inst);
-    isFeasible = isFeasibleSolution(cpySol,*Inst);
-    solutionToCsv(*Sol, *Inst);
-    delete Inst;
-    //}
-     */
 }
 void routine(char** filenames, int nFileNames){
-    Instance* getInstanceFromFile(std::string fileName);
-    for(int i = 1; i < nFileNames; i++){
-        std::string fileName(filenames[i]);
-        cout << "<< " << fileName << " >>" << endl;
-        Instance* Inst = getInstanceFromFile(fileName);
-        Solution *Sol;
-        std::vector<std::vector<int>> ser;
-        float media = 0;
-        float best = 1e8;
-        float bestConstrCost = 1e8;
-        Solution bestSol;
-        bool hasSolution = false;
-        for(int c = 0; c < 10; c++) {
-            Sol = construtivo(*Inst, ser); // TODO: see if passing the Inst like this uses the copy operator or not
-            //bool isFeasible = isFeasibleSolution(*Sol, *Inst);
-            bool isFeasible = true;
-            float ccost = -1;
-            if(isFeasible) {
-                ccost = getSolCost(*Sol, *Inst);
-                if(ccost < bestConstrCost){
-                    bestConstrCost = ccost;
-                    bestSol = *Sol;
-                    hasSolution = true;
-                }
-            }
-            //cout << "Greedy Alg Cost: " << bestConstrCost << endl;
-            // cout << "feasibility: " << hasSolution << endl;
-        }
-        cout << "greedy cost: " << bestConstrCost << endl;
-        cout << "feasibility: " << hasSolution << endl;
-        if(hasSolution){
-            for(int j = 0; j < 10; j++){
-                // cout << "------" << j << "-----" << endl;
-                Solution cpySol = bestSol;
-                vns::gvns(cpySol, *Inst);
-                float localSearchCost = getSolCost(cpySol, *Inst);
-                // cout << "gvns Cost(" << j << "): " << localSearchCost << endl;
-                media += localSearchCost;
-                if(localSearchCost < best){
-                    //if(isFeasibleSolution(cpySol, *Inst)){
-                        //cout << "not feasible!"<< endl;
-                        //continue;
-                    //}
-                    best = localSearchCost;
-                }
-            }
-        }
-        media /= 10;
-        cout << "best: " << best << endl;
-        cout << "mean: " << media << endl;
-    }
-        cout << endl;
 }

@@ -1,14 +1,21 @@
-//
-// Created by abrolhus on 26/10/2021.
-//
-
 #ifndef INC_2E_EVRP_SATELITE_H
 #define INC_2E_EVRP_SATELITE_H
 
-
+#include <vector>
+#include "EvRoute.h"
+#include "Instance.h"
 class Satelite {
-
+public:
+    Satelite(int id, const Instance&);
+    float getDemand(const Instance&) const;
+    int getNRoutes() const;
+    EvRoute& getRoute(int i);
+private:
+    std::vector<EvRoute> routes;
+    int id; // number of the node in the instance;
+    float demand;
+    float evCapacity;
+    float evBattery;
+    std::pair<int, int> position; // dont know if needed
 };
-
-
 #endif //INC_2E_EVRP_SATELITE_H
