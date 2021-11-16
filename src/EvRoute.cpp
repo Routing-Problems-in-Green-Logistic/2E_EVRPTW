@@ -85,6 +85,7 @@ bool EvRoute::canInsert(int node, const Instance &Inst, Insertion &insertion) {
         return false;
     }
     return true;
+
 }
 /*
 bool EvRoute::canInsert(int clientId, const Instance &Inst, Insertion& Ins) {
