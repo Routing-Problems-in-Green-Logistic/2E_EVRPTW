@@ -9,7 +9,7 @@ Instance::Instance(std::vector<std::vector<double>> &distMat, float truckCap, fl
     this->truckCap = truckCap;
     this->evCap = evCap;
     this->evBattery = evBattery;
-    this->nRS = nRS;
+    this->nRechargingS = nRS;
     this->nClients = nClients;
     this->nSats = nSats;
     this->evCost = 0;
@@ -41,8 +41,8 @@ int Instance::getNClients() const {
     return nClients;
 }
 
-int Instance::getNrs() const {
-    return nRS;
+int Instance::getN_RechargingS() const {
+    return nRechargingS;
 }
 
 float Instance::getDistance(int n1, int n2) const {
@@ -59,17 +59,32 @@ float Instance::getTruckCost() const {
 }
 
 int Instance::getFirstClientIndex() const {
-    return (int)this->demands.size() - this->getNClients() - this->getNrs(); // the last nodes are clients;
+    return (int)this->demands.size() - this->getNClients() - this->getN_RechargingS(); // the last route are route;
 
 }
+int Instance::getEndClientIndex() const
+{
+    return getNSats()+getNClients();
+}
 
-int Instance::getFirstRsIndex() const {
-    return (int)this->demands.size() - this->getNrs();
+int Instance::getFirstRechargingSIndex() const {
+    return (int)this->demands.size() - this->getN_RechargingS();
+}
+
+int Instance::getEndRechargingSIndex() const
+{
+    return getNSats() + getNClients() + getN_RechargingS();
 }
 
 int Instance::getFirstSatIndex() const {
     return 1;
 }
+
+int Instance::getEndSatIndex() const
+{
+    return getNSats();
+}
+
 std::pair<float,float> Instance::getCoordinate(int node) const {
     return this->coordinates.at(node);
 }
@@ -79,7 +94,8 @@ bool Instance::isClient(int node) const {
 }
 
 bool Instance::isRechargingStation(int node) const {
-    return node >= this->getFirstRsIndex() && node < this->getFirstRsIndex() + this->getNrs();
+    return node >= this->getFirstRechargingSIndex() && node < this->getFirstRechargingSIndex() +
+                                                                      this->getN_RechargingS();
 }
 
 bool Instance::isSatelite(int node) const {

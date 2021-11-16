@@ -11,7 +11,7 @@ public:
     TruckRoute& getRoute(int i);
 private:
     std::vector<TruckRoute> routes;
-    int id; // number of the node in the instance;
+    int id; // number of the clientId in the instance;
     float demand;
     float truckCapacity;
     std::pair<int, int> position; // dont know if needed

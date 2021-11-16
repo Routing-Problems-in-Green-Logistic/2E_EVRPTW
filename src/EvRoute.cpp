@@ -5,16 +5,16 @@ EvRoute::EvRoute(float evBattery, float evCapacity, int satelite) {
     this->initialBattery = evBattery;
     this->initialCapacity = evCapacity;
     this->remainingCapacity = evCapacity;
-    this->nodes = {satelite, satelite};
+    this->route = {satelite, satelite};
 }
 int EvRoute::size() const{
-    return (int)this->nodes.size();
+    return (int)this->route.size();
 }
 float EvRoute::getDemand(const Instance& Inst) const{
     return totalDemand;
 }
 float EvRoute::getCost(const Instance& Inst) const{
-    return cost;
+    return distance;
 }
 float EvRoute::getCurrentCapacity() const{
     return this->remainingCapacity;
@@ -26,8 +26,8 @@ bool EvRoute::insert(int node, int pos, const Instance& Inst){
     else if(node < 0){
         return false;
     }
-    // get the battery cost;
-    // get the demand cost;
+    // get the battery distance;
+    // get the demand distance;
     // checar se consegue com a capacidade atual
     // checar se consegue com a bateria atual (a bateria do veiculo antes da proxima recarga.
     //  inserir
@@ -38,7 +38,7 @@ bool EvRoute::insert(int node, int pos, const Instance& Inst){
     return true;
 }
 void EvRoute::print() const {
-    for(int node : this->nodes){
+    for(int node : this->route){
         std::cout << node << ", ";
     }
     std::cout << std::endl;
@@ -49,22 +49,36 @@ float EvRoute::getMinDemand() const {
 float EvRoute::getBatteryAt(int pos, const Instance &Inst) const {
     return 0;
 }
-bool EvRoute::canInsert(int node, const Instance &Inst, Insertion& Ins) {
+bool EvRoute::canInsert(int node, const Instance &Inst, Insertion &insertion) {
     float demand = Inst.getDemand(node);
     float bestInsertionCost = 1e8;
     if(demand > this->getCurrentCapacity()){
         return false;
     }
     // for each position, find the best one to insert.
+    // Viabilidade de bateria ??
     for(int pos = 1; pos < this->size(); pos++) {
-        int prevNode = this->nodes.at(pos - 1);
-        int nextNode = this->nodes.at(pos);
+        int prevNode = this->route.at(pos - 1);
+        int nextNode = this->route.at(pos);
         float distance = Inst.getDistance(prevNode, node) + Inst.getDistance(node, nextNode) -
                          Inst.getDistance(prevNode, nextNode);
-        float insertionCost = distance * 1;
-        if (insertionCost < bestInsertionCost) {
-            bestInsertionCost = insertionCost;
-            Ins = Insertion(pos, node, insertionCost, demand, 0, -1, -1);
+
+        float batteryConsumptionAux = this->batteryConsumption + distance;
+
+        if(batteryConsumptionAux <= initialBattery)
+        {
+
+            float insertionCost = distance;
+            if (insertionCost < bestInsertionCost) {
+                bestInsertionCost = insertionCost;
+                insertion = Insertion(pos, node, insertionCost, demand, batteryConsumptionAux, insertion.routeId, this->satelite);
+            }
+        }
+        else
+        {
+            // Realizar a insersao da estacao de recarga
+
+
         }
     }
     if(bestInsertionCost == 1e8){
@@ -73,8 +87,8 @@ bool EvRoute::canInsert(int node, const Instance &Inst, Insertion& Ins) {
     return true;
 }
 /*
-bool EvRoute::canInsert(int node, const Instance &Inst, Insertion& Ins) {
-    float demand = Inst.getDemand(node);
+bool EvRoute::canInsert(int clientId, const Instance &Inst, Insertion& Ins) {
+    float demand = Inst.getDemand(clientId);
     float bestInsertionCost;
     if(demand > this->getCurrentCapacity()){
         return false;
@@ -96,9 +110,9 @@ bool EvRoute::canInsert(int node, const Instance &Inst, Insertion& Ins) {
         if(remainingBattery == -1){ // shouldnt ever fall in this if
             return false;
         }
-        int prevNode = this->nodes.at(pos -1);
-        int nextNode = this->nodes.at(pos);
-        float distance = Inst.getDistance(prevNode, node) + Inst.getDistance(node, nextNode) - Inst.getDistance(prevNode, nextNode);
+        int prevNode = this->route.at(pos -1);
+        int nextNode = this->route.at(pos);
+        float distance = Inst.getDistance(prevNode, clientId) + Inst.getDistance(clientId, nextNode) - Inst.getDistance(prevNode, nextNode);
         float insertionCost = distance*1;
         float batteryCost = distance*1;
 
@@ -108,12 +122,12 @@ bool EvRoute::canInsert(int node, const Instance &Inst, Insertion& Ins) {
            std::vector<int> betweenRs;
            for(int i = prevRs + 1; i < nextRs; i++){
                if(i == pos){
-                   betweenRs.push_back(node);
+                   betweenRs.push_back(clientId);
                }
-               betweenRs.push_back(this->nodes.at(i));
+               betweenRs.push_back(this->route.at(i));
            }
-           for(int r = Inst.getFirstRsIndex(); r < Inst.getFirstRsIndex() + Inst.getNrs(); r++){
-               float rsDistance = Inst.getDistance(prevNode, node) + Inst.getDistance(node, nextNode) - Inst.getDistance(prevNode, nextNode);
+           for(int r = Inst.getFirstRsIndex(); r < Inst.getFirstRechargingSIndex() + Inst.getN_RechargingS(); r++){
+               float rsDistance = Inst.getDistance(prevNode, clientId) + Inst.getDistance(clientId, nextNode) - Inst.getDistance(prevNode, nextNode);
                float rsInsertionCost = distance*1;
                float rsBatteryCost = distance*1;
 
@@ -125,12 +139,12 @@ bool EvRoute::canInsert(int node, const Instance &Inst, Insertion& Ins) {
        //}
        if(insertionCost < bestInsertionCost){
            bestInsertionCost = insertionCost;
-           Ins = Insertion(pos, node, insertionCost, rs, rsPos);
+           Ins = Insertion(pos, clientId, insertionCost, rs, rsPos);
        }
     }
 
-    // get the battery cost;
-    // get the demand cost;
+    // get the battery distance;
+    // get the demand distance;
     // checar se consegue com a capacidade atual
     // checar se consegue com a bateria atual (a bateria do veiculo antes da proxima recarga.
     return true;
@@ -139,15 +153,15 @@ bool EvRoute::canInsert(int node, const Instance &Inst, Insertion& Ins) {
 
 bool EvRoute::insert(const Insertion &Ins, const Instance &Inst) {
     int pos = Ins.pos;
-    int node = Ins.node;
+    int node = Ins.clientId;
     if(pos <= 0 || pos >= this->size() - 1){
         return false;
     }
     if(node < 0){
         return false;
     }
-    // get the battery cost;
-    // get the demand cost;
+    // get the battery distance;
+    // get the demand distance;
     // checar se consegue com a capacidade atual
     // checar se consegue com a bateria atual (a bateria do veiculo antes da proxima recarga.
     //  inserir
@@ -156,10 +170,10 @@ bool EvRoute::insert(const Insertion &Ins, const Instance &Inst) {
     //  atualizar custo
     //
     this->remainingCapacity -= Ins.demand;
-    this->nodes.insert(this->nodes.begin() + pos, node);
+    this->route.insert(this->route.begin() + pos, node);
     this->totalDemand += Ins.demand;
-    this->cost += Ins.cost;
-    // ignoring battery cost for now;
+    this->distance += Ins.cost;
+    // ignoring battery distance for now;
     //this->rechargingStations;
     return true;
 }

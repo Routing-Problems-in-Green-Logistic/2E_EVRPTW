@@ -12,7 +12,7 @@ public:
     EvRoute& getRoute(int i);
 private:
     std::vector<EvRoute> routes;
-    int id; // number of the node in the instance;
+    int id; // number of the clientId in the instance;
     float demand;
     float evCapacity;
     float evBattery;
