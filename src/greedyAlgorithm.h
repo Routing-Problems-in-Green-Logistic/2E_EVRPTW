@@ -5,8 +5,14 @@
 #include <list>
 #include <vector>
 
-bool secondEchelonGreedy(Solution& Sol, const Instance& Inst);
-void firstEchelonGreedy(Solution& Sol, const Instance& Inst);
-void greedy(Solution& Sol, const Instance& Inst);
+namespace GreedyAlgNS
+{
+
+    bool secondEchelonGreedy(Solution& Sol, const Instance& Inst, float alpha);
+    void firstEchelonGreedy(Solution &Sol, const Instance &Inst);
+    void greedy(Solution &Sol, const Instance &Inst);
+    bool visitAllClientes(std::vector<int> &visitedClients, const Instance &Inst);
+}
+
 #endif //INC_2E_EVRP_GREEDYALGORITHM_H
 

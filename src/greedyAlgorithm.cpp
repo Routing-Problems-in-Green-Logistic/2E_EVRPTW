@@ -1,30 +1,35 @@
 #include "greedyAlgorithm.h"
 #include <set>
-bool secondEchelonGreedy(Solution& Sol, const Instance& Inst, float alpha){
-    /*
-    std::vector<std::vector<std::vector<Insertion*>>> insertionTable(Inst.getNSats(),
-                                                                     std::vector<std::vector<Insertion*>>(1,
-                                                                             std::vector<Insertion*>(Inst.getNClients(),
-                                                                                                     nullptr))); // Os indices da lista sao os IDs dos clientes, os indices de seus vectors os satelites e os indices destes os clientes. // TODO: maybe use matrix instead of vec<vec<>>;
-    //expects empty Solution
+using namespace GreedyAlgNS;
 
-    for(int i = Inst.getFirstClientIndex(); i < Inst.getFirstClientIndex()+Inst.getNClients(); i++){
-        unvisitedClients.insert(i);
-    }
-     */
-    std::set<int> unvisitedClients;
-    std::set<Insertion> restrictedList;
-    while(!unvisitedClients.empty()){
-        for(int client : unvisitedClients){
+bool GreedyAlgNS::secondEchelonGreedy(Solution& Sol, const Instance& Inst, const float alpha)
+{
+
+    std::vector<int> visitedClients(1+Inst.getNSats()+Inst.getNClients());
+    visitedClients[0]       = -1;
+    const auto itSat        = visitedClients.begin() + 1;                                       // 1
+    const auto itSatEnd     = visitedClients.begin() + Inst.getNSats();
+    const auto itClient     = visitedClients.begin() + 1+Inst.getNSats();
+    const int fistIdClient  = 1+Inst.getNSats();
+    const int lastIdClient  = Inst.getNSats()+Inst.getNClients();
+    const auto itEnd        = visitedClients.begin() + Inst.getNSats()+Inst.getNClients();
+
+    std::fill(itSat, itSatEnd, -1);
+    std::fill(itClient, itEnd, 0);
+
+    std::list<Insertion> restrictedList;
+    while(!visitAllClientes(visitedClients, Inst))
+    {
+        for(int clientId = fistIdClient; clientId < lastIdClient+1; ++clientId){
             for(int s = 0; s < Sol.getNSatelites(); s++){
                 Satelite* Sat = Sol.getSatelite(s);
                 for(int r = 0; r < Sol.getSatelite(s)->getNRoutes(); r++) {
                     EvRoute &route = Sat->getRoute(r);
-                    Insertion Ins{};
-                    bool canInsert = route.canInsert(client, Inst, Ins);
-                    if (canInsert) {
-                        restrictedList.insert(Ins);
-                        //insertionTable.at(s).at(r).at(client - Inst.getFirstClientIndex()) = Ins;
+                    Insertion insertion{};
+                    bool canInsert = route.canInsert(clientId, Inst, insertion);
+                    if (canInsert)
+                    {
+                        restrictedList.push_back(insertion); //insertionTable.at(s).at(r).at(client - Inst.getFirstClientIndex()) = Ins;
                     } else {
                         //insertionTable.at(s).at(r).at(client - Inst.getFirstClientIndex()) = nullptr;
                     }
@@ -32,7 +37,20 @@ bool secondEchelonGreedy(Solution& Sol, const Instance& Inst, float alpha){
                 }
             }
         }
-        int randIndex = rand()%((int)(0.3*(int)restrictedList.size() + 1));
+
+        int randIndex = rand()%(int(alpha*restrictedList.size() + 1));
         auto topItem = std::next(restrictedList.begin(), randIndex);
     }
+}
+
+bool GreedyAlgNS::visitAllClientes(std::vector<int> &visitedClients, const Instance &Inst)
+{
+
+    auto itClient = visitedClients.begin() + 1+Inst.getNSats();
+
+    for(; itClient != visitedClients.end(); ++itClient)
+        if(*itClient == 0) return false;
+
+    return true;
+
 }
