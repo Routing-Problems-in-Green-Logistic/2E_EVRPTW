@@ -11,7 +11,8 @@ public:
     int getNRoutes() const;
     EvRoute& getRoute(int i);
 private:
-    std::vector<EvRoute> routes;
+    std::vector<EvRoute> vetEvRoute;
+    int tamVetEvRoute;
     int id; // number of the clientId in the instance;
     float demand;
     float evCapacity;

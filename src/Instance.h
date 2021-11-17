@@ -27,6 +27,8 @@ public:
      * @return number of Recharging Stations
      */
     int getN_RechargingS() const;
+    int getN_Evs() const;
+    int getN_Trucks() const;
 
     bool isClient(int node) const;
     bool isRechargingStation(int node) const;
@@ -44,6 +46,9 @@ private:
     float truckCap, evCap, evBattery;
     int nSats, nClients, nRechargingS;
     float evCost, truckCost;
+
+    int nAproxEv;
+    int nAproxTruck;
 };
 
 #endif

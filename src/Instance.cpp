@@ -1,3 +1,4 @@
+#include <cmath>
 #include "Instance.h"
 
 Instance::Instance(std::vector<std::vector<double>> &distMat, float truckCap, float evCap, float evBattery, int nSats,
@@ -14,6 +15,17 @@ Instance::Instance(std::vector<std::vector<double>> &distMat, float truckCap, fl
     this->nSats = nSats;
     this->evCost = 0;
     this->truckCost = 0;
+
+
+    float sumDemands = 0.0;
+    for(auto demand:demands)
+        sumDemands += demand;
+
+    int div = int(ceil(sumDemands/evCap));
+    nAproxEv = div + int(ceil(div*0.1));
+
+    div =  int(ceil(sumDemands/truckCap));
+    nAproxTruck =  div + int(ceil(div*0.2));
 }
 
 // Getters and Setters
@@ -45,6 +57,18 @@ int Instance::getN_RechargingS() const {
     return nRechargingS;
 }
 
+
+int Instance::getN_Evs() const
+{
+    return nAproxEv;
+}
+
+int Instance::getN_Trucks() const
+{
+
+    return nAproxTruck;
+}
+
 float Instance::getDistance(int n1, int n2) const {
     float dist = (float)this->distMat.at(n1).at(n2);
     return dist;
@@ -59,7 +83,7 @@ float Instance::getTruckCost() const {
 }
 
 int Instance::getFirstClientIndex() const {
-    return (int)this->demands.size() - this->getNClients() - this->getN_RechargingS(); // the last route are route;
+    return (int)this->demands.size() - this->getNClients() - this->getN_RechargingS(); // the last vetEvRoute are vetEvRoute;
 
 }
 int Instance::getEndClientIndex() const
