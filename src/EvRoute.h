@@ -5,13 +5,13 @@
 #include "Route.h"
 #include <list>
 
-
 class Insertion {
 public:
-    int pos             = -1;
+
+    int pos             = -1;       // Verificar se o indice rechargingS_Pos eh menor antes de inserir na solucao. O indice maior ja esta considerando +1
     int clientId        = -1;
-//    int rs;
-    int rsPos           = -1;
+    int rechargingS_Id  = -1;
+    int rechargingS_Pos = -1;       // Verificar se o indice pos eh menor antes de inserir na solucao. O indice maior ja esta considerando +1
     int routeId         = -1;
     int satId           = -1;
     float cost          = 0.0;
@@ -25,7 +25,7 @@ public:
         this->demand = demand;
 //        this->rs = rs;
         this->batteryCost = batteryCost;
-        this->rsPos = rsPos;
+        this->rechargingS_Pos = rsPos;
         this->routeId = routeId;
         this->satId = satId;
     }
@@ -46,9 +46,10 @@ public:
     float getCurrentCapacity() const;
     float getCost(const Instance& Inst) const;
     bool insert(int node, int pos, const Instance& Inst);
-    bool insert(const Insertion& Ins, const Instance& Inst);
+    bool insert(Insertion& insertion, const Instance& Inst);
     void print() const;
     bool canInsert(int node, const Instance &Instance, Insertion &insertion);
+    bool rechargingS_inUse(int id);
 
 private:
     float totalDemand;
@@ -59,7 +60,8 @@ private:
     int satelite;
     float initialCapacity;
     float initialBattery;
-    std::list<std::pair<int, float>> rechargingStations; // pair {position, remainingBatteryBefore}. Also includes the last clientId, the satelite.
+    std::list<std::pair<int,int>> rechargingStationsPos_Rs;     // Armazena tuplas com (posicao de route; recharging station id)
+    std::vector<bool> rechargingStationRoute;                   // Indica se a posicao eh uma estacao de recarga
     std::vector<int> route;
     int routeSize = 2;
     int routeSizeMax = -1;
