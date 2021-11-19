@@ -15,9 +15,14 @@ EvRoute::EvRoute(float evBattery, float evCapacity, int satelite, const int Rout
         route.push_back(-1);
 
     rechargingStationRoute.reserve(RouteSizeMax);
+    vetRemainingBattery.reserve(RouteSizeMax);
 
     for(int i=0; i < RouteSizeMax; ++i)
+    {
         rechargingStationRoute.push_back(false);
+        vetRemainingBattery.push_back(initialBattery);
+    }
+
 
     routeSize = 2;
     routeSizeMax = RouteSizeMax;
@@ -35,6 +40,7 @@ float EvRoute::getCost(const Instance& Inst) const{
 float EvRoute::getCurrentCapacity() const{
     return this->remainingCapacity;
 }
+/*
 bool EvRoute::insert(int node, int pos, const Instance& Inst){
     if(pos <= 0 || pos >= this->size() - 1){
         return false;
@@ -53,6 +59,8 @@ bool EvRoute::insert(int node, int pos, const Instance& Inst){
     //
     return true;
 }
+*/
+
 void EvRoute::print() const {
     for(int node : this->route){
         std::cout << node << ", ";
@@ -195,7 +203,7 @@ bool EvRoute::canInsert(int node, const Instance &Inst, Insertion &insertion)
 
         }
     }
-    if(bestInsertionCost == 1e8){
+    if(bestInsertionCost == FLT_MAX){
         return false;
     }
     return true;
@@ -279,7 +287,8 @@ bool EvRoute::canInsert(int clientId, const Instance &Inst, Insertion& insertion
 */
 
 // Insertion em vector esta errado. Tamanho do vector eh fixo.
-bool EvRoute::insert(Insertion &insertion, const Instance &Inst) {
+bool EvRoute::insert(Insertion &insertion, const Instance &Inst)
+{
     int pos = insertion.pos;
     int node = insertion.clientId;
     if(pos <= 0 || pos >= this->size() - 1){
