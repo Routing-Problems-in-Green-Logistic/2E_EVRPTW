@@ -39,17 +39,28 @@ public:
 class EvRoute{
 public:
     EvRoute(float evBattery, float evCapacity, int satelite, int RouteSizeMax);
-    float getBatteryAt(int pos, const Instance& Inst) const;
+    // float getBatteryAt(int pos, const Instance& Inst) const; // REPLACED WITH getBatteryBefore
     int size() const;
     float getDemand(const Instance& Inst) const;
     float getMinDemand() const;
+
+    float getInitialCapacity() const;
+
+    float getInitialBattery() const;
+
+    float getMaxDemand() const;
     float getCurrentCapacity() const;
     float getCost(const Instance& Inst) const;
+    float getDemandOf(int i, const Instance& Inst) const;
+    float getRemainingBatteryBefore(int i) const;
     bool insert(int node, int pos, const Instance& Inst);
     bool insert(Insertion& insertion, const Instance& Inst);
     void print() const;
-    bool canInsert(int node, const Instance &Instance, Insertion &insertion);
+    bool canInsert(int node, const Instance &Instance, Insertion &insertion) const;
     bool rechargingS_inUse(int id);
+    bool isRechargingS(int pos, const Instance& Inst) const;
+    int getNodeAt(int pos);
+
 
 private:
     float totalDemand;
@@ -65,6 +76,8 @@ private:
     std::vector<int> route;
     int routeSize = 2;
     int routeSizeMax = -1;
+    float minDemand = 1e8;
+    float maxDemand = 0;
 
 };
 #endif

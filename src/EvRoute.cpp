@@ -68,12 +68,17 @@ void EvRoute::print() const {
     std::cout << std::endl;
 }
 float EvRoute::getMinDemand() const {
-    return -1;
+    if(this->size() == 0){
+        return 0;
+    }
+    return minDemand;
 }
-float EvRoute::getBatteryAt(int pos, const Instance &Inst) const {
-    return 0;
+
+float EvRoute::getMaxDemand() const {
+    return maxDemand;
 }
-bool EvRoute::canInsert(int node, const Instance &Inst, Insertion &insertion)
+
+bool EvRoute::canInsert(int node, const Instance &Inst, Insertion &insertion) const
 {
     float demand = Inst.getDemand(node);
     float bestInsertionCost = FLT_MAX;
@@ -309,6 +314,7 @@ bool EvRoute::insert(Insertion &insertion, const Instance &Inst)
     this->remainingCapacity -= insertion.demand;
     this->totalDemand += insertion.demand;
     this->distance += insertion.cost;
+
     // ignoring battery distance for now;
     //this->rechargingStations;
 
@@ -337,6 +343,14 @@ bool EvRoute::insert(Insertion &insertion, const Instance &Inst)
 
     routeSize += 1;
 
+    // Atualizando estruturas auxiliares (demanda maxima e minima da rota)
+    if(insertion.demand < this->getMinDemand()){
+        this->minDemand = insertion.demand;
+    }
+    if(insertion.demand > this->getMaxDemand()){
+        this->maxDemand = insertion.demand;
+    }
+
     // Atualizar vetRemainingBattery
 
 
@@ -357,3 +371,28 @@ bool EvRoute::insert(Insertion &insertion, const Instance &Inst)
     }
     return true;
 }
+
+float EvRoute::getInitialCapacity() const {
+    return initialCapacity;
+}
+
+float EvRoute::getInitialBattery() const {
+    return initialBattery;
+}
+
+float EvRoute::getDemandOf(int i, const Instance &Inst) const {
+    return Inst.getDemand(this->route.at(i));
+}
+
+bool EvRoute::isRechargingS(int pos, const Instance& Inst) const {
+    return Inst.isRechargingStation(this->route.at(pos));
+}
+
+int EvRoute::getNodeAt(int pos) {
+    return this->route.at(pos);
+}
+
+float EvRoute::getRemainingBatteryBefore(int i) const {
+    return 0; // TODO: guardar bateria no ponto com estrutura auxiliar.
+}
+

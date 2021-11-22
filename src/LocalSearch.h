@@ -6,6 +6,7 @@
 #define INC_2E_EVRP_LOCALSEARCH_H
 
 #include "EvRoute.h"
+#include "Solution.h"
 
 
 #define MOV_SHIFIT      0
@@ -13,11 +14,9 @@
 #define MOV_2_OPT       2
 #define MOV_CROSS       3
 
-namespace NS_LocalSearch
-{
+namespace NS_LocalSearch {
 
-    class LocalSearch
-    {
+    class LocalSearch {
 
     public:
 
@@ -33,6 +32,9 @@ namespace NS_LocalSearch
         Insertion inser1;
 
     };
+    bool intraSwap(const LocalSearch& ls, Solution& Sol, float& improvement);
+    bool intraSatelliteSwap(Solution& Sol, int SatId, const Instance& Inst, float& improvement);
+
 
 }
 
