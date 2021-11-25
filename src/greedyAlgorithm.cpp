@@ -1,6 +1,9 @@
 #include "greedyAlgorithm.h"
+#include "Auxiliary.h"
+
 #include <set>
 using namespace GreedyAlgNS;
+using namespace std;
 
 bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const float alpha)
 {
@@ -23,45 +26,89 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const
     {
         std::list<Insertion> restrictedList;
 
-        for(int clientId = FistIdClient; clientId < LastIdClient + 1; ++clientId){
-            for(int satId = 0; satId < sol.getNSatelites(); satId++){
-                Satelite* sat = sol.getSatelite(satId);
-                for(int routeId = 0; routeId < sol.getSatelite(satId)->getNRoutes(); routeId++) {
-                    EvRoute &route = sat->getRoute(routeId);
-                    Insertion insertion(routeId);
-                    bool canInsert = route.canInsert(clientId, Inst, insertion);
-                    if (canInsert)
+        for(int clientId = FistIdClient; clientId < LastIdClient + 1; ++clientId)
+        {
+
+            if(!visitedClients[clientId])
+            {
+                for(int satId = Inst.getFirstSatIndex(); satId <= Inst.getEndSatIndex(); satId++)
+                {
+                    Satelite *sat = sol.getSatelite(satId - Inst.getFirstSatIndex());
+
+                    bool routeEmpty = false;
+                    for(int routeId = 0; routeId < sol.getSatelite(satId - Inst.getFirstSatIndex())->getNRoutes(); routeId++)
                     {
-                        restrictedList.push_back(insertion); //insertionTable.at(satId).at(routeId).at(client - Inst.getFirstClientIndex()) = Ins;
+                        EvRoute &route = sat->getRoute(routeId);
+
+                        if((route.routeSize == 2)&&(!routeEmpty) || (route.routeSize > 2))
+                        {
+
+                            if(route.routeSize == 2)
+                                routeEmpty = true;
+
+                            Insertion insertion(routeId);
+                            insertion.satId = satId;
+
+
+                            bool canInsert = route.canInsert(clientId, Inst, insertion);
+
+
+                            if(canInsert)
+                            {
+
+
+                                restrictedList.push_back(insertion); //insertionTable.at(satId).at(routeId).at(client - Inst.getFirstClientIndex()) = Ins;
+                            }
+
+
+                        }
                     }
-                    /*
-                    else {
-                        //insertionTable.at(satId).at(routeId).at(client - Inst.getFirstClientIndex()) = nullptr;
-                    }
-                    //restrictedList.push_back(insertionTable.at(satId).at(routeId).at(client - Inst.getFirstClientIndex()));
-                     */
                 }
             }
         }
 
+
+
+        if(restrictedList.empty())
+        {
+            sol.viavel = false;
+            break;
+        }
+
+
         int randIndex = rand()%(int(alpha*restrictedList.size() + 1));
+
         auto topItem = std::next(restrictedList.begin(), randIndex);
 
         visitedClients[topItem->clientId] = 1;
 
-        Satelite *satelite = sol.getSatelite(topItem->satId);
+
+        Satelite *satelite = sol.getSatelite(topItem->satId-Inst.getFirstSatIndex());
         EvRoute &evRoute = satelite->getRoute(topItem->routeId);
+
 
         if(!evRoute.insert(*topItem, Inst))
         {
 
-            std::string erro = "ERRO AO INSERIR O CANDIDATO NA SOLUCAO.\nArquivo: " + std::string(__FILENAME__) + "\nLinha: " +
-                    std::to_string(__LINE__);
+            std::cerr<<"\n\n\n\n************************************\nERRO, NAO FOI POSSIVEL INSERIR CLIENTE NA SULUCAO\n";
 
-            throw erro.c_str();
+            throw "ERRO";
         }
 
     }
+
+    std::string str = "";
+    if(!sol.checkSolution(str, Inst))
+    {
+        std::cerr<<str<<"\n\n";
+        std::cout<<"*******************************************\n";
+
+        throw "ERRO";
+    }
+
+
+
+
 
     return false;
 }

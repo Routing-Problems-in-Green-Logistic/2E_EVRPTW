@@ -18,7 +18,8 @@ public:
     float demand        = 0.0;
     float batteryCost   = 0.0;
 
-    Insertion(int pos, int clientId, float cost, float demand, float batteryCost, int routeId, int satId, int rsPos = -1) {
+    Insertion(int pos, int clientId, float cost, float demand, float batteryCost, int routeId, int satId, int rsPos, int rsId)
+    {
         this->pos = pos;
         this->clientId = clientId;
         this->cost = cost;
@@ -28,6 +29,7 @@ public:
         this->rechargingS_Pos = rsPos;
         this->routeId = routeId;
         this->satId = satId;
+        rechargingS_Id = rsId;
     }
     Insertion(int routeId) { this->routeId = routeId;}
     Insertion() = default;
@@ -53,31 +55,33 @@ public:
     float getCost(const Instance& Inst) const;
     float getDemandOf(int i, const Instance& Inst) const;
     float getRemainingBatteryBefore(int i) const;
-    bool insert(int node, int pos, const Instance& Inst);
+    //bool insert(int node, int pos, const Instance& Inst);
     bool insert(Insertion& insertion, const Instance& Inst);
     void print() const;
     bool canInsert(int node, const Instance &Instance, Insertion &insertion) const;
-    bool rechargingS_inUse(int id);
+    bool rechargingS_inUse(int id) const;
     bool isRechargingS(int pos, const Instance& Inst) const;
     int getNodeAt(int pos);
 
 
-private:
-    float totalDemand;
+    float totalDemand = 0.0;
     float remainingCapacity; // TODO: deixar soh total de demanda
-    std::vector<float> vetRemainingBattery;
-    float distance;
+    float distance = 0.0;
     float batteryConsumption;
-    int satelite;
+    int satelite = 0.0;
     float initialCapacity;
     float initialBattery;
     std::list<std::pair<int,int>> rechargingStationsPos_Rs;     // Armazena tuplas com (posicao de route; recharging station id)
     std::vector<bool> rechargingStationRoute;                   // Indica se a posicao eh uma estacao de recarga
     std::vector<int> route;
+    std::vector<float> vetRemainingBattery;
     int routeSize = 2;
     int routeSizeMax = -1;
     float minDemand = 1e8;
     float maxDemand = 0;
 
+    void print(std::string &str) const;
+
+    bool checkRoute(std::string &erro, const Instance &Inst);
 };
 #endif

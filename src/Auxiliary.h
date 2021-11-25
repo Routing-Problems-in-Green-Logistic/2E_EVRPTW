@@ -6,10 +6,16 @@
 #define INC_2E_EVRP_AUXILIARY_H
 
 #include <vector>
+#include <iostream>
+using namespace std;
+
+#define BATTERY_TOLENCE 1e-4
+#define DISTANCE_TOLENCE 1e-2
+
+#define PRINT_DEBUG(inicio, texto) cout<<inicio<<"DEBUG: "<<texto<<"  FILE: "<<__FILE__<<"  LINHA: "<<__LINE__<<"\n";
 
 namespace NS_Auxiliary
 {
-
 
     template<typename T>
 
@@ -20,10 +26,15 @@ namespace NS_Auxiliary
      * Realiza o shift ate pos(inclusive)
      *
      */
+
     void shiftVectorDir(std::vector<T> &vector, const int pos, const int quant, const int sizeVector)
     {
-        for(int i=sizeVector-1; i <= pos; --i)
-            vector[i+quant] = vector[i];
+
+        for(int i=sizeVector-1; i >= pos; --i)
+        {
+            vector[i + quant] = vector[i];
+        }
+
     }
 }
 

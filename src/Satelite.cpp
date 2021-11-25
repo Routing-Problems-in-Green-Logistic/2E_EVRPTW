@@ -14,7 +14,9 @@ Satelite::Satelite(int id, const Instance& Inst)
     tamVetEvRoute = Inst.getN_Evs();
 
     for(int i=0; i < Inst.getN_Evs(); ++i)
+    {
         vetEvRoute.emplace_back(this->evBattery, this->evCapacity, this->id, max);
+    }
 
 }
 
@@ -32,4 +34,53 @@ int Satelite::getNRoutes() const {
 
 EvRoute &Satelite::getRoute(int i) {
     return this->vetEvRoute.at(i);
+}
+
+bool Satelite::checkSatellite(std::string &erro, const Instance &Inst)
+{
+    // Verifica os satellite
+    for(EvRoute &evRoute:vetEvRoute)
+    {
+        if(this->id !=  evRoute.satelite)
+        {
+            erro += "ERRO, SATELLITE NA ROTA EH DIFERENTE NO SATELLITE. ID SATELLITE: "+ std::to_string(id) + " != ID SATELLITE ROTA: "+std::to_string(evRoute.satelite);
+            return false;
+        }
+
+        if(!evRoute.checkRoute(erro, Inst))
+            return false;
+    }
+
+    return true;
+}
+
+void Satelite::print(std::string &str)
+{
+    str += "SATELLITE ID: "+ std::to_string(id)+"\n\n";
+    int i=0;
+
+    for(EvRoute &evRoute:vetEvRoute)
+    {
+        str += "\tROTA ID: "+ std::to_string(i)+".:  ";
+        evRoute.print(str);
+        str+= "\n";
+    }
+
+    str += "\n\n";
+}
+
+void Satelite::print()
+{
+
+    std::cout<<"SATELLITE ID: "<<id<<"\n\n";
+    int i=0;
+
+    for(EvRoute &evRoute:vetEvRoute)
+    {
+        std::cout<<"\tROTA ID: "<<i<<".:  ";
+        evRoute.print();
+        std::cout<<"\n";
+    }
+
+    std::cout<<"\n\n";
 }

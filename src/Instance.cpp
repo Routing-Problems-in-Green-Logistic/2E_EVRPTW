@@ -70,8 +70,10 @@ int Instance::getN_Trucks() const
 }
 
 float Instance::getDistance(int n1, int n2) const {
-    float dist = (float)this->distMat.at(n1).at(n2);
-    return dist;
+    if(n1==n2)
+        return 0.0;
+
+    return (float)this->distMat.at(n1).at(n2);
 }
 
 float Instance::getEvCost() const {

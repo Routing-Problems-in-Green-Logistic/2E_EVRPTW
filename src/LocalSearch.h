@@ -53,6 +53,4 @@ namespace NS_LocalSearch {
  * Entre satellites, 'inter rotas'
  * -cross       <- Igor
  *
- *
- *
  */

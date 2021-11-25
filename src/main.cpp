@@ -5,7 +5,10 @@
 #include <sstream>
 #include <math.h>
 #include <time.h>
+#include "greedyAlgorithm.h"
+
 using namespace std;
+using namespace GreedyAlgNS;
 
 float distance(std::pair<float, float> p1, std::pair<float,float> p2)
 {
@@ -13,7 +16,9 @@ float distance(std::pair<float, float> p1, std::pair<float,float> p2)
     return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) * 1.0);
 }
 
-Instance* getInstanceFromFile(std::string fileName){
+void routine(char** filenames, int nFileNames);
+
+Instance* getInstanceFromFile(std::string &fileName){
     std::ifstream file(fileName);
     std::string line;
     stringstream ss, ssaux, ssaux2;
@@ -75,11 +80,60 @@ Instance* getInstanceFromFile(std::string fileName){
     auto* Inst = new Instance(distMat, truckCap, evCap, evBattery, nSats, nClients, nRS, coordinates, demands);
     return Inst;
 }
-int main(int argc, char* argv[]){
-    srand(time(NULL));
-    void routine(char** filenames, int nFileNames);
-    routine(argv, argc);
+int main(int argc, char* argv[])
+{
+
+    //auto semente = long(1637813360);
+    auto semente = time(nullptr);
+    cout<<"SEMENTE: "<<semente<<"\n\n";
+
+    srand(semente);
+
+    if(argc != 2)
+    {
+        std::cerr<<"FORMATO: a.out file.txt\n";
+        return -1;
+    }
+
+    std::string file(argv[1]);
+    Instance *instance = getInstanceFromFile(file);
+
+    Solution solution(*instance);
+
+
+/*    int vet[9] = {1,12,24,18,23,14,11,9,1};
+
+    float dist = 0.0;
+
+    for(int i=0; (i+1) < 9; ++i)
+        dist += instance->getDistance(vet[i], vet[i+1]);
+
+    cout<<"DIST: "<<dist<<"\n";
+    exit(-1);*/
+
+    try
+    {
+        secondEchelonGreedy(solution, *instance, 0.1);
+        cout<<"SOLUCAO VIAVEL: "<<solution.viavel<<"\n";
+    }
+    catch(std::out_of_range &e)
+    {
+        std::cerr<<e.what()<<"\n\n";
+        exit(-1);
+    }
+    catch(const char *erro)
+    {
+        std::cout<<"CATCH ERRO\n";
+        std::cerr<<erro<<"\n\n";
+        std::cerr<<"Semente: "<<semente<<"\n";
+        exit(-1);
+    }
+
+
+
     return 0;
 }
-void routine(char** filenames, int nFileNames){
+void routine(char** filenames, int nFileNames)
+{
+
 }
