@@ -34,6 +34,7 @@ namespace NS_LocalSearch {
     };
     bool intraSwap(const LocalSearch& ls, Solution& Sol, float& improvement);
     bool intraSatelliteSwap(Solution& Sol, int SatId, const Instance& Inst, float& improvement);
+    bool interSatelliteSwap(Solution&, const Instance& Inst, float& improvement);
 
 
 }

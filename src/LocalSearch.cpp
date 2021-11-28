@@ -83,3 +83,60 @@ bool NS_LocalSearch::intraSatelliteSwap(Solution &Sol, int satId, const Instance
     }
     return false;
 }
+
+bool NS_LocalSearch::interSatelliteSwap(Solution &Sol, const Instance &Inst, float &improvement) {
+    NS_LocalSearch::LocalSearch bestLs;
+    NS_LocalSearch::LocalSearch currentLs;
+    float bestCost = 1e8;
+    bool improving = true;
+    while (improving) {
+        improving = false;
+        for (int s0 = 0; s0 < Sol.getNSatelites(); s0++) {
+            Satelite *sat0 = Sol.getSatelite(s0);
+            for (int s1 = 0; s1 < Sol.getNSatelites(); s1++) {
+                Satelite *sat1 = Sol.getSatelite(s1);
+                for (int i = 0; i < sat0->getNRoutes(); i++) {
+                    for (int j = 0; j < sat1->getNRoutes(); j++) {
+                        EvRoute &evRoute0 = sat0->getRoute(i);
+                        EvRoute &evRoute1 = sat1->getRoute(j);
+                        if (i != j
+                            && evRoute0.getInitialCapacity() >= evRoute1.getMinDemand() + evRoute0.getDemand(Inst) -
+                                                                evRoute0.getMaxDemand() // a carga atual da rota0 + a carga do menor cliente da rota1  MENOS a menor carga da rota0 deve ser menor que a capacidade do veiculo.
+                            && evRoute1.getInitialCapacity() >=
+                               evRoute0.getMinDemand() + evRoute1.getDemand(Inst) -
+                               evRoute1.getMaxDemand()) { // e vice versa
+                            // Para cada cliente c0 na rota0
+                            for (int c0 = 1; c0 < evRoute0.size() - 1; c0++) {
+                                // se nao for estacao de recarga e tambem nao tiver uma demanda que ultrapassa a demanda maxima que a troca suporta,
+                                if (!evRoute0.isRechargingS(c0, Inst)
+                                    && evRoute0.getInitialCapacity() >= evRoute1.getMinDemand()
+                                                                        + evRoute0.getDemand(Inst)
+                                                                        - evRoute0.getDemandOf(c0,
+                                                                                               Inst)) { // a carga atual da rota0 + a carga do menor cliente da rota1  MENOS a carga do cliente c0 deve ser menor que a capacidade do veiculo.
+                                    // Para cada cliente c1 na rota1
+                                    for (int c1 = 1; c1 < evRoute1.size() - 1; c1++) {
+                                        // se nao for estacao de recarga..
+                                        float currentCost = 1e8;
+                                        currentLs = {};
+                                        if (isViableSwap(evRoute0, evRoute1, c0, c1, Inst, currentCost, currentLs)) {
+                                            if (currentCost > bestCost) {
+                                                //// ATUALIZA O OBJETO BEST_LS COM AS NOVAS INFORMACOES.
+                                                improving = true;
+                                                bestCost = currentCost;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if(improving){
+            /// aplica movimento de swap na solucao;
+        }
+    }
+    return false;
+
+}
