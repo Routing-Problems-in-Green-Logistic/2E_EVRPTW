@@ -119,7 +119,6 @@ bool GreedyAlgNS::visitAllClientes(std::vector<int> &visitedClients, const Insta
 
 void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const float beta)
 {
-    cout<<"firstEchelon\n";
 
     // Cria o vetor com a demanda de cada satellite
 
@@ -133,17 +132,11 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
         demandaNaoAtendidaSat.push_back(satelite->demand);
     }
 
-    for(float dem:demandaNaoAtendidaSat)
-        cout<<dem<<" ";
-    cout<<"\n";
-
     const int NumSatMaisDep = sol.getNSatelites()+1;
 
     // Enquanto existir um satellite com demanda > 0, continua
     while(existeDemandaNaoAtendida(demandaNaoAtendidaSat))
     {
-        cout<<"while\n";
-
         // Cria a lista de candidatos
         std::list<Candidato> listaCandidatos;
 
