@@ -10,7 +10,10 @@ public:
     float getDemand(const Instance&) const;
     int getNRoutes() const;
     EvRoute& getRoute(int i);
-private:
+    bool checkSatellite(std::string &erro, const Instance &Inst);
+    void print(std::string &str);
+    void print();
+
     std::vector<EvRoute> vetEvRoute;
     int tamVetEvRoute;
     int id; // number of the clientId in the instance;

@@ -5,15 +5,28 @@
 #include <vector>
 #include <iostream>
 
-class Route {
+class Route
+{
+
 public:
-    virtual int size() = 0;
-    virtual float getDemand() = 0;
-    virtual float getMinDemand() = 0;
-    virtual float getCost() = 0;
-    virtual void print() = 0;
-protected:
-    std::vector<int> nodes;
+    Route(const Instance &instance);
+    int getSize() const {return routeSize;}
+    float getDemand() const {return totalDemand;}
+    float getCost() const {return totalDistence;}
+    void print();
+    void print(std::string &str);
+    bool checkDistence(const Instance &instance, float *dist);
+
+    std::vector<int> rota;
+    int routeSize = 2;
+    int routeSizeMax = -1;
+
+    float totalDemand = 0.0;
+    float totalDistence = 0.0;
+
+    // Armazena a demanda levada pelo veiculo de cada satellite.
+    // Possui uma entrada para cada satellite da instancia
+    std::vector<float> satelliteDemand;
 };
 
 #endif

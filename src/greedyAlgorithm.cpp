@@ -1,6 +1,12 @@
 #include "greedyAlgorithm.h"
+#include "Auxiliary.h"
+
 #include <set>
+#include <cfloat>
+
 using namespace GreedyAlgNS;
+using namespace std;
+using namespace NS_Auxiliary;
 
 bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const float alpha)
 {
@@ -23,47 +29,80 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const
     {
         std::list<Insertion> restrictedList;
 
-        for(int clientId = FistIdClient; clientId < LastIdClient + 1; ++clientId){
-            for(int satId = 0; satId < sol.getNSatelites(); satId++){
-                Satelite* sat = sol.getSatelite(satId);
-                for(int routeId = 0; routeId < sol.getSatelite(satId)->getNRoutes(); routeId++) {
-                    EvRoute &route = sat->getRoute(routeId);
-                    Insertion insertion(routeId);
-                    bool canInsert = route.canInsert(clientId, Inst, insertion);
-                    if (canInsert)
+        for(int clientId = FistIdClient; clientId < LastIdClient + 1; ++clientId)
+        {
+
+            if(!visitedClients[clientId])
+            {
+                for(int satId = Inst.getFirstSatIndex(); satId <= Inst.getEndSatIndex(); satId++)
+                {
+                    Satelite *sat = sol.getSatelite(satId - Inst.getFirstSatIndex());
+
+                    bool routeEmpty = false;
+                    for(int routeId = 0; routeId < sol.getSatelite(satId - Inst.getFirstSatIndex())->getNRoutes(); routeId++)
                     {
-                        restrictedList.push_back(insertion); //insertionTable.at(satId).at(routeId).at(client - Inst.getFirstClientIndex()) = Ins;
+                        EvRoute &route = sat->getRoute(routeId);
+
+                        if((route.routeSize == 2)&&(!routeEmpty) || (route.routeSize > 2))
+                        {
+
+                            if(route.routeSize == 2)
+                                routeEmpty = true;
+
+                            Insertion insertion(routeId);
+                            insertion.satId = satId;
+
+
+                            bool canInsert = route.canInsert(clientId, Inst, insertion);
+
+
+                            if(canInsert)
+                            {
+
+
+                                restrictedList.push_back(insertion); //insertionTable.at(satId).at(routeId).at(client - Inst.getFirstClientIndex()) = Ins;
+                            }
+
+
+                        }
                     }
-                    /*
-                    else {
-                        //insertionTable.at(satId).at(routeId).at(client - Inst.getFirstClientIndex()) = nullptr;
-                    }
-                    //restrictedList.push_back(insertionTable.at(satId).at(routeId).at(client - Inst.getFirstClientIndex()));
-                     */
                 }
             }
         }
 
+
+
+        if(restrictedList.empty())
+        {
+            sol.viavel = false;
+            break;
+        }
+
+
         int randIndex = rand()%(int(alpha*restrictedList.size() + 1));
+
         auto topItem = std::next(restrictedList.begin(), randIndex);
 
         visitedClients[topItem->clientId] = 1;
 
-        Satelite *satelite = sol.getSatelite(topItem->satId);
+
+        Satelite *satelite = sol.getSatelite(topItem->satId-Inst.getFirstSatIndex());
+        satelite->demand += topItem->demand;
         EvRoute &evRoute = satelite->getRoute(topItem->routeId);
+
 
         if(!evRoute.insert(*topItem, Inst))
         {
 
-            std::string erro = "ERRO AO INSERIR O CANDIDATO NA SOLUCAO.\nArquivo: " + std::string(__FILENAME__) + "\nLinha: " +
-                    std::to_string(__LINE__);
+            std::cerr<<"\n\n\n\n************************************\nERRO, NAO FOI POSSIVEL INSERIR CLIENTE NA SULUCAO\n";
 
-            throw erro.c_str();
+            throw "ERRO";
         }
 
     }
 
-    return false;
+
+    return true;
 }
 
 bool GreedyAlgNS::visitAllClientes(std::vector<int> &visitedClients, const Instance &Inst)
@@ -76,4 +115,147 @@ bool GreedyAlgNS::visitAllClientes(std::vector<int> &visitedClients, const Insta
 
     return true;
 
+}
+
+void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const float beta)
+{
+
+    // Cria o vetor com a demanda de cada satellite
+
+    std::vector<float> demandaNaoAtendidaSat;
+    demandaNaoAtendidaSat.reserve(sol.getNSatelites()+1);
+    int satId = 1;
+    demandaNaoAtendidaSat.push_back(0.0);
+
+    for(Satelite *satelite:sol.satelites)
+    {
+        demandaNaoAtendidaSat.push_back(satelite->demand);
+    }
+
+    const int NumSatMaisDep = sol.getNSatelites()+1;
+
+    // Enquanto existir um satellite com demanda > 0, continua
+    while(existeDemandaNaoAtendida(demandaNaoAtendidaSat))
+    {
+        // Cria a lista de candidatos
+        std::list<Candidato> listaCandidatos;
+
+        // Percorre os satellites
+        for(int i=1; i < NumSatMaisDep; ++i)
+        {
+            Satelite *satelite = sol.satelites[i-1];
+
+            // Verifica se a demanda não atendida eh positiva
+            if(demandaNaoAtendidaSat[i] > 0.0)
+            {
+
+                // Percorre todas as rotas
+                for(int rotaId = 0; rotaId < sol.primeiroNivel.size(); ++rotaId)
+                {
+                    Route &route = sol.primeiroNivel[rotaId];
+
+                    // Verifica se veiculo esta 100% da capacidade
+                    if(route.totalDemand < Inst.getTruckCap())
+                    {
+                        // Calcula a capacidade restante do veiculo
+                        float capacidade = Inst.getTruckCap() - route.totalDemand;
+                        float demandaAtendida = capacidade;
+
+                        if(demandaNaoAtendidaSat[i] < capacidade)
+                            demandaAtendida = demandaNaoAtendidaSat[i];
+
+                        Candidato candidato(rotaId, i, demandaAtendida, FLT_MAX);
+
+                        // Percorre todas as posicoes da rota
+                        for(int p=0; (p+1) < route.routeSize; ++p)
+                        {
+                            float incrementoDist = 0.0;
+
+                            // Realiza a insercao do satellite entre as posicoes p e p+1 da rota
+                            const int clienteP = route.rota[p];
+                            const int clientePP = route.rota[p+1];
+
+                            // Calcula o incremento da distancia (Sempre positivo, desigualdade triangular)
+                            incrementoDist -= Inst.getDistance(clienteP, clientePP);
+                            incrementoDist = incrementoDist+ Inst.getDistance(clienteP, i) + Inst.getDistance(i, clientePP);
+
+                            if(incrementoDist < candidato.incrementoDistancia)
+                            {
+                                candidato.incrementoDistancia = incrementoDist;
+                                candidato.pos = p;
+                            }
+                        }
+
+                        if(candidato.pos >= 0)
+                            listaCandidatos.push_back(candidato);
+
+                    }
+                }
+            }
+        }
+
+
+        if(!listaCandidatos.empty())
+        {
+
+            listaCandidatos.sort();
+
+            // Escolhe o candidado da lista restrita
+            int tam = int(beta * listaCandidatos.size()) + 1;
+            int escolhido = rand() % tam;
+            auto it = listaCandidatos.begin();
+
+            std::advance(it, escolhido);
+            Candidato &candidato = *it;
+
+            // Insere candidato na solucao
+            Route &route = sol.primeiroNivel[candidato.rotaId];
+            shiftVectorDir(route.rota, candidato.pos + 1, 1, route.routeSize);
+            route.rota[candidato.pos + 1] = candidato.satelliteId;
+            route.routeSize += 1;
+
+            // Atualiza demanda, vetor de demanda e distancia
+            route.totalDemand += candidato.demand;
+            route.satelliteDemand[candidato.satelliteId] = candidato.demand;
+            route.totalDistence += candidato.incrementoDistancia;
+
+            demandaNaoAtendidaSat[candidato.satelliteId] -= candidato.demand;
+        }
+        else
+        {
+            // Adiciona mais um veiculo a solucao
+            sol.primeiroNivel.push_back(Inst);
+            sol.nTrucks += 1;
+        }
+    }
+
+}
+
+bool GreedyAlgNS::existeDemandaNaoAtendida(std::vector<float> &demandaNaoAtendida)
+{
+    for(float dem:demandaNaoAtendida)
+    {
+        if(dem > 0.0)
+            return true;
+    }
+
+    return false;
+}
+
+void GreedyAlgNS::greedy(Solution &sol, const Instance &Inst, const float alpha, const float beta)
+{
+    if(secondEchelonGreedy(sol, Inst, alpha))
+    {
+
+        firstEchelonGreedy(sol, Inst, beta);
+
+        std::string str = "";
+        if(!sol.checkSolution(str, Inst))
+        {
+            std::cerr << str << "\n\n";
+            std::cout << "*******************************************\n";
+
+            throw "ERRO";
+        }
+    }
 }
