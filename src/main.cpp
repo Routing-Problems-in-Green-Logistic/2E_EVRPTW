@@ -113,7 +113,11 @@ int main(int argc, char* argv[])
 
     try
     {
-        secondEchelonGreedy(solution, *instance, 0.1);
+        greedy(solution, *instance, 0.3, 0.3);
+        cout<<"SOLUCAO VIAVEL: "<<solution.viavel<<"\n";
+        solution.print();
+
+        cout<<"\n\nTRUCK CAP: "<<instance->getTruckCap()<<"\n";
         cout<<"SOLUCAO VIAVEL: "<<solution.viavel<<"\n";
     }
     catch(std::out_of_range &e)

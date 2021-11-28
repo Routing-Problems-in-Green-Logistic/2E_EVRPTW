@@ -1,4 +1,5 @@
 #include "Solution.h"
+#include "Auxiliary.h"
 
 Solution::Solution(const Instance &Inst) {
     this->Dep = new Depot(Inst);
@@ -10,6 +11,14 @@ Solution::Solution(const Instance &Inst) {
     {
         this->satelites.push_back(new Satelite(Inst.getFirstSatIndex() + i, Inst));
     }
+
+    nTrucks = Inst.getN_Trucks();
+    primeiroNivel.reserve(nTrucks);
+
+    for(int i=0; i < nTrucks; ++i)
+        primeiroNivel.emplace_back(Inst);
+
+
 
 }
 
@@ -27,6 +36,8 @@ Depot* Solution::getDepot() {
 
 bool Solution::checkSolution(std::string &erro, const Instance &Inst)
 {
+
+    // Verifica segundo nivel
 
     for(Satelite *satelite:satelites)
     {
@@ -70,10 +81,51 @@ bool Solution::checkSolution(std::string &erro, const Instance &Inst)
 
     delete []vetCliente;
 
-    if(erroB)
-        return false;
-    else
-        return true;
+    // Verifica primeiro nivel
+
+    std::vector<float> satelliteDemand;
+    satelliteDemand.reserve(Inst.getNSats()+1);
+
+    for(int i=0; i < Inst.getNSats()+1; ++i)
+        satelliteDemand.push_back(0.0);
+
+    for(int t=0; t < nTrucks; ++t)
+    {
+        Route &route = this->primeiroNivel[t];
+
+        if(route.totalDemand > Inst.getTruckCap())
+        {
+            erro += "ERRO, TRUCK "+ std::to_string(t)+": DEMANDA DO VEICULO EH MAIOR QUE A SUA CAPACIDADE: "+ std::to_string(route.totalDemand)+">"+
+                    std::to_string(Inst.getTruckCap())+"\n";
+
+            erroB = true;
+        }
+
+        float dist = 0.0;
+
+        if(!route.checkDistence(Inst, &dist))
+        {
+            erro += "ERRO, TRUCK "+std::to_string(t)+":: DISTANCIA CALCULADA: "+ std::to_string(dist) + " != DISTANCIA R0TA: "+ std::to_string(route.totalDistence)+"\n";
+            erroB = true;
+        }
+
+        for(int c=1; (c+1)<Inst.getNSats()+1; ++c)
+            satelliteDemand[c] += route.satelliteDemand[c];
+    }
+
+    for(int c=1; (c+1)<Inst.getNSats()+1; ++c)
+    {
+
+        if(std::abs(satelliteDemand[c]- this->satelites[c-1]->demand) > DEMAND_TOLENCE)
+        {
+            erro += "SATELLITE: "+ to_string(c)+"NAO FOI TOTALMENTE ATENDIDO. DEMANDA: "+ to_string(satelites[c-1]->demand) +
+                    "; ATENDIDO: "+to_string(satelliteDemand[c])+"\n";
+
+            erroB = true;
+        }
+    }
+
+    return !erroB;
 
 }
 
@@ -97,4 +149,12 @@ void Solution::print()
     {
         satelite->print();
     }
+
+    std::cout<<"1° NIVEL:\n";
+    for(Route &route:primeiroNivel)
+    {
+        route.print();
+    }
+
+
 }

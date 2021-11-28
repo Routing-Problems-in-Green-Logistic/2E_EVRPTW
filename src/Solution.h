@@ -23,5 +23,7 @@ public:
 
     bool viavel = true;
 
+    std::vector<Route> primeiroNivel;
+
 };
 #endif //INC_2E_EVRP_SOLUTION_H
