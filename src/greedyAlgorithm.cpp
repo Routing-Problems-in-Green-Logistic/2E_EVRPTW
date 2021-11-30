@@ -13,6 +13,13 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const
 
     std::vector<int> visitedClients(1+Inst.getNSats()+Inst.getNClients());
     visitedClients[0]       = -1;
+
+    for(int i=1; i < Inst.getNSats()+1; ++i)
+        visitedClients[i] = -1;
+
+    for(int i=Inst.getNSats()+1; i < visitedClients.size(); ++i)
+        visitedClients[i] = 0;
+
     const auto ItSat        = visitedClients.begin() + Inst.getFirstSatIndex();
     const auto ItSatEnd     = visitedClients.begin() + Inst.getEndSatIndex();
     const auto ItClient     = visitedClients.begin() + Inst.getFirstClientIndex();
@@ -32,7 +39,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const
         for(int clientId = FistIdClient; clientId < LastIdClient + 1; ++clientId)
         {
 
-            if(!visitedClients[clientId])
+            if(visitedClients[clientId] == 0)
             {
                 for(int satId = Inst.getFirstSatIndex(); satId <= Inst.getEndSatIndex(); satId++)
                 {
@@ -250,7 +257,7 @@ void GreedyAlgNS::greedy(Solution &sol, const Instance &Inst, const float alpha,
         firstEchelonGreedy(sol, Inst, beta);
 
         std::string str = "";
-        if(!sol.checkSolution(str, Inst))
+        if(!sol.checkSolution(str, Inst) && sol.viavel)
         {
             std::cerr << str << "\n\n";
             std::cout << "*******************************************\n";

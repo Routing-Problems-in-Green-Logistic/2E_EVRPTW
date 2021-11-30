@@ -563,13 +563,13 @@ bool EvRoute::insert(Insertion &insertion, const Instance &Inst)
 
             routeSize += 1;
 
-    // Atualizando estruturas auxiliares (demanda maxima e minima da rota)
-    if(insertion.demand < this->getMinDemand()){
-        this->minDemand = insertion.demand;
-    }
-    if(insertion.demand > this->getMaxDemand()){
-        this->maxDemand = insertion.demand;
-    }
+            // Atualizando estruturas auxiliares (demanda maxima e minima da rota)
+            if(insertion.demand < this->getMinDemand()){
+                this->minDemand = insertion.demand;
+            }
+            if(insertion.demand > this->getMaxDemand()){
+                this->maxDemand = insertion.demand;
+            }
 
         }
     }
@@ -580,8 +580,8 @@ bool EvRoute::insert(Insertion &insertion, const Instance &Inst)
     // Atualizar vetRemainingBattery
 
 
-/*    if(k == insertion.rechargingS_Pos)
-        vetRemainingBattery[k] = Inst.getEvBattery();*/
+    if(k == insertion.rechargingS_Pos)
+        vetRemainingBattery[k+1] = Inst.getEvBattery();
 
     if(k == 0)
         vetRemainingBattery[0] = Inst.getEvBattery();

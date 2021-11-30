@@ -99,8 +99,6 @@ int main(int argc, char* argv[])
     std::string file(argv[1]);
     Instance *instance = getInstanceFromFile(file);
 
-    Solution solution(*instance);
-
 
 /*    int vet[9] = {1,12,24,18,23,14,11,9,1};
 
@@ -118,8 +116,9 @@ int main(int argc, char* argv[])
         float best = FLOAT_MAX;
         std::string str;
 
-        for(int i=0; i < 200; ++i)
+        for(int i=0; i < 500; ++i)
         {
+            Solution solution(*instance);
 
             greedy(solution, *instance, 0.3, 0.3);
             if(solution.viavel)
@@ -133,18 +132,15 @@ int main(int argc, char* argv[])
                 float distanciaAux = solution.getDistanciaTotal();
 
                 if(distanciaAux < best)
+                {
                     best = distanciaAux;
+                    cout<<"Best: "<<best<<"\n";
+                }
             }
-
-            cout<<"Best: "<<best<<"\n";
 
 
         }
-        cout<<"SOLUCAO VIAVEL: "<<solution.viavel<<"\n";
-        solution.print();
 
-        cout<<"\n\nTRUCK CAP: "<<instance->getTruckCap()<<"\n";
-        cout<<"SOLUCAO VIAVEL: "<<solution.viavel<<"\n";
     }
     catch(std::out_of_range &e)
     {
@@ -156,7 +152,6 @@ int main(int argc, char* argv[])
     }
     catch(const char *erro)
     {
-        solution.print();
 
         std::cout<<"CATCH ERRO\n";
         std::cerr<<erro<<"\n\n";
