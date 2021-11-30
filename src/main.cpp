@@ -8,6 +8,7 @@
 #include "greedyAlgorithm.h"
 #include "Auxiliary.h"
 #include <cfloat>
+#include "mersenne-twister.h"
 
 using namespace std;
 using namespace GreedyAlgNS;
@@ -88,7 +89,7 @@ int main(int argc, char* argv[])
     //auto semente = long(1637813360);
     auto semente = time(nullptr);
     cout<<"SEMENTE: "<<semente<<"\n\n";
-    srand(semente);
+    seed(semente);
 
     if(argc != 2)
     {

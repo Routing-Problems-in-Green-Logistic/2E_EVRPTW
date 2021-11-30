@@ -1,8 +1,8 @@
 #include "greedyAlgorithm.h"
 #include "Auxiliary.h"
-
 #include <set>
 #include <cfloat>
+#include "mersenne-twister.h"
 
 using namespace GreedyAlgNS;
 using namespace std;
@@ -86,7 +86,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const
         }
 
 
-        int randIndex = rand()%(int(alpha*restrictedList.size() + 1));
+        int randIndex = rand_u32()%(int(alpha*restrictedList.size() + 1));
 
         auto topItem = std::next(restrictedList.begin(), randIndex);
 
@@ -209,7 +209,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
 
             // Escolhe o candidado da lista restrita
             int tam = int(beta * listaCandidatos.size()) + 1;
-            int escolhido = rand() % tam;
+            int escolhido = rand_u32() % tam;
             auto it = listaCandidatos.begin();
 
             std::advance(it, escolhido);
