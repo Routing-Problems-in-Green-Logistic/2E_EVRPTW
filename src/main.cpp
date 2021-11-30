@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
         float best = FLOAT_MAX;
         std::string str;
 
-        for(int i=0; i < 500; ++i)
+        for(int i=0; i < 10000; ++i)
         {
             Solution solution(*instance);
 
