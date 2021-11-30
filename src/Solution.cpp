@@ -140,7 +140,7 @@ void Solution::print(std::string &str)
     }
 }
 
-void Solution::print()
+void Solution::print(const Instance& Inst)
 {
 
     std::cout<<"2º NIVEL:\n";
@@ -155,6 +155,35 @@ void Solution::print()
     {
         route.print();
     }
+    cout << "CUSTO TOTAL: " << this->calcCost(Inst);
 
+}
 
+int Solution::findSatellite(int id) const {
+    return -1;
+
+}
+
+double Solution::calcCost(const Instance& Inst) {
+    double cost  = 0.0;
+    for(int t = 0; t < this->getDepot()->getNRoutes(); t++){
+        const auto& truckRoute = this->getDepot()->getRoute(t);
+        for(int i = 1; i < truckRoute.size(); i++){
+            int n0 = truckRoute.getNodeAt(i-1);
+            int n1 = truckRoute.getNodeAt(i);
+            cost += Inst.getDistance(n0, n1);
+        }
+    }
+    for(int s = 0; s < this->getNSatelites(); s++){
+        const auto& sat = this->getSatelite(s);
+        for(int e = 0; e < sat->getNRoutes(); e++){
+            auto& evRoute = sat->getRoute(e);
+            for(int i = 1; i < evRoute.size(); i++){
+                int n0 = evRoute.getNodeAt(i-1);
+                int n1 = evRoute.getNodeAt(i);
+                cost += Inst.getDistance(n0, n1);
+            }
+        }
+    }
+    return cost;
 }

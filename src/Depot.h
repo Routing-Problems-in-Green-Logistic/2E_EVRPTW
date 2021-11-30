@@ -7,7 +7,7 @@ class Depot {
 public:
     Depot(const Instance&, int id = 0);
     float getDemand(const Instance&) const;
-    float getNRoutes() const;
+    int getNRoutes() const;
     TruckRoute& getRoute(int i);
 private:
     std::vector<TruckRoute> routes;

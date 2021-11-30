@@ -9,11 +9,11 @@ Depot::Depot(const Instance& Inst, int id) {
 }
 
 float Depot::getDemand(const Instance &) const {
-    return 0;
+    return 0; // TODO: keep depot demand;
 }
 
-float Depot::getNRoutes() const {
-    return 0;
+int Depot::getNRoutes() const {
+    return this->routes.size();
 }
 
 TruckRoute& Depot::getRoute(int i) {

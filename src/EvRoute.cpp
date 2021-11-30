@@ -748,11 +748,24 @@ bool EvRoute::isRechargingS(int pos, const Instance& Inst) const {
     return Inst.isRechargingStation(this->route.at(pos));
 }
 
-int EvRoute::getNodeAt(int pos) {
+int EvRoute::getNodeAt(int pos) const {
     return this->route.at(pos);
 }
 
 float EvRoute::getRemainingBatteryBefore(int i) const {
     return 0; // TODO: guardar bateria no ponto com estrutura auxiliar.
+}
+
+void EvRoute::replace(int pos, int node, const Instance &Inst) {
+    float demand = Inst.getDemand(node);
+    if(demand < this->getMinDemand()){
+        this->minDemand = demand;
+    } else if(demand > this->getMaxDemand()){
+        this->maxDemand = demand;
+    }
+    // if maxdemand or mindemand == old_node_demand?????
+    this->totalDemand += demand - this->getDemandOf(pos, Inst);
+    //this->
+    this->route.at(pos) = node;
 }
 

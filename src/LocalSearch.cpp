@@ -3,9 +3,10 @@
 //
 
 #include "LocalSearch.h"
+using namespace NS_LocalSearch;
 
 // Exchange
-bool isViableSwap(EvRoute& Ev0, EvRoute Ev1, int c0, int c1, const Instance& Inst, float& cost, NS_LocalSearch::LocalSearch& localSearch){
+bool isViableSwap(EvRoute& Ev0, EvRoute Ev1, int c0, int c1, const Instance& Inst, float& cost, LocalSearch2& localSearch){
     float remainingCap0 = Ev0.getCurrentCapacity();
     float remainingCap1 = Ev1.getCurrentCapacity();
     float demand0 = Ev0.getDemandOf(c0, Inst);
@@ -31,14 +32,12 @@ bool isViableSwap(EvRoute& Ev0, EvRoute Ev1, int c0, int c1, const Instance& Ins
     cost = distEv0toC1 + distEv1toC0;
     //Insertion ins0(c0, Ev0.getNodeAt(c0), dist
     return true;
-
-
 }
 
 bool NS_LocalSearch::intraSatelliteSwap(Solution &Sol, int satId, const Instance& Inst, float &improvement) {
     Satelite* sat = Sol.getSatelite(satId);
-    NS_LocalSearch::LocalSearch bestLs;
-    NS_LocalSearch::LocalSearch currentLs;
+    LocalSearch2 bestLs;
+    LocalSearch2 currentLs;
     float bestCost = 1e8;
     bool improving = true;
     while(improving) {
@@ -66,7 +65,8 @@ bool NS_LocalSearch::intraSatelliteSwap(Solution &Sol, int satId, const Instance
                                 currentLs = {};
                                 if (isViableSwap(evRoute0, evRoute1, c0, c1, Inst, currentCost, currentLs)) {
                                     if (currentCost > bestCost) {
-                                        //// ATUALIZA O OBJETO BEST_LS COM AS NOVAS INFORMACOES.
+                                        //// ATUALIZA O OBJETO bestLs COM AS NOVAS INFORMACOES.
+                                        bestLs = {false, satId, -1, true, MOV_SWAP, i, j, c0, c1};
                                         improving = true;
                                         bestCost = currentCost;
                                     }
@@ -79,14 +79,15 @@ bool NS_LocalSearch::intraSatelliteSwap(Solution &Sol, int satId, const Instance
         }
         if(improving){
             /// aplica movimento de swap na solucao;
+            swapMov(Sol, bestLs);
         }
     }
     return false;
 }
 
 bool NS_LocalSearch::interSatelliteSwap(Solution &Sol, const Instance &Inst, float &improvement) {
-    NS_LocalSearch::LocalSearch bestLs;
-    NS_LocalSearch::LocalSearch currentLs;
+    LocalSearch2 bestLs;
+    LocalSearch2 currentLs;
     float bestCost = 1e8;
     bool improving = true;
     while (improving) {
@@ -121,6 +122,7 @@ bool NS_LocalSearch::interSatelliteSwap(Solution &Sol, const Instance &Inst, flo
                                         if (isViableSwap(evRoute0, evRoute1, c0, c1, Inst, currentCost, currentLs)) {
                                             if (currentCost > bestCost) {
                                                 //// ATUALIZA O OBJETO BEST_LS COM AS NOVAS INFORMACOES.
+                                                bestLs = {true, s0, s1, true, MOV_SWAP, i, j, c0, c1};
                                                 improving = true;
                                                 bestCost = currentCost;
                                             }
@@ -135,8 +137,30 @@ bool NS_LocalSearch::interSatelliteSwap(Solution &Sol, const Instance &Inst, flo
         }
         if(improving){
             /// aplica movimento de swap na solucao;
+            swapMov(Sol, bestLs);
         }
     }
     return false;
-
+}
+void NS_LocalSearch::swapMov(Solution& Sol, const LocalSearch2& mov){
+    int indexSat0, indexSat1;
+    int indexRoute0, indexRoute1;
+    int c0, c1;
+    indexSat0 = mov.idSat0; // TODO(Samuel): rename LocalSearch2::idSat to indexSat
+    if(mov.satellites2){
+        indexSat1 = mov.idSat1;
+    } else {
+        indexSat1 = indexSat0;
+    }
+    indexRoute0 = mov.idRoute0; //TODO(samuel): also rename to indexRoute0
+    if(mov.interRoutes) {
+        indexRoute1 = mov.idRoute1;
+    }
+    else{
+        indexRoute1 = indexRoute0;
+    }
+    c0 = mov.pos0;
+    c1 = mov.pos1;
+    EvRoute& evRoute0 = Sol.getSatelite(indexSat0)->getRoute(indexRoute0);
+    EvRoute& evRoute1 = Sol.getSatelite(indexSat1)->getRoute(indexRoute1);
 }

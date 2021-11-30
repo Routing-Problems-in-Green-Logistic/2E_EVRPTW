@@ -56,13 +56,16 @@ public:
     float getDemandOf(int i, const Instance& Inst) const;
     float getRemainingBatteryBefore(int i) const;
     //bool insert(int node, int pos, const Instance& Inst);
+
+    // --- MODIFIERS --- //
     bool insert(Insertion& insertion, const Instance& Inst);
+    void replace(int pos, int node, const Instance& Inst); // replaces route at pos;
+
     void print() const;
     bool canInsert(int node, const Instance &Instance, Insertion &insertion) const;
     bool rechargingS_inUse(int id) const;
     bool isRechargingS(int pos, const Instance& Inst) const;
-    int getNodeAt(int pos);
-
+    int getNodeAt(int pos) const;
 
     float totalDemand = 0.0;
     float remainingCapacity; // TODO: deixar soh total de demanda

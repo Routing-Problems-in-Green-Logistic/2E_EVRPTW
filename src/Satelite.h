@@ -14,6 +14,8 @@ public:
     void print(std::string &str);
     void print();
 
+    int getId() const;
+
     std::vector<EvRoute> vetEvRoute;
     int tamVetEvRoute;
     int id; // number of the clientId in the instance;

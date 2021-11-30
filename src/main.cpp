@@ -40,7 +40,7 @@ Instance* getInstanceFromFile(std::string &fileName){
             ss >> x >> y;
             ss >> demand;
             demands.push_back(demand);
-            coordinates.push_back(std::pair<float,float>(x, y));
+            coordinates.emplace_back(x, y);
             // std::cout << x << ", " << y << " -> " << demand << endl;
         }
         else{
@@ -100,25 +100,45 @@ int main(int argc, char* argv[])
 
     Solution solution(*instance);
 
-
-/*    int vet[9] = {1,12,24,18,23,14,11,9,1};
-
-    float dist = 0.0;
-
-    for(int i=0; (i+1) < 9; ++i)
-        dist += instance->getDistance(vet[i], vet[i+1]);
-
-    cout<<"DIST: "<<dist<<"\n";
-    exit(-1);*/
-
     try
     {
-        greedy(solution, *instance, 0.3, 0.3);
-        cout<<"SOLUCAO VIAVEL: "<<solution.viavel<<"\n";
-        solution.print();
-
+        double costSum = 0.0;
+        double currentCost;
+        double bestCost = 1e8;
+        int infeasibleCount = 0;
+        cout << "------------------------------------" << endl;
+        cout << file << endl;
         cout<<"\n\nTRUCK CAP: "<<instance->getTruckCap()<<"\n";
-        cout<<"SOLUCAO VIAVEL: "<<solution.viavel<<"\n";
+        cout<<"\n\nEV CAP: "<<instance->getEvCap()<<"\n";
+        for(int i = 0; i < 50; i++){
+            greedy(solution, *instance, 0.3, 0.3);
+            //cout<<"SOLUCAO VIAVEL: "<<solution.viavel<<"\n";
+            if(!solution.viavel){
+                infeasibleCount++;
+            }
+            else{
+                //solution.print(*instance);
+                currentCost = solution.calcCost(*instance);
+                if(currentCost < 230 && solution.viavel){
+                    cout << "SOLUCAO NAO DEVERIA SER VALIDA: " << endl;
+                    solution.print(*instance);
+                }
+                costSum += currentCost;
+                if(currentCost < bestCost){
+                    bestCost = currentCost;
+                }
+                cout << "COST: " << currentCost << endl << endl;
+                //cout<<"SOLUCAO VIAVEL: "<<solution.viavel<<"\n";
+
+                // clears solution TODO: create Solution::clear() method
+
+            }
+            solution = Solution(*instance);
+        }
+        cout << endl;
+        cout << "BEST COST: " << bestCost << endl;
+        cout << "MEAN COST: " << costSum/(50 - infeasibleCount) << endl;
+        cout << "infeasible Solutions: "<< (double)infeasibleCount/50 * 100 << "%" << endl;
     }
     catch(std::out_of_range &e)
     {

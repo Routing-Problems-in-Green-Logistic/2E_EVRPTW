@@ -36,3 +36,6 @@ TruckRoute::TruckRoute(int depot, float truckCapacity) {
     this->remainingCapacity = truckCapacity;
     this->initialCapacity = truckCapacity;
 }
+int TruckRoute::getNodeAt(int pos) const {
+    return this->nodes.at(pos);
+}

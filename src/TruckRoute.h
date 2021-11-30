@@ -10,6 +10,7 @@ public:
     float getDemand() const;
     float getMinDemand() const;
     float getCost() const;
+    int getNodeAt(int pos) const;
     void print() const;
     float getCurrentCapacity() const;
     bool insert(int node, int pos, const Instance& Inst);

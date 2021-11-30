@@ -84,3 +84,6 @@ void Satelite::print()
 
     std::cout<<"\n\n";
 }
+int Satelite::getId() const {
+    return id;
+}
