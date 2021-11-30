@@ -14,7 +14,21 @@ public:
     bool checkSolution(std::string &erro, const Instance &Inst);
     void print(std::string &str);
     void print();
+    float getDistanciaTotal()
+    {
+        float distancia = 0.0;
 
+        for(auto sat:satelites)
+        {
+            for(auto route:sat->vetEvRoute)
+                distancia += route.distance;
+        }
+
+        for(auto route:primeiroNivel)
+            distancia += route.totalDistence;
+
+        return distancia;
+    }
 
     std::vector<Satelite*> satelites;
     Depot* Dep;

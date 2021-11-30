@@ -12,6 +12,7 @@ using namespace std;
 #define BATTERY_TOLENCE 1e-4
 #define DISTANCE_TOLENCE 1e-2
 #define DEMAND_TOLENCE 1E-3
+#define FLOAT_MAX FLT_MAX
 
 #define PRINT_DEBUG(inicio, texto) cout<<inicio<<"DEBUG: "<<texto<<"  FILE: "<<__FILE__<<"  LINHA: "<<__LINE__<<"\n";
 

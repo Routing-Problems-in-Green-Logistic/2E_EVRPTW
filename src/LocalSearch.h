@@ -5,8 +5,10 @@
 #ifndef INC_2E_EVRP_LOCALSEARCH_H
 #define INC_2E_EVRP_LOCALSEARCH_H
 
+#include <cfloat>
 #include "EvRoute.h"
 #include "Solution.h"
+#include "Auxiliary.h"
 
 
 #define MOV_SHIFIT      0
@@ -26,16 +28,19 @@ namespace NS_LocalSearch {
 
         bool interRoutes    = false;
         int mov             = -1;
+        float incrementoDistancia = FLOAT_MAX;
 
         // Shifit: insert0 -> insert1
         Insertion inser0;
         Insertion inser1;
 
+        bool operator < (const LocalSearch &localSearch)const{return incrementoDistancia<localSearch.incrementoDistancia;}
+
     };
     bool intraSwap(const LocalSearch& ls, Solution& Sol, float& improvement);
     bool intraSatelliteSwap(Solution& Sol, int SatId, const Instance& Inst, float& improvement);
     bool interSatelliteSwap(Solution&, const Instance& Inst, float& improvement);
-
+    bool intraSatelliteShifit(Solution &solution, const Instance &instance);
 
 }
 

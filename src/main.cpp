@@ -6,6 +6,8 @@
 #include <math.h>
 #include <time.h>
 #include "greedyAlgorithm.h"
+#include "Auxiliary.h"
+#include <cfloat>
 
 using namespace std;
 using namespace GreedyAlgNS;
@@ -86,7 +88,6 @@ int main(int argc, char* argv[])
     //auto semente = long(1637813360);
     auto semente = time(nullptr);
     cout<<"SEMENTE: "<<semente<<"\n\n";
-
     srand(semente);
 
     if(argc != 2)
@@ -113,7 +114,32 @@ int main(int argc, char* argv[])
 
     try
     {
-        greedy(solution, *instance, 0.3, 0.3);
+
+        float best = FLOAT_MAX;
+        std::string str;
+
+        for(int i=0; i < 200; ++i)
+        {
+
+            greedy(solution, *instance, 0.3, 0.3);
+            if(solution.viavel)
+            {
+                if(!solution.checkSolution(str, *instance))
+                {
+                    cout<<str<<"\n\n";
+                    exit(-1);
+                }
+
+                float distanciaAux = solution.getDistanciaTotal();
+
+                if(distanciaAux < best)
+                    best = distanciaAux;
+            }
+
+            cout<<"Best: "<<best<<"\n";
+
+
+        }
         cout<<"SOLUCAO VIAVEL: "<<solution.viavel<<"\n";
         solution.print();
 
@@ -123,10 +149,15 @@ int main(int argc, char* argv[])
     catch(std::out_of_range &e)
     {
         std::cerr<<e.what()<<"\n\n";
+
+
+
         exit(-1);
     }
     catch(const char *erro)
     {
+        solution.print();
+
         std::cout<<"CATCH ERRO\n";
         std::cerr<<erro<<"\n\n";
         std::cerr<<"Semente: "<<semente<<"\n";
