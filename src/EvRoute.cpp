@@ -9,15 +9,15 @@ EvRoute::EvRoute(float evBattery, float evCapacity, int satelite, const int Rout
     this->satelite = satelite;
     this->initialBattery = evBattery;
     this->initialCapacity = evCapacity;
-    this->remainingCapacity = evCapacity;
 
     route.reserve(RouteSizeMax);
     route.push_back(satelite);
     route.push_back(satelite);
 
-    for(int i=2; i < RouteSizeMax; ++i)
+    for(int i=2; i < RouteSizeMax; ++i) {
         route.push_back(-1);
-
+    }
+    recharges.emplace_back(1, this->satelite, this->initialBattery);
     rechargingStationRoute.reserve(RouteSizeMax);
     vetRemainingBattery.reserve(RouteSizeMax);
 
@@ -27,10 +27,10 @@ EvRoute::EvRoute(float evBattery, float evCapacity, int satelite, const int Rout
         vetRemainingBattery.push_back(initialBattery);
     }
 
-
     routeSize = 2;
     routeSizeMax = RouteSizeMax;
     distance = 0.0;
+    totalDemand = 0.0;
 
 }
 int EvRoute::size() const{
@@ -43,28 +43,8 @@ float EvRoute::getCost(const Instance& Inst) const{
     return distance;
 }
 float EvRoute::getCurrentCapacity() const{
-    return this->remainingCapacity;
+    return this->initialCapacity - this->totalDemand;
 }
-/*
-bool EvRoute::insert(int node, int pos, const Instance& Inst){
-    if(pos <= 0 || pos >= this->size() - 1){
-        return false;
-    }
-    else if(node < 0){
-        return false;
-    }
-    // get the battery distance;
-    // get the demand distance;
-    // checar se consegue com a capacidade atual
-    // checar se consegue com a bateria atual (a bateria do veiculo antes da proxima recarga.
-    //  inserir
-    //  atualizar capacidade
-    //  atualizar bateria
-    //  atualizar custo
-    //
-    return true;
-}
-*/
 
 void EvRoute::print() const
 {
@@ -75,12 +55,10 @@ void EvRoute::print() const
         else
             std::cout<<"("<<route[i]<<")_"<<vetRemainingBattery[i]<<"  ";
     }
-
     std::cout <<"\nDistance: "<<distance<<"\n\n";
-
 }
 float EvRoute::getMinDemand() const {
-    if(this->size() == 0){
+    if(this->size() <= 2){
         return 0;
     }
     return minDemand;
@@ -383,80 +361,10 @@ bool EvRoute::rechargingS_inUse(int id) const
     return false;
 }
 
-/*
-bool EvRoute::canInsert(int clientId, const Instance &Inst, Insertion& insertion) {
-    float demand = Inst.getDemand(clientId);
-    float bestInsertionCost;
-    if(demand > this->getCurrentCapacity()){
-        return false;
-    }
-    // for each position, find the best one to insert.
-    for(int pos = 1; pos < this->size(); pos++){
-        float remainingBattery = -1;
-        int prevRs = 0, nextRs; // INDEX of recharging station (or satellite) next to position;
-        // get the battery avaliable at the position
-        // and the prev and next Rs';
-        for(const auto& rs : this->rechargingStations){
-            if(pos < rs.first){
-                remainingBattery = rs.second;
-                nextRs = rs.first;
-                break;
-            }
-            prevRs = rs.first;
-        }
-        if(remainingBattery == -1){ // shouldnt ever fall in this if
-            return false;
-        }
-        int prevNode = this->vetEvRoute.at(pos -1);
-        int nextNode = this->vetEvRoute.at(pos);
-        float distance = Inst.getDistance(prevNode, clientId) + Inst.getDistance(clientId, nextNode) - Inst.getDistance(prevNode, nextNode);
-        float insertionCost = distance*1;
-        float batteryCost = distance*1;
-
-        // if not enough battery, tries to find recharging station insert position;
-        int rs, rsPos;
-       if(remainingBattery < batteryCost){
-           std::vector<int> betweenRs;
-           for(int i = prevRs + 1; i < nextRs; i++){
-               if(i == pos){
-                   betweenRs.push_back(clientId);
-               }
-               betweenRs.push_back(this->vetEvRoute.at(i));
-           }
-           for(int r = Inst.getFirstRsIndex(); r < Inst.getFirstRechargingSIndex() + Inst.getN_RechargingS(); r++){
-               float rsDistance = Inst.getDistance(prevNode, clientId) + Inst.getDistance(clientId, nextNode) - Inst.getDistance(prevNode, nextNode);
-               float rsInsertionCost = distance*1;
-               float rsBatteryCost = distance*1;
-
-           }
-       }
-       else {
-           rs = -1;
-           rsPos = -1;
-       //}
-       if(insertionCost < bestInsertionCost){
-           bestInsertionCost = insertionCost;
-           insertion = Insertion(pos, clientId, insertionCost, rs, rsPos);
-       }
-    }
-
-    // get the battery distance;
-    // get the demand distance;
-    // checar se consegue com a capacidade atual
-    // checar se consegue com a bateria atual (a bateria do veiculo antes da proxima recarga.
-    return true;
-}
-*/
-
 bool EvRoute::insert(Insertion &insertion, const Instance &Inst)
 {
     const int pos = insertion.pos;
     const int node = insertion.clientId;
-
-
-
-
-
     if(pos < 0 || pos >this->size() - 1){
         return false;
     }
@@ -472,24 +380,20 @@ bool EvRoute::insert(Insertion &insertion, const Instance &Inst)
     //  atualizar bateria
     //  atualizar custo
 
-    this->remainingCapacity -= insertion.demand;
+    // atualiza estruturas auxiliares:
     this->totalDemand += insertion.demand;
     this->distance += insertion.cost;
+    this->maxDemand = insertion.demand > this->maxDemand ? insertion.demand : this->maxDemand;
+    this->minDemand = insertion.demand < this->maxDemand ? insertion.demand : this->maxDemand;
 
     // ignoring battery distance for now;
     //this->rechargingStations;
-
     int k = pos;
-
-
-
     if(insertion.rechargingS_Pos < insertion.pos)
     {
         // Inclui recharging Station
         if(insertion.rechargingS_Pos >= 0)
         {
-
-
             //this->route.insert(this->route.begin() + insertion.rechargingS_Pos + 1, insertion.rechargingS_Id);
             shiftVectorDir(route, insertion.rechargingS_Pos+1, 1, routeSize);
             shiftVectorDir(rechargingStationRoute, insertion.rechargingS_Pos+1, 1, routeSize);
@@ -500,44 +404,23 @@ bool EvRoute::insert(Insertion &insertion, const Instance &Inst)
             vetRemainingBattery[insertion.rechargingS_Pos+1] = Inst.getEvBattery();
 
             routeSize += 1;
-
             //this->rechargingStationRoute.insert(rechargingStationRoute.begin() + insertion.rechargingS_Pos + 1, true);
-
             k = insertion.rechargingS_Pos;
-
-
-
         }
-
-
         shiftVectorDir(route, pos+1, 1, routeSize);
-
         route[pos+1] = node;
-
         //this->route.insert(this->route.begin()+pos+1, node);
-
         shiftVectorDir(rechargingStationRoute, pos+1, 1, routeSize);
         rechargingStationRoute[pos+1] = false;
-
         shiftVectorDir(vetRemainingBattery, insertion.pos+1, 1, routeSize);
-
-
-
-
-
-
         routeSize += 1;
-
         // rechargingStationRoute.insert(rechargingStationRoute.begin()+pos+1, false);
     }
     else
     {
-
         //this->route.insert(this->route.begin()+pos+1, node);
-
         shiftVectorDir(route, pos+1, 1, routeSize);
         route[pos+1] = node;
-
 
         shiftVectorDir(rechargingStationRoute, pos+1, 1, routeSize);
         rechargingStationRoute[pos+1] = false;
@@ -545,16 +428,11 @@ bool EvRoute::insert(Insertion &insertion, const Instance &Inst)
         shiftVectorDir(vetRemainingBattery, insertion.pos+1, 1, routeSize);
 
         routeSize += 1;
-
-
         if(insertion.rechargingS_Pos >= 0)
         {
            // this->route.insert(this->route.begin() + insertion.rechargingS_Pos + 1, insertion.rechargingS_Id);
-
-
             shiftVectorDir(route, insertion.rechargingS_Pos+1, 1, routeSize);
             route[insertion.rechargingS_Pos+1] = insertion.rechargingS_Id;
-
 
             shiftVectorDir(rechargingStationRoute, insertion.rechargingS_Pos+1, 1, routeSize);
             rechargingStationRoute[insertion.rechargingS_Pos+1] = true;
@@ -570,51 +448,35 @@ bool EvRoute::insert(Insertion &insertion, const Instance &Inst)
             if(insertion.demand > this->getMaxDemand()){
                 this->maxDemand = insertion.demand;
             }
-
         }
     }
-
     if(insertion.rechargingS_Pos >= 0)
-        rechargingStationsPos_Rs.push_back({insertion.rechargingS_Pos, insertion.rechargingS_Id});
-
+        rechargingStationsPos_Rs.emplace_back(insertion.rechargingS_Pos, insertion.rechargingS_Id);
     // Atualizar vetRemainingBattery
-
-
     if(k == insertion.rechargingS_Pos)
         vetRemainingBattery[k+1] = Inst.getEvBattery();
-
     if(k == 0)
         vetRemainingBattery[0] = Inst.getEvBattery();
-
     k += 1;
-
-
-
-
-
     for(; k < routeSize; ++k)
     {
-
         if(!Inst.isRechargingStation(route[k]))
             vetRemainingBattery[k] = vetRemainingBattery[k - 1] - Inst.getDistance(route[k - 1], route[k]);
         else
         {
             vetRemainingBattery[k] = Inst.getEvBattery();
         }
-
-
-
     }
-
-
-
-
-
-
+    /*
+    updateRecharge(insertion.pos, insertion.batteryCost, true);
+    if(insertion.rechargingS_Pos >= 0){
+        addRechargeToList(insertion.rechargingS_Pos, insertion.rechargingS_Id, Inst);
+    }
+    */
     return true;
 }
 
-bool EvRoute::checkRoute(std::string &erro, const Instance &Inst)
+bool EvRoute::checkRoute(std::string &erro, const Instance &Inst) const
 {
 
     if(routeSize < 2)
@@ -690,6 +552,7 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &Inst)
         }
 
         // Verifica se battery eh igual a vet vetRemainingBattery
+        /* // TODO(samuel): descomentar isso depois de testar;
         if(std::abs(battery - vetRemainingBattery[i]) > BATTERY_TOLENCE || (vetRemainingBattery[i] < -BATTERY_TOLENCE))
         {
 
@@ -699,11 +562,13 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &Inst)
 
             return false;
         }
+         */
 
 
     }
 
     // Verifica se a distancia calculada eh igual a distancia do EV
+    /* TODO(samuel) descomentar isso dps de testar
     if(std::abs(distance-distanceAux) > DISTANCE_TOLENCE)
     {
 
@@ -712,6 +577,7 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &Inst)
 
         return false;
     }
+     */
 
     return true;
 }
@@ -752,11 +618,19 @@ int EvRoute::getNodeAt(int pos) const {
     return this->route.at(pos);
 }
 
-float EvRoute::getRemainingBatteryBefore(int i) const {
-    return 0; // TODO: guardar bateria no ponto com estrutura auxiliar.
+float EvRoute::getRemainingBatteryBefore(int pos) const {
+    for(auto& recharge : this->recharges) { // O(n) but the size will probably be quite small;
+        if (pos < recharge.pos) {
+            return recharge.remainingBattery;
+        }
+    }
+    std::cerr << "unexpected to pass the for loop @ EvRoute::getRemainingBatteryBefore";
+    exit(13);
+    return 0;
 }
 
-void EvRoute::replace(int pos, int node, const Instance &Inst) {
+void EvRoute::replace(int pos, int node, float distance, const Instance &Inst) {
+    // partindo do pressuposto que vao ser trocados 2 clientes, nao estacoes de recarga
     float demand = Inst.getDemand(node);
     if(demand < this->getMinDemand()){
         this->minDemand = demand;
@@ -767,5 +641,104 @@ void EvRoute::replace(int pos, int node, const Instance &Inst) {
     this->totalDemand += demand - this->getDemandOf(pos, Inst);
     //this->
     this->route.at(pos) = node;
+    // atualizar vetRemainingBattery, tamanho da rota Não,
+    vetRemainingBattery.at(pos) -= distance;
+    for(int k = pos+1; k < this->vetRemainingBattery.size(); k++){
+        if(this->isRechargingS(k, Inst)) {
+            break;
+        }
+        vetRemainingBattery.at(pos) -= distance;
+    }
+    this->distance += distance; // update distance; Note that if a Recharging station insertion is involved ( which iis not), battery_lost != distance
+    updateRecharge(pos, distance, false);
 }
 
+void EvRoute::updateRecharge(int pos, float _distance, bool isInsertion) {
+    bool hasPassed = false;
+    for(auto& recharge : this->recharges){
+        if(pos < recharge.pos){
+            hasPassed = true;
+            recharge.remainingBattery -= _distance;
+        }
+        if(hasPassed && isInsertion) {
+            recharge.pos++;
+        }
+    }
+}
+
+void EvRoute::addRechargeToList(int pos, int rsId, const Instance& Inst) {
+    if(checkOutOfBounds(pos, true)){
+        std::cerr << "Out of Bounds @ EvRoute::addRechargeToList" << std::endl;
+        exit(11);
+    }
+    int lastPos = 0;
+    int start = -1; // first position that goes to the inserted recharging station. (R: rs, nR: new rs, C: client, C*: start) ...--R--C--C--R--C*--C--C--nR--C--...
+    for(auto it = recharges.begin(); it != recharges.end(); ++it) {
+        if (pos < it->pos) {
+            recharges.insert(it, Recharge(pos, rsId, this->initialBattery));
+            start = lastPos+1;
+        }
+        lastPos = it->pos;
+    } // using 2 for loops to avoid errors
+    if(start == -1){
+        std::cerr << "No recharging station found" << std::endl;
+        exit(12);
+    }
+    int end = this->size();
+    for(auto it = recharges.begin(); it != recharges.end(); ++it) {
+        if (start < it->pos) {
+            for(int i = start; i < it->pos; i++){
+                it->remainingBattery -= Inst.getDistance(route.at(i-1), route.at(i)); // tira da bateria restante a distancia do ponto i pro ponto anterior.
+            }
+            end = it->pos;
+            ++it; // next recharging station;
+            for(int i = end+1; i < it->pos; i++){
+                it->remainingBattery -= Inst.getDistance(route.at(i-1), route.at(i)); // tira da bateria restante a distancia do ponto i pro ponto anterior.
+            }
+            return;
+        }
+    }
+}
+
+void EvRoute::addRechargeToList(int pos, int rsId, float remainingBattery) {
+    recharges.emplace_back(pos, rsId, remainingBattery);
+}
+    bool EvRoute::checkOutOfBounds(int pos, bool notSat) const {
+    if(notSat)
+        return pos <= 0 || pos >= this->size()-1;
+    return pos < 0 || pos >= this->size();
+}
+
+void EvRoute::setAuxStructures(const Instance& Inst) {
+    float remainingBattery = this->initialBattery;
+    this->recharges.clear();
+    this->maxDemand = 0;
+    this->minDemand = FLOAT_MAX;
+    if(this->size() < 2){
+        std::cout <<"tamanho < 2" << std::endl;
+    }
+    for(int i = 1; i < this->size()-1; i++){
+        remainingBattery -= getDistance(i-1, i, Inst);
+        if(isRechargingS(i, Inst)){
+            addRechargeToList(i, route.at(i), remainingBattery);
+            remainingBattery = initialBattery;
+        }
+        else{
+            float currentDemand = getDemandOf(i, Inst);
+            if(currentDemand > maxDemand){
+                maxDemand = currentDemand;
+            }
+            if(currentDemand < minDemand){
+                minDemand = currentDemand;
+            }
+        }
+    }
+    int i = size()-1;
+    remainingBattery -= getDistance(i-1, i, Inst);
+    // add satelite at the end of list of recharges;
+    addRechargeToList(i, satelite, remainingBattery);
+}
+
+float EvRoute::getDistance(int pos0, int pos1, const Instance& Inst) {
+    return Inst.getDistance(route.at(pos0), route.at(pos1));
+}

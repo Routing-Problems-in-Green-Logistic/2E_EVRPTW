@@ -3,128 +3,110 @@
 //
 
 #include "LocalSearch.h"
+#include <memory>
 using namespace NS_LocalSearch;
 
-// Exchange
-bool isViableSwap(EvRoute& Ev0, EvRoute Ev1, int c0, int c1, const Instance& Inst, float& cost, LocalSearch2& localSearch){
-    float remainingCap0 = Ev0.getCurrentCapacity();
-    float remainingCap1 = Ev1.getCurrentCapacity();
-    float demand0 = Ev0.getDemandOf(c0, Inst);
-    float demand1 = Ev1.getDemandOf(c1, Inst);
-    // check capacity
-    if(remainingCap0 - demand1 < 0 || remainingCap1 - demand0 < 0){
-        return false;
-    }
-    float distEv0toC1 =
-            + Inst.getDistance(Ev0.getNodeAt(c0 - 1), Ev1.getNodeAt(c1)) // anterior ate o novo
-            + Inst.getDistance(Ev0.getNodeAt(c0 + 1), Ev1.getNodeAt(c1)) // novo ate o proximo
-            - Inst.getDistance(Ev0.getNodeAt(c0 - 1), Ev0.getNodeAt(c0)) // (-) anterior ate antigo
-            - Inst.getDistance(Ev0.getNodeAt(c0 + 1), Ev0.getNodeAt(c0)); // novo ate o proximo
-    float distEv1toC0 =
-            + Inst.getDistance(Ev1.getNodeAt(c0 - 1), Ev0.getNodeAt(c0)) // anterior ate o novo
-            + Inst.getDistance(Ev1.getNodeAt(c0 + 1), Ev0.getNodeAt(c0)) // novo ate o proximo
-            - Inst.getDistance(Ev1.getNodeAt(c0 - 1), Ev1.getNodeAt(c1)) // (-) anterior ate antigo
-            - Inst.getDistance(Ev1.getNodeAt(c0 + 1), Ev1.getNodeAt(c1)); // novo ate o proximo
-    // Check battery;
-    if(distEv0toC1 > Ev0.getRemainingBatteryBefore(c0) || distEv1toC0 > Ev1.getRemainingBatteryBefore(c1)){
-        return false;
-    }
-    cost = distEv0toC1 + distEv1toC0;
-    //Insertion ins0(c0, Ev0.getNodeAt(c0), dist
-    return true;
-}
-
-bool NS_LocalSearch::intraSatelliteSwap(Solution &Sol, int satId, const Instance& Inst, float &improvement) {
-    Satelite* sat = Sol.getSatelite(satId);
-    LocalSearch2 bestLs;
-    LocalSearch2 currentLs;
-    float bestCost = 1e8;
-    bool improving = true;
-    while(improving) {
-        improving = false;
-        for (int i = 0; i < sat->getNRoutes(); i++) {
-            for (int j = 0; j < sat->getNRoutes(); j++) {
-                EvRoute &evRoute0 = sat->getRoute(i);
-                EvRoute &evRoute1 = sat->getRoute(j);
-                if (i != j
-                    && evRoute0.getInitialCapacity() >= evRoute1.getMinDemand() + evRoute0.getDemand(Inst) -
-                                                        evRoute0.getMaxDemand() // a carga atual da rota0 + a carga do menor satelliteId da rota1  MENOS a menor carga da rota0 deve ser menor que a capacidade do veiculo.
-                    && evRoute1.getInitialCapacity() >=
-                       evRoute0.getMinDemand() + evRoute1.getDemand(Inst) - evRoute1.getMaxDemand()) { // e vice versa
-                    // Para cada satelliteId c0 na rota0
-                    for (int c0 = 1; c0 < evRoute0.size() - 1; c0++) {
-                        // se nao for estacao de recarga e tambem nao tiver uma demanda que ultrapassa a demanda maxima que a troca suporta,
-                        if (!evRoute0.isRechargingS(c0, Inst)
-                            && evRoute0.getInitialCapacity() >= evRoute1.getMinDemand()
-                                                                + evRoute0.getDemand(Inst)
-                                                                - evRoute0.getDemandOf(c0, Inst)) { // a carga atual da rota0 + a carga do menor satelliteId da rota1  MENOS a carga do satelliteId c0 deve ser menor que a capacidade do veiculo.
-                            // Para cada satelliteId c1 na rota1
-                            for (int c1 = 1; c1 < evRoute1.size() - 1; c1++) {
-                                // se nao for estacao de recarga..
-                                float currentCost = 1e8;
-                                currentLs = {};
-                                if (isViableSwap(evRoute0, evRoute1, c0, c1, Inst, currentCost, currentLs)) {
-                                    if (currentCost > bestCost) {
-                                        //// ATUALIZA O OBJETO bestLs COM AS NOVAS INFORMACOES.
-                                        bestLs = {false, satId, -1, true, MOV_SWAP, i, j, c0, c1};
-                                        improving = true;
-                                        bestCost = currentCost;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+bool isViableSwap(EvRoute& Ev0, EvRoute& Ev1, int c0, int c1, const Instance& Inst, LocalSearch2& localSearch){
+    try {
+        float remainingCap0 = Ev0.getCurrentCapacity();
+        float remainingCap1 = Ev1.getCurrentCapacity();
+        float demand0 = Ev0.getDemandOf(c0, Inst);
+        float demand1 = Ev1.getDemandOf(c1, Inst);
+        // check capacity
+        if (remainingCap0 - demand1 < 0 || remainingCap1 - demand0 < 0) {
+            return false;
         }
-        if(improving){
-            /// aplica movimento de swap na solucao;
-            swapMov(Sol, bestLs);
+        float distEv0toC1 =
+                +Inst.getDistance(Ev0.getNodeAt(c0 - 1), Ev1.getNodeAt(c1)) // anterior ate o novo
+                + Inst.getDistance(Ev0.getNodeAt(c0 + 1), Ev1.getNodeAt(c1)) // novo ate o proximo
+                - Inst.getDistance(Ev0.getNodeAt(c0 - 1), Ev0.getNodeAt(c0)) // (-) anterior ate antigo
+                - Inst.getDistance(Ev0.getNodeAt(c0 + 1), Ev0.getNodeAt(c0)); // novo ate o proximo
+        float distEv1toC0 =
+                +Inst.getDistance(Ev1.getNodeAt(c1 - 1), Ev0.getNodeAt(c0)) // anterior ate o novo
+                + Inst.getDistance(Ev1.getNodeAt(c1 + 1), Ev0.getNodeAt(c0)) // novo ate o proximo
+                - Inst.getDistance(Ev1.getNodeAt(c1 - 1), Ev1.getNodeAt(c1)) // (-) anterior ate antigo
+                - Inst.getDistance(Ev1.getNodeAt(c1 + 1), Ev1.getNodeAt(c1)); // novo ate o proximo
+        // Check battery;
+        if (distEv0toC1 > Ev0.getRemainingBatteryBefore(c0) || distEv1toC0 > Ev1.getRemainingBatteryBefore(c1)) {
+            return false;
         }
+        localSearch.incrementoDistancia = distEv0toC1 + distEv1toC0;
+        return true;
     }
-    return false;
-}
+    catch(std::out_of_range &e){
+        cerr << "out of range @ LocalSearch::isViableSwap";
+        exit(14);
+    }
+    catch(const char* e) {
+        std::cerr << "outro erro @ LocalSearch::isViableSwap";
+    }
 
+}
 bool NS_LocalSearch::interSatelliteSwap(Solution &Sol, const Instance &Inst, float &improvement) {
     LocalSearch2 bestLs;
     LocalSearch2 currentLs;
-    float bestCost = 1e8;
+    for (int s0 = 0; s0 < Sol.getNSatelites(); s0++) {
+        Satelite *sat0 = Sol.getSatelite(s0);
+        // para cada satelite sat1
+        for (int s1 = 0; s1 < Sol.getNSatelites(); s1++) {
+            Satelite *sat1 = Sol.getSatelite(s1);
+            // if s1 != s0 ??
+            // para cada rota evRoute0
+            for (int i = 0; i < sat0->getNRoutes(); i++) {
+                EvRoute &evRoute = sat1->getRoute(i);
+                evRoute.setAuxStructures(Inst);
+            }
+        }
+    }
     bool improving = true;
     while (improving) {
         improving = false;
+        // para cada satelite sat0
         for (int s0 = 0; s0 < Sol.getNSatelites(); s0++) {
             Satelite *sat0 = Sol.getSatelite(s0);
+            // para cada satelite sat1
             for (int s1 = 0; s1 < Sol.getNSatelites(); s1++) {
                 Satelite *sat1 = Sol.getSatelite(s1);
+                // if s1 != s0 ??
+                // para cada rota evRoute0
                 for (int i = 0; i < sat0->getNRoutes(); i++) {
+                    EvRoute &evRoute0 = sat0->getRoute(i);
+                    // para cada rota evRoute1
                     for (int j = 0; j < sat1->getNRoutes(); j++) {
-                        EvRoute &evRoute0 = sat0->getRoute(i);
                         EvRoute &evRoute1 = sat1->getRoute(j);
-                        if (i != j
+                        if (i != j){
+                            /* && evRoute0.size() > 2 && evRoute1.size() > 2
                             && evRoute0.getInitialCapacity() >= evRoute1.getMinDemand() + evRoute0.getDemand(Inst) -
                                                                 evRoute0.getMaxDemand() // a carga atual da rota0 + a carga do menor cliente da rota1  MENOS a menor carga da rota0 deve ser menor que a capacidade do veiculo.
                             && evRoute1.getInitialCapacity() >=
                                evRoute0.getMinDemand() + evRoute1.getDemand(Inst) -
-                               evRoute1.getMaxDemand()) { // e vice versa
-                            // Para cada cliente c0 na rota0
+                               evRoute1.getMaxDemand())
+                               */
+                        // e vice versa
+                            // Para cada cliente c0 na rota evRoute0
                             for (int c0 = 1; c0 < evRoute0.size() - 1; c0++) {
-                                // se nao for estacao de recarga e tambem nao tiver uma demanda que ultrapassa a demanda maxima que a troca suporta,
-                                if (!evRoute0.isRechargingS(c0, Inst)
-                                    && evRoute0.getInitialCapacity() >= evRoute1.getMinDemand()
-                                                                        + evRoute0.getDemand(Inst)
-                                                                        - evRoute0.getDemandOf(c0,
-                                                                                               Inst)) { // a carga atual da rota0 + a carga do menor cliente da rota1  MENOS a carga do cliente c0 deve ser menor que a capacidade do veiculo.
-                                    // Para cada cliente c1 na rota1
+                                if (!evRoute0.isRechargingS(c0, Inst)) {
+                                    // se nao for estacao de recarga e tambem nao tiver uma demanda que ultrapassa a demanda maxima que a troca suporta,
+                                    /*if (!evRoute0.isRechargingS(c0, Inst)
+                                        && evRoute0.getInitialCapacity() >= evRoute1.getMinDemand()
+                                                                            + evRoute0.getDemand(Inst)
+                                                                            - evRoute0.getDemandOf(c0,
+                                                                                                   Inst))  // a carga atual da rota0 + a carga do menor cliente da rota1  MENOS a carga do cliente c0 deve ser menor que a capacidade do veiculo.
+                                        // Para cada cliente c1 na rota1
+                                        */
                                     for (int c1 = 1; c1 < evRoute1.size() - 1; c1++) {
                                         // se nao for estacao de recarga..
-                                        float currentCost = 1e8;
-                                        currentLs = {};
-                                        if (isViableSwap(evRoute0, evRoute1, c0, c1, Inst, currentCost, currentLs)) {
-                                            if (currentCost > bestCost) {
-                                                //// ATUALIZA O OBJETO BEST_LS COM AS NOVAS INFORMACOES.
-                                                bestLs = {true, s0, s1, true, MOV_SWAP, i, j, c0, c1};
-                                                improving = true;
-                                                bestCost = currentCost;
+                                        if (!evRoute1.isRechargingS(c1, Inst)) {
+                                            currentLs = {true, s0, s1, true, MOV_SWAP, i, j, c0, c1, FLOAT_MAX};
+                                            if (isViableSwap(evRoute0, evRoute1, c0, c1, Inst, currentLs)) {
+                                                if (currentLs.incrementoDistancia < bestLs.incrementoDistancia) {
+                                                    //// ATUALIZA O OBJETO BEST_LS COM AS NOVAS INFORMACOES.
+                                                    // note que a best_ls eh sempre atualizada, mesmo que nao tenha melhoramento na solucao. (Claro que nao conta como melhoramento propriamente  dito.
+                                                    bestLs = currentLs;
+                                                    if(bestLs.incrementoDistancia < BATTERY_TOLENCE) {
+                                                        improving = true;
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -137,12 +119,12 @@ bool NS_LocalSearch::interSatelliteSwap(Solution &Sol, const Instance &Inst, flo
         }
         if(improving){
             /// aplica movimento de swap na solucao;
-            swapMov(Sol, bestLs);
+            swapMov(Sol, bestLs, Inst);
         }
     }
     return false;
 }
-void NS_LocalSearch::swapMov(Solution& Sol, const LocalSearch2& mov){
+void NS_LocalSearch::swapMov(Solution& Sol, const LocalSearch2& mov, const Instance& Inst){
     int indexSat0, indexSat1;
     int indexRoute0, indexRoute1;
     int c0, c1;
@@ -163,7 +145,30 @@ void NS_LocalSearch::swapMov(Solution& Sol, const LocalSearch2& mov){
     c1 = mov.pos1;
     EvRoute& evRoute0 = Sol.getSatelite(indexSat0)->getRoute(indexRoute0);
     EvRoute& evRoute1 = Sol.getSatelite(indexSat1)->getRoute(indexRoute1);
+
+    int client0 = evRoute0.getNodeAt(c0);
+    int client1 = evRoute1.getNodeAt(c1);
+    // troca os elementos
+    evRoute0.replace(c0, client1, mov.incrementoDistancia, Inst);
+    evRoute1.replace(c1, client0, mov.incrementoDistancia, Inst);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 bool NS_LocalSearch::intraSatelliteShifit(Solution &solution, const Instance &instance)
 {

@@ -47,6 +47,7 @@ namespace NS_LocalSearch {
         int idRoute1 = -1;
         int pos0 = -1;
         int pos1 = -1;
+        float incrementoDistancia = FLOAT_MAX;
         // TODO: add Recharge Station changes for each route;
     };
 
@@ -54,7 +55,7 @@ namespace NS_LocalSearch {
     bool intraSatelliteSwap(Solution& Sol, int SatId, const Instance& Inst, float& improvement);
     bool interSatelliteSwap(Solution&, const Instance& Inst, float& improvement);
     bool intraSatelliteShifit(Solution &solution, const Instance &instance);
-    void swapMov(Solution& Sol, const LocalSearch2& mov);
+    void swapMov(Solution& Sol, const LocalSearch2& mov, const Instance& Inst);
 }
 
 #endif //INC_2E_EVRP_LOCALSEARCH_H

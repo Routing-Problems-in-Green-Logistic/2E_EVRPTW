@@ -166,11 +166,11 @@ int Solution::findSatellite(int id) const {
 
 double Solution::calcCost(const Instance& Inst) {
     double cost  = 0.0;
-    for(int t = 0; t < this->getDepot()->getNRoutes(); t++){
-        const auto& truckRoute = this->getDepot()->getRoute(t);
-        for(int i = 1; i < truckRoute.size(); i++){
-            int n0 = truckRoute.getNodeAt(i-1);
-            int n1 = truckRoute.getNodeAt(i);
+    for(int t = 0; t < this->primeiroNivel.size(); t++){
+        const auto& truckRoute = this->primeiroNivel.at(t);
+        for(int i = 1; i < truckRoute.rota.size(); i++){
+            int n0 = truckRoute.rota.at(i-1);
+            int n1 = truckRoute.rota.at(i);
             cost += Inst.getDistance(n0, n1);
         }
     }
