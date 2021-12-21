@@ -19,31 +19,7 @@ using namespace GreedyAlgNS;
 void routine(char** filenames, int nFileNames);
 float distance(std::pair<float, float> p1, std::pair<float,float> p2);
 Instance* getInstanceFromFile(std::string &fileName);
-
-void saveSolutionToFile(const Solution& Sol, const std::string& fileName){
-    std::ofstream file(fileName);
-    if(!file.is_open()){
-        cout << "failed to open file" << endl;
-        return;
-    }
-    for(const auto& route : Sol.primeiroNivel){
-        for(int node : route.rota){
-            file << node << ",";
-        }
-        file << endl;
-    }
-    for(const auto& satellite : Sol.satelites){
-        for(int i = 0; i < satellite->getNRoutes(); i++){
-            const auto& evRoute = satellite->getRoute(i);
-            for(int j = 0; j < evRoute.size(); j++){
-                file << evRoute.getNodeAt(j) << ",";
-            }
-            file << endl;
-        }
-    }
-    file.close();
-}
-
+void saveSolutionToFile(const Solution& Sol, const std::string& fileName="solution.txt");
 
 int main(int argc, char* argv[])
 {
@@ -204,4 +180,28 @@ Instance* getInstanceFromFile(std::string &fileName){
     }
     auto* Inst = new Instance(distMat, truckCap, evCap, evBattery, nSats, nClients, nRS, coordinates, demands);
     return Inst;
+}
+
+void saveSolutionToFile(const Solution& Sol, const std::string& fileName){
+    std::ofstream file(fileName);
+    if(!file.is_open()){
+        cout << "failed to open file" << endl;
+        return;
+    }
+    for(const auto& route : Sol.primeiroNivel){
+        for(int node : route.rota){
+            file << node << ",";
+        }
+        file << endl;
+    }
+    for(const auto& satellite : Sol.satelites){
+        for(int i = 0; i < satellite->getNRoutes(); i++){
+            const auto& evRoute = satellite->getRoute(i);
+            for(int j = 0; j < evRoute.size(); j++){
+                file << evRoute.getNodeAt(j) << ",";
+            }
+            file << endl;
+        }
+    }
+    file.close();
 }

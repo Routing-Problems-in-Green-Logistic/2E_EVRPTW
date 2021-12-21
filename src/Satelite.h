@@ -13,6 +13,7 @@ public:
     bool checkSatellite(std::string &erro, const Instance &Inst);
     void print(std::string &str);
     void print();
+    void setDemand(float demand_){demand = demand_;}
 
     int getId() const;
 

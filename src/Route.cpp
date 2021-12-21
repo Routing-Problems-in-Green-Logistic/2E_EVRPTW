@@ -8,7 +8,8 @@
 Route::Route(const Instance &instance)
 {
 
-    routeSizeMax = instance.getNSats() + 1;
+    //routeSizeMax = instance.getNSats() + 1;
+    routeSizeMax = instance.getNSats() + 2;
 
     rota.reserve(routeSizeMax);
     satelliteDemand.reserve(routeSizeMax);

@@ -38,6 +38,7 @@ public:
     float getEvCost() const;
 
     float getTruckCost() const;
+    int getNNodes() const;
 
 private:
     std::vector<std::vector<double>> distMat;

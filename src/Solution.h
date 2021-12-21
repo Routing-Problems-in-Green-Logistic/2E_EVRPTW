@@ -17,21 +17,7 @@ public:
     void print(const Instance& Inst);
     double calcCost(const Instance&);
     void print();
-    float getDistanciaTotal()
-    {
-        float distancia = 0.0;
-
-        for(auto sat:satelites)
-        {
-            for(auto route:sat->vetEvRoute)
-                distancia += route.distance;
-        }
-
-        for(auto route:primeiroNivel)
-            distancia += route.totalDistence;
-
-        return distancia;
-    }
+    float getDistanciaTotal();
 
     std::vector<Satelite*> satelites;
     Depot* Dep;
