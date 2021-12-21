@@ -20,6 +20,31 @@ void routine(char** filenames, int nFileNames);
 float distance(std::pair<float, float> p1, std::pair<float,float> p2);
 Instance* getInstanceFromFile(std::string &fileName);
 
+void saveSolutionToFile(const Solution& Sol, const std::string& fileName){
+    std::ofstream file(fileName);
+    if(!file.is_open()){
+        cout << "failed to open file" << endl;
+        return;
+    }
+    for(const auto& route : Sol.primeiroNivel){
+        for(int node : route.rota){
+            file << node << ",";
+        }
+        file << endl;
+    }
+    for(const auto& satellite : Sol.satelites){
+        for(int i = 0; i < satellite->getNRoutes(); i++){
+            const auto& evRoute = satellite->getRoute(i);
+            for(int j = 0; j < evRoute.size(); j++){
+                file << evRoute.getNodeAt(j) << ",";
+            }
+            file << endl;
+        }
+    }
+    file.close();
+}
+
+
 int main(int argc, char* argv[])
 {
     //auto semente = long(1637813360);
@@ -37,12 +62,15 @@ int main(int argc, char* argv[])
     Instance *instance = getInstanceFromFile(file); // TODO(samuel): use smart pointer instead, maybe dont even use pointers.
     try
     {
+        Solution best_(*instance);
+        Solution bestB(*instance);
         float globalBest = FLOAT_MAX;
         float mean = 0;
         for(int n = 0; n < 10; n++){
             float best = FLOAT_MAX;
             std::string str;
             for (int i = 0; i < 1000; ++i) {
+
                 Solution solution(*instance);
                 greedy(solution, *instance, 0.3, 0.3);
                 if (solution.viavel) {
@@ -76,18 +104,26 @@ int main(int argc, char* argv[])
                         //cout << endl;
                     }
                     if (distLs < best) {
+                        best_ = solution;
                         best = distLs;
                     }
                 }
             }
             if(best < globalBest){
                 globalBest = best;
+                bestB = best_;
             }
             cout << "BEST: " << best << endl;
             mean += best;
         }
+
+        saveSolutionToFile(bestB, "file.txt");
+
         cout << "globalBEST: " << globalBest << endl;
         cout << "mean: " << mean/10;
+        std::string str;
+        bestB.print(str);
+        cout<<str<<"\n";
     }
     catch(std::out_of_range &e)
     {
