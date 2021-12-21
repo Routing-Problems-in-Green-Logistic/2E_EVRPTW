@@ -131,3 +131,7 @@ bool Instance::isSatelite(int node) const {
 bool Instance::isDepot(int node) const {
     return node == 0;
 }
+
+int Instance::getNNodes() const {
+    return (int)demands.size();
+}
