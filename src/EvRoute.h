@@ -51,7 +51,7 @@ class EvRoute{
 public:
     ///---------- info -------------///
     int size() const;
-    float getDemand(const Instance& Inst) const;
+    float getDemand() const;
     float getMinDemand() const;
     float getMaxDemand() const;
     float getRemainingBatteryBefore(int i) const;
@@ -85,7 +85,7 @@ public:
     std::vector<float> vetRemainingBattery;
     void setAuxStructures(const Instance& Inst);
 
-private:
+//private:
     float totalDemand = 0.0;
     float initialCapacity = 0.0;
     float initialBattery = 0.0;

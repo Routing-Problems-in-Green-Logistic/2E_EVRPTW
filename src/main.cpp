@@ -23,17 +23,23 @@ void saveSolutionToFile(const Solution& Sol, const std::string& fileName="soluti
 
 int main(int argc, char* argv[])
 {
-    //auto semente = long(1637813360);
-    auto semente = time(nullptr);
-    //auto semente = 1638867831;
-    cout<<"SEMENTE: "<<semente<<"\n\n";
-    seed(semente);
 
-    if(argc != 2)
+    if(argc != 2 && argc != 3)
     {
         std::cerr<<"FORMATO: a.out file.txt\n";
         return -1;
     }
+
+    long semente = 0;
+
+    if(argc == 3)
+    {
+        semente = atol(argv[2]);
+        cout<<"SEMENTE: "<<semente<<"\n\n";
+        seed(semente);
+    }
+
+
     std::string file(argv[1]);
     Instance *instance = getInstanceFromFile(file); // TODO(samuel): use smart pointer instead, maybe dont even use pointers.
     try
@@ -42,64 +48,89 @@ int main(int argc, char* argv[])
         Solution bestB(*instance);
         float globalBest = FLOAT_MAX;
         float mean = 0;
-        for(int n = 0; n < 10; n++){
+        for(int n = 0; n < 10; n++)
+        {
+            if(argc == 2)
+            {
+                semente = time(nullptr);
+                seed(semente);
+                cout<<"SEMENTE: "<<semente<<"\n\n";
+
+            }
+
             float best = FLOAT_MAX;
             std::string str;
             for (int i = 0; i < 1000; ++i) {
 
                 Solution solution(*instance);
                 greedy(solution, *instance, 0.3, 0.3);
-                if (solution.viavel) {
+                if (solution.viavel)
+                {
                     float improv;
-                    if (!solution.viavel) {
-                        cout << "INVIAVEL dps da busca local" << endl;
-                        exit(-1);
 
-                    } else {
-                    }
                     if (!solution.checkSolution(str, *instance)) {
-                        //cout << str << "\n\n";
-                        // exit(-1);
+                        cout << str << "\n\n";
+                        exit(-1);
                         continue;
                     }
                     float distanciaAux = solution.getDistanciaTotal();
+
                     //cout << distanciaAux;
-                    NS_LocalSearch::interSatelliteSwap(solution, *instance, improv);
-                    if (!solution.checkSolution(str, *instance)) {
-                        //cout << str << "\n\n";
-                        //exit(-1);
-                        continue;
+                    //NS_LocalSearch::interSatelliteSwap(solution, *instance, improv);
+
+
+                    float melhora = 10;
+
+
+                    while(true)
+                    {
+
+                        if(!NS_LocalSearch::mvShifitIntraRota(solution, *instance))
+                            break;
+
+                        cout<<"LOCAL SEARCH TRUE "<<solution.mvShiftIntraRota<<"\n\n";
+
+                        string erro="";
+                        if(!solution.checkSolution(erro, *instance))
+                        {
+                            cout << erro << "\n\nERRO*********\n";
+                            exit(-1);
+                        }
+
+
                     }
+
                     //float distLs = solution.getDistanciaTotal(); // TODO: resolver problema que os valores de distancia nas rotas nao estao sendo atualizados corretamente durante busca local swap
-                    auto distLs = (float)solution.calcCost(*instance);
-                    distanciaAux -= distLs;
-                    if (distanciaAux > +1e-4) { ;
-                    }
-                        //cout << " - LS: " << distLs << endl;
-                    else {
-                        //cout << endl;
-                    }
+                    float distLs = solution.calcCost(*instance);
+
                     if (distLs < best) {
                         best_ = solution;
                         best = distLs;
                     }
                 }
+
+
             }
             if(best < globalBest){
                 globalBest = best;
                 bestB = best_;
             }
-            cout << "BEST: " << best << endl;
+            cout << "BEST: " << best <<"; MV SHIFIT INTRA ROTA: "<<(best_.mvShiftIntraRota?"True":"False")<<endl;
             mean += best;
+
+
+
+            if(argc == 3)
+                break;
         }
 
         saveSolutionToFile(bestB, "file.txt");
 
         cout << "globalBEST: " << globalBest << endl;
-        cout << "mean: " << mean/10;
+        cout << "mean: " << mean/10<<"\n\n";
         std::string str;
         bestB.print(str);
-        cout<<str<<"\n";
+        //cout<<str<<"\n";
     }
     catch(std::out_of_range &e)
     {

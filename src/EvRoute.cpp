@@ -36,7 +36,7 @@ EvRoute::EvRoute(float evBattery, float evCapacity, int satelite, const int Rout
 int EvRoute::size() const{
     return routeSize;
 }
-float EvRoute::getDemand(const Instance& Inst) const{
+float EvRoute::getDemand() const{
     return totalDemand;
 }
 float EvRoute::getCost(const Instance& Inst) const{
@@ -572,8 +572,9 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &Inst) const
     if(std::abs(distance-distanceAux) > DISTANCE_TOLENCE)
     {
 
-        erro += "ERRO EV_ROUTE, SATELLITE "+ std::to_string(satelite) + "\nDISTANCIA CALCULADA EH DIFERENTE DE EV_ROUTE, "+
-                std::to_string(distanceAux)+" != "+  std::to_string(distance) + "\nROTA: ";
+        erro += "ERRO EV_ROUTE, SATELLITE "+ std::to_string(satelite) + "\nDISTANCIA CALCULADA EH DIFERENTE DE EV_ROUTE, CALCULADO: "+
+                std::to_string(distanceAux)+" != EV ROUTE: "+  std::to_string(distance) + "\nROTA: ";
+        print(erro);
 
         return false;
     }

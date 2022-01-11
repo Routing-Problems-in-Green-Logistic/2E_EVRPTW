@@ -3,10 +3,12 @@
 #include <set>
 #include <cfloat>
 #include "mersenne-twister.h"
+#include "LocalSearch.h"
 
 using namespace GreedyAlgNS;
 using namespace std;
 using namespace NS_Auxiliary;
+using namespace NS_LocalSearch;
 
 bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const float alpha)
 {
@@ -256,13 +258,54 @@ void GreedyAlgNS::greedy(Solution &sol, const Instance &Inst, const float alpha,
 
         firstEchelonGreedy(sol, Inst, beta);
 
+
         std::string str = "";
-        if(!sol.checkSolution(str, Inst) && sol.viavel)
+
+        /*if(sol.viavel && sol.checkSolution(str, Inst))
+        {
+            float val = sol.getDistanciaTotal();
+            //PRINT_DEBUG("", "Antes chamada");
+
+            if(mvShifitIntraRota(sol, Inst))
+            {
+                //PRINT_DEBUG("", "Depois chamada");
+
+                str = "";
+
+                if(sol.checkSolution(str, Inst))
+                    cout<<"Heuristica: "<<val<<"; Shifit: "<<sol.getDistanciaTotal()<<"\n";
+                else
+                {
+                    std::cerr<<"INVIAVEL APOS SHIFIT INTRA SATELLITE\n\n"<<str<<"\n\n";
+                    std::cout << "*******************************************\n";
+
+                    throw "ERRO";
+                }
+            }
+
+        }
+        else if(sol.viavel)
         {
             std::cerr << str << "\n\n";
             std::cout << "*******************************************\n";
 
             throw "ERRO";
         }
+
+         */
+
+        if(sol.viavel)
+        {
+            if(!sol.checkSolution(str, Inst))
+            {
+                std::cerr<<str << "\n\n";
+                std::cout << "*******************************************\n";
+
+                throw "ERRO";
+            }
+
+        }
     }
+
+
 }
