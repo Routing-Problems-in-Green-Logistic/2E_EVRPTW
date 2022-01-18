@@ -11,9 +11,12 @@
 #include <cfloat>
 #include <memory>
 #include "mersenne-twister.h"
+#include "Vnd.h"
+#include <chrono>
 
 using namespace std;
 using namespace GreedyAlgNS;
+using namespace NS_vnd;
 
 
 void routine(char** filenames, int nFileNames);
@@ -40,6 +43,8 @@ int main(int argc, char* argv[])
     }
 
 
+
+
     std::string file(argv[1]);
     Instance *instance = getInstanceFromFile(file); // TODO(samuel): use smart pointer instead, maybe dont even use pointers.
     try
@@ -47,8 +52,13 @@ int main(int argc, char* argv[])
         Solution best_(*instance);
         Solution bestB(*instance);
         float globalBest = FLOAT_MAX;
+
+        float meanTempo = 0.0;
         float mean = 0;
-        for(int n = 0; n < 10; n++)
+        const int N = 30;
+        int nReal = 0;
+
+        for(int n = 0; n < N; n++)
         {
             if(argc == 2)
             {
@@ -60,7 +70,12 @@ int main(int argc, char* argv[])
 
             float best = FLOAT_MAX;
             std::string str;
-            for (int i = 0; i < 1000; ++i) {
+
+            auto start = std::chrono::high_resolution_clock::now();
+            for (int i = 0; i < 1000; ++i)
+            {
+
+
 
                 Solution solution(*instance);
                 greedy(solution, *instance, 0.3, 0.3);
@@ -69,35 +84,21 @@ int main(int argc, char* argv[])
                     float improv;
 
                     if (!solution.checkSolution(str, *instance)) {
-                        cout << str << "\n\n";
-                        exit(-1);
+                        cout << str << "\n\nERRO*********\n";
+                        //exit(-1);
                         continue;
                     }
                     float distanciaAux = solution.getDistanciaTotal();
 
-                    //cout << distanciaAux;
-                    //NS_LocalSearch::interSatelliteSwap(solution, *instance, improv);
+                    rvnd(solution, *instance);
 
 
-                    float melhora = 10;
-
-
-                    while(true)
+                    string erro = "";
+                    if(!solution.checkSolution(erro, *instance))
                     {
-
-                        if(!NS_LocalSearch::mvShifitIntraRota(solution, *instance))
-                            break;
-
-                        cout<<"LOCAL SEARCH TRUE "<<solution.mvShiftIntraRota<<"\n\n";
-
-                        string erro="";
-                        if(!solution.checkSolution(erro, *instance))
-                        {
-                            cout << erro << "\n\nERRO*********\n";
-                            exit(-1);
-                        }
-
-
+                        cout << erro << "\n\nERRO*********\n";
+                        continue;
+//                        exit(-1);
                     }
 
                     //float distLs = solution.getDistanciaTotal(); // TODO: resolver problema que os valores de distancia nas rotas nao estao sendo atualizados corretamente durante busca local swap
@@ -111,12 +112,24 @@ int main(int argc, char* argv[])
 
 
             }
+
+            auto end = std::chrono::high_resolution_clock::now();
+
+            float tempo = (end-start).count();
+
             if(best < globalBest){
                 globalBest = best;
                 bestB = best_;
             }
-            cout << "BEST: " << best <<"; MV SHIFIT INTRA ROTA: "<<(best_.mvShiftIntraRota?"True":"False")<<endl;
-            mean += best;
+
+            cout << "BEST: " << best <<"\n";
+
+            if(best < FLOAT_MAX-1.0)
+            {
+                mean += best;
+                nReal += 1;
+                meanTempo += tempo;
+            }
 
 
 
@@ -124,12 +137,12 @@ int main(int argc, char* argv[])
                 break;
         }
 
-        saveSolutionToFile(bestB, "file.txt");
+        //saveSolutionToFile(bestB, "file.txt");
 
-        cout << "globalBEST: " << globalBest << endl;
-        cout << "mean: " << mean/10<<"\n\n";
-        std::string str;
-        bestB.print(str);
+        cout << "globalBEST: " << globalBest<<";   mean: " << mean/nReal<<"; mean tempo: "<<meanTempo/nReal<<"n: "<<nReal<<"\n\n";
+
+        //std::string str;
+        //bestB.print(str);
         //cout<<str<<"\n";
     }
     catch(std::out_of_range &e)

@@ -23,7 +23,7 @@ Satelite::Satelite(int id, const Instance& Inst)
 float Satelite::getDemand(const Instance& Inst) const { // O(n)
     float totDemand = 0;
     for(const auto& route : this->vetEvRoute){
-        totDemand += route.getDemand(Inst);
+        totDemand += route.getDemand();
     }
     return totDemand;
 }

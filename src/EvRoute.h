@@ -47,6 +47,28 @@ public:
         : pos(pos), id(id), remainingBattery(remainingBattery){};
 };
 
+struct PosRouteRechS_ID
+{
+    int pos = -1;
+    int rechargingStationId = -1;
+
+    friend bool operator < (const PosRouteRechS_ID &posRouteRechSId0, const PosRouteRechS_ID &posRouteRechSId1)
+    {
+        return posRouteRechSId0.rechargingStationId < posRouteRechSId1.rechargingStationId;
+    }
+};
+
+struct PosRoute0PosRoute1RechS_ID
+{
+
+    int posRoute0 = -1;
+    int posRoute1 = -1;
+    int rechargingStationId = -1;
+
+    friend bool operator <(const PosRoute0PosRoute1RechS_ID &aux0, const PosRoute0PosRoute1RechS_ID &aux1);
+
+};
+
 class EvRoute{
 public:
     ///---------- info -------------///
@@ -106,5 +128,10 @@ public:
     void addRechargeToList(int pos, int rsId, float remainingBattery);
     bool checkOutOfBounds(int pos, bool notSatellite=false) const;
     float getDistance(int pos0, int pos1, const Instance& Inst);
+
+    int operator [](int pos)
+    {
+        return route[pos];
+    }
 };
 #endif

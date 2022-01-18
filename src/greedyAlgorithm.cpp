@@ -254,58 +254,7 @@ bool GreedyAlgNS::existeDemandaNaoAtendida(std::vector<float> &demandaNaoAtendid
 void GreedyAlgNS::greedy(Solution &sol, const Instance &Inst, const float alpha, const float beta)
 {
     if(secondEchelonGreedy(sol, Inst, alpha))
-    {
-
         firstEchelonGreedy(sol, Inst, beta);
-
-
-        std::string str = "";
-
-        /*if(sol.viavel && sol.checkSolution(str, Inst))
-        {
-            float val = sol.getDistanciaTotal();
-            //PRINT_DEBUG("", "Antes chamada");
-
-            if(mvShifitIntraRota(sol, Inst))
-            {
-                //PRINT_DEBUG("", "Depois chamada");
-
-                str = "";
-
-                if(sol.checkSolution(str, Inst))
-                    cout<<"Heuristica: "<<val<<"; Shifit: "<<sol.getDistanciaTotal()<<"\n";
-                else
-                {
-                    std::cerr<<"INVIAVEL APOS SHIFIT INTRA SATELLITE\n\n"<<str<<"\n\n";
-                    std::cout << "*******************************************\n";
-
-                    throw "ERRO";
-                }
-            }
-
-        }
-        else if(sol.viavel)
-        {
-            std::cerr << str << "\n\n";
-            std::cout << "*******************************************\n";
-
-            throw "ERRO";
-        }
-
-         */
-
-        if(sol.viavel)
-        {
-            if(!sol.checkSolution(str, Inst))
-            {
-                std::cerr<<str << "\n\n";
-                std::cout << "*******************************************\n";
-
-                throw "ERRO";
-            }
-
-        }
-    }
 
 
 }

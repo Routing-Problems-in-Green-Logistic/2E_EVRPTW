@@ -78,25 +78,9 @@ bool EvRoute::canInsert(int node, const Instance &Inst, Insertion &insertion) co
         return false;
     }
 
-    // for each position, find the best one to insert.
-    // Viabilidade de bateria ??
-//    for(int pos = 1; pos < this->size(); pos++)
-
-
-    string str;
-
-    print(str);
-
-
 
     for(int pos = 0; pos < routeSize-1; pos++)
     {
-        /*
-        int prevNode = this->route.at(pos - 1);    // ??  Permite a rota 0-1-2... ir para 3-0-1-2...
-        int nextNode = this->route.at(pos);
-        */
-
-
 
         int prevNode = this->route.at(pos);
         int nextNode = this->route.at(pos+1);
@@ -124,7 +108,7 @@ bool EvRoute::canInsert(int node, const Instance &Inst, Insertion &insertion) co
             if(remainingBatteryAtR_S < -BATTERY_TOLENCE)
                 batteryOk = false;
 
-        }//else if(vetRemainingBattery[pos+1] - distanceAux < -BATTERY_TOLENCE)
+        }
         else if(remaingBattery < -BATTERY_TOLENCE)
             batteryOk = false;
 
@@ -161,8 +145,8 @@ bool EvRoute::canInsert(int node, const Instance &Inst, Insertion &insertion) co
 
             }
         }
-        else
-        {
+       else
+       {
 
 
             // Realizar a insersao da estacao de recarga
@@ -336,7 +320,7 @@ bool EvRoute::canInsert(int node, const Instance &Inst, Insertion &insertion) co
                 }
             }
 
-        }
+       }
 
 
 

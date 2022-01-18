@@ -29,6 +29,8 @@ public:
     std::vector<Route> primeiroNivel;
 
     bool mvShiftIntraRota = false;
+    bool mvShiftInterRotas = false;
+    bool mvCross = false;
 
 };
 #endif //INC_2E_EVRP_SOLUTION_H
