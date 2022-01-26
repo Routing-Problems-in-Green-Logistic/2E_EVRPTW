@@ -5,38 +5,6 @@
 #include "Route.h"
 #include <list>
 
-class Insertion {
-public:
-
-    int pos             = -1;       // Verificar se o indice rechargingS_Pos eh menor antes de inserir na solucao. O indice maior ja esta considerando +1
-    int clientId        = -1;
-    int rechargingS_Id  = -1;
-    int rechargingS_Pos = -1;       // Verificar se o indice pos eh menor antes de inserir na solucao. O indice maior ja esta considerando +1
-    int routeId         = -1;
-    int satId           = -1;
-    float cost          = 0.0;
-    float demand        = 0.0;
-    float batteryCost   = 0.0;
-
-    Insertion(int pos, int clientId, float cost, float demand, float batteryCost, int routeId, int satId, int rsPos, int rsId)
-    {
-        this->pos = pos;
-        this->clientId = clientId;
-        this->cost = cost;
-        this->demand = demand;
-//        this->rs = rs;
-        this->batteryCost = batteryCost;
-        this->rechargingS_Pos = rsPos;
-        this->routeId = routeId;
-        this->satId = satId;
-        rechargingS_Id = rsId;
-    }
-    Insertion(int routeId) { this->routeId = routeId;}
-    Insertion() = default;
-    bool operator< (const Insertion& that) const {
-        return (this->cost < that.cost);
-    }
-};
 class Recharge {
 public:
     int pos = -1;
@@ -47,25 +15,46 @@ public:
         : pos(pos), id(id), remainingBattery(remainingBattery){};
 };
 
-struct PosRouteRechS_ID
+struct PosicaoEstacao
 {
     int pos = -1;
     int rechargingStationId = -1;
 
-    friend bool operator < (const PosRouteRechS_ID &posRouteRechSId0, const PosRouteRechS_ID &posRouteRechSId1)
+    friend bool operator < (const PosicaoEstacao &posRouteRechSId0, const PosicaoEstacao &posRouteRechSId1)
     {
         return posRouteRechSId0.rechargingStationId < posRouteRechSId1.rechargingStationId;
     }
+
+
+    friend bool operator > (const PosicaoEstacao &posRouteRechSId0, const PosicaoEstacao &posRouteRechSId1)
+    {
+        return posRouteRechSId0.rechargingStationId > posRouteRechSId1.rechargingStationId;
+    }
+
+    friend bool operator == (const PosicaoEstacao &posRouteRechSId0, const PosicaoEstacao &posRouteRechSId1)
+    {
+        return posRouteRechSId0.rechargingStationId == posRouteRechSId1.rechargingStationId;
+    }
 };
 
-struct PosRoute0PosRoute1RechS_ID
+struct PosRota0Rota1Estacao
 {
 
     int posRoute0 = -1;
     int posRoute1 = -1;
     int rechargingStationId = -1;
 
-    friend bool operator <(const PosRoute0PosRoute1RechS_ID &aux0, const PosRoute0PosRoute1RechS_ID &aux1);
+    friend bool operator <(const PosRota0Rota1Estacao &aux0, const PosRota0Rota1Estacao &aux1)
+    {
+        return aux0.rechargingStationId < aux1.rechargingStationId;
+    }
+
+    void swapPos()
+    {
+        int aux = posRoute0;
+        posRoute0 = posRoute1;
+        posRoute1 = aux;
+    }
 
 };
 
@@ -76,62 +65,38 @@ public:
     float getDemand() const;
     float getMinDemand() const;
     float getMaxDemand() const;
-    float getRemainingBatteryBefore(int i) const;
     float getCurrentCapacity() const;
-
     EvRoute(float evBattery, float evCapacity, int satelite, int RouteSizeMax);
-    // float getBatteryAt(int pos, const Instance& Inst) const; // REPLACED WITH getBatteryBefore
-
-    float getInitialCapacity() const;
-    float getInitialBattery() const;
-
-    float getCost(const Instance& Inst) const;
-    float getDemandOf(int i, const Instance& Inst) const;
-    //bool insert(int node, int pos, const Instance& Inst);
-
-    // --- MODIFIERS --- //
-    bool insert(Insertion& insertion, const Instance& Inst);
-    void replace(int pos, int node, float distance, const Instance& Inst); // replaces route at pos;
-
-    void print() const;
-    bool canInsert(int node, const Instance &Instance, Insertion &insertion) const;
-    bool rechargingS_inUse(int id) const;
-    bool isRechargingS(int pos, const Instance& Inst) const;
-    int getNodeAt(int pos) const;
-    void print(std::string &str) const;
+    EvRoute(const Instance &instance);
+    void print(const Instance &instance) const;
+    void print(std::string &str, const Instance &instance) const;
     bool checkRoute(std::string &erro, const Instance &Inst) const;
-    std::vector<int> route;
-    int satelite = 0.0;
-    float distance = 0.0;
-    int routeSize = 2;
-    std::vector<float> vetRemainingBattery;
     void setAuxStructures(const Instance& Inst);
+    int getNodeAt(int pos) const;
+    float getDemandOf(int i, const Instance& Inst) const;
+    //float getRemainingBatteryBefore(int i) const;
 
-//private:
-    float totalDemand = 0.0;
-    float initialCapacity = 0.0;
-    float initialBattery = 0.0;
-    std::list<std::pair<int,int>> rechargingStationsPos_Rs;     // Armazena tuplas com (posicao de route; recharging station id)
-    std::list<Recharge> recharges;     // armazena as estacoes de recarga, com a bateria disponivel ate elas;
-    std::vector<bool> rechargingStationRoute;                   // Indica se a posicao eh uma estacao de recarga
-    int routeSizeMax = -1;
-    float minDemand = 1e8;
-    float maxDemand = 0;
-    /** Updates the recharges list
-     *
-     * @param pos posicao alterada, seja uma insercao nessa posicao ou alguma troca (swap)
-     * @param distance distancia a mais (ou a menos) comparada ahh anterior
-     * @param isInsertion se for insercao. Nesse caso a posicao das estacoes de recarga a frente teram que aumentar em 1.
-     */
-    void updateRecharge(int pos, float distance, bool isInsertion);
-    void addRechargeToList(int pos, int rsId, const Instance& Inst);
-    void addRechargeToList(int pos, int rsId, float remainingBattery);
-    bool checkOutOfBounds(int pos, bool notSatellite=false) const;
-    float getDistance(int pos0, int pos1, const Instance& Inst);
-
-    int operator [](int pos)
+    int operator [](int pos) const
     {
         return route[pos];
     }
+
+
+    int& operator [](int pos)
+    {
+        return route[pos];
+    }
+
+    std::vector<int> route;
+    std::vector<float> vetRemainingBattery;
+    int satelite = 0;
+    float distance = 0.0;
+    int routeSize = 2;
+    float totalDemand = 0.0;
+    int routeSizeMax = -1;
+    float minDemand = 1e8;
+    float maxDemand = 0;
+
+
 };
 #endif

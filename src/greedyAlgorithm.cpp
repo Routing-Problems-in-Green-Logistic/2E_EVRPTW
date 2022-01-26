@@ -4,11 +4,13 @@
 #include <cfloat>
 #include "mersenne-twister.h"
 #include "LocalSearch.h"
+#include "ViabilizadorRotaEv.h"
 
 using namespace GreedyAlgNS;
 using namespace std;
 using namespace NS_Auxiliary;
 using namespace NS_LocalSearch;
+using namespace NameViabRotaEv;
 
 bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const float alpha)
 {
@@ -61,16 +63,9 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const
                             Insertion insertion(routeId);
                             insertion.satId = satId;
 
+                            if(canInsert(route, clientId, Inst, insertion))
+                                restrictedList.push_back(insertion);
 
-                            bool canInsert = route.canInsert(clientId, Inst, insertion);
-
-
-                            if(canInsert)
-                            {
-
-
-                                restrictedList.push_back(insertion); //insertionTable.at(satId).at(routeId).at(client - Inst.getFirstClientIndex()) = Ins;
-                            }
 
 
                         }
@@ -98,15 +93,8 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const
         Satelite *satelite = sol.getSatelite(topItem->satId-Inst.getFirstSatIndex());
         satelite->demand += topItem->demand;
         EvRoute &evRoute = satelite->getRoute(topItem->routeId);
+        insert(evRoute, *topItem, Inst);
 
-
-        if(!evRoute.insert(*topItem, Inst))
-        {
-
-            std::cerr<<"\n\n\n\n************************************\nERRO, NAO FOI POSSIVEL INSERIR CLIENTE NA SULUCAO\n";
-
-            throw "ERRO";
-        }
 
     }
 
@@ -258,3 +246,205 @@ void GreedyAlgNS::greedy(Solution &sol, const Instance &Inst, const float alpha,
 
 
 }
+
+
+
+bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &Inst, Insertion &insertion)
+{
+    float demand = Inst.getDemand(node);
+    float bestInsertionCost = FLOAT_MAX;
+    bool viavel = false;
+    EvRoute evRouteAux(Inst);
+    InsercaoEstacao insercaoEstacao;
+
+
+    if((evRoute.getDemand() + demand) > Inst.getEvCap()){
+        return false;
+    }
+
+    std::copy(evRoute.route.begin(), evRoute.route.begin()+evRoute.routeSize, evRouteAux.route.begin());
+    shiftVectorDir(evRouteAux.route, 1, 1, evRoute.routeSize);
+    evRouteAux.routeSize = evRoute.routeSize+1;
+
+    float distanciaRota  = 0.0;
+    if(evRoute.routeSize > 2)
+    {
+        for(int i=0; (i+1) < evRoute.routeSize; ++i)
+            distanciaRota += Inst.getDistance(evRoute[i], evRoute[i+1]);
+    }
+
+    //cout<<"\tnode: "<<node<<"\n";
+    //cout<<"ROTA: "<<printVector(evRoute.route, evRoute.routeSize)<<"\n";
+    for(int pos = 0; pos < evRoute.routeSize-1; pos++)
+    {
+
+        //int prevNode = evRoute.route.at(pos);
+        //int nextNode = evRoute.route.at(pos + 1);
+        evRouteAux.route[pos+1] = node;
+
+        //cout<<"NOVA ROTA: "<<printVector(evRouteAux.route, evRouteAux.routeSize)<<"\n";
+
+
+        float distanceAux = Inst.getDistance(evRoute[pos], node) + Inst.getDistance(node, evRoute[pos+1]) - Inst.getDistance(evRoute[pos], evRoute[pos+1]);
+
+        float batteryConsumptionAux = 0.0;
+
+        // Ate nextNode(pos+1)
+        float remaingBattery = evRoute.vetRemainingBattery[pos] - Inst.getDistance(evRoute[pos], node) - Inst.getDistance(node, evRoute[pos+1]);
+
+
+        bool batteryOk = true;
+
+
+        if(remaingBattery < -BATTERY_TOLENCE)
+               batteryOk = false;
+
+        if(Inst.isRechargingStation(evRoute[pos+1]))
+            remaingBattery = Inst.getEvBattery();
+
+        //cout<<"pos: "<<pos<<"; "<<evRoute[pos]<<": "<<evRoute.vetRemainingBattery[pos]<<"\n";
+        //cout<<"pos+1: "<<pos+1<<"; "<<evRoute[pos+1]<<": "<<remaingBattery<<";\n";
+
+        if(batteryOk)
+        {
+
+            for(int i = pos + 1; (i + 1) < evRoute.routeSize; ++i)
+            {
+                remaingBattery -= Inst.getDistance(evRoute[i], evRoute[i+1]);
+
+                if(remaingBattery < -BATTERY_TOLENCE)
+                {
+                    batteryOk = false;
+                    break;
+                }
+
+
+                if(Inst.isRechargingStation(evRoute[i]))
+                    remaingBattery = Inst.getEvBattery();
+
+
+                //cout<<"\tpos: "<<pos<<"; "<<evRoute[pos]<<": "<<remaingBattery<<";\n";
+
+                //cout<<evRoute[i+1]<<": "<<remaingBattery<<"\n";
+                //cout<<"pos: "<<i+1<<"; "<<evRoute[i+1]<<": "<<remaingBattery<<";\n";
+            }
+        }
+
+        if(batteryOk)
+        {
+
+            float insertionCost = distanceAux;
+            if(insertionCost < bestInsertionCost)
+            {
+                bestInsertionCost = insertionCost;
+                insertion = Insertion(pos, node, insertionCost, demand, batteryConsumptionAux, insertion.routeId, insertion.satId, -1, -1, {});
+                viavel = true;
+                //cout<<"\t\tATUALIZOU BEST_INSERTION\n";
+
+            }
+        }
+        else
+        {
+            //cout<<"VIABILIZA ROTA: "<<printVector(evRouteAux.route, evRouteAux.routeSize)<<"\n";
+            if(viabilizaRotaEv(evRouteAux.route, evRouteAux.routeSize, Inst, true, insercaoEstacao))
+            {
+                float insertionCost = insercaoEstacao.distanciaRota - distanciaRota;
+                if(insertionCost < bestInsertionCost)
+                {
+                    bestInsertionCost = insertionCost;
+                    insertion = Insertion(pos, node, insertionCost, demand, batteryConsumptionAux, insertion.routeId, insertion.satId, -1, -1, insercaoEstacao);
+                    viavel = true;
+                    //cout<<"\t\tVIABILIZA ROTA ATUALIZOU BEST_INSERTION\n";
+                }
+            }
+        }
+
+        evRouteAux[pos+1] = evRouteAux[pos+2];
+
+    }
+
+    //cout<<"\n\n";
+    return viavel;
+
+}
+
+
+
+bool GreedyAlgNS::insert(EvRoute &evRoute, Insertion &insertion, const Instance &Inst)
+{
+
+    const int pos = insertion.pos;
+    const int node = insertion.clientId;
+    if(pos < 0 )
+        return false;
+
+    if(node < 0)
+        return false;
+
+
+    // checar se consegue com a capacidade atual
+    // checar se consegue com a bateria atual (a bateria do veiculo antes da proxima recarga.
+    //  inserir
+    //  atualizar capacidade
+    //  atualizar bateria
+    //  atualizar custo
+
+    // atualiza estruturas auxiliares:
+    evRoute.totalDemand += insertion.demand;
+    evRoute.distance += insertion.cost;
+    evRoute.maxDemand = insertion.demand > evRoute.maxDemand ? insertion.demand : evRoute.maxDemand;
+    evRoute.minDemand = insertion.demand < evRoute.maxDemand ? insertion.demand : evRoute.maxDemand;
+
+    // ignoring battery distance for now;
+    //this->rechargingStations;
+    int k = pos;
+
+
+    //cout<<"ROTA ANTIGA: "<<printVector(evRoute.route, evRoute.routeSize)<<"\n";
+
+    shiftVectorDir(evRoute.route, pos+1, 1, evRoute.routeSize);
+    evRoute.route[pos+1] = node;
+    evRoute.routeSize += 1;
+
+    //cout<<"ROTA CLIENTE: "<<printVector(evRoute.route, evRoute.routeSize)<<"\n";
+
+    if(insertion.insercaoEstacao.pos >= 0)
+    {
+
+
+        shiftVectorDir(evRoute.route, insertion.insercaoEstacao.pos+1, 1, evRoute.routeSize);
+        evRoute.route[insertion.insercaoEstacao.pos+1] = insertion.insercaoEstacao.estacao;
+        evRoute.routeSize += 1;
+    }
+
+
+
+
+    // Atualizando estruturas auxiliares (demanda maxima e minima da rota)
+    if(insertion.demand < evRoute.getMinDemand())
+        evRoute.minDemand = insertion.demand;
+
+    if(insertion.demand > evRoute.getMaxDemand())
+        evRoute.maxDemand = insertion.demand;
+
+
+    //cout<<"INSERTE\n";
+
+    evRoute.distance = testaRota(evRoute.route, evRoute.routeSize, Inst, &evRoute.vetRemainingBattery);
+
+    if(evRoute.distance <= 0.0)
+    {
+        string rotaStr;
+        evRoute.print(rotaStr, Inst);
+
+        PRINT_DEBUG("", "ERRO NA FUNCAO GreedyAlgNS::insert, BATERIA DA ROTA EH INVIAVEL: "<<rotaStr<<"\n\n");
+        throw "ERRO";
+    }
+
+
+    //evRoute.print(Inst);
+//    evRoute.vetRemainingBattery
+
+    return true;
+}
+

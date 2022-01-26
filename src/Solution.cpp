@@ -54,10 +54,10 @@ bool Solution::checkSolution(std::string &erro, const Instance &Inst)
     {
         for(EvRoute &evRoute:satelite->vetEvRoute)
         {
-            for(int cliente:evRoute.route)
+            for(int i=0; i < evRoute.routeSize; ++i)
             {
-                if(Inst.isClient(cliente))
-                    vetCliente[cliente-Inst.getFirstClientIndex()] += 1;
+                if(Inst.isClient(evRoute[i]))
+                    vetCliente[evRoute[i]-Inst.getFirstClientIndex()] += 1;
 
             }
         }
@@ -129,14 +129,14 @@ bool Solution::checkSolution(std::string &erro, const Instance &Inst)
 
 }
 
-void Solution::print(std::string &str)
+void Solution::print(std::string &str,  const Instance &instance)
 {
 
     str += "2º NIVEL:\n";
 
     for(Satelite *satelite:satelites)
     {
-        satelite->print(str);
+        satelite->print(str, instance);
     }
 }
 
@@ -147,7 +147,7 @@ void Solution::print(const Instance& Inst)
 
     for(Satelite *satelite:satelites)
     {
-        satelite->print();
+        satelite->print(Inst);
     }
 
     std::cout<<"1° NIVEL:\n";
@@ -166,19 +166,29 @@ int Solution::findSatellite(int id) const {
 
 double Solution::calcCost(const Instance& Inst) {
     double cost  = 0.0;
-    for(int t = 0; t < this->primeiroNivel.size(); t++){
+
+    for(int t = 0; t < this->primeiroNivel.size(); t++)
+    {
         const auto& truckRoute = this->primeiroNivel.at(t);
-        for(int i = 1; i < truckRoute.rota.size(); i++){
+        for(int i = 1; i < truckRoute.rota.size(); i++)
+        {
             int n0 = truckRoute.rota.at(i-1);
             int n1 = truckRoute.rota.at(i);
             cost += Inst.getDistance(n0, n1);
+
+            if(Inst.isDepot(n1))
+                break;
         }
     }
-    for(int s = 0; s < this->getNSatelites(); s++){
+
+    for(int s = 0; s < this->getNSatelites(); s++)
+    {
         const auto& sat = this->getSatelite(s);
-        for(int e = 0; e < sat->getNRoutes(); e++){
+        for(int e = 0; e < sat->getNRoutes(); e++)
+        {
             auto& evRoute = sat->getRoute(e);
-            for(int i = 1; i < evRoute.size(); i++){
+            for(int i = 1; i < evRoute.routeSize; i++)
+            {
                 int n0 = evRoute.getNodeAt(i-1);
                 int n1 = evRoute.getNodeAt(i);
                 cost += Inst.getDistance(n0, n1);
@@ -188,7 +198,7 @@ double Solution::calcCost(const Instance& Inst) {
     return cost;
 }
 
-float Solution::getDistanciaTotal() {
+/*float Solution::getDistanciaTotal() {
     float distancia = 0.0;
 
     for(auto sat:satelites)
@@ -201,4 +211,4 @@ float Solution::getDistanciaTotal() {
         distancia += route.totalDistence;
 
     return distancia;
-}
+}*/

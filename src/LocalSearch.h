@@ -9,6 +9,9 @@
 #include "EvRoute.h"
 #include "Solution.h"
 #include "Auxiliary.h"
+#include "greedyAlgorithm.h"
+
+using namespace GreedyAlgNS;
 
 
 #define MOV_SHIFIT      0
@@ -22,6 +25,9 @@ namespace NS_LocalSearch {
     class LocalSearch {
 
     public:
+
+        LocalSearch() : inser1(0, 0, 0, 0, 0, 0, 0, 0, 0, {})
+        {}
 
         bool satellites2 = false;
         int idSat0       = -1;
@@ -62,19 +68,32 @@ namespace NS_LocalSearch {
     bool mvShifitIntraRota(Solution &solution, const Instance &instance);
     bool mvShiftInterRotas(Solution &solution, const Instance &instance);
 
+
+
+    void achaEstacoes(const EvRoute *evRoute, std::vector<PosicaoEstacao> &vectorEstacoes, const Instance &instance);
+    void achaEstacoesEmComun(const std::vector<PosicaoEstacao> &vectorRota0Estacoes, const std::vector<PosicaoEstacao> &vectorRota1Estacoes, std::vector<PosRota0Rota1Estacao> &vectorEsracoesEmComun);
+
+
     bool mvCross(Solution &solution, const Instance &instance);
-    void crossAux(const pair<int, int> satIdPair, const pair<int, int> routeIdPair, const EvRoute &evRoute0,
-                  const EvRoute &evRoute1, LocalSearch &localSearchBest, const Instance &instance);
+    void crossAux(const pair<int, int> satIdPair, const pair<int, int> routeIdPair,  EvRoute *evRoute0, EvRoute *evRoute1, LocalSearch &localSearchBest, const Instance &instance);
 
     void swapMov(Solution& Sol, const LocalSearch2& mov, const Instance& Inst);
-    void shifitInterRotasMvDuasRotas(const pair<int, int> satIdPair, const pair<int, int> routeIdPair, const EvRoute &evRoute0, const EvRoute &evRoute1, LocalSearch &localSearchBest, const Instance &instance, const float distSol);
+    void shifitInterRotasMvDuasRotas(const pair<int, int> satIdPair, const pair<int, int> routeIdPair,
+                                     const EvRoute &evRoute0, const EvRoute &evRoute1, LocalSearch &localSearchBest,
+                                     const Instance &instance);
+
     void getMov(int movId, string &mov);
 
-    int buscaEstacao(const std::vector<PosRoute0PosRoute1RechS_ID> &vector, const int estacao);
+    int buscaEstacao(const std::vector<PosRota0Rota1Estacao> &vector, const int estacao);
+    int buscaEstacao(const std::vector<PosicaoEstacao> &vector, const int estacao);
 
     // Assumi-se que a sequencia esta correta, vector bateriaRestante deve ser corrigido apos <pos>
-    bool ajustaBateriaRestante(EvRoute &evRoute, const int pos, const Instance &instance);
+    bool ajustaBateriaRestante(EvRoute *evRoute, const int pos, const Instance &instance);
 
+    float calculaNovaDistanciaRoute0Cross(EvRoute *evRoute0, const std::vector<int> &evRoute1, const int tamEvRoute1, std::vector<PosRota0Rota1Estacao> &vectorEstacoesEmComun, const int pos0, const int pos1,
+                                          const float distanciaAcumRota0, const Instance &instance, const bool escreveRoute0, const bool inverteRotaEmVectorEstacoesEmComun);
+
+    float calculaDistanciaAcumulada(const vector<int> &rota, const int pos, const Instance &instance);
 }
 
 #endif //INC_2E_EVRP_LOCALSEARCH_H

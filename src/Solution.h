@@ -8,15 +8,15 @@ class Solution
 {
 public:
     Solution(const Instance& Inst);
+    Solution(const Solution &solution);
     int getNSatelites() const;
     int findSatellite(int id) const;
     Satelite* getSatelite(int index);
     Depot* getDepot();
     bool checkSolution(std::string &erro, const Instance &Inst);
-    void print(std::string &str);
+    void print(std::string &str,  const Instance &instance);
     void print(const Instance& Inst);
     double calcCost(const Instance&);
-    void print();
     float getDistanciaTotal();
 
     std::vector<Satelite*> satelites;

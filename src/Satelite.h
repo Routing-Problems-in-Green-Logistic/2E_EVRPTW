@@ -11,8 +11,8 @@ public:
     int getNRoutes() const;
     EvRoute& getRoute(int i);
     bool checkSatellite(std::string &erro, const Instance &Inst);
-    void print(std::string &str);
-    void print();
+    void print(std::string &str, const Instance &instance);
+    void print(const Instance &instance);
     void setDemand(float demand_){demand = demand_;}
 
     int getId() const;

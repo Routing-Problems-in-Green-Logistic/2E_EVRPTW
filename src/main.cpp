@@ -13,6 +13,8 @@
 #include "mersenne-twister.h"
 #include "Vnd.h"
 #include <chrono>
+#include <iomanip>
+#include <boost/format.hpp>
 
 using namespace std;
 using namespace GreedyAlgNS;
@@ -23,7 +25,15 @@ void routine(char** filenames, int nFileNames);
 float distance(std::pair<float, float> p1, std::pair<float,float> p2);
 Instance* getInstanceFromFile(std::string &fileName);
 void saveSolutionToFile(const Solution& Sol, const std::string& fileName="solution.txt");
+string getNomeInstancia(string str);
 
+#define MAIN_METODO 0
+#define MAIN_DIST   1
+
+#define MAIN MAIN_METODO
+
+
+#if MAIN == MAIN_METODO
 int main(int argc, char* argv[])
 {
 
@@ -38,7 +48,7 @@ int main(int argc, char* argv[])
     if(argc == 3)
     {
         semente = atol(argv[2]);
-        cout<<"SEMENTE: "<<semente<<"\n\n";
+        cout<<"SEMENTE: \t"<<semente<<"\n";
         seed(semente);
     }
 
@@ -46,100 +56,142 @@ int main(int argc, char* argv[])
 
 
     std::string file(argv[1]);
-    Instance *instance = getInstanceFromFile(file); // TODO(samuel): use smart pointer instead, maybe dont even use pointers.
+    const string nomeInst = getNomeInstancia(file);
+    cout<<"INSTANCIA: \t"<<nomeInst<<"\n";
+
+    Instance *instance = getInstanceFromFile(file);
     try
     {
-        Solution best_(*instance);
         Solution bestB(*instance);
         float globalBest = FLOAT_MAX;
 
-        float meanTempo = 0.0;
-        float mean = 0;
-        const int N = 30;
+        float tempo = 0.0;
+        float mediaRvnd = 0.0;
+        float mediaConst = 0.0;
+        float bestConst = FLOAT_MAX;
+        const int N = 3000;
         int nReal = 0;
 
-        for(int n = 0; n < N; n++)
+        for(int n = 0; n < 1; n++)
         {
             if(argc == 2)
             {
                 semente = time(nullptr);
                 seed(semente);
-                cout<<"SEMENTE: "<<semente<<"\n\n";
+                cout<<"SEMENTE: \t"<<semente<<"\n\n";
 
             }
 
-            float best = FLOAT_MAX;
             std::string str;
 
             auto start = std::chrono::high_resolution_clock::now();
-            for (int i = 0; i < 1000; ++i)
+            for (int i = 0; i < N; ++i)
             {
 
 
 
                 Solution solution(*instance);
-                greedy(solution, *instance, 0.3, 0.3);
+                greedy(solution, *instance, 0.4, 0.4);
                 if (solution.viavel)
                 {
+
                     float improv;
 
                     if (!solution.checkSolution(str, *instance)) {
                         cout << str << "\n\nERRO*********\n";
-                        //exit(-1);
-                        continue;
+                        exit(-1);
                     }
-                    float distanciaAux = solution.getDistanciaTotal();
 
-                    rvnd(solution, *instance);
+                   //solution.print(*instance);
 
+                    float distanciaAux = solution.calcCost(*instance);
 
+                    //cout<<"\nANTES MOVIMENTO CORSS\n\n";
                     string erro = "";
-                    if(!solution.checkSolution(erro, *instance))
+                    //solution.print(erro);
+                    //cout<<erro<<"\n\n";
+
+                    //rvnd(solution, *instance);
+                    bool mvCross = NS_LocalSearch::mvCross(solution, *instance);
+
+                    //cout<<"\n\n###################################################################################\n###################################################################################\n\n";
+
+                    if(mvCross)
                     {
-                        cout << erro << "\n\nERRO*********\n";
-                        continue;
-//                        exit(-1);
+                        do
+                        {
+
+                            erro = "";
+                            if(!solution.checkSolution(erro, *instance))
+                            {
+                                cout << erro << "\n\nERRO*********\n";
+                                //solution.print(erro);
+                                //cout << "\n\n\n"<<erro << "\n\nERRO*********\n";
+                                exit(-1);
+                            }
+
+                            mvCross = NS_LocalSearch::mvCross(solution, *instance);
+
+                        }while(mvCross);
+
+
+                        erro = "";
+                        if(!solution.checkSolution(erro, *instance))
+                        {
+                            cout << erro << "\n\nERRO*********\n";
+                            //solution.print(erro);
+                            //cout << "\n\n\n"<<erro << "\n\nERRO*********\n";
+                            exit(-1);
+                        }
                     }
+
 
                     //float distLs = solution.getDistanciaTotal(); // TODO: resolver problema que os valores de distancia nas rotas nao estao sendo atualizados corretamente durante busca local swap
                     float distLs = solution.calcCost(*instance);
 
-                    if (distLs < best) {
-                        best_ = solution;
-                        best = distLs;
+                    //cout<<"mv cross: "<<solution.mvCross;
+
+                    if (distLs < globalBest) {
+                        bestB = solution;
+                        globalBest = distLs;
                     }
+
+                    mediaRvnd += distLs;
+                    mediaConst += distanciaAux;
+                    nReal += 1;
+
+                    if(distanciaAux < bestConst)
+                        bestConst = distanciaAux;
+
+
+                }
+                else
+                {
+                    //cout << "SOL INVIAVEL\n";
+                    //solution.print(*instance);
+
                 }
 
 
             }
 
             auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> tempoAux = end - start;
 
-            float tempo = (end-start).count();
+            tempo = tempoAux.count();
 
-            if(best < globalBest){
-                globalBest = best;
-                bestB = best_;
-            }
-
-            cout << "BEST: " << best <<"\n";
-
-            if(best < FLOAT_MAX-1.0)
-            {
-                mean += best;
-                nReal += 1;
-                meanTempo += tempo;
-            }
-
-
-
-            if(argc == 3)
-                break;
         }
 
         //saveSolutionToFile(bestB, "file.txt");
+        //cout<<"CROSS: "<<bestB.mvCross<<"\n";
 
-        cout << "globalBEST: " << globalBest<<";   mean: " << mean/nReal<<"; mean tempo: "<<meanTempo/nReal<<"n: "<<nReal<<"\n\n";
+
+
+        cout <<"Melhor RVND: " << globalBest<<"; \tMedia RVND: " << mediaRvnd/float(nReal)<<"; \tMelhor Const: "<<bestConst<<"\tMedia Const: "<<mediaConst/nReal;
+
+        cout<<boost::format(" \tTempo: %.2f") % (tempo)<<" n: "<<nReal<<"\n\n";
+
+        //bestB.print(*instance);
 
         //std::string str;
         //bestB.print(str);
@@ -160,6 +212,37 @@ int main(int argc, char* argv[])
     }
     return 0;
 }
+#endif
+
+#if MAIN == MAIN_DIST
+
+int main(int argc, char* argv[])
+{
+
+    if(argc != 2)
+    {
+        std::cerr<<"FORMATO: ./a.out file.txt\n";
+        return -1;
+    }
+    string file(argv[1]);
+    Instance *instance = getInstanceFromFile(file);
+
+    int num0, num1;
+
+    do
+    {
+
+        cin>>num0>>num1;
+
+        if(num0 != -1 && num1!=-1)
+            cout<<"Distancia ("<<num0<<", "<<num1<<"): "<<instance->getDistance(num0, num1)<<"\n";
+
+
+    }while(num0!=-1 && num1!=-1);
+}
+
+#endif
+
 void routine(char** filenames, int nFileNames)
 {
 
@@ -248,4 +331,40 @@ void saveSolutionToFile(const Solution& Sol, const std::string& fileName){
         }
     }
     file.close();
+}
+
+string getNomeInstancia(string str)
+{
+    int posNome = -1;
+
+    for(int i=0; i < str.size(); ++i)
+    {
+        if(str[i] == '/')
+            posNome = i+1;
+    }
+
+    if(posNome < str.size())
+    {
+        string nome = str.substr(posNome);
+
+        int posPonto = -1;
+
+        for(int i=0; i < nome.size(); ++i)
+        {
+            if(nome[i] == '.')
+            {
+                posPonto = i - 1;
+                break;
+            }
+        }
+
+        if(posPonto > 0)
+        {   //cout<<"posNome: "<<posNome<<"\n\n";
+            return nome.substr(0, (posPonto+1));
+        }
+        else
+            return nome;
+    }
+    else
+        return "ERRO";
 }

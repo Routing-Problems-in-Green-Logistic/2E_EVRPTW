@@ -54,7 +54,7 @@ bool Satelite::checkSatellite(std::string &erro, const Instance &Inst)
     return true;
 }
 
-void Satelite::print(std::string &str)
+void Satelite::print(std::string &str, const Instance &instance)
 {
     str += "SATELLITE ID: "+ std::to_string(id)+"\n\n";
     int i=0;
@@ -62,14 +62,14 @@ void Satelite::print(std::string &str)
     for(EvRoute &evRoute:vetEvRoute)
     {
         str += "\tROTA ID: "+ std::to_string(i)+".:  ";
-        evRoute.print(str);
+        evRoute.print(str, instance);
         str+= "\n";
     }
 
     str += "\n\n";
 }
 
-void Satelite::print()
+void Satelite::print(const Instance &instance)
 {
 
     std::cout<<"SATELLITE ID: "<<id<<"\n\n";
@@ -78,7 +78,7 @@ void Satelite::print()
     for(EvRoute &evRoute:vetEvRoute)
     {
         std::cout<<"\tROTA ID: "<<i<<".:  ";
-        evRoute.print();
+        evRoute.print(instance);
         std::cout<<"\n";
     }
 

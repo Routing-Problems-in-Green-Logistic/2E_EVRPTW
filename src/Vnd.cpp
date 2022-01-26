@@ -50,7 +50,7 @@ void NS_vnd::rvnd(Solution &solution, const Instance &instance)
 
             case VND_SWAP_INTRA_ROTA:
 
-                melhora = interSatelliteSwap(solution, instance, aux);
+                //melhora = interSatelliteSwap(solution, instance, aux);
                 break;
 
         }
