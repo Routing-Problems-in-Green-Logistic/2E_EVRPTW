@@ -1,4 +1,5 @@
 #include "Satelite.h"
+#include "Auxiliary.h"
 
 Satelite::Satelite(int id, const Instance& Inst)
 {
@@ -38,9 +39,13 @@ EvRoute &Satelite::getRoute(int i) {
 
 bool Satelite::checkSatellite(std::string &erro, const Instance &Inst)
 {
+    float demanda = 0.0;
+
     // Verifica os satellite
     for(EvRoute &evRoute:vetEvRoute)
     {
+        demanda += evRoute.getDemand();
+
         if(this->id !=  evRoute.satelite)
         {
             erro += "ERRO, SATELLITE NA ROTA EH DIFERENTE NO SATELLITE. ID SATELLITE: "+ std::to_string(id) + " != ID SATELLITE ROTA: "+std::to_string(evRoute.satelite);
@@ -50,6 +55,14 @@ bool Satelite::checkSatellite(std::string &erro, const Instance &Inst)
         if(!evRoute.checkRoute(erro, Inst))
             return false;
     }
+
+
+    if(abs(demanda - demand) > DEMAND_TOLENCE)
+    {
+        erro += "ERRO NO SATELLITE: "+ to_string(id)+"; SOMATORIO DAS DEMANDAS DOS EV'S("+ to_string(demanda)+") EH DIFERENTE DA DEMANDA DO SATELLITE("+to_string(demand)+");\n";
+        return false;
+    }
+
 
     return true;
 }

@@ -7,10 +7,12 @@
 #include "mersenne-twister.h"
 #include <memory>
 #include "greedyAlgorithm.h"
+#include "ViabilizadorRotaEv.h"
 
 using namespace NS_LocalSearch;
 using namespace NS_Auxiliary;
 using namespace GreedyAlgNS;
+using namespace NameViabRotaEv;
 
 
 /*
@@ -442,7 +444,7 @@ bool NS_LocalSearch::mvShifitIntraRota(Solution &solution, const Instance &insta
 
 }
 
-bool NS_LocalSearch::mvShiftInterRotas(Solution &solution, const Instance &instance)
+bool NS_LocalSearch::mvShiftInterRotasIntraSatellite(Solution &solution, const Instance &instance)
 {
 
     LocalSearch localSearchBest;
@@ -457,31 +459,30 @@ bool NS_LocalSearch::mvShiftInterRotas(Solution &solution, const Instance &insta
         for(int routeId0 = 0; routeId0 < satelite0->getNRoutes(); ++routeId0)
         {
 
-            EvRoute &evRoute0 = satelite0->vetEvRoute[routeId0];
+            EvRoute *evRoute0 = &satelite0->vetEvRoute[routeId0];
 
-            for(int satId1 = satId0; satId1 < instance.getNSats(); ++satId1)
+            //for(int satId1 = satId0; satId1 < instance.getNSats(); ++satId1)
             {
-                Satelite *satelite1 = solution.satelites[satId1];
+                //Satelite *satelite1 = solution.satelites[satId1];
 
-                for(int routeId1 = 0; routeId1 < satelite1->getNRoutes(); ++routeId1)
+                for(int routeId1 = routeId0+1; routeId1 < satelite0->getNRoutes(); ++routeId1)
                 {
-                    // Verifica se routeId0 == routeId1
-                    if(satId0==satId1 && routeId0==routeId1)
-                        continue;
 
-                    EvRoute &evRoute1 = satelite1->vetEvRoute[routeId1];
+                    EvRoute *evRoute1 = &satelite0->vetEvRoute[routeId1];
 
-                    shifitInterRotasMvDuasRotas({satId0, satId1}, {routeId0, routeId1}, evRoute0, evRoute1, localSearchBest, instance);
-                    shifitInterRotasMvDuasRotas({satId1, satId0}, {routeId1, routeId0}, evRoute1, evRoute0, localSearchBest, instance);
+                    shifitInterRotasMvDuasRotas({satId0, satId0}, {routeId0, routeId1}, *evRoute0, *evRoute1, localSearchBest, instance);
+                    shifitInterRotasMvDuasRotas({satId0, satId0}, {routeId1, routeId0}, *evRoute1, *evRoute0, localSearchBest, instance);
 
                 }
             }
         }
     }
 
+
     // Verifica se movimento eh de melhora
-    if(localSearchBest.incrementoDistancia < 0.0)
+    if(localSearchBest.incrementoDistancia < -INCREM_DIST)
     {
+
         // Atualiza solucao
 
         const int pos = localSearchBest.inser0.pos;
@@ -497,11 +498,16 @@ bool NS_LocalSearch::mvShiftInterRotas(Solution &solution, const Instance &insta
 
         const int posClienteRoute1 = localSearchBest.inser1.pos;
 
+        // Atualiza rota0
+
         evRoute0.distance += -instance.getDistance(evRoute0.route[pos], evRoute0.route[pos+1]) + instance.getDistance(evRoute0.route[pos], clienteId) +
                 instance.getDistance(clienteId, evRoute0.route[pos+1]);
 
+        string strRoute0;
+        evRoute0.print(strRoute0, instance);
+
         shiftVectorDir(evRoute0.route, pos+1, 1, evRoute0.size());
-        shiftVectorDir(evRoute0.vetRemainingBattery, pos+1, 1,evRoute0.size());
+        //shiftVectorDir(evRoute0.vetRemainingBattery, pos+1, 1,evRoute0.size());
         //shiftVectorDir(evRoute0.rechargingStationRoute, pos, 1,evRoute0.size());
 
         evRoute0.routeSize += 1;
@@ -509,15 +515,33 @@ bool NS_LocalSearch::mvShiftInterRotas(Solution &solution, const Instance &insta
         evRoute0.route[pos+1] = clienteId;
         //evRoute0.rechargingStationRoute[pos+1] = false;
 
-        float remainingBattery = evRoute0.vetRemainingBattery[pos];
 
-        for(int i=pos; (i+1) < evRoute0.size(); ++i)
+        if(localSearchBest.insercaoEstacaoRota0.estacao >= 0)
+        {
+            int posEst = localSearchBest.insercaoEstacaoRota0.pos;
+            shiftVectorDir(evRoute0.route, posEst+1, 1, evRoute0.routeSize);
+            evRoute0.route[posEst+1] = localSearchBest.insercaoEstacaoRota0.estacao;
+            evRoute0.routeSize += 1;
+        }
+
+        evRoute0.distance = testaRota(evRoute0.route, evRoute0.routeSize, instance, &evRoute0.vetRemainingBattery);
+
+        if(evRoute0.distance <= 0.0)
+        {
+            PRINT_DEBUG("", "ROTA: "<<printVector(evRoute0.route, evRoute0.routeSize)<<"; EH INVIAVEL");
+            throw "ERRO";
+        }
+
+/*        for(int i=pos; (i+1) < evRoute0.size(); ++i)
         {
             remainingBattery -= instance.getDistance(evRoute0.route[i], evRoute0.route[i+1]);
 
             if(remainingBattery < -BATTERY_TOLENCE)
             {
-                PRINT_DEBUG("", "ERRO BATERIA!!");
+                string e;
+                evRoute0.print(e, instance);
+                PRINT_DEBUG("", "ERRO BATERIA!!; remainingBattery: "<<remainingBattery<<"; Rota: "<<e);
+                cout<<"ROTA ANTES: "<<strRoute0<<"\n\n";
                 throw "erro";
             }
 
@@ -529,9 +553,40 @@ bool NS_LocalSearch::mvShiftInterRotas(Solution &solution, const Instance &insta
 
             }
 
+        }*/
+
+        // Atualiza rota1
+
+        evRoute1.distance += -instance.getDistance(evRoute1[posClienteRoute1-1], evRoute1[posClienteRoute1]) - instance.getDistance(evRoute1[posClienteRoute1], evRoute1[posClienteRoute1+1]) +
+                instance.getDistance(evRoute1[posClienteRoute1-1], evRoute1[posClienteRoute1+1]);
+
+
+        for(int i=posClienteRoute1; (i+1) < evRoute1.routeSize; ++i)
+        {
+
+            evRoute1[i] = evRoute1[i + 1];
+        }
+
+        evRoute1.routeSize -= 1;
+
+        if(evRoute1.routeSize > 2)
+            evRoute1.distance = testaRota(evRoute1.route, evRoute1.routeSize, instance, &evRoute1.vetRemainingBattery);
+        else
+            evRoute1.distance = 0.0;
+
+
+        if(evRoute1.distance < 0.0)
+        {
+            PRINT_DEBUG("", "ROTA: "<<printVector(evRoute1.route, evRoute1.routeSize)<<"; EH INVIAVEL");
+            cout<<"ClienteId: "<<clienteId<<"\n";
+            throw "ERRO";
         }
 
         solution.mvShiftInterRotas = true;
+        float demanda =  instance.getDemand(clienteId);
+        evRoute0.totalDemand += demanda;
+        evRoute1.totalDemand -= demanda;
+
         return true;
     }
     else
@@ -542,6 +597,7 @@ bool NS_LocalSearch::mvShiftInterRotas(Solution &solution, const Instance &insta
 void NS_LocalSearch::shifitInterRotasMvDuasRotas(const pair<int, int> satIdPair, const pair<int, int> routeIdPair, const EvRoute &evRoute0, const EvRoute &evRoute1,
                                                  LocalSearch &localSearchBest, const Instance &instance)
 {
+
     if(evRoute1.routeSize <=2)
         return;
 
@@ -553,9 +609,16 @@ void NS_LocalSearch::shifitInterRotasMvDuasRotas(const pair<int, int> satIdPair,
 
     const float distanciaRotas = evRoute0.distance + evRoute1.distance;
 
+    static EvRoute evRouteAux(instance);
+
+    evRouteAux[0] = evRouteAux[1] = evRoute0[0];
+    evRouteAux.routeSize = 2;
+
     // Percorre as possicoes de rota0
     for(int posRoute0 = 0; posRoute0 < (evRoute0.routeSize-1); ++posRoute0)
     {
+
+        evRouteAux[posRoute0] = evRoute0[posRoute0];
 
         // Escolhe um cliente da rota1 para ir para a rota0
         for(int posClieRoute1 = 1; posClieRoute1 < (evRoute1.routeSize-1); ++posClieRoute1)
@@ -578,71 +641,109 @@ void NS_LocalSearch::shifitInterRotasMvDuasRotas(const pair<int, int> satIdPair,
                     distanciaRoute0 += -instance.getDistance(evRoute0.route[posRoute0], evRoute0.route[posRoute0+1]) + instance.getDistance(evRoute0.route[posRoute0], clienteId) +
                                     instance.getDistance(clienteId, evRoute0.route[posRoute0+1]);
 
+                    evRouteAux[posRoute0+1] = clienteId;
+                    evRouteAux[posRoute0+2] = evRoute0[posRoute0+1];
+                    int posEvRouteAux = posRoute0+3;
+
                     const float novaDistanciaTotal = distanciaRoute0+distanciaRoute1;
 
                     // distSol??
                     const float incremento = novaDistanciaTotal - distanciaRotas;
 
                     // Verifica se o movimento melhora a solucao
-                    if(incremento < 0.0)
+
+
+                    //if(incremento < -1E-4 && incremento < localSearchBest.incrementoDistancia)
                     {
+                        // Verifica a viabilidade da rota
 
+                        float cargaBateria = evRoute0.vetRemainingBattery[posRoute0];
 
+                        cargaBateria += -instance.getDistance(evRoute0.route[posRoute0], clienteId) - instance.getDistance(clienteId, evRoute0.route[posRoute0+1]);
+                        int p = posRoute0+1;
+                        bool viavel = true;
 
-                        if(incremento < localSearchBest.incrementoDistancia)
+                        while((p+1) < evRoute0.routeSize)
                         {
-                            // Verifica a viabilidade da rota
 
-                            float cargaBateria = evRoute0.vetRemainingBattery[posRoute0];
-
-                            cargaBateria += -instance.getDistance(evRoute0.route[posRoute0], clienteId) - instance.getDistance(clienteId, evRoute0.route[posRoute0+1]);
-                            int p = posRoute0+1;
-                            bool viavel = true;
-
-                            while((p+1) < evRoute0.routeSize)
+/*                            if(cargaBateria >= -BATTERY_TOLENCE)
                             {
+                                if(instance.isRechargingStation(evRoute0.route[p]))
+                                    cargaBateria = instance.getEvBattery();
 
-                                if(cargaBateria >= -BATTERY_TOLENCE)
-                                {
-                                    if(instance.isRechargingStation(evRoute0.route[p]))
-                                        cargaBateria = instance.getEvBattery();
-
-
-                                    cargaBateria -= instance.getDistance(evRoute0.route[p], evRoute0.route[p+1]);
-
-                                }
-                                else
-                                {
-                                    viavel = false;
-                                    break;
-                                }
-
-                                p += 1;
-                            }
-
-                            if(viavel)
-                            {
-                                // Atualiza melhor movimento
-
-                                localSearchBest.inser0.pos = posRoute0;
-                                localSearchBest.inser0.clientId = clienteId;
-                                localSearchBest.inser0.satId = satId0;
-                                localSearchBest.inser0.routeId = routeId0;
-
-                                localSearchBest.incrementoDistancia = incremento;
-
-                                localSearchBest.inser1.pos = posClieRoute1;
-                                localSearchBest.inser1.clientId = clienteId;
-                                localSearchBest.inser1.satId = satId1;
-                                localSearchBest.inser1.routeId = routeId1;
+                                cargaBateria -= instance.getDistance(evRoute0.route[p], evRoute0.route[p+1]);
 
                             }
+                            else
+                            {
+                                viavel = false;
+                                break;
+                            }*/
+
+                            evRouteAux[posEvRouteAux] = evRoute0[p+1];
+
+                            p += 1;
+                            posEvRouteAux += 1;
+                        }
+
+                        viavel = (testaRota(evRouteAux.route, posEvRouteAux, instance, nullptr) != -1);
+                        InsercaoEstacao insercaoEstacao;
+
+                        evRouteAux.routeSize = posEvRouteAux;
+
+                        if(viavel && incremento < -INCREM_DIST && incremento < localSearchBest.incrementoDistancia)
+                        {
+
+
+                            // Atualiza melhor movimento
+
+                            localSearchBest.inser0.pos = posRoute0;
+                            localSearchBest.inser0.clientId = clienteId;
+                            localSearchBest.inser0.satId = satId0;
+                            localSearchBest.inser0.routeId = routeId0;
+
+                            localSearchBest.incrementoDistancia = incremento;
+
+                            localSearchBest.inser1.pos = posClieRoute1;
+                            localSearchBest.inser1.clientId = clienteId;
+                            localSearchBest.inser1.satId = satId1;
+                            localSearchBest.inser1.routeId = routeId1;
+
+                            localSearchBest.insercaoEstacaoRota0 = insercaoEstacao;
+                        }
+                        else if(!viavel && incremento < -INCREM_DIST && incremento < localSearchBest.incrementoDistancia)
+                        {
+
+                            if(viabilizaRotaEv(evRouteAux.route, evRouteAux.routeSize, instance, true, insercaoEstacao))
+                            {
+                                float incremento = (insercaoEstacao.distanciaRota + distanciaRoute1) - distanciaRotas;
+                                if(incremento < -INCREM_DIST && incremento < localSearchBest.incrementoDistancia)
+                                {
+
+                                    localSearchBest.inser0.pos = posRoute0;
+                                    localSearchBest.inser0.clientId = clienteId;
+                                    localSearchBest.inser0.satId = satId0;
+                                    localSearchBest.inser0.routeId = routeId0;
+
+                                    localSearchBest.incrementoDistancia = incremento;
+
+                                    localSearchBest.inser1.pos = posClieRoute1;
+                                    localSearchBest.inser1.clientId = clienteId;
+                                    localSearchBest.inser1.satId = satId1;
+                                    localSearchBest.inser1.routeId = routeId1;
+
+                                    localSearchBest.insercaoEstacaoRota0 = insercaoEstacao;
+                                }
+                            }
+
                         }
                     }
+
                 }
             }
         }
     }
+
 }
 
 /**
@@ -656,7 +757,7 @@ void NS_LocalSearch::shifitInterRotasMvDuasRotas(const pair<int, int> satIdPair,
  * @return              Retorna se conseguiu realizar o movimento
  */
 
-bool NS_LocalSearch::mvCross(Solution &solution, const Instance &instance)
+bool NS_LocalSearch::mvCrossIntraSatellite(Solution &solution, const Instance &instance)
 {
 
 
@@ -667,78 +768,35 @@ bool NS_LocalSearch::mvCross(Solution &solution, const Instance &instance)
     //cout<<str<<"\n*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n\n";
 
 
-    int satId0 = rand_u32() % solution.getNSatelites();
-    Satelite *sat0 = solution.getSatelite(satId0);
 
-    int routeId0 = rand_u32() % sat0->getNRoutes();
-    EvRoute *evRouteSol0 = &sat0->getRoute(routeId0);
-
-    if(evRouteSol0->routeSize <= 2)
-    {
-
-        const int sat0Inic = satId0;
-
-        // Percorre todos os satellites
-        do
-        {
-
-            const int route0Inic = routeId0;
-            routeId0 = (routeId0 + 1) % sat0->getNRoutes();
-
-            // Percorre todas as rotas
-            while(routeId0 != route0Inic)
-            {
-                evRouteSol0 = &sat0->getRoute(routeId0);
-
-                if(evRouteSol0->routeSize > 2)
-                    break;
-
-                routeId0 = (routeId0 + 1) % sat0->getNRoutes();
-            }
-
-            if(evRouteSol0->routeSize > 2)
-                break;
-
-            satId0 = (satId0 + 1) % solution.getNSatelites();
-
-        }while(satId0 != sat0Inic);
-
-        if(evRouteSol0->routeSize <= 2)
-            return false;
-
-    }
 
 
     LocalSearch localSearchBest;
 
-    for(int satId1 = 0; satId1 < instance.getNSats(); ++satId1)
+    for(int satId=0; satId < solution.getNSatelites(); ++satId)
     {
+        Satelite *sat = solution.getSatelite(satId);
 
-        Satelite *sat1 = solution.getSatelite(satId1);
-
-        for(int routeId1 = 0; routeId1 < sat1->getNRoutes(); ++routeId1)
+        for(int routeId0 = 0; routeId0  < sat->getNRoutes(); ++routeId0)
         {
-            if((satId1 == satId0) && (routeId1 == routeId0))
-                continue;
+            EvRoute *evRouteSol0 = &sat->getRoute(routeId0);
 
-            EvRoute *evRouteSol1 = &sat1->getRoute(routeId1);
+            for(int routeId1 = routeId0+1; routeId1 < sat->getNRoutes(); ++routeId1)
+            {
+                if(routeId1 == routeId0)
+                    continue;
 
-            //string str;
-            //solution.print(str);
-            //cout<<str<<"\n*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#\n\n";
+                EvRoute *evRouteSol1 = &sat->getRoute(routeId1);
+                crossAux({satId, satId}, {routeId0, routeId1}, evRouteSol0, evRouteSol1, localSearchBest, instance);
 
-            crossAux({satId0, satId1}, {routeId0, routeId1}, evRouteSol0, evRouteSol1, localSearchBest, instance);
-
-
+            }
         }
-
     }
-
 
     if(localSearchBest.incrementoDistancia < 0.0)
     {
 
-        // Atualiza solucao
+        //PRINT_DEBUG("\t\t", "Atualiza solucao");
 
 
         const int routeId0 = localSearchBest.inser0.routeId;
@@ -766,17 +824,17 @@ bool NS_LocalSearch::mvCross(Solution &solution, const Instance &instance)
         achaEstacoesEmComun(vectorEstacoesRoute0, vectorEstacoesRoute1, vectorEstacoesEmComun);
 
 
-/*        PRINT_DEBUG("", "SOLUCAO ANTES DO MOVIMENTO:");
-        string temp;
-        solution.print(temp);
-        cout<<temp<<"\n\n";
+        /*if(localSearchBest.insercaoEstacaoRota0.estacao != -1 || localSearchBest.insercaoEstacaoRota1.estacao != -1)
+        {
+            PRINT_DEBUG("", "SOLUCAO ANTES DO MOVIMENTO:");
+            cout << "Rota0: ";
+            evRouteSol0->print(instance);
 
-        cout<<"Rota0: ";
-        evRouteSol0->print();
+            cout << "\n\n";
+            cout << "Rota1: ";
+            evRouteSol1->print(instance);
 
-        cout<<"\n\n";
-        cout<<"Rota1: ";
-        evRouteSol1->print();*/
+        }*/
 
 
 
@@ -786,11 +844,11 @@ bool NS_LocalSearch::mvCross(Solution &solution, const Instance &instance)
 
         float distAcumRota0 = calculaDistanciaAcumulada(evRouteSol0->route, localSearchBest.inser0.pos, instance);
         float distRota0 = calculaNovaDistanciaRoute0Cross(evRouteSol0, evRouteSol1->route, evRouteSol1->routeSize, vectorEstacoesEmComun, localSearchBest.inser0.pos,
-                                                     localSearchBest.inser1.pos, distAcumRota0, instance, true, false);
+                                                     localSearchBest.inser1.pos, distAcumRota0, instance, true, false, localSearchBest.insercaoEstacaoRota0);
 
         float distAcumRota1 = calculaDistanciaAcumulada(evRouteSol1->route, localSearchBest.inser1.pos, instance);
         float distRota1 = calculaNovaDistanciaRoute0Cross(evRouteSol1, route0Aux, tamEvRoute0, vectorEstacoesEmComun, localSearchBest.inser1.pos,
-                                                          localSearchBest.inser0.pos, distAcumRota1, instance, true, true);
+                                                          localSearchBest.inser0.pos, distAcumRota1, instance, true, true, localSearchBest.insercaoEstacaoRota1);
 
         if((distRota0 < 0.0) || (distRota1 < 0.0))
         {
@@ -816,23 +874,26 @@ bool NS_LocalSearch::mvCross(Solution &solution, const Instance &instance)
 
         }
 
-/*        cout<<"************************************************************************\n************************************************************************\n\n";
+/*        if(localSearchBest.insercaoEstacaoRota0.estacao != -1 || localSearchBest.insercaoEstacaoRota1.estacao != -1)
+        {
 
-        PRINT_DEBUG("", "ROTAS APOS O MOVIMENTO:");
-        evRouteSol0->print();
-        cout<<"\n\n";
-        evRouteSol1->print();
+            cout<<"estacaoRota0: "<<localSearchBest.insercaoEstacaoRota0.estacao<<"\n";
+            cout<<"estacaoRota1: "<<localSearchBest.insercaoEstacaoRota1.estacao<<"\n";
 
-        cout<<"************************************************************************\n************************************************************************\n";
-        cout<<"************************************************************************\n************************************************************************\n\n";
+            cout
+                    << "\n\n******************************************************************************************************************************************************\n";
+            PRINT_DEBUG("", "SOLUCAO APOS O MOVIMENTO:");
 
-        string str;
-        solution.print(str);
-        cout<<str<<"\n";
+            cout << "Rota0: ";
+            evRouteSol0->print(instance);
+
+            cout << "\n\n";
+            cout << "Rota1: ";
+            evRouteSol1->print(instance);
+
+        }*/
 
 
-        cout<<"************************************************************************\n************************************************************************\n";
-        cout<<"************************************************************************\n************************************************************************\n\n\n\n";*/
 
 
         solution.mvCross = true;
@@ -915,7 +976,7 @@ bool NS_LocalSearch::ajustaBateriaRestante(EvRoute *evRoute, const int pos, cons
 void NS_LocalSearch::crossAux(const pair<int, int> satIdPair, const pair<int, int> routeIdPair, EvRoute *evRoute0, EvRoute *evRoute1, LocalSearch &localSearchBest, const Instance &instance)
 {
 
-    //PRINT_DEBUG("", "CROSS AUX");
+
 
     if((evRoute0->routeSize <= 2) || (evRoute1->routeSize <= 2))
         return;
@@ -976,13 +1037,15 @@ void NS_LocalSearch::crossAux(const pair<int, int> satIdPair, const pair<int, in
 
                 // Calcula as novas distancias
 
+                NameViabRotaEv::InsercaoEstacao insercaoEstacaoRota0;
                 float novaDistanciaRoute0 = calculaNovaDistanciaRoute0Cross(evRoute0, evRoute1->route, evRoute1->routeSize, vectorEstacoesEmComum, posEvRoute0,
-                                                                            posEvRoute1, distanciaAcumRoute0, instance, false, false);
+                                                                            posEvRoute1, distanciaAcumRoute0, instance, false, false, insercaoEstacaoRota0);
                 if(novaDistanciaRoute0 < 0.0)
                     continue;
 
+                NameViabRotaEv::InsercaoEstacao insercaoEstacaoRota1;
                 float novaDistanciaRoute1 = calculaNovaDistanciaRoute0Cross(evRoute1, evRoute0->route, evRoute0->routeSize, vectorEstacoesEmComum, posEvRoute1,
-                                                                            posEvRoute0, distanciaAcumRoute1, instance, false, true);
+                                                                            posEvRoute0, distanciaAcumRoute1, instance, false, true, insercaoEstacaoRota1);
                 if(novaDistanciaRoute1 < 0.0)
                     continue;
 
@@ -1004,6 +1067,9 @@ void NS_LocalSearch::crossAux(const pair<int, int> satIdPair, const pair<int, in
 
                     localSearchBest.inser0.pos = posEvRoute0;
                     localSearchBest.inser1.pos = posEvRoute1;
+
+                    localSearchBest.insercaoEstacaoRota0 = insercaoEstacaoRota0;
+                    localSearchBest.insercaoEstacaoRota1 = insercaoEstacaoRota1;
 
                 }
 
@@ -1079,7 +1145,7 @@ int NS_LocalSearch::buscaEstacao(const std::vector<PosicaoEstacao> &vector, cons
  */
 //Calcula a distancia de evRoute0 apos o movimento cross na pos0 de evRoute0 e pos1 de evRoute1. A funcao tambem verifica o combustivel
 float NS_LocalSearch::calculaNovaDistanciaRoute0Cross(EvRoute *evRoute0, const std::vector<int> &evRoute1, const int tamEvRoute1, std::vector<PosRota0Rota1Estacao> &vectorEstacoesEmComun, const int pos0, const int pos1,
-                                                      const float distanciaAcumRota0, const Instance &instance, const bool escreveRoute0, const bool inverteRotaEmVectorEstacoesEmComun)
+                                                      const float distanciaAcumRota0, const Instance &instance, const bool escreveRoute0, const bool inverteRotaEmVectorEstacoesEmComun, NameViabRotaEv::InsercaoEstacao &insercaoEstacao)
 {
 
 /* Exemplo:
@@ -1111,6 +1177,18 @@ float NS_LocalSearch::calculaNovaDistanciaRoute0Cross(EvRoute *evRoute0, const s
  *
  */
 
+    static EvRoute evRouteAux(instance);
+
+    evRouteAux[0] = evRouteAux[1] = evRoute0->route[0];
+    evRouteAux.routeSize = 2;
+
+
+
+    if(!escreveRoute0)
+    {
+        for(int i=0; i <= pos0; ++i)
+            evRouteAux[i] = evRoute0->route[i];
+    }
 
     float distanciaRota0 = distanciaAcumRota0;
     float bateriaRestante = evRoute0->vetRemainingBattery[pos0];
@@ -1118,6 +1196,11 @@ float NS_LocalSearch::calculaNovaDistanciaRoute0Cross(EvRoute *evRoute0, const s
     int ultimoCliente = (*evRoute0)[pos0];
     int auxPos0 = pos0+1;
     int auxPos1 = pos1+1;
+
+    bool inviavel = false;
+
+    if(escreveRoute0 && insercaoEstacao.estacao != -1)
+        inviavel = true;
 
     for(; auxPos1 < (tamEvRoute1-1); )
     {
@@ -1143,28 +1226,30 @@ float NS_LocalSearch::calculaNovaDistanciaRoute0Cross(EvRoute *evRoute0, const s
         }
         const float distAux =  instance.getDistance(ultimoCliente, evRoute1[auxPos1]);
 
-        distanciaRota0 += distAux;
-        bateriaRestante -= distAux;
-
-        if(bateriaRestante < -BATTERY_TOLENCE)
+        if(!inviavel)
         {
-            if(escreveRoute0)
+            distanciaRota0 += distAux;
+            bateriaRestante -= distAux;
+
+            if(bateriaRestante < -BATTERY_TOLENCE)
             {
-                evRoute0->vetRemainingBattery[auxPos0] = bateriaRestante;
-                (*evRoute0)[auxPos0] = evRoute1[auxPos1];
-
+                inviavel = true;
             }
-            return -1.0;
-        }
 
-        if(cliePos1RecS)
-            bateriaRestante = instance.getEvBattery();
+            if(cliePos1RecS && !inviavel)
+                bateriaRestante = instance.getEvBattery();
+
+        }
 
         if(escreveRoute0)
         {
             (*evRoute0)[auxPos0] = evRoute1[auxPos1];
             evRoute0->vetRemainingBattery[auxPos0] = bateriaRestante;
             //evRoute0->rechargingStationRoute[auxPos0] = cliePos1RecS;
+        }
+        else
+        {
+            evRouteAux[auxPos0] = evRoute1[auxPos1];
         }
 
         ultimoCliente = evRoute1[auxPos1];
@@ -1174,28 +1259,81 @@ float NS_LocalSearch::calculaNovaDistanciaRoute0Cross(EvRoute *evRoute0, const s
 
     }
 
-
-    distanciaRota0 += instance.getDistance(ultimoCliente, (*evRoute0)[0]);
-    bateriaRestante -=  instance.getDistance(ultimoCliente, (*evRoute0)[0]);
-
-    if(bateriaRestante < -BATTERY_TOLENCE)
+    if(!inviavel)
     {
 
-        if(escreveRoute0)
-            evRoute0->vetRemainingBattery[auxPos0] = bateriaRestante;
+        distanciaRota0 += instance.getDistance(ultimoCliente, (*evRoute0)[0]);
+        bateriaRestante -= instance.getDistance(ultimoCliente, (*evRoute0)[0]);
 
-        return -1.0;
+        if(bateriaRestante < -BATTERY_TOLENCE)
+            inviavel = true;
+    }
+
+    if(inviavel)
+    {
+
+
+
+        if(escreveRoute0 && insercaoEstacao.estacao == -1)
+        {   (*evRoute0)[auxPos0] = (*evRoute0)[0];
+            inviavel = !viabilizaRotaEv(evRoute0->route, auxPos0+1, instance, true, insercaoEstacao);
+        }
+        else if(escreveRoute0 && insercaoEstacao.estacao != -1)
+        {
+            shiftVectorDir(evRoute0->route, insercaoEstacao.pos+1, 1, auxPos0);
+            evRoute0->routeSize = auxPos0+2;
+            evRoute0->route[insercaoEstacao.pos+1] = insercaoEstacao.estacao;
+            (*evRoute0)[auxPos0+1] = (*evRoute0)[0];
+            evRoute0->distance = testaRota(evRoute0->route, evRoute0->routeSize, instance, &evRoute0->vetRemainingBattery);
+            evRoute0->totalDemand = calculaCargaEv(*evRoute0, instance);
+
+            if(evRoute0->distance == -1.0)
+            {
+                string aux;
+                evRoute0->print(aux, instance);
+                PRINT_DEBUG("", "ROTA: "<<aux<<"; DEVERIA SER VIAVEL.");
+                throw "ERRO";
+            }
+
+            return evRoute0->distance;
+        }
+        else
+        {   evRouteAux[auxPos0] = evRouteAux[0];
+            inviavel = !viabilizaRotaEv(evRouteAux.route, auxPos0+1, instance, true, insercaoEstacao);
+        }
+
+        if(!inviavel)
+        {
+            distanciaRota0 = insercaoEstacao.distanciaRota;
+            //PRINT_DEBUG("", "VIABILIZOU ROTA DO MV CROSS");
+        }
 
     }
 
-    if(escreveRoute0)
+
+    if(escreveRoute0 && !inviavel)
     {
         evRoute0->vetRemainingBattery[auxPos0] = bateriaRestante;
         //evRoute0->rechargingStationRoute[auxPos0] = false;
         (*evRoute0)[auxPos0] = (*evRoute0)[0];
         evRoute0->routeSize = auxPos0+1;
         evRoute0->distance = distanciaRota0;
+        evRoute0->totalDemand = NS_LocalSearch::calculaCargaEv(*evRoute0, instance);
     }
 
+
+    if(inviavel)
+        return -1.0;
+
+
     return distanciaRota0;
+}
+
+float NS_LocalSearch::calculaCargaEv(const EvRoute &rota, const Instance &instance)
+{
+    float carga = 0.0;
+    for(int i=0; i < rota.routeSize-1; ++i)
+        carga += instance.getDemand(rota[i]);
+
+    return carga;
 }

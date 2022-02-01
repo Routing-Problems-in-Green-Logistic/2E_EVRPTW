@@ -9,6 +9,8 @@ class Solution
 public:
     Solution(const Instance& Inst);
     Solution(const Solution &solution);
+    void copia(const Solution &solution);
+
     int getNSatelites() const;
     int findSatellite(int id) const;
     Satelite* getSatelite(int index);

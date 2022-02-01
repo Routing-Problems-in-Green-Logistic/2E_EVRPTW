@@ -45,7 +45,7 @@ void NS_vnd::rvnd(Solution &solution, const Instance &instance)
                 break;
 
             case VND_SHIFIT_INTER_ROTAS:
-                melhora = mvShiftInterRotas(solution, instance);
+                melhora = mvShiftInterRotasIntraSatellite(solution, instance);
                 break;
 
             case VND_SWAP_INTRA_ROTA:

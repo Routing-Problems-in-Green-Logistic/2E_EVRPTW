@@ -22,8 +22,7 @@ namespace NameViabRotaEv
     };
 
     bool viabilizaRotaEv(vector<int> &route, int tamRout, const Instance &instance, const bool best, InsercaoEstacao &insercaoEstacao);
-    float testaRota(const vector<int> &evRoute, const int tamRoute, const Instance &instance,
-                    vector<float> *vetRemainingBattery);
+    float testaRota(const vector<int> &evRoute, const int tamRoute, const Instance &instance, vector<float> *vetRemainingBattery);
 
 };
 

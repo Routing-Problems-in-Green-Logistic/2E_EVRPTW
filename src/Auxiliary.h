@@ -7,12 +7,15 @@
 
 #include <vector>
 #include <iostream>
+#include <cfloat>
+
 using namespace std;
 
-#define BATTERY_TOLENCE  0.0
-#define DISTANCE_TOLENCE 1e-2
+#define BATTERY_TOLENCE  1e-4
+#define DISTANCE_TOLENCE 1e-4
 #define DEMAND_TOLENCE 1E-3
 #define FLOAT_MAX FLT_MAX
+#define INCREM_DIST 1E-4
 
 #define PRINT_DEBUG(inicio, texto) cout<<inicio<<"DEBUG: "<<texto<<"  FILE: "<<__FILE__<<"  LINHA: "<<__LINE__<<"\n";
 

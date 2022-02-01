@@ -10,6 +10,7 @@
 #include "Solution.h"
 #include "Auxiliary.h"
 #include "greedyAlgorithm.h"
+#include "ViabilizadorRotaEv.h"
 
 using namespace GreedyAlgNS;
 
@@ -39,7 +40,11 @@ namespace NS_LocalSearch {
 
         // Shifit: insert0 -> insert1
         Insertion inser0;
+        NameViabRotaEv::InsercaoEstacao insercaoEstacaoRota0;
+
         Insertion inser1;
+        NameViabRotaEv::InsercaoEstacao insercaoEstacaoRota1;
+
 
         void print(string &str);
         void print() const;
@@ -66,7 +71,7 @@ namespace NS_LocalSearch {
     bool intraSatelliteSwap(Solution& Sol, int SatId, const Instance& Inst, float& improvement);
     bool interSatelliteSwap(Solution&, const Instance& Inst, float& improvement);
     bool mvShifitIntraRota(Solution &solution, const Instance &instance);
-    bool mvShiftInterRotas(Solution &solution, const Instance &instance);
+    bool mvShiftInterRotasIntraSatellite(Solution &solution, const Instance &instance);
 
 
 
@@ -74,7 +79,7 @@ namespace NS_LocalSearch {
     void achaEstacoesEmComun(const std::vector<PosicaoEstacao> &vectorRota0Estacoes, const std::vector<PosicaoEstacao> &vectorRota1Estacoes, std::vector<PosRota0Rota1Estacao> &vectorEsracoesEmComun);
 
 
-    bool mvCross(Solution &solution, const Instance &instance);
+    bool mvCrossIntraSatellite(Solution &solution, const Instance &instance);
     void crossAux(const pair<int, int> satIdPair, const pair<int, int> routeIdPair,  EvRoute *evRoute0, EvRoute *evRoute1, LocalSearch &localSearchBest, const Instance &instance);
 
     void swapMov(Solution& Sol, const LocalSearch2& mov, const Instance& Inst);
@@ -91,9 +96,11 @@ namespace NS_LocalSearch {
     bool ajustaBateriaRestante(EvRoute *evRoute, const int pos, const Instance &instance);
 
     float calculaNovaDistanciaRoute0Cross(EvRoute *evRoute0, const std::vector<int> &evRoute1, const int tamEvRoute1, std::vector<PosRota0Rota1Estacao> &vectorEstacoesEmComun, const int pos0, const int pos1,
-                                          const float distanciaAcumRota0, const Instance &instance, const bool escreveRoute0, const bool inverteRotaEmVectorEstacoesEmComun);
+                                          const float distanciaAcumRota0, const Instance &instance, const bool escreveRoute0, const bool inverteRotaEmVectorEstacoesEmComun, NameViabRotaEv::InsercaoEstacao &insercaoEstacao);
 
     float calculaDistanciaAcumulada(const vector<int> &rota, const int pos, const Instance &instance);
+
+    float calculaCargaEv(const EvRoute &rota, const Instance &instance);
 }
 
 #endif //INC_2E_EVRP_LOCALSEARCH_H

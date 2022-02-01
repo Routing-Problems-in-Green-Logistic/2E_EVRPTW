@@ -15,11 +15,12 @@
 #include <chrono>
 #include <iomanip>
 #include <boost/format.hpp>
+#include "Teste.h"
 
 using namespace std;
 using namespace GreedyAlgNS;
 using namespace NS_vnd;
-
+using namespace NameTeste;
 
 void routine(char** filenames, int nFileNames);
 float distance(std::pair<float, float> p1, std::pair<float,float> p2);
@@ -29,8 +30,9 @@ string getNomeInstancia(string str);
 
 #define MAIN_METODO 0
 #define MAIN_DIST   1
+#define MAIN_TESTE  2
 
-#define MAIN MAIN_METODO
+#define MAIN MAIN_TESTE
 
 
 #if MAIN == MAIN_METODO
@@ -69,11 +71,12 @@ int main(int argc, char* argv[])
         float mediaRvnd = 0.0;
         float mediaConst = 0.0;
         float bestConst = FLOAT_MAX;
-        const int N = 3000;
+        const int N = 2000;
         int nReal = 0;
 
         for(int n = 0; n < 1; n++)
         {
+
             if(argc == 2)
             {
                 semente = time(nullptr);
@@ -88,7 +91,7 @@ int main(int argc, char* argv[])
             for (int i = 0; i < N; ++i)
             {
 
-
+                //cout<<"i: "<<i<<"\n";
 
                 Solution solution(*instance);
                 greedy(solution, *instance, 0.4, 0.4);
@@ -98,7 +101,7 @@ int main(int argc, char* argv[])
                     float improv;
 
                     if (!solution.checkSolution(str, *instance)) {
-                        cout << str << "\n\nERRO*********\n";
+                        cout << str << "\n\nERRO*********\nCONSTRUTIVO";
                         exit(-1);
                     }
 
@@ -112,11 +115,11 @@ int main(int argc, char* argv[])
                     //cout<<erro<<"\n\n";
 
                     //rvnd(solution, *instance);
-                    bool mvCross = NS_LocalSearch::mvCross(solution, *instance);
+                    bool mv = NS_LocalSearch::mvShiftInterRotasIntraSatellite(solution, *instance);
 
                     //cout<<"\n\n###################################################################################\n###################################################################################\n\n";
 
-                    if(mvCross)
+                    if(mv)
                     {
                         do
                         {
@@ -124,21 +127,21 @@ int main(int argc, char* argv[])
                             erro = "";
                             if(!solution.checkSolution(erro, *instance))
                             {
-                                cout << erro << "\n\nERRO*********\n";
+                                cout << erro << "\n\nERRO*********\nMV CROSS\n";
                                 //solution.print(erro);
                                 //cout << "\n\n\n"<<erro << "\n\nERRO*********\n";
                                 exit(-1);
                             }
 
-                            mvCross = NS_LocalSearch::mvCross(solution, *instance);
+                            mv = NS_LocalSearch::mvShiftInterRotasIntraSatellite(solution, *instance);
 
-                        }while(mvCross);
+                        }while(mv);
 
 
                         erro = "";
                         if(!solution.checkSolution(erro, *instance))
                         {
-                            cout << erro << "\n\nERRO*********\n";
+                            cout << erro << "\n\nERRO*********\nMV CROSS\n\a";
                             //solution.print(erro);
                             //cout << "\n\n\n"<<erro << "\n\nERRO*********\n";
                             exit(-1);
@@ -149,7 +152,7 @@ int main(int argc, char* argv[])
                     //float distLs = solution.getDistanciaTotal(); // TODO: resolver problema que os valores de distancia nas rotas nao estao sendo atualizados corretamente durante busca local swap
                     float distLs = solution.calcCost(*instance);
 
-                    //cout<<"mv cross: "<<solution.mvCross;
+                    //cout<<"mv cross: "<<solution.mvCrossIntraSatellite;
 
                     if (distLs < globalBest) {
                         bestB = solution;
@@ -183,13 +186,13 @@ int main(int argc, char* argv[])
         }
 
         //saveSolutionToFile(bestB, "file.txt");
-        //cout<<"CROSS: "<<bestB.mvCross<<"\n";
+        //cout<<"CROSS: "<<bestB.mvCrossIntraSatellite<<"\n";
 
 
 
         cout <<"Melhor RVND: " << globalBest<<"; \tMedia RVND: " << mediaRvnd/float(nReal)<<"; \tMelhor Const: "<<bestConst<<"\tMedia Const: "<<mediaConst/nReal;
 
-        cout<<boost::format(" \tTempo: %.2f") % (tempo)<<" n: "<<nReal<<"\n\n";
+        cout<<boost::format(" \tTempo: %.2f S") % (tempo)<<" n: "<<nReal<<"\n\n";
 
         //bestB.print(*instance);
 
@@ -239,6 +242,36 @@ int main(int argc, char* argv[])
 
 
     }while(num0!=-1 && num1!=-1);
+}
+
+#endif
+
+#if MAIN == MAIN_TESTE
+
+
+int main(int argc, char* argv[])
+{
+
+    if(argc != 3)
+    {
+        std::cerr<<"FORMATO: a.out file.txt k\n";
+        return -1;
+    }
+
+    long semente = time(nullptr);
+
+    int k = atoi(argv[2]);
+    if(k < 0 || k >= T_TAM)
+        exit(-1);
+
+
+    std::string file(argv[1]);
+    Instance *instance = getInstanceFromFile(file);
+
+    string saida;
+    testeMovimentos(saida, *instance, semente, k);
+    cout<<saida<<"\n";
+
 }
 
 #endif

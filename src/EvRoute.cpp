@@ -95,12 +95,15 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &Inst) const
     // Verifica se a rota eh vazia
     if(routeSize == 2)
     {
-        if((route[0]==satelite) && (route[1]==satelite))
+        if((route[0]==satelite) && (route[1]==satelite) && totalDemand == 0.0)
             return true;
         else
         {
-            erro += "ERRO SATELLITE "+ std::to_string(satelite) + "\nINICIO E FIM DA ROTA EH DIFERENTE DE SATELLITE_ID.\nROTA: "+
+            if(!((route[0]==satelite) && (route[1]==satelite)))
+                erro += "ERRO SATELLITE "+ std::to_string(satelite) + "\nINICIO E FIM DA ROTA EH DIFERENTE DE SATELLITE_ID.\nROTA: "+
                                                                   std::to_string(route[0]) + " "+ std::to_string(route[1])+"\n\n";
+            else
+                erro += "ERRO SATELLITE "+ std::to_string(satelite) + "\nDEMANDA ("+ to_string(totalDemand)+") DEVERIA SER ZERO, ROTA VAZIA\n\n";
 
             return false;
         }
@@ -117,6 +120,7 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &Inst) const
 
     float battery = Inst.getEvBattery();
     float distanceAux = 0.0;
+    float demanda = 0.0;
 
     // Verifica se a bateria no  inicio da rota eh igual a quantidade de bateria
     if(vetRemainingBattery[0] != battery)
@@ -133,6 +137,7 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &Inst) const
 
 
         float aux = Inst.getDistance(route[i-1], route[i]);
+        demanda += Inst.getDemand(route[i]);
 
         distanceAux += aux;
         battery -= aux;
@@ -168,34 +173,26 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &Inst) const
             battery = Inst.getEvBattery();
         }
 
-        // Verifica se battery eh igual a vet vetRemainingBattery
-        /* // TODO(samuel): descomentar isso depois de testar;
-        if(std::abs(battery - vetRemainingBattery[i]) > BATTERY_TOLENCE || (vetRemainingBattery[i] < -BATTERY_TOLENCE))
-        {
-
-            erro += "ERRO EV_ROUTE, SATELLITE "+ std::to_string(satelite) + "\nBATERIA CALCULADA EH DIFERENTE DE EV_ROUTE, "+
-                     std::to_string(battery)+" != "+  std::to_string(vetRemainingBattery[i]) + " POSICAO: "+ std::to_string(i)+"\nROTA: ";
-            print(erro);
-
-            return false;
-        }
-         */
-
-
     }
 
-    // Verifica se a distancia calculada eh igual a distancia do EV
-    /* TODO(samuel) descomentar isso dps de testar
-    if(std::abs(distance-distanceAux) > DISTANCE_TOLENCE)
-    {
 
-        erro += "ERRO EV_ROUTE, SATELLITE "+ std::to_string(satelite) + "\nDISTANCIA CALCULADA EH DIFERENTE DE EV_ROUTE, CALCULADO: "+
-                std::to_string(distanceAux)+" != EV ROUTE: "+  std::to_string(distance) + "\nROTA: ";
-        print(erro);
+    if(abs(demanda - totalDemand) > DEMAND_TOLENCE)
+    {
+        string erroPrint;
+        print(erroPrint, Inst);
+
+        erro += "ERRO, SATELLITE: "+ to_string(satelite)+", ROTA: "+ erroPrint+"; DEMANDA ESTA ERRADA, DEMANDA ROTA: "+
+                to_string(totalDemand)+", DEMANDA CALCULADA: "+to_string(demanda)+"\n\n";
+
+        for(int j = 0; j < routeSize; ++j)
+        {
+            cout<<route[j]<<": "<<Inst.getDemand(route[j])<<"\n";
+        }
+        cout<<"\n";
 
         return false;
+
     }
-     */
 
     return true;
 }

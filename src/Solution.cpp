@@ -18,7 +18,11 @@ Solution::Solution(const Instance &Inst) {
     for(int i=0; i < nTrucks; ++i)
         primeiroNivel.emplace_back(Inst);
 
+}
 
+
+void Solution::copia(const Solution &solution)
+{
 
 }
 
