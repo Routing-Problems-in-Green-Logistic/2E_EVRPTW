@@ -3,6 +3,30 @@
 
 #include <iostream>
 #include <vector>
+#include <boost/numeric/ublas/matrix.hpp>
+using namespace boost::numeric;
+
+struct VeiculoInst
+{
+    const bool  eletrico;
+    const float capacidade;
+    const float capacidadeBateria;
+    const float taxaRecarga;
+
+
+};
+
+struct ClienteInst
+{
+
+    const float coordX;
+    const float coordY;
+    const int   demanda;
+    const float inicioJanelaTempo;
+    const float fimJanelaTempo;
+    const float tempoServico;
+
+};
 
 class Instance{
 public:
@@ -10,6 +34,7 @@ public:
              int nSats, int nClients, int nRS, std::vector<std::pair<float,float>>& coordinates, std::vector<float>& demands);
     float getDemand(int node) const; // the const means that the method promises not to alter any members of the class.
     float getDistance(int n1, int n2) const;
+
     std::pair<float,float> getCoordinate(int node) const;
     int getFirstClientIndex() const;
     int getEndClientIndex() const;
@@ -18,8 +43,8 @@ public:
     int getFirstSatIndex() const;
     int getEndSatIndex() const;
 
-    float getTruckCap() const;
-    float getEvCap() const;
+    float getTruckCap(const int i) const;
+    float getEvCap(const int i) const;
     float getEvBattery() const;
     int getNSats() const;
     int getNClients() const;
@@ -40,16 +65,18 @@ public:
     float getTruckCost() const;
     int getNNodes() const;
 
-private:
-    std::vector<std::vector<double>> distMat;
-    std::vector<float> demands;
-    std::vector<std::pair<float,float>> coordinates;
-    float truckCap, evCap, evBattery;
-    int nSats, nClients, nRechargingS;
-    float evCost, truckCost;
+//private:
+    ublas::matrix<double> matDist;
 
-    int nAproxEv;
-    int nAproxTruck;
+    std::vector<VeiculoInst> vectVeiculo;
+    std::vector<ClienteInst> vectCliente;
+
+    int nSats, nClients, nRechargingS;
+
+    int numEv;
+    int numTruck;
+    const int numUtilEstacao = 3;
+
 };
 
 #endif

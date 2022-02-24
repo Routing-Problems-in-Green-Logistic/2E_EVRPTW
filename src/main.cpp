@@ -32,7 +32,7 @@ string getNomeInstancia(string str);
 #define MAIN_DIST   1
 #define MAIN_TESTE  2
 
-#define MAIN MAIN_TESTE
+#define MAIN MAIN_METODO
 
 
 #if MAIN == MAIN_METODO

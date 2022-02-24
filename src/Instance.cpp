@@ -22,10 +22,10 @@ Instance::Instance(std::vector<std::vector<double>> &distMat, float truckCap, fl
         sumDemands += demand;
 
     int div = int(ceil(sumDemands/evCap));
-    nAproxEv = div + int(ceil(div*0.1));
+    numEv = div + int(ceil(div * 0.1));
 
     div =  int(ceil(sumDemands/truckCap));
-    nAproxTruck =  div + int(ceil(div*0.2));
+    numTruck = div + int(ceil(div * 0.2));
 }
 
 // Getters and Setters
@@ -60,13 +60,13 @@ int Instance::getN_RechargingS() const {
 
 int Instance::getN_Evs() const
 {
-    return nAproxEv;
+    return numEv;
 }
 
 int Instance::getN_Trucks() const
 {
 
-    return nAproxTruck;
+    return numTruck;
 }
 
 float Instance::getDistance(int n1, int n2) const {

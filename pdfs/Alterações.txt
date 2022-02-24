@@ -1,0 +1,15 @@
+. Janela de tempo e tempo de atendimento nos clientes
+
+. Satellite não possui tempo de atendimento e janela de tempo
+
+. Permite a utilização de recargas consecutivas
+
+. Cada estação de recarga pode ser utilizada até 3 vezes por cada rota do EV
+
+. Função linear da recarga de bateria
+
+. Recarga completa
+
+. Veiculos do segundo nível de um satellite s só podem saí após a chegada de todos os veículos do primeiro nível em s
+
+. Tempo de deslocamento entre (i,j) é igual a distância de (i,j)
