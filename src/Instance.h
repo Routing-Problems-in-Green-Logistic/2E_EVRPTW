@@ -10,8 +10,14 @@ struct VeiculoInst
 {
     const bool  eletrico;
     const float capacidade;
+
     const float capacidadeBateria;
     const float taxaRecarga;
+    const float taxaConsumoDist;
+
+    VeiculoInst(float _cap):eletrico(false), capacidade(_cap), capacidadeBateria(0.0), taxaRecarga(0.0), taxaConsumoDist(0.0){}
+    VeiculoInst(float _cap, float _capBat, float _taxaR, float _taxaC):eletrico(true), capacidade(_cap), capacidadeBateria(_capBat), taxaRecarga(_taxaR), taxaConsumoDist(_taxaC){}
+
 
 
 };
@@ -30,8 +36,7 @@ struct ClienteInst
 
 class Instance{
 public:
-    Instance(std::vector<std::vector<double>>& distMat, float truckCap, float evCap, float evBattery,
-             int nSats, int nClients, int nRS, std::vector<std::pair<float,float>>& coordinates, std::vector<float>& demands);
+    Instance(const std::string &file);
     float getDemand(int node) const; // the const means that the method promises not to alter any members of the class.
     float getDistance(int n1, int n2) const;
 
@@ -43,14 +48,12 @@ public:
     int getFirstSatIndex() const;
     int getEndSatIndex() const;
 
-    float getTruckCap(const int i) const;
-    float getEvCap(const int i) const;
-    float getEvBattery() const;
+    float getTruckCap(const int id) const;
+    float getEvCap(const int id) const;
+    float getEvBattery(const int id) const;
     int getNSats() const;
     int getNClients() const;
-    /** gets the number of Recharging Stations.
-     * @return number of Recharging Stations
-     */
+
     int getN_RechargingS() const;
     int getN_Evs() const;
     int getN_Trucks() const;
@@ -60,9 +63,6 @@ public:
     bool isSatelite(int node) const;
     bool isDepot(int node) const;
 
-    float getEvCost() const;
-
-    float getTruckCost() const;
     int getNNodes() const;
 
 //private:
@@ -71,10 +71,8 @@ public:
     std::vector<VeiculoInst> vectVeiculo;
     std::vector<ClienteInst> vectCliente;
 
-    int nSats, nClients, nRechargingS;
-
-    int numEv;
-    int numTruck;
+    int numSats, numClients, numRechargingS, numEv, numTruck;
+    int numNos; // deposito + numSats + numRechargingS + numClients
     const int numUtilEstacao = 3;
 
 };

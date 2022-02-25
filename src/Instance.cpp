@@ -1,6 +1,8 @@
 #include <cmath>
 #include "Instance.h"
+#include <fstream>
 
+/*
 Instance::Instance(std::vector<std::vector<double>> &distMat, float truckCap, float evCap, float evBattery, int nSats,
                    int nClients, int nRS, std::vector<std::pair<float, float>> &coordinates,
                    std::vector<float> &demands) {
@@ -27,6 +29,9 @@ Instance::Instance(std::vector<std::vector<double>> &distMat, float truckCap, fl
     div =  int(ceil(sumDemands/truckCap));
     numTruck = div + int(ceil(div * 0.2));
 }
+*/
+
+/*
 
 // Getters and Setters
 float Instance::getDemand(int node) const {
@@ -134,4 +139,30 @@ bool Instance::isDepot(int node) const {
 
 int Instance::getNNodes() const {
     return (int)demands.size();
+}
+*/
+
+Instance::Instance(const std::string &str)
+{
+
+    std::ifstream file;
+    file.open(str);
+
+    if(!file.is_open())
+    {
+        std::cout<<"ERRO, NAO FOI POSSIVEL ABRIR O ARQUIVO: "<<str<<"\n\n";
+        throw "ERRO";
+    }
+
+    int a;
+    file>>numTruck>>numEv>>a>>numSats>>numRechargingS>>numClients;
+
+    if(numTruck <= 0 || numEv <= 0 || numSats <= 0 || numRechargingS <= 0 || numClients <= 0)
+    {
+        std::cout<<"ERRO, INSTANCIA ESTA ERRADA. 1° LINHA\n\n";
+        throw "ERRO";
+    }
+
+
+
 }

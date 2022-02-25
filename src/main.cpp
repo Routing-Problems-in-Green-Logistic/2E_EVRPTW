@@ -31,6 +31,7 @@ string getNomeInstancia(string str);
 #define MAIN_METODO 0
 #define MAIN_DIST   1
 #define MAIN_TESTE  2
+#define MAIN_MATRIX 3
 
 #define MAIN MAIN_METODO
 

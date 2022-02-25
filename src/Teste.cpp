@@ -10,6 +10,8 @@ const int Tam =10000;
 using namespace NameTeste;
 using namespace GreedyAlgNS;
 
+/*
+
 void NameTeste::testeMovimentos(string &saida, const Instance &instance, long semente, int k)
 {
 
@@ -140,3 +142,4 @@ void NameTeste::testeMovimentos(string &saida, const Instance &instance, long se
 
 }
 
+*/
