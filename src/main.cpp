@@ -28,12 +28,48 @@ Instance* getInstanceFromFile(std::string &fileName);
 void saveSolutionToFile(const Solution& Sol, const std::string& fileName="solution.txt");
 string getNomeInstancia(string str);
 
-#define MAIN_METODO 0
-#define MAIN_DIST   1
-#define MAIN_TESTE  2
-#define MAIN_MATRIX 3
+#define MAIN_METODO     0
+#define MAIN_DIST       1
+#define MAIN_TESTE      2
+#define MAIN_METODO_2   3
 
-#define MAIN MAIN_METODO
+#define MAIN MAIN_METODO_2
+
+#if MAIN == MAIN_METODO_2
+
+int main(int argc, char* argv[])
+{
+
+    if(argc != 2 && argc != 3)
+    {
+        std::cerr<<"FORMATO: a.out file.txt\n";
+        return -1;
+    }
+
+    long semente = 0;
+
+
+    if(argc == 3)
+    {
+        semente = atol(argv[2]);
+        cout<<"SEMENTE: \t"<<semente<<"\n";
+    }
+    else
+        semente = time(nullptr);
+
+    seed(semente);
+
+
+    std::string file(argv[1]);
+    const string nomeInst = getNomeInstancia(file);
+    cout<<"INSTANCIA: \t"<<nomeInst<<"\n";
+
+    Instance instance(file);
+
+
+}
+
+#endif
 
 
 #if MAIN == MAIN_METODO
@@ -286,6 +322,7 @@ float distance(std::pair<float, float> p1, std::pair<float,float> p2)
     float x1 = p1.first, x2 = p2.first, y1 = p1.second, y2 = p2.second;
     return (float)sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2) * 1.0);
 }
+/*
 Instance* getInstanceFromFile(std::string &fileName){
     std::ifstream file(fileName);
     std::string line;
@@ -366,7 +403,7 @@ void saveSolutionToFile(const Solution& Sol, const std::string& fileName){
     }
     file.close();
 }
-
+*/
 string getNomeInstancia(string str)
 {
     int posNome = -1;

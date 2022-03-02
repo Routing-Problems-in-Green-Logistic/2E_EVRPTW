@@ -2,6 +2,8 @@
 #include "Instance.h"
 #include <fstream>
 
+using namespace std;
+
 /*
 Instance::Instance(std::vector<std::vector<double>> &distMat, float truckCap, float evCap, float evBattery, int nSats,
                    int nClients, int nRS, std::vector<std::pair<float, float>> &coordinates,
@@ -31,35 +33,35 @@ Instance::Instance(std::vector<std::vector<double>> &distMat, float truckCap, fl
 }
 */
 
-/*
+
 
 // Getters and Setters
 float Instance::getDemand(int node) const {
-    return this->demands[node];
+    return vectCliente[node].demanda;
 }
 
-float Instance::getTruckCap() const {
-    return truckCap;
+float Instance::getTruckCap(const int id) const {
+    return vectVeiculo[id].capacidade;
 }
 
-float Instance::getEvCap() const {
-    return evCap;
+float Instance::getEvCap(const int id) const {
+    return vectVeiculo[id].capacidade;
 }
 
-float Instance::getEvBattery() const {
-    return evBattery;
+float Instance::getEvBattery(const int id) const {
+    return vectVeiculo[id].capacidadeBateria;
 }
 
 int Instance::getNSats() const {
-    return nSats;
+    return numSats;
 }
 
 int Instance::getNClients() const {
-    return nClients;
+    return numClients;
 }
 
 int Instance::getN_RechargingS() const {
-    return nRechargingS;
+    return numRechargingS;
 }
 
 
@@ -78,33 +80,25 @@ float Instance::getDistance(int n1, int n2) const {
     if(n1==n2)
         return 0.0;
 
-    return (float)this->distMat.at(n1).at(n2);
-}
-
-float Instance::getEvCost() const {
-    return evCost;
-}
-
-float Instance::getTruckCost() const {
-    return truckCost;
+    return matDist(n1,n2);
 }
 
 int Instance::getFirstClientIndex() const {
-    return (int)this->demands.size() - this->getNClients() - this->getN_RechargingS(); // the last vetEvRoute are vetEvRoute;
+    return 1 + numSats + numRechargingS;
 
 }
 int Instance::getEndClientIndex() const
 {
-    return getNSats()+getNClients();
+    return getFirstClientIndex()+getNClients()-1;
 }
 
 int Instance::getFirstRechargingSIndex() const {
-    return (int)this->demands.size() - this->getN_RechargingS();
+    return 1 + numSats;
 }
 
 int Instance::getEndRechargingSIndex() const
 {
-    return getNSats() + getNClients() + getN_RechargingS();
+    return getFirstRechargingSIndex() + numRechargingS  - 1;
 }
 
 int Instance::getFirstSatIndex() const {
@@ -113,11 +107,7 @@ int Instance::getFirstSatIndex() const {
 
 int Instance::getEndSatIndex() const
 {
-    return getNSats();
-}
-
-std::pair<float,float> Instance::getCoordinate(int node) const {
-    return this->coordinates.at(node);
+    return 1 + numSats - 1;
 }
 
 bool Instance::isClient(int node) const {
@@ -138,9 +128,9 @@ bool Instance::isDepot(int node) const {
 }
 
 int Instance::getNNodes() const {
-    return (int)demands.size();
+    return numNos;
 }
-*/
+
 
 Instance::Instance(const std::string &str)
 {
@@ -163,6 +153,68 @@ Instance::Instance(const std::string &str)
         throw "ERRO";
     }
 
+    //cout<<"numTruck: "<<numTruck<<"; numEv: "<<numEv<<"; numSat: "<<numSats<<"; numRechargingS: "<<numRechargingS<<"; numClientes: "<<numClients<<"\n\n";
 
+    numNos = numSats + numRechargingS + numClients + 1;
+
+    string lixo;
+
+    getline(file, lixo);
+
+    vectVeiculo.reserve(numTruck+numEv);
+
+    for(int i=0; i < numTruck; ++i)
+    {
+        float cap=0;
+        file>>cap;
+        getline(file, lixo);
+        vectVeiculo.emplace_back(cap);
+        //cout<<"cap: "<<cap<<"\n";
+    }
+    //cout<<"\n";
+
+    for(int i=0; i < numEv; ++i)
+    {
+        float cap, capBat, taxaR, taxaC, temp;
+        file>>cap>>temp>>temp>>capBat>>taxaR>>taxaC;
+        getline(file, lixo);
+        vectVeiculo.emplace_back(cap, capBat, taxaR, taxaC);
+
+        //cout<<"cap: "<<cap<<"; capBat: "<<capBat<<"; taxaR: "<<taxaR<<"; taxaC: "<<taxaC<<"\n";
+
+    }
+
+    //cout<<"\n";
+
+    vectCliente.reserve(numNos);
+
+    for(int i=0; i < numNos; ++i)
+    {
+        float x,y, dem, temp, tw_i, tw_f, serv;
+
+        file>>x>>y>>dem>>temp>>temp>>tw_i>>tw_f>>serv;
+        getline(file, lixo);
+
+        //cout<<"x: "<<x<<"; y: "<<y<<"; dem: "<<dem<<"; tw_i: "<<tw_i<<"; tw_f: "<<tw_f<<"; serv: "<<serv<<"\n";
+
+        vectCliente.push_back({x, y, dem, tw_i, tw_f, serv});
+
+
+    }
+
+    // Cria matriz de distancia
+
+    matDist.resize(numNos, numNos, false);
+
+    for(int i=0; i < numNos; ++i)
+    {
+        matDist(i,i) = 0.0;
+
+        for(int j=i+1; j < numNos; ++j)
+        {
+            float dist = sqrtf(pow(vectCliente[i].coordX - vectCliente[j].coordX,2) + pow(vectCliente[i].coordY - vectCliente[j].coordY,2));
+            matDist(i,j) = matDist(j,i) = dist;
+        }
+    }
 
 }

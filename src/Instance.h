@@ -27,10 +27,11 @@ struct ClienteInst
 
     const float coordX;
     const float coordY;
-    const int   demanda;
+    const float demanda;
     const float inicioJanelaTempo;
     const float fimJanelaTempo;
     const float tempoServico;
+
 
 };
 
@@ -69,7 +70,7 @@ public:
     ublas::matrix<double> matDist;
 
     std::vector<VeiculoInst> vectVeiculo;
-    std::vector<ClienteInst> vectCliente;
+    std::vector<ClienteInst> vectCliente;           // deposito, satellites, estacoes e clientes
 
     int numSats, numClients, numRechargingS, numEv, numTruck;
     int numNos; // deposito + numSats + numRechargingS + numClients
