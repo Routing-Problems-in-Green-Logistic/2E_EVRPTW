@@ -9,20 +9,16 @@ public:
     Instance(std::vector<std::vector<double>>& distMat, float truckCap, float evCap, float evBattery,
              int nSats, int nClients, int nRS, std::vector<std::pair<float,float>>& coordinates, std::vector<float>& demands);
     float getDemand(int node) const; // the const means that the method promises not to alter any members of the class.
-                                    // https://stackoverflow.com/questions/751681/meaning-of-const-last-in-a-function-declaration-of-a-class
     float getDistance(int n1, int n2) const;
     std::pair<float,float> getCoordinate(int node) const;
     static int getDepotIndex() {return 0;}
     int getFirstClientIndex() const;
-    int getLastClienteIndex() const {return getFirstRechargingStationIndex();};
-    /** returns the index of the first Recharging station.
-     *
-     * @return index of the first recharging station (RS)
-     */
-    int getFirstRechargingStationIndex() const;
-    int getLastRechargingStationIndex()const{return demands.size()-1;};
+    int getEndClientIndex() const;
+    int getFirstRechargingSIndex() const;
+    int getEndRechargingSIndex() const;
     int getFirstSatIndex() const;
-    int getLastSatIndex() const {return getFirstClientIndex()-1;};
+    int getEndSatIndex() const;
+
     float getTruckCap() const;
     float getEvCap() const;
     float getEvBattery() const;
@@ -31,7 +27,9 @@ public:
     /** gets the number of Recharging Stations.
      * @return number of Recharging Stations
      */
-    int getNumRechargingS() const;
+    int getN_RechargingS() const;
+    int getN_Evs() const;
+    int getN_Trucks() const;
 
     bool isClient(int node) const;
     bool isRechargingStation(int node) const;
@@ -41,6 +39,7 @@ public:
     float getEvCost() const;
 
     float getTruckCost() const;
+    int getNNodes() const;
 
 private:
 
@@ -50,6 +49,9 @@ private:
     float truckCap, evCap, evBattery;
     int nSats, nClients, nRechargingS;
     float evCost, truckCost;
+
+    int nAproxEv;
+    int nAproxTruck;
 };
 
 #endif

@@ -1,10 +1,10 @@
 set(CMAKE_CXX_STANDARD 20)
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.1)
 project(2E_EVRP)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-
+set(CMAKE_CXX_FLAGS_RELEASE "-g")
 #debug de memnoria:
 #cmake .. -DCMAKE_BUILD_TYPE=asan
 
@@ -15,4 +15,3 @@ set(CMAKE_CXX_FLAGS_MSAN "-fsanitize=memory -fno-optimize-sibling-calls -fsaniti
 set(CMAKE_CXX_FLAGS_UBSAN "-fsanitize=undefined" CACHE STRING "Flags used by the C++ compiler during UndefinedBehaviourSanitizer builds." FORCE)
 
 add_subdirectory(src)
-
