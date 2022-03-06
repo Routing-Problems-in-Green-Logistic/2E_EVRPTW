@@ -15,7 +15,7 @@ struct VeiculoInst
     const float taxaRecarga;
     const float taxaConsumoDist;
 
-    VeiculoInst(float _cap):eletrico(false), capacidade(_cap), capacidadeBateria(0.0), taxaRecarga(0.0), taxaConsumoDist(0.0){}
+    explicit VeiculoInst(float _cap):eletrico(false), capacidade(_cap), capacidadeBateria(0.0), taxaRecarga(0.0), taxaConsumoDist(0.0){}
     VeiculoInst(float _cap, float _capBat, float _taxaR, float _taxaC):eletrico(true), capacidade(_cap), capacidadeBateria(_capBat), taxaRecarga(_taxaR), taxaConsumoDist(_taxaC){}
 
 
@@ -39,7 +39,7 @@ class Instance{
 public:
     Instance(const std::string &file);
     float getDemand(int node) const; // the const means that the method promises not to alter any members of the class.
-    float getDistance(int n1, int n2) const;
+    double getDistance(int n1, int n2) const;
 
     std::pair<float,float> getCoordinate(int node) const;
     int getFirstClientIndex() const;

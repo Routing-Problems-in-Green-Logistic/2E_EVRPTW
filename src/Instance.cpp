@@ -1,6 +1,7 @@
 #include <cmath>
 #include "Instance.h"
 #include <fstream>
+#include <boost/format.hpp>
 
 using namespace std;
 
@@ -76,7 +77,7 @@ int Instance::getN_Trucks() const
     return numTruck;
 }
 
-float Instance::getDistance(int n1, int n2) const {
+double Instance::getDistance(int n1, int n2) const {
     if(n1==n2)
         return 0.0;
 
@@ -153,12 +154,9 @@ Instance::Instance(const std::string &str)
         throw "ERRO";
     }
 
-    //cout<<"numTruck: "<<numTruck<<"; numEv: "<<numEv<<"; numSat: "<<numSats<<"; numRechargingS: "<<numRechargingS<<"; numClientes: "<<numClients<<"\n\n";
-
     numNos = numSats + numRechargingS + numClients + 1;
 
     string lixo;
-
     getline(file, lixo);
 
     vectVeiculo.reserve(numTruck+numEv);
@@ -169,9 +167,8 @@ Instance::Instance(const std::string &str)
         file>>cap;
         getline(file, lixo);
         vectVeiculo.emplace_back(cap);
-        //cout<<"cap: "<<cap<<"\n";
+
     }
-    //cout<<"\n";
 
     for(int i=0; i < numEv; ++i)
     {
@@ -180,11 +177,7 @@ Instance::Instance(const std::string &str)
         getline(file, lixo);
         vectVeiculo.emplace_back(cap, capBat, taxaR, taxaC);
 
-        //cout<<"cap: "<<cap<<"; capBat: "<<capBat<<"; taxaR: "<<taxaR<<"; taxaC: "<<taxaC<<"\n";
-
     }
-
-    //cout<<"\n";
 
     vectCliente.reserve(numNos);
 
@@ -195,15 +188,12 @@ Instance::Instance(const std::string &str)
         file>>x>>y>>dem>>temp>>temp>>tw_i>>tw_f>>serv;
         getline(file, lixo);
 
-        //cout<<"x: "<<x<<"; y: "<<y<<"; dem: "<<dem<<"; tw_i: "<<tw_i<<"; tw_f: "<<tw_f<<"; serv: "<<serv<<"\n";
-
         vectCliente.push_back({x, y, dem, tw_i, tw_f, serv});
 
 
     }
 
     // Cria matriz de distancia
-
     matDist.resize(numNos, numNos, false);
 
     for(int i=0; i < numNos; ++i)
@@ -212,9 +202,21 @@ Instance::Instance(const std::string &str)
 
         for(int j=i+1; j < numNos; ++j)
         {
-            float dist = sqrtf(pow(vectCliente[i].coordX - vectCliente[j].coordX,2) + pow(vectCliente[i].coordY - vectCliente[j].coordY,2));
+            double dist = sqrt(powf(vectCliente[i].coordX - vectCliente[j].coordX,2) + powf(vectCliente[i].coordY - vectCliente[j].coordY,2));
             matDist(i,j) = matDist(j,i) = dist;
         }
     }
+
+
+
+/*    for(int i=0; i < numNos; ++i)
+    {
+        for(int j=0; j < numNos; ++j)
+        {
+            cout<<boost::format("%.1f\t") % matDist(i,j);
+        }
+
+        cout<<"\n";
+    }*/
 
 }
