@@ -42,6 +42,7 @@ public:
     double getDistance(int n1, int n2) const;
 
     std::pair<float,float> getCoordinate(int node) const;
+    static int getDepotIndex() {return 0;}
     int getFirstClientIndex() const;
     int getEndClientIndex() const;
     int getFirstRechargingSIndex() const;
@@ -66,6 +67,7 @@ public:
 
     int getNNodes() const;
 
+
 //private:
     ublas::matrix<double> matDist;
 
@@ -75,6 +77,8 @@ public:
     int numSats, numClients, numRechargingS, numEv, numTruck;
     int numNos; // deposito + numSats + numRechargingS + numClients
     const int numUtilEstacao = 3;
+
+
 
 };
 

@@ -325,6 +325,13 @@ float distance(std::pair<float, float> p1, std::pair<float,float> p2)
 /*
 Instance* getInstanceFromFile(std::string &fileName){
     std::ifstream file(fileName);
+
+    if(!file.is_open())
+    {
+        cerr<<"ERRO AO ABRIR O ARQUIVO: "<<fileName<<"\n";
+        exit(-1);
+    }
+
     std::string line;
     stringstream ss, ssaux, ssaux2;
     int nSats=0, nClients=0, nRS=0;
@@ -427,6 +434,8 @@ string getNomeInstancia(string str)
                 posPonto = i - 1;
                 break;
             }
+
+            delete bestSol;
         }
 
         if(posPonto > 0)
