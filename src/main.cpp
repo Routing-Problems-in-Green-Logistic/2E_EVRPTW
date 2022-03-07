@@ -435,7 +435,7 @@ string getNomeInstancia(string str)
                 break;
             }
 
-            delete bestSol;
+            //delete bestSol;
         }
 
         if(posPonto > 0)
