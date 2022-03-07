@@ -152,6 +152,8 @@ void NS_LocalSearch::swapMov(Solution& Sol, const LocalSearch2& mov, const Insta
 */
 
 
+/*
+
 void NS_LocalSearch::getMov(const int movId, string &mov)
 {
     switch(movId)
@@ -201,9 +203,6 @@ void NS_LocalSearch::LocalSearch::print(string &str)
 
 }
 
-/*
- * Posiçao erada
- */
 
 bool NS_LocalSearch::mvShifitIntraRota(Solution &solution, const Instance &instance)
 {
@@ -426,12 +425,12 @@ bool NS_LocalSearch::mvShifitIntraRota(Solution &solution, const Instance &insta
         evRoute.distance += localSearchBest.incrementoDistancia;
 
 
-        /*
-        PRINT_DEBUG("", "INCREMENTO DISTANCIA: "<<localSearchBest.incrementoDistancia);
-        PRINT_DEBUG("", "DISTANCIA: "<<evRoute.distance);
-        PRINT_DEBUG("", "POS: "<<localSearchBest.inser0.pos);
-        PRINT_DEBUG("", "CLIENTE: "<<localSearchBest.inser0.clientId);
-        */
+
+        // PRINT_DEBUG("", "INCREMENTO DISTANCIA: "<<localSearchBest.incrementoDistancia);
+        // PRINT_DEBUG("", "DISTANCIA: "<<evRoute.distance);
+        // PRINT_DEBUG("", "POS: "<<localSearchBest.inser0.pos);
+        // PRINT_DEBUG("", "CLIENTE: "<<localSearchBest.inser0.clientId);
+
         //PRINT_DEBUG("", "MOVIMENTO SHIFIT INTRA ROTA");
 
         solution.mvShiftIntraRota = true;
@@ -532,7 +531,7 @@ bool NS_LocalSearch::mvShiftInterRotasIntraSatellite(Solution &solution, const I
             throw "ERRO";
         }
 
-/*        for(int i=pos; (i+1) < evRoute0.size(); ++i)
+// / *        for(int i=pos; (i+1) < evRoute0.size(); ++i)
         {
             remainingBattery -= instance.getDistance(evRoute0.route[i], evRoute0.route[i+1]);
 
@@ -553,7 +552,7 @@ bool NS_LocalSearch::mvShiftInterRotasIntraSatellite(Solution &solution, const I
 
             }
 
-        }*/
+        }// * /
 
         // Atualiza rota1
 
@@ -666,7 +665,7 @@ void NS_LocalSearch::shifitInterRotasMvDuasRotas(const pair<int, int> satIdPair,
                         while((p+1) < evRoute0.routeSize)
                         {
 
-/*                            if(cargaBateria >= -BATTERY_TOLENCE)
+// / *                            if(cargaBateria >= -BATTERY_TOLENCE)
                             {
                                 if(instance.isRechargingStation(evRoute0.route[p]))
                                     cargaBateria = instance.getEvBattery();
@@ -678,7 +677,8 @@ void NS_LocalSearch::shifitInterRotasMvDuasRotas(const pair<int, int> satIdPair,
                             {
                                 viavel = false;
                                 break;
-                            }*/
+                            }
+                            // * /
 
                             evRouteAux[posEvRouteAux] = evRoute0[p+1];
 
@@ -746,7 +746,7 @@ void NS_LocalSearch::shifitInterRotasMvDuasRotas(const pair<int, int> satIdPair,
 
 }
 
-/**
+/ **
  *
  * Descricao ...
  *
@@ -755,7 +755,7 @@ void NS_LocalSearch::shifitInterRotasMvDuasRotas(const pair<int, int> satIdPair,
  * @param evRoute0      Rota0 do veiculo eletrico, utilizada no movimento ; Pode ser alterado
  * @param evRoute1      Rota1 do veiculo eletrico, utilizada no movimento ; Pode ser alterado
  * @return              Retorna se conseguiu realizar o movimento
- */
+ // * /
 
 bool NS_LocalSearch::mvCrossIntraSatellite(Solution &solution, const Instance &instance)
 {
@@ -824,7 +824,8 @@ bool NS_LocalSearch::mvCrossIntraSatellite(Solution &solution, const Instance &i
         achaEstacoesEmComun(vectorEstacoesRoute0, vectorEstacoesRoute1, vectorEstacoesEmComun);
 
 
-        /*if(localSearchBest.insercaoEstacaoRota0.estacao != -1 || localSearchBest.insercaoEstacaoRota1.estacao != -1)
+        // / *
+        if(localSearchBest.insercaoEstacaoRota0.estacao != -1 || localSearchBest.insercaoEstacaoRota1.estacao != -1)
         {
             PRINT_DEBUG("", "SOLUCAO ANTES DO MOVIMENTO:");
             cout << "Rota0: ";
@@ -834,7 +835,8 @@ bool NS_LocalSearch::mvCrossIntraSatellite(Solution &solution, const Instance &i
             cout << "Rota1: ";
             evRouteSol1->print(instance);
 
-        }*/
+        }
+        // * /
 
 
 
@@ -874,7 +876,8 @@ bool NS_LocalSearch::mvCrossIntraSatellite(Solution &solution, const Instance &i
 
         }
 
-/*        if(localSearchBest.insercaoEstacaoRota0.estacao != -1 || localSearchBest.insercaoEstacaoRota1.estacao != -1)
+// / *
+        if(localSearchBest.insercaoEstacaoRota0.estacao != -1 || localSearchBest.insercaoEstacaoRota1.estacao != -1)
         {
 
             cout<<"estacaoRota0: "<<localSearchBest.insercaoEstacaoRota0.estacao<<"\n";
@@ -891,7 +894,8 @@ bool NS_LocalSearch::mvCrossIntraSatellite(Solution &solution, const Instance &i
             cout << "Rota1: ";
             evRouteSol1->print(instance);
 
-        }*/
+        }
+        // * /
 
 
 
@@ -1127,7 +1131,7 @@ int NS_LocalSearch::buscaEstacao(const std::vector<PosicaoEstacao> &vector, cons
     return -1;
 }
 
-/**
+// / **
  * Calcula a distancia de evRoute0 apos o movimento cross na pos0 de evRoute0 e pos1 de evRoute1.
  * A funcao verifica o combustivel.
  * Se esvreveRoute0 eh TRUE,  a nova rota0 e o combustivel sao escritos em evRoute0
@@ -1142,13 +1146,14 @@ int NS_LocalSearch::buscaEstacao(const std::vector<PosicaoEstacao> &vector, cons
  * @param escreveRoute0                         Indica se a nova rota0 e se o seu combustivel deve ser escrito na rota0
  * @param inverteRotaEmVectorEstacoesEmComun    Se TRUE inverte posRota0 com posRota1 no vectorEstacoesEmComun
  * @return                                      Retorna distancia da nova rota0 ou -1.0 se for inviavel
- */
+ // * /
+
 //Calcula a distancia de evRoute0 apos o movimento cross na pos0 de evRoute0 e pos1 de evRoute1. A funcao tambem verifica o combustivel
 float NS_LocalSearch::calculaNovaDistanciaRoute0Cross(EvRoute *evRoute0, const std::vector<int> &evRoute1, const int tamEvRoute1, std::vector<PosRota0Rota1Estacao> &vectorEstacoesEmComun, const int pos0, const int pos1,
                                                       const float distanciaAcumRota0, const Instance &instance, const bool escreveRoute0, const bool inverteRotaEmVectorEstacoesEmComun, NameViabRotaEv::InsercaoEstacao &insercaoEstacao)
 {
 
-/* Exemplo:
+// / * Exemplo:
  *
  *            V
  * rota0: 0 1 2 3 4 0
@@ -1175,7 +1180,7 @@ float NS_LocalSearch::calculaNovaDistanciaRoute0Cross(EvRoute *evRoute0, const s
  *      Se (pos0 >= estacao.pos0) && (pos1 < estacao.pos1)
  *      Verifica-se a estacao 1 esta antes de pos0 e se a estacao 1 esta depois de pos1
  *
- */
+ // * /
 
     static EvRoute evRouteAux(instance);
 
@@ -1337,3 +1342,5 @@ float NS_LocalSearch::calculaCargaEv(const EvRoute &rota, const Instance &instan
 
     return carga;
 }
+
+ */

@@ -1,6 +1,4 @@
-//
-// Created by igor on 17/01/2022.
-//
+
 
 #include "Vnd.h"
 #include "mersenne-twister.h"
@@ -8,6 +6,8 @@
 
 using namespace NS_vnd;
 using namespace NS_LocalSearch;
+
+/*
 
 void NS_vnd::rvnd(Solution &solution, const Instance &instance)
 {
@@ -62,3 +62,5 @@ void NS_vnd::rvnd(Solution &solution, const Instance &instance)
     }
 
 }
+
+*/

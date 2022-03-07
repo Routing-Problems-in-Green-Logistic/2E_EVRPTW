@@ -1,5 +1,6 @@
 #include "Depot.h"
 
+/*
 Depot::Depot(const Instance& Inst, int id) {
     this->truckCapacity = Inst.getTruckCap();
     this->position= {0,0};
@@ -19,3 +20,4 @@ int Depot::getNRoutes() const {
 TruckRoute& Depot::getRoute(int i) {
     return this->routes.at(i);
 }
+*/

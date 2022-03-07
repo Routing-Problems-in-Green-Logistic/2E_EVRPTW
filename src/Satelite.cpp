@@ -1,6 +1,8 @@
 #include "Satelite.h"
 #include "Auxiliary.h"
 
+/*
+
 Satelite::Satelite(int id, const Instance& Inst)
 {
     this->evCapacity = Inst.getEvCap();
@@ -20,6 +22,9 @@ Satelite::Satelite(int id, const Instance& Inst)
     }
 
 }
+
+
+
 
 float Satelite::getDemand(const Instance& Inst) const { // O(n)
     float totDemand = 0;
@@ -100,3 +105,5 @@ void Satelite::print(const Instance &instance)
 int Satelite::getId() const {
     return id;
 }
+
+*/

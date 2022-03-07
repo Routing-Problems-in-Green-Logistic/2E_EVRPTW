@@ -9,6 +9,8 @@ using namespace std;
 using namespace NameViabRotaEv;
 using namespace GreedyAlgNS;
 
+/*
+
 EvRoute::EvRoute(float evBattery, float evCapacity, int satelite, const int RouteSizeMax) {
     this->satelite = satelite;
 
@@ -248,3 +250,5 @@ void EvRoute::setAuxStructures(const Instance& Inst) {
     // add satelite at the end of list of recharges;
 //    addRechargeToList(i, satelite, remainingBattery);
 }
+
+*/

@@ -6,6 +6,8 @@
 #include "LocalSearch.h"
 #include "ViabilizadorRotaEv.h"
 
+/*
+
 using namespace GreedyAlgNS;
 using namespace std;
 using namespace NS_Auxiliary;
@@ -448,3 +450,4 @@ bool GreedyAlgNS::insert(EvRoute &evRoute, Insertion &insertion, const Instance 
     return true;
 }
 
+*/

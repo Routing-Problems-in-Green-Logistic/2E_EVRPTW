@@ -1,6 +1,8 @@
 #include "Solution.h"
 #include "Auxiliary.h"
 
+/*
+
 Solution::Solution(const Instance &Inst) {
     this->Dep = new Depot(Inst);
     this->satelites = {};

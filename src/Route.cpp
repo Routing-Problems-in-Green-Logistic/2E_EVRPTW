@@ -5,6 +5,8 @@
 #include "Route.h"
 #include "Auxiliary.h"
 
+/*
+
 Route::Route(const Instance &instance)
 {
 
@@ -69,3 +71,4 @@ bool Route::checkDistence(const Instance &instance, float *dist)
         return true;
 
 }
+*/

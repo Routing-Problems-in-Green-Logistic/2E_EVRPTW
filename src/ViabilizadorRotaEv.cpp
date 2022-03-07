@@ -18,6 +18,9 @@ using namespace NS_Auxiliary;
  * @return
  */
 
+/*
+
+
 bool NameViabRotaEv::viabilizaRotaEv(vector<int> &route, int tamRoute, const Instance &instance, const bool best, InsercaoEstacao &insercaoEstacao)
 {
     //PRINT_DEBUG("", "Rota: ");
@@ -118,8 +121,9 @@ float NameViabRotaEv::testaRota(const vector<int> &evRoute, const int tamRoute, 
     float bateriaRestante = instance.getEvBattery();
     float distanciaRota = 0.0;
 
-/*    PRINT_DEBUG("\t", "TESTA ROTA:");
-    cout<<"\tRota: "<<printVector(evRoute, tamRoute)<<";  ";*/
+// / *    PRINT_DEBUG("\t", "TESTA ROTA:");
+    cout<<"\tRota: "<<printVector(evRoute, tamRoute)<<";  ";
+    // * /
 
     for(int i=0; i < (tamRoute-1); ++i)
     {
@@ -145,3 +149,5 @@ float NameViabRotaEv::testaRota(const vector<int> &evRoute, const int tamRoute, 
     return distanciaRota;
 
 }
+
+*/

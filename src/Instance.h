@@ -3,13 +3,44 @@
 
 #include <iostream>
 #include <vector>
+#include <boost/numeric/ublas/matrix.hpp>
+using namespace boost::numeric;
+
+struct VeiculoInst
+{
+    const bool  eletrico;
+    const float capacidade;
+
+    const float capacidadeBateria;
+    const float taxaRecarga;
+    const float taxaConsumoDist;
+
+    explicit VeiculoInst(float _cap):eletrico(false), capacidade(_cap), capacidadeBateria(0.0), taxaRecarga(0.0), taxaConsumoDist(0.0){}
+    VeiculoInst(float _cap, float _capBat, float _taxaR, float _taxaC):eletrico(true), capacidade(_cap), capacidadeBateria(_capBat), taxaRecarga(_taxaR), taxaConsumoDist(_taxaC){}
+
+
+
+};
+
+struct ClienteInst
+{
+
+    const float coordX;
+    const float coordY;
+    const float demanda;
+    const float inicioJanelaTempo;
+    const float fimJanelaTempo;
+    const float tempoServico;
+
+
+};
 
 class Instance{
 public:
-    Instance(std::vector<std::vector<double>>& distMat, float truckCap, float evCap, float evBattery,
-             int nSats, int nClients, int nRS, std::vector<std::pair<float,float>>& coordinates, std::vector<float>& demands);
+    Instance(const std::string &file);
     float getDemand(int node) const; // the const means that the method promises not to alter any members of the class.
-    float getDistance(int n1, int n2) const;
+    double getDistance(int n1, int n2) const;
+
     std::pair<float,float> getCoordinate(int node) const;
     static int getDepotIndex() {return 0;}
     int getFirstClientIndex() const;
@@ -19,14 +50,12 @@ public:
     int getFirstSatIndex() const;
     int getEndSatIndex() const;
 
-    float getTruckCap() const;
-    float getEvCap() const;
-    float getEvBattery() const;
+    float getTruckCap(const int id) const;
+    float getEvCap(const int id) const;
+    float getEvBattery(const int id) const;
     int getNSats() const;
     int getNClients() const;
-    /** gets the number of Recharging Stations.
-     * @return number of Recharging Stations
-     */
+
     int getN_RechargingS() const;
     int getN_Evs() const;
     int getN_Trucks() const;
@@ -36,22 +65,21 @@ public:
     bool isSatelite(int node) const;
     bool isDepot(int node) const;
 
-    float getEvCost() const;
-
-    float getTruckCost() const;
     int getNNodes() const;
 
-private:
 
-    std::vector<std::vector<double>> distMat;
-    std::vector<float> demands;
-    std::vector<std::pair<float,float>> coordinates;
-    float truckCap, evCap, evBattery;
-    int nSats, nClients, nRechargingS;
-    float evCost, truckCost;
+//private:
+    ublas::matrix<double> matDist;
 
-    int nAproxEv;
-    int nAproxTruck;
+    std::vector<VeiculoInst> vectVeiculo;
+    std::vector<ClienteInst> vectCliente;           // deposito, satellites, estacoes e clientes
+
+    int numSats, numClients, numRechargingS, numEv, numTruck;
+    int numNos; // deposito + numSats + numRechargingS + numClients
+    const int numUtilEstacao = 3;
+
+
+
 };
 
 #endif
