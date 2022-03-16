@@ -7,9 +7,7 @@ set(SOURCES main.cpp
             Instance.cpp
             Satelite.cpp
             Satelite.h
-            TruckRoute.cpp
-            TruckRoute.h
-            Auxiliary.cpp
+        Auxiliary.cpp
             Auxiliary.h
             LocalSearch.cpp
             LocalSearch.h
@@ -22,9 +20,7 @@ set(SOURCES main.cpp
             Teste.h
             Solution.cpp
             EvRoute.cpp
-            Depot.cpp
-            Depot.h
-            greedyAlgorithm.cpp
+        greedyAlgorithm.cpp
             greedyAlgorithm.h
             mersenne-twister.h
             mersenne-twister.cpp

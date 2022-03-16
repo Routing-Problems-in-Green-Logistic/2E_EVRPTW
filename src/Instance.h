@@ -18,8 +18,6 @@ struct VeiculoInst
     explicit VeiculoInst(float _cap):eletrico(false), capacidade(_cap), capacidadeBateria(0.0), taxaRecarga(0.0), taxaConsumoDist(0.0){}
     VeiculoInst(float _cap, float _capBat, float _taxaR, float _taxaC):eletrico(true), capacidade(_cap), capacidadeBateria(_capBat), taxaRecarga(_taxaR), taxaConsumoDist(_taxaC){}
 
-
-
 };
 
 struct ClienteInst
@@ -50,6 +48,13 @@ public:
     int getFirstSatIndex() const;
     int getEndSatIndex() const;
 
+    int getFirstTruckIndex() const;
+    int getEndTruckIndex() const;
+
+
+    int getFirstEvIndex() const;
+    int getEndEvIndex() const;
+
     float getTruckCap(const int id) const;
     float getEvCap(const int id) const;
     float getEvBattery(const int id) const;
@@ -71,7 +76,7 @@ public:
 //private:
     ublas::matrix<double> matDist;
 
-    std::vector<VeiculoInst> vectVeiculo;
+    std::vector<VeiculoInst> vectVeiculo;           // veic a combustao + veic EV
     std::vector<ClienteInst> vectCliente;           // deposito, satellites, estacoes e clientes
 
     int numSats, numClients, numRechargingS, numEv, numTruck;

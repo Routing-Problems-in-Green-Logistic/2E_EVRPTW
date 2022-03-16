@@ -2,7 +2,6 @@
 #define INC_2E_EVRP_SOLUTION_H
 #include <vector>
 #include "Satelite.h"
-#include "Depot.h"
 
 class Solution
 {
@@ -14,17 +13,15 @@ public:
     int getNSatelites() const;
     int findSatellite(int id) const;
     Satelite* getSatelite(int index);
-    Depot* getDepot();
     bool checkSolution(std::string &erro, const Instance &Inst);
     void print(std::string &str,  const Instance &instance);
     void print(const Instance& Inst);
     double calcCost(const Instance&);
     float getDistanciaTotal();
 
-    std::vector<Satelite*> satelites;
-    Depot* Dep;
-    int nTrucks;
-    int nEvs;
+    std::vector<Satelite> satelites;
+    int numTrucks;
+    int numEvs;
 
     bool viavel = true;
 

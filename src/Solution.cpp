@@ -1,43 +1,35 @@
 #include "Solution.h"
 #include "Auxiliary.h"
 
-/*
 
-Solution::Solution(const Instance &Inst) {
-    this->Dep = new Depot(Inst);
-    this->satelites = {};
 
+Solution::Solution(const Instance &Inst)
+{
     satelites.reserve(Inst.getNSats());
 
     for(int i = 0; i < Inst.getNSats(); i++)
-    {
-        this->satelites.push_back(new Satelite(Inst.getFirstSatIndex() + i, Inst));
-    }
+        satelites.emplace_back(Inst, Inst.getFirstSatIndex() + i);
 
-    nTrucks = Inst.getN_Trucks();
-    primeiroNivel.reserve(nTrucks);
 
-    for(int i=0; i < nTrucks; ++i)
+    numTrucks = Inst.getN_Trucks();
+    numEvs = Inst.getN_Evs();
+
+    primeiroNivel.reserve(numTrucks);
+
+    for(int i=0; i < numTrucks; ++i)
         primeiroNivel.emplace_back(Inst);
 
 }
 
 
-void Solution::copia(const Solution &solution)
-{
-
-}
+//void Solution::copia(const Solution &solution)
 
 int Solution::getNSatelites() const {
-    return this->satelites.size();
+    return satelites.size();
 }
 
 Satelite* Solution::getSatelite(int index) {
-    return this->satelites.at(index);
-}
-
-Depot* Solution::getDepot() {
-    return this->Dep;
+    return &satelites.at(index);
 }
 
 bool Solution::checkSolution(std::string &erro, const Instance &Inst)
@@ -122,7 +114,7 @@ bool Solution::checkSolution(std::string &erro, const Instance &Inst)
     for(int c=1; (c+1)<Inst.getNSats()+1; ++c)
     {
 
-        if(std::abs(satelliteDemand[c]- this->satelites[c-1]->demand) > DEMAND_TOLENCE)
+        if(std::abs(satelliteDemand[c]- this->satelites[c-1]->demand) > TOLERANCIA_DEMANDA)
         {
             erro += "SATELLITE: "+ to_string(c)+"NAO FOI TOTALMENTE ATENDIDO. DEMANDA: "+ to_string(satelites[c-1]->demand) +
                     "; ATENDIDO: "+to_string(satelliteDemand[c])+"\n";
@@ -140,9 +132,9 @@ void Solution::print(std::string &str,  const Instance &instance)
 
     str += "2º NIVEL:\n";
 
-    for(Satelite *satelite:satelites)
+    for(Satelite satelite:satelites)
     {
-        satelite->print(str, instance);
+        satelite.print(str, instance);
     }
 }
 
@@ -151,9 +143,9 @@ void Solution::print(const Instance& Inst)
 
     std::cout<<"2º NIVEL:\n";
 
-    for(Satelite *satelite:satelites)
+    for(Satelite satelite:satelites)
     {
-        satelite->print(Inst);
+        satelite.print(Inst);
     }
 
     std::cout<<"1° NIVEL:\n";
@@ -165,10 +157,10 @@ void Solution::print(const Instance& Inst)
 
 }
 
-int Solution::findSatellite(int id) const {
+/*int Solution::findSatellite(int id) const {
     return -1;
 
-}
+}*/
 
 double Solution::calcCost(const Instance& Inst) {
     double cost  = 0.0;

@@ -5,6 +5,14 @@
 #include <vector>
 #include <iostream>
 
+class RouteNo
+{
+public:
+
+    int satellite;
+    double tempoInicio;                     // Como nao existe tempo de atendimento, tempoInicio eh igual a tempoFim.
+};
+
 class Route
 {
 
@@ -15,9 +23,9 @@ public:
     float getCost() const {return totalDistence;}
     void print();
     void print(std::string &str);
-    bool checkDistence(const Instance &instance, float *dist);
+    bool checkDistence(const Instance &instance, double *dist);
 
-    std::vector<int> rota;
+    std::vector<RouteNo> rota;
     int routeSize = 2;
     int routeSizeMax = -1;
 

@@ -99,7 +99,7 @@ bool NS_LocalSearch::interSatelliteSwap(Solution &Sol, const Instance &Inst, flo
                                                     //// ATUALIZA O OBJETO BEST_LS COM AS NOVAS INFORMACOES.
                                                     // note que a best_ls eh sempre atualizada, mesmo que nao tenha melhoramento na solucao. (Claro que nao conta como melhoramento propriamente  dito.
                                                     bestLs = currentLs;
-                                                    if(bestLs.incrementoDistancia < BATTERY_TOLENCE) {
+                                                    if(bestLs.incrementoDistancia < TOLERANCIA_BATERIA) {
                                                         improving = true;
                                                     }
                                                 }
@@ -299,7 +299,7 @@ bool NS_LocalSearch::mvShifitIntraRota(Solution &solution, const Instance &insta
                                         if(instance.isRechargingStation(evRoute.route[indice+1]))
                                         {
                                             // Verifica se a batteria restante eh 'negativa'
-                                            if(remainingBatt < -BATTERY_TOLENCE)
+                                            if(remainingBatt < -TOLERANCIA_BATERIA)
                                             {
                                                 viavel = false;
                                                 break;
@@ -317,7 +317,7 @@ bool NS_LocalSearch::mvShifitIntraRota(Solution &solution, const Instance &insta
                                     }
 
                                     // Verifica a viabilidade
-                                    if(remainingBatt >= -BATTERY_TOLENCE && viavel)
+                                    if(remainingBatt >= -TOLERANCIA_BATERIA && viavel)
                                     {
                                         // Atualiza localSearchBest
 
@@ -397,10 +397,10 @@ bool NS_LocalSearch::mvShifitIntraRota(Solution &solution, const Instance &insta
             evRoute.vetRemainingBattery[i] = evRoute.vetRemainingBattery[i-1] - instance.getDistance(evRoute.route[i-1], evRoute.route[i]);
 
             // Verifica se a batteria eh menor que a tolerancia
-            if(evRoute.vetRemainingBattery[i] < -BATTERY_TOLENCE)
+            if(evRoute.vetRemainingBattery[i] < -TOLERANCIA_BATERIA)
             {
                 std::cerr <<"ERRO\nARQUIVO: "<<__FILE__<<"\nLINHA: "<<__LINE__<<"\nvetRemaingBattery["<<i<<"] = "<<evRoute.vetRemainingBattery[i] <<
-                            " < -"<<BATTERY_TOLENCE<<" ID: "<<evRoute.route[i]<<"\n";
+                            " < -"<<TOLERANCIA_BATERIA<<" ID: "<<evRoute.route[i]<<"\n";
 
                 evRoute.print(instance);
 
@@ -535,7 +535,7 @@ bool NS_LocalSearch::mvShiftInterRotasIntraSatellite(Solution &solution, const I
         {
             remainingBattery -= instance.getDistance(evRoute0.route[i], evRoute0.route[i+1]);
 
-            if(remainingBattery < -BATTERY_TOLENCE)
+            if(remainingBattery < -TOLERANCIA_BATERIA)
             {
                 string e;
                 evRoute0.print(e, instance);
@@ -665,7 +665,7 @@ void NS_LocalSearch::shifitInterRotasMvDuasRotas(const pair<int, int> satIdPair,
                         while((p+1) < evRoute0.routeSize)
                         {
 
-// / *                            if(cargaBateria >= -BATTERY_TOLENCE)
+// / *                            if(cargaBateria >= -TOLERANCIA_BATERIA)
                             {
                                 if(instance.isRechargingStation(evRoute0.route[p]))
                                     cargaBateria = instance.getEvBattery();
@@ -950,7 +950,7 @@ bool NS_LocalSearch::ajustaBateriaRestante(EvRoute *evRoute, const int pos, cons
         bateriaRestante -= instance.getDistance((*evRoute)[i], (*evRoute)[i+1]);
         distancia += instance.getDistance((*evRoute)[i], (*evRoute)[i+1]);
 
-        if(bateriaRestante < -BATTERY_TOLENCE)
+        if(bateriaRestante < -TOLERANCIA_BATERIA)
         {
             string str;
             evRoute->print(str, instance);
@@ -1236,7 +1236,7 @@ float NS_LocalSearch::calculaNovaDistanciaRoute0Cross(EvRoute *evRoute0, const s
             distanciaRota0 += distAux;
             bateriaRestante -= distAux;
 
-            if(bateriaRestante < -BATTERY_TOLENCE)
+            if(bateriaRestante < -TOLERANCIA_BATERIA)
             {
                 inviavel = true;
             }
@@ -1270,7 +1270,7 @@ float NS_LocalSearch::calculaNovaDistanciaRoute0Cross(EvRoute *evRoute0, const s
         distanciaRota0 += instance.getDistance(ultimoCliente, (*evRoute0)[0]);
         bateriaRestante -= instance.getDistance(ultimoCliente, (*evRoute0)[0]);
 
-        if(bateriaRestante < -BATTERY_TOLENCE)
+        if(bateriaRestante < -TOLERANCIA_BATERIA)
             inviavel = true;
     }
 

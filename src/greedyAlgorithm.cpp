@@ -298,7 +298,7 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &Inst, In
         bool batteryOk = true;
 
 
-        if(remaingBattery < -BATTERY_TOLENCE)
+        if(remaingBattery < -TOLERANCIA_BATERIA)
                batteryOk = false;
 
         if(Inst.isRechargingStation(evRoute[pos+1]))
@@ -314,7 +314,7 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &Inst, In
             {
                 remaingBattery -= Inst.getDistance(evRoute[i], evRoute[i+1]);
 
-                if(remaingBattery < -BATTERY_TOLENCE)
+                if(remaingBattery < -TOLERANCIA_BATERIA)
                 {
                     batteryOk = false;
                     break;

@@ -131,7 +131,7 @@ float NameViabRotaEv::testaRota(const vector<int> &evRoute, const int tamRoute, 
         bateriaRestante -= dist;
         distanciaRota += dist;
 
-        if(bateriaRestante < -BATTERY_TOLENCE)
+        if(bateriaRestante < -TOLERANCIA_BATERIA)
         {
             //cout<<"FALHA\n";
             return -1.0;

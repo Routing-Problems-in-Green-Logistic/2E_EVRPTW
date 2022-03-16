@@ -5,7 +5,7 @@
 #include "Route.h"
 #include "Auxiliary.h"
 
-/*
+
 
 Route::Route(const Instance &instance)
 {
@@ -19,7 +19,7 @@ Route::Route(const Instance &instance)
 
     for(int i=0; i < routeSizeMax; ++i)
     {
-        rota.push_back(0);
+        rota.push_back({0, 0.0});
 
         satelliteDemand.push_back(0.0);
     }
@@ -31,10 +31,12 @@ void Route::print()
     for(int i=0; i < routeSize; ++i)
     {
 
-        std::cout<<rota[i];
+        std::cout<<rota[i].satellite<<"(T: "<<rota[i].tempoInicio;
 
         if(i!=0 && i != routeSize-1)
-            std::cout<<"("<<satelliteDemand[rota[i]]<<")";
+            std::cout<<"; Dem: "<<satelliteDemand[rota[i].satellite]<<")";
+        else
+            std::cout<<")";
 
         cout<<" ";
     }
@@ -46,10 +48,12 @@ void Route::print(std::string &str)
 {
     for(int i=0; i < routeSize; ++i)
     {
-        str += std::to_string(rota[i]);
+        str += std::to_string(rota[i].satellite) + "(T: "+ to_string(rota[i].tempoInicio);
 
         if(i!=0 && i != routeSize-1)
-            str+="("+ to_string(satelliteDemand[rota[i]])+") ";
+            str+="; Dem: "+ to_string(satelliteDemand[rota[i].satellite])+") ";
+        else
+            str += ")";
 
         str+=" ";
     }
@@ -57,18 +61,17 @@ void Route::print(std::string &str)
     str += "\nDISTANCIA: "+to_string(totalDistence) +"\n";
 }
 
-bool Route::checkDistence(const Instance &instance, float *dist)
+bool Route::checkDistence(const Instance &instance, double *dist)
 {
 
     *dist = 0.0;
 
     for(int i=0; (i+1)<routeSize; ++i)
-        *dist += instance.getDistance(rota[i], rota[i+1]);
+        *dist += instance.getDistance(rota[i].satellite, rota[i+1].satellite);
 
-    if(std::abs(*dist-totalDistence) > DISTANCE_TOLENCE)
+    if(std::abs(*dist-totalDistence) > TOLERANCIA_DISTANCIA)
         return false;
     else
         return true;
 
 }
-*/
