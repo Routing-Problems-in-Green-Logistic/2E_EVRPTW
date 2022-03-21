@@ -15,8 +15,10 @@ public:
 
 
     std::vector<EvRoute> vetEvRoute;
+
     int tamVetEvRoute = -1;
     int sateliteId = -1;
     float demanda = 0.0;
+    double distancia = 0.0;
 };
 #endif //INC_2E_EVRP_SATELITE_H

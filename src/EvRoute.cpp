@@ -85,7 +85,7 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
     }
 
     float battery = instance.getEvBattery(idRota);
-    float distanceAux = 0.0;
+    double distanceAux = 0.0;
     float demandaAux = 0.0;
 
     // Verifica se a bateria no  inicio da rota eh igual a quantidade de bateria
@@ -202,6 +202,18 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
 
     }
 
+    if(abs(distanceAux-distancia) > TOLERANCIA_DISTANCIA)
+    {
+
+        string erroPrint;
+        print(erroPrint, instance);
+
+        erro += "ERRO, SATELLITE: " + to_string(satelite) + ", ROTA: " + erroPrint + "; DISTANCIA ESTA ERRADA, DISTANCIA ROTA: " +
+                to_string(distancia) + ", DISTANCIA CALCULADA: " + to_string(distanceAux) + "\n\n";
+
+        return false;
+    }
+
     return true;
 }
 
@@ -220,4 +232,26 @@ void EvRoute::print(std::string &str, const Instance &instance) const
 
     str += "\nDistance: " + to_string(distancia) + "\n\n";
 
+}
+
+void EvRoute::atualizaPosMenorFolga(const Instance &instance)
+{
+
+    if(routeSize > 2)
+    {
+
+        posMenorFolga = -1;
+        double menorDiferenca = DOUBLE_MAX;
+
+        for(int i=1; i < (routeSize-1); ++i)
+        {
+            const EvNo &evNo = route[i];
+            double diferenca = evNo.tempoCheg - instance.vectCliente[evNo.cliente].fimJanelaTempo;
+            if(diferenca < menorDiferenca)
+            {
+                menorDiferenca = diferenca;
+                posMenorFolga = i;
+            }
+        }
+    }
 }

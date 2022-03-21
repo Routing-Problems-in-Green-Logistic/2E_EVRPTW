@@ -31,7 +31,7 @@ void Route::print()
     for(int i=0; i < routeSize; ++i)
     {
 
-        std::cout<<rota[i].satellite<<"(T: "<<rota[i].tempoInicio;
+        std::cout<<rota[i].satellite<<"(T: "<<rota[i].tempoChegada;
 
         if(i!=0 && i != routeSize-1)
             std::cout<<"; Dem: "<<satelliteDemand[rota[i].satellite]<<")";
@@ -48,7 +48,7 @@ void Route::print(std::string &str)
 {
     for(int i=0; i < routeSize; ++i)
     {
-        str += std::to_string(rota[i].satellite) + "(T: "+ to_string(rota[i].tempoInicio);
+        str += std::to_string(rota[i].satellite) + "(T: "+ to_string(rota[i].tempoChegada);
 
         if(i!=0 && i != routeSize-1)
             str+="; Dem: "+ to_string(satelliteDemand[rota[i].satellite])+") ";

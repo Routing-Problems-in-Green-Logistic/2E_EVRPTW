@@ -13,11 +13,15 @@ using namespace std;
 
 #define TOLERANCIA_BATERIA      1e-4
 #define TOLERANCIA_DISTANCIA    1e-4
+#define TOLERANCIA_DIST_SOLUCAO 1e-2
 #define TOLERANCIA_TEMPO        1e-4
 #define TOLERANCIA_JANELA_TEMPO 1e-4
 #define TOLERANCIA_DEMANDA      1E-5
+#define INCREM_DIST             1E-4
+
 #define FLOAT_MAX               FLT_MAX
-#define INCREM_DIST 1E-4
+#define DOUBLE_MAX              DBL_MAX
+
 
 #define PRINT_DEBUG(inicio, texto) cout<<inicio<<"DEBUG: "<<texto<<"  FILE: "<<__FILE__<<"  LINHA: "<<__LINE__<<"\n";
 

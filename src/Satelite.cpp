@@ -32,11 +32,13 @@ EvRoute &Satelite::getRoute(int i) {
 bool Satelite::checkSatellite(std::string &erro, const Instance &Inst)
 {
     float demandaAux = 0.0;
+    double distanciaAux = 0.0;
 
     // Verifica os satellite
     for(EvRoute &evRoute:vetEvRoute)
     {
         demandaAux += evRoute.getDemand();
+        distanciaAux += evRoute.distancia;
 
         if(sateliteId !=  evRoute.satelite)
         {
@@ -53,6 +55,13 @@ bool Satelite::checkSatellite(std::string &erro, const Instance &Inst)
     {
         erro += "ERRO NO SATELLITE: " + to_string(sateliteId) + "; SOMATORIO DAS DEMANDAS DOS EV'S(" + to_string(demandaAux) + ") EH DIFERENTE DA DEMANDA DO SATELLITE(" + to_string(demanda) + ");\n";
         return false;
+    }
+
+    if(abs(distanciaAux-distancia) > TOLERANCIA_DISTANCIA)
+    {
+        erro += "ERRO NO SATELLITE: " + to_string(sateliteId) + "; SOMATORIO DAS DISTANCIAS DOS EV'S(" + to_string(distanciaAux) + ") EH DIFERENTE DA DISTANCIA DO SATELLITE(" + to_string(distancia) + ");\n";
+        return false;
+
     }
 
 

@@ -97,6 +97,7 @@ public:
     void print(const Instance &instance) const;
     void print(std::string &str, const Instance &instance) const;
     bool checkRoute(std::string &erro, const Instance &instance) const;
+    void atualizaPosMenorFolga(const Instance &instance);
 
 
     EvNo & operator [](int pos)
@@ -112,6 +113,9 @@ public:
     int routeSizeMax = -1;
     int satelite = -1;
     int idRota = -1;
+
+    // Armazena a posicao do cliente k em que (tempoChegada(k) - fimJanela(k)) eh o menor para todo cliente da  rota
+    int posMenorFolga = -1;
 
 
 };

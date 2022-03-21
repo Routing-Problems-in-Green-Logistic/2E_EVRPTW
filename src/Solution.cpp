@@ -19,6 +19,35 @@ Solution::Solution(const Instance &Inst)
     for(int i=0; i < numTrucks; ++i)
         primeiroNivel.emplace_back(Inst);
 
+    satTempoChegMax.reserve(Inst.getNSats());
+    for(int i = 0; i < Inst.getNSats(); i++)
+        satTempoChegMax.emplace_back(-1.0);
+
+
+}
+
+void Solution::atualizaVetSatTempoChegMax(const Instance &instance)
+{
+
+    // Inicializa vetor
+    for(int i=0; i < instance.getNSats(); ++i)
+        satTempoChegMax[i] = -1.0;
+
+    // Percorre as rotas do 1° nivel
+
+    for(const Route &route:primeiroNivel)
+    {
+        for(const RouteNo &routeNo:route.rota)
+        {
+            if(routeNo.satellite != Instance::getDepotIndex())
+            {
+                if(routeNo.tempoChegada > satTempoChegMax[routeNo.satellite - 1])
+                    satTempoChegMax[routeNo.satellite - 1] = routeNo.tempoChegada;
+
+            }
+        }
+    }
+
 }
 
 
@@ -32,30 +61,33 @@ Satelite* Solution::getSatelite(int index) {
     return &satelites.at(index);
 }
 
-bool Solution::checkSolution(std::string &erro, const Instance &Inst)
+bool Solution::checkSolution(std::string &erro, const Instance &inst)
 {
+    double distanciaAux = 0.0;
 
     // Verifica segundo nivel
 
-    for(Satelite *satelite:satelites)
+    for(Satelite satelite:satelites)
     {
-        if(!satelite->checkSatellite(erro, Inst))
+        if(!satelite.checkSatellite(erro, inst))
             return false;
+
+        distanciaAux += satelite.distancia;
     }
 
-    int *vetCliente = new int[Inst.getNClients()];
+    int *vetCliente = new int[inst.getNClients()];
 
-    for(int i=0; i < Inst.getNClients(); ++i)
+    for(int i=0; i < inst.getNClients(); ++i)
         vetCliente[i] = 0;
 
-    for(Satelite *satelite:satelites)
+    for(Satelite satelite:satelites)
     {
-        for(EvRoute &evRoute:satelite->vetEvRoute)
+        for(EvRoute &evRoute:satelite.vetEvRoute)
         {
             for(int i=0; i < evRoute.routeSize; ++i)
             {
-                if(Inst.isClient(evRoute[i]))
-                    vetCliente[evRoute[i]-Inst.getFirstClientIndex()] += 1;
+                if(inst.isClient(evRoute[i].cliente))
+                    vetCliente[evRoute[i].cliente - inst.getFirstClientIndex()] += 1;
 
             }
         }
@@ -63,16 +95,16 @@ bool Solution::checkSolution(std::string &erro, const Instance &Inst)
 
     bool erroB = false;
 
-    for(int i=0; i < Inst.getNClients(); ++i)
+    for(int i=0; i < inst.getNClients(); ++i)
     {
         if(vetCliente[i] == 0)
         {
-            erro += "ERRO, CLIENTE: "+std::to_string(i+Inst.getFirstClientIndex())+" NAO EH VISITADO\n";
+            erro += "ERRO, CLIENTE: " + std::to_string(i + inst.getFirstClientIndex()) + " NAO EH VISITADO\n";
             erroB = false;
         }
         else if(vetCliente[i] > 1)
         {
-            erro += "ERRO, CLIENTE: "+std::to_string(i+Inst.getFirstClientIndex())+" EH VISITADO MAIS DE UMA VEZ\n";
+            erro += "ERRO, CLIENTE: " + std::to_string(i + inst.getFirstClientIndex()) + " EH VISITADO MAIS DE UMA VEZ\n";
             erroB = true;
         }
     }
@@ -81,46 +113,86 @@ bool Solution::checkSolution(std::string &erro, const Instance &Inst)
 
     // Verifica primeiro nivel
 
-    std::vector<float> satelliteDemand;
-    satelliteDemand.reserve(Inst.getNSats()+1);
+    // Verifica se as demandas dos satelites sao atendidas
 
-    for(int i=0; i < Inst.getNSats()+1; ++i)
+    std::vector<float> satelliteDemand;
+    satelliteDemand.reserve(inst.getNSats() + 1);
+
+    for(int i=0; i < inst.getNSats() + 1; ++i)
         satelliteDemand.push_back(0.0);
 
-    for(int t=0; t < nTrucks; ++t)
+    for(int t=0; t < numTrucks; ++t)
     {
-        Route &route = this->primeiroNivel[t];
+        Route &route = primeiroNivel[t];
 
-        if(route.totalDemand > Inst.getTruckCap())
+        if(route.totalDemand > inst.getTruckCap(t))
         {
-            erro += "ERRO, TRUCK "+ std::to_string(t)+": DEMANDA DO VEICULO EH MAIOR QUE A SUA CAPACIDADE: "+ std::to_string(route.totalDemand)+">"+
-                    std::to_string(Inst.getTruckCap())+"\n";
+            erro += "ERRO, TRUCK " + std::to_string(t) + ": DEMANDA DO VEICULO EH MAIOR QUE A SUA CAPACIDADE: " + std::to_string(route.totalDemand) + ">" +
+                    std::to_string(inst.getTruckCap(t)) + "\n";
 
             erroB = true;
         }
 
-        float dist = 0.0;
+        double dist = 0.0;
 
-        if(!route.checkDistence(Inst, &dist))
+        if(!route.checkDistence(inst, &dist))
         {
             erro += "ERRO, TRUCK "+std::to_string(t)+":: DISTANCIA CALCULADA: "+ std::to_string(dist) + " != DISTANCIA R0TA: "+ std::to_string(route.totalDistence)+"\n";
             erroB = true;
         }
 
-        for(int c=1; (c+1)<Inst.getNSats()+1; ++c)
+        for(int c=1; (c+1) < inst.getNSats() + 1; ++c)
             satelliteDemand[c] += route.satelliteDemand[c];
     }
 
-    for(int c=1; (c+1)<Inst.getNSats()+1; ++c)
+    for(int c=1; (c+1) < inst.getNSats() + 1; ++c)
     {
 
-        if(std::abs(satelliteDemand[c]- this->satelites[c-1]->demand) > TOLERANCIA_DEMANDA)
+        if(std::abs(satelliteDemand[c]- satelites[c-1].demanda) > TOLERANCIA_DEMANDA)
         {
-            erro += "SATELLITE: "+ to_string(c)+"NAO FOI TOTALMENTE ATENDIDO. DEMANDA: "+ to_string(satelites[c-1]->demand) +
+            erro += "SATELLITE: "+ to_string(c)+"NAO FOI TOTALMENTE ATENDIDO. DEMANDA: "+ to_string(satelites[c-1].demanda) +
                     "; ATENDIDO: "+to_string(satelliteDemand[c])+"\n";
 
             erroB = true;
         }
+    }
+
+    // Verifica a sincronização entre o primeiro e o segundo nivel
+
+    atualizaVetSatTempoChegMax(inst);
+
+    // vet satTempo contem o tempo de chegada mais tarde de um veiculo do primeiro nivel para o i° satelite
+    // Todos os tempos de saida do i° satelite tem que ser após o tempo em satTempo
+
+    for(int sat=0; sat < inst.getNSats(); ++sat)
+    {
+        const double tempo = satTempoChegMax[sat];
+        Satelite &satelite = satelites[sat];
+
+        // Verifica as rotas
+        for(EvRoute &evRoute:satelite.vetEvRoute)
+        {
+            if(evRoute.routeSize > 2)
+            {
+                if(evRoute[0].tempoSaida < tempo)
+                {
+                    string strRota;
+                    evRoute.print(strRota, inst);
+                    erro += "ERRO SATELITE: "+ to_string(sat)+" O TEMPO DE SAIDA DA ROTA: "+strRota+" EH MENOR DO QUE O TEMPO DE CHEGADA DA ULTIMA ROTA DO 1° NIVEL: "+to_string(tempo) + "\n";
+                    erroB = true;
+                }
+
+                distanciaAux += evRoute.distancia;
+            }
+        }
+
+    }
+
+    if(abs(distanciaAux-distancia) > TOLERANCIA_DIST_SOLUCAO)
+    {
+        erro += "ERRO NA DISTANCIA DA SOLUCAO, DIST: "+ to_string(distancia) + "; CALCULADO: " + to_string(distanciaAux) + "; TOLERANCIA_DIST_SOLUCAO: "+
+                  to_string(TOLERANCIA_DIST_SOLUCAO) + "\n";
+        erroB = true;
     }
 
     return !erroB;
@@ -136,6 +208,16 @@ void Solution::print(std::string &str,  const Instance &instance)
     {
         satelite.print(str, instance);
     }
+
+
+    str += "1° NIVEL:\n";
+    for(Route &route:primeiroNivel)
+    {
+        route.print(str);
+    }
+
+    str+="DISTANCIA TOTAL: "+ to_string(distancia)+"\n";
+
 }
 
 void Solution::print(const Instance& Inst)
@@ -153,7 +235,7 @@ void Solution::print(const Instance& Inst)
     {
         route.print();
     }
-    cout << "CUSTO TOTAL: " << this->calcCost(Inst);
+    cout << "DISTANCIA TOTAL: " << distancia << "\n";
 
 }
 
@@ -170,8 +252,8 @@ double Solution::calcCost(const Instance& Inst) {
         const auto& truckRoute = this->primeiroNivel.at(t);
         for(int i = 1; i < truckRoute.rota.size(); i++)
         {
-            int n0 = truckRoute.rota.at(i-1);
-            int n1 = truckRoute.rota.at(i);
+            int n0 = truckRoute.rota[i-1].satellite;
+            int n1 = truckRoute.rota[i].satellite;
             cost += Inst.getDistance(n0, n1);
 
             if(Inst.isDepot(n1))
@@ -187,8 +269,8 @@ double Solution::calcCost(const Instance& Inst) {
             auto& evRoute = sat->getRoute(e);
             for(int i = 1; i < evRoute.routeSize; i++)
             {
-                int n0 = evRoute.getNodeAt(i-1);
-                int n1 = evRoute.getNodeAt(i);
+                int n0 = evRoute[i-1].cliente;
+                int n1 = evRoute[i].cliente;
                 cost += Inst.getDistance(n0, n1);
             }
         }
