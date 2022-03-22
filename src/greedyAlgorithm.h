@@ -14,7 +14,8 @@ namespace GreedyAlgNS
     void greedy(Solution &Sol, const Instance &Inst, const float alpha, const float beta);
     bool visitAllClientes(std::vector<int> &visitedClients, const Instance &Inst);
     bool existeDemandaNaoAtendida(std::vector<float> &demandaNaoAtendida);
-
+    float palpiteTempoFinalPrimeiroNivel(const Instance& inst);
+    bool insereEstacao(int rotaId, int satId);
 
     class Candidato
     {
@@ -68,6 +69,7 @@ namespace GreedyAlgNS
 
 
     bool canInsert(EvRoute &evRoute, int node, const Instance &Instance, Insertion &insertion);
+    bool canInsertSemBateria(EvRoute &evRoute, int node, const Instance &Instance, Insertion &insertion);
     bool insert(EvRoute &evRoute, Insertion& insertion, const Instance& Inst);
 }
 

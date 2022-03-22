@@ -6,6 +6,28 @@
 #include "LocalSearch.h"
 #include "ViabilizadorRotaEv.h"
 
+struct comparaCliente { // TODO: verifica na instancia qual cliente tem tempo final mais proximo
+    bool operator() (const int& lhs, const int& rhs) const {
+        return false;
+    }
+};
+
+float GreedyAlgNS::palpiteTempoFinalPrimeiroNivel(const Instance &inst){
+    int depotId = inst.getDepotIndex();
+    float bestDistance = -1.0f;
+    //> percorre todos os satelites procurando a maior distancia ate o deposito
+    for(int i = inst.getFirstSatIndex(); i <= inst.getEndSatIndex(); i++){
+        float distance = inst.getDistance(depotId, i);
+        if(distance > bestDistance){
+            bestDistance = distance;
+        }
+    }
+    if( bestDistance == -1.0f){
+        PRINT_DEBUG("", "ERRO @ GreedyAlgNS::palpiteTempoFinalPrimeiroNivel -> maior distancia = -1\n\n");
+        throw "ERRO";
+    }
+    return bestDistance;
+}
 /*
 
 using namespace GreedyAlgNS;
@@ -13,7 +35,7 @@ using namespace std;
 using namespace NS_Auxiliary;
 using namespace NS_LocalSearch;
 using namespace NameViabRotaEv;
-
+*/
 bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const float alpha)
 {
 
@@ -36,16 +58,18 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const
 
     std::fill(ItSat, ItSatEnd, -1);
     std::fill(ItClient, ItEnd, 0);
-
+    std::set<int, comparaCliente> clientsByTime;
+    // TODO: fill clientsbytime;
 
     while(!visitAllClientes(visitedClients, Inst))
     {
         std::list<Insertion> restrictedList;
 
-        for(int clientId = FistIdClient; clientId < LastIdClient + 1; ++clientId)
+        for(auto& client : clientsByTime)
+        // for(int clientId = FistIdClient; clientId < LastIdClient + 1; ++clientId)
         {
 
-            if(visitedClients[clientId] == 0)
+            if(visitedClients[client] == 0)
             {
                 for(int satId = Inst.getFirstSatIndex(); satId <= Inst.getEndSatIndex(); satId++)
                 {
@@ -55,28 +79,21 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const
                     for(int routeId = 0; routeId < sol.getSatelite(satId - Inst.getFirstSatIndex())->getNRoutes(); routeId++)
                     {
                         EvRoute &route = sat->getRoute(routeId);
-
                         if((route.routeSize == 2)&&(!routeEmpty) || (route.routeSize > 2))
                         {
-
                             if(route.routeSize == 2)
                                 routeEmpty = true;
-
-                            Insertion insertion(routeId);
-                            insertion.satId = satId;
-
-                            if(canInsert(route, clientId, Inst, insertion))
-                                restrictedList.push_back(insertion);
-
-
-
+                            if(route.getCurrentTime() < Inst.getClient(client).fimJanelaTempo){
+                                Insertion insertion(routeId);
+                                insertion.satId = satId;
+                                if(canInsertSemBateria(route, client, Inst, insertion))
+                                    restrictedList.push_back(insertion);
+                            }
                         }
                     }
                 }
             }
         }
-
-
 
         if(restrictedList.empty())
         {
@@ -91,18 +108,14 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const
 
         visitedClients[topItem->clientId] = 1;
 
-
         Satelite *satelite = sol.getSatelite(topItem->satId-Inst.getFirstSatIndex());
-        satelite->demand += topItem->demand;
+        satelite->demanda += topItem->demand;
         EvRoute &evRoute = satelite->getRoute(topItem->routeId);
         insert(evRoute, *topItem, Inst);
-
-
     }
-
-
     return true;
 }
+/*
 
 bool GreedyAlgNS::visitAllClientes(std::vector<int> &visitedClients, const Instance &Inst)
 {
@@ -451,3 +464,10 @@ bool GreedyAlgNS::insert(EvRoute &evRoute, Insertion &insertion, const Instance 
 }
 
 */
+bool GreedyAlgNS::insereEstacao(int rotaId, int satId) { return false; };
+
+bool GreedyAlgNS::canInsertSemBateria(EvRoute &evRoute, int node,
+                                      const Instance &Instance,
+                                      Insertion &insertion) {
+  return false;
+};

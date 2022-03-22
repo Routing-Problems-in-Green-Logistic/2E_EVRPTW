@@ -255,3 +255,6 @@ void EvRoute::atualizaPosMenorFolga(const Instance &instance)
         }
     }
 }
+float EvRoute::getCurrentTime(){
+    return this->route.at(this->route.size()-1).tempoSaida; // ve o tempo de saida do ultimo elemento
+}
