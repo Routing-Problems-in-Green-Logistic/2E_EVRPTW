@@ -13,3 +13,5 @@
 . Veiculos do segundo nível de um satellite s só podem saí após a chegada de todos os veículos do primeiro nível em s
 
 . Tempo de deslocamento entre (i,j) é igual a distância de (i,j)
+
+. 'Janela de tempo' do satelite é a rota com tempo de saida mais cedoy

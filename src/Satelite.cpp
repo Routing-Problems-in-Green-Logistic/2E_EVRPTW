@@ -14,11 +14,18 @@ Satelite::Satelite(const Instance& instance, const int _satId)
     for(int i=0; i < instance.getN_Evs(); ++i)
     {
         const VeiculoInst &veic = instance.vectVeiculo[instance.getFirstEvIndex()+i];
-        vetEvRoute.emplace_back(_satId, instance.getFirstEvIndex()+i, max);
+        vetEvRoute.emplace_back(_satId, instance.getFirstEvIndex()+i, max, instance);
+    }
+
+    vetTempoSaidaEvRoute.reserve(instance.getN_Evs());
+
+    for(int i=0; i < instance.getN_Evs(); ++i)
+    {
+        EvRoute *evRoute = &vetEvRoute[i];
+        vetTempoSaidaEvRoute.emplace_back(evRoute);
     }
 
     sateliteId = _satId;
-
 }
 
 int Satelite::getNRoutes() const {

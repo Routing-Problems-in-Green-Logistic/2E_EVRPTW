@@ -23,10 +23,10 @@ namespace GreedyAlgNS
         int rotaId = -1;
         int satelliteId = -1;
         float demand = 0.0;
-        float incrementoDistancia = 0.0;
+        double incrementoDistancia = 0.0;
         int pos = -1;
 
-        Candidato(int _rotaId, int _satelliteId, float _demand, float _incrDist):rotaId(_rotaId), satelliteId(_satelliteId),
+        Candidato(int _rotaId, int _satelliteId, float _demand, double _incrDist):rotaId(_rotaId), satelliteId(_satelliteId),
             demand(_demand), incrementoDistancia(_incrDist){};
 
         bool operator < (const Candidato &candidato) const {return incrementoDistancia < candidato.incrementoDistancia;}

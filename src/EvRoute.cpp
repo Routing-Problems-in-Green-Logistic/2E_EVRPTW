@@ -11,7 +11,7 @@ using namespace GreedyAlgNS;
 
 
 
-EvRoute::EvRoute(const int _satellite, const int RouteSizeMax, const int _idRota)
+EvRoute::EvRoute(const int _satellite, const int RouteSizeMax, const int _idRota, const Instance &instance):firstRechargingSIndex(instance.getFirstRechargingSIndex())
 {
     satelite = _satellite;
 
@@ -29,6 +29,16 @@ EvRoute::EvRoute(const int _satellite, const int RouteSizeMax, const int _idRota
     distancia = 0.0;
     demanda = 0.0;
     idRota = _idRota;
+
+    vetRecarga.reserve(instance.getN_RechargingS());
+
+    for(int i=0; i < instance.getN_RechargingS(); ++i)
+    {
+        vetRecarga.emplace_back(i+firstRechargingSIndex,0);
+    }
+
+    numRecarga = instance.getN_RechargingS();
+    numMaxUtilizacao = instance.numUtilEstacao;
 
 }
 
@@ -50,6 +60,27 @@ void EvRoute::print(const Instance &instance) const
     }
 
     std::cout <<"\nDistance: "<<distancia<<"\n\n";
+}
+
+
+int EvRoute::getUtilizacaoRecarga(int id)
+{
+    const int temp = id - firstRechargingSIndex;
+    if( temp < 0 || temp >= numRecarga)
+        return -1;
+
+    return vetRecarga[temp].utilizado;
+}
+
+bool EvRoute::setUtilizacaoRecarga(const int id, const int utilizacao)
+{
+    if(utilizacao < 0 || utilizacao > numMaxUtilizacao)
+        return false;
+    else
+    {
+        vetRecarga[id - firstRechargingSIndex].utilizado = utilizacao;
+        return true;
+    }
 }
 
 bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
@@ -240,18 +271,31 @@ void EvRoute::atualizaPosMenorFolga(const Instance &instance)
     if(routeSize > 2)
     {
 
-        posMenorFolga = -1;
+        int posMenorFolga = -1;
         double menorDiferenca = DOUBLE_MAX;
 
         for(int i=1; i < (routeSize-1); ++i)
         {
             const EvNo &evNo = route[i];
-            double diferenca = evNo.tempoCheg - instance.vectCliente[evNo.cliente].fimJanelaTempo;
+            const double diferenca = evNo.tempoCheg - instance.vectCliente[evNo.cliente].fimJanelaTempo;
             if(diferenca < menorDiferenca)
             {
                 menorDiferenca = diferenca;
                 posMenorFolga = i;
             }
+
+            route[i-1].posMenorFolga = posMenorFolga;
         }
     }
 }
+
+EvNo::EvNo(const EvNo &outro)
+{
+
+    cliente = outro.cliente;
+    bateriaRestante = outro.bateriaRestante;
+    tempoCheg = outro.tempoCheg;
+    tempoSaida = outro.tempoSaida;
+}
+
+EvNo::EvNo(int _cliente, double _bateeria, double _tempo_ini, double _tempo_f): cliente(_cliente), bateriaRestante(_bateeria), tempoCheg(_tempo_ini), tempoSaida(_tempo_f) {}

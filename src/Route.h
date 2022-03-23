@@ -9,8 +9,8 @@ class RouteNo
 {
 public:
 
-    int satellite;
-    double tempoChegada;                     // Como nao existe tempo de atendimento, tempoChegada eh igual a tempoFim.
+    int satellite       = -1;
+    double tempoChegada = 0.0;            // Como nao existe tempo de atendimento, tempoChegada eh igual a tempoFim.
 };
 
 class Route

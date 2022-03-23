@@ -6,7 +6,7 @@
 #include "LocalSearch.h"
 #include "ViabilizadorRotaEv.h"
 
-/*
+
 
 using namespace GreedyAlgNS;
 using namespace std;
@@ -14,6 +14,7 @@ using namespace NS_Auxiliary;
 using namespace NS_LocalSearch;
 using namespace NameViabRotaEv;
 
+/*
 bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const float alpha)
 {
 
@@ -103,6 +104,9 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const
 
     return true;
 }
+*/
+
+/***
 
 bool GreedyAlgNS::visitAllClientes(std::vector<int> &visitedClients, const Instance &Inst)
 {
@@ -126,9 +130,9 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
     int satId = 1;
     demandaNaoAtendidaSat.push_back(0.0);
 
-    for(Satelite *satelite:sol.satelites)
+    for(Satelite &satelite:sol.satelites)
     {
-        demandaNaoAtendidaSat.push_back(satelite->demand);
+        demandaNaoAtendidaSat.push_back(satelite.demanda);
     }
 
     const int NumSatMaisDep = sol.getNSatelites()+1;
@@ -142,7 +146,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
         // Percorre os satellites
         for(int i=1; i < NumSatMaisDep; ++i)
         {
-            Satelite *satelite = sol.satelites[i-1];
+            Satelite &satelite = sol.satelites[i-1];
 
             // Verifica se a demanda não atendida eh positiva
             if(demandaNaoAtendidaSat[i] > 0.0)
@@ -154,16 +158,16 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
                     Route &route = sol.primeiroNivel[rotaId];
 
                     // Verifica se veiculo esta 100% da capacidade
-                    if(route.totalDemand < Inst.getTruckCap())
+                    if(route.totalDemand < Inst.getTruckCap(rotaId))
                     {
                         // Calcula a capacidade restante do veiculo
-                        float capacidade = Inst.getTruckCap() - route.totalDemand;
+                        float capacidade = Inst.getTruckCap(rotaId) - route.totalDemand;
                         float demandaAtendida = capacidade;
 
                         if(demandaNaoAtendidaSat[i] < capacidade)
                             demandaAtendida = demandaNaoAtendidaSat[i];
 
-                        Candidato candidato(rotaId, i, demandaAtendida, FLT_MAX);
+                        Candidato candidato(rotaId, i, demandaAtendida, DOUBLE_MAX);
 
                         // Percorre todas as posicoes da rota
                         for(int p=0; (p+1) < route.routeSize; ++p)
@@ -171,8 +175,8 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
                             float incrementoDist = 0.0;
 
                             // Realiza a insercao do satellite entre as posicoes p e p+1 da rota
-                            const int clienteP = route.rota[p];
-                            const int clientePP = route.rota[p+1];
+                            const RouteNo &clienteP =  route.rota[p];
+                            const RouteNo &clientePP = route.rota[p+1];
 
                             // Calcula o incremento da distancia (Sempre positivo, desigualdade triangular)
                             incrementoDist -= Inst.getDistance(clienteP, clientePP);
@@ -243,14 +247,16 @@ bool GreedyAlgNS::existeDemandaNaoAtendida(std::vector<float> &demandaNaoAtendid
 
 void GreedyAlgNS::greedy(Solution &sol, const Instance &Inst, const float alpha, const float beta)
 {
-    if(secondEchelonGreedy(sol, Inst, alpha))
-        firstEchelonGreedy(sol, Inst, beta);
+    //if(secondEchelonGreedy(sol, Inst, alpha))
+
+
+      firstEchelonGreedy(sol, Inst, beta);
 
 
 }
 
 
-
+/*
 bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &Inst, Insertion &insertion)
 {
     float demand = Inst.getDemand(node);
@@ -449,5 +455,4 @@ bool GreedyAlgNS::insert(EvRoute &evRoute, Insertion &insertion, const Instance 
 
     return true;
 }
-
 */

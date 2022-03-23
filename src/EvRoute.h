@@ -5,6 +5,7 @@
 #include "Route.h"
 #include <list>
 
+/*
 class Recharge {
 public:
     int pos = -1;
@@ -57,6 +58,16 @@ struct PosRota0Rota1Estacao
     }
 
 };
+*/
+
+struct EvRecarga
+{
+    int recargaId = -1;
+    int utilizado = 0;
+
+    EvRecarga()=default;
+    EvRecarga(int id, int ut){recargaId = id; utilizado = ut;}
+};
 
 class EvNo
 {
@@ -67,16 +78,12 @@ public:
     double tempoCheg = -1.0;
     double tempoSaida = -1.0;
 
-    EvNo()= default;
-    EvNo(int _cliente, double _bateeria, double _tempo_ini, double _tempo_f): cliente(_cliente), bateriaRestante(_bateeria), tempoCheg(_tempo_ini), tempoSaida(_tempo_f) {}
+    // Considerando somente as proximas posicoes, armazena a de menor folga (tempo chegada - final janela)
+    int posMenorFolga   = -1;
 
-    EvNo(const EvNo &outro)
-    {
-        cliente = outro.cliente;
-        bateriaRestante = outro.bateriaRestante;
-        tempoCheg = outro.tempoCheg;
-        tempoSaida = outro.tempoSaida;
-    }
+    EvNo()= default;
+    EvNo(int _cliente, double _bateeria, double _tempo_ini, double _tempo_f);
+    EvNo(const EvNo &outro);
 
     friend std::ostream& operator <<(std::ostream &os, const EvNo &evNo)
     {
@@ -88,11 +95,11 @@ public:
 
 class EvRoute{
 public:
-    ///---------- info -------------///
+
     int size() const;
     float getDemand() const {return demanda;};
 
-    EvRoute(int satelite, int idRota, int RouteSizeMax);
+    EvRoute(int satelite, int idRota, int RouteSizeMax, const Instance &instance);
 
     void print(const Instance &instance) const;
     void print(std::string &str, const Instance &instance) const;
@@ -114,8 +121,14 @@ public:
     int satelite = -1;
     int idRota = -1;
 
-    // Armazena a posicao do cliente k em que (tempoChegada(k) - fimJanela(k)) eh o menor para todo cliente da  rota
-    int posMenorFolga = -1;
+    int getUtilizacaoRecarga(int id);
+    bool setUtilizacaoRecarga(int id, int utilizacao);
+
+private:
+    std::vector<EvRecarga> vetRecarga;
+    int numRecarga=-1;
+    int numMaxUtilizacao=-1;
+    const int firstRechargingSIndex;
 
 
 };
