@@ -105,6 +105,7 @@ public:
     void print(std::string &str, const Instance &instance) const;
     bool checkRoute(std::string &erro, const Instance &instance) const;
     void atualizaPosMenorFolga(const Instance &instance);
+    float getCurrentTime();
 
 
     EvNo & operator [](int pos)

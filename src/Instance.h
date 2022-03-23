@@ -71,6 +71,7 @@ public:
     bool isDepot(int node) const;
 
     int getNNodes() const;
+    const ClienteInst& getClient(int clientId) const { return this->vectCliente.at(clientId);}
 
 
 //private:
