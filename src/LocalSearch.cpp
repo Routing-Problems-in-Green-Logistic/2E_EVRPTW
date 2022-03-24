@@ -9,7 +9,7 @@
 #include "greedyAlgorithm.h"
 #include "ViabilizadorRotaEv.h"
 
-using namespace NS_LocalSearch;
+//using namespace NS_LocalSearch;
 using namespace NS_Auxiliary;
 using namespace GreedyAlgNS;
 using namespace NameViabRotaEv;

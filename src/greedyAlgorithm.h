@@ -71,6 +71,7 @@ namespace GreedyAlgNS
     bool canInsert(EvRoute &evRoute, int node, const Instance &Instance, Insertion &insertion);
     bool canInsertSemBateria(EvRoute &evRoute, int node, const Instance &Instance, Insertion &insertion);
     bool insert(EvRoute &evRoute, Insertion& insertion, const Instance& Inst);
+    bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instance &instance, bool modficaSatelite);
 }
 
 #endif //INC_2E_EVRP_GREEDYALGORITHM_H

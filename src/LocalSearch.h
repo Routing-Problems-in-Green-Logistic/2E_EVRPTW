@@ -22,7 +22,7 @@ using namespace GreedyAlgNS;
 
 
 namespace NS_LocalSearch {
-
+/*
     class LocalSearch {
 
     public:
@@ -101,7 +101,10 @@ namespace NS_LocalSearch {
     float calculaDistanciaAcumulada(const vector<int> &rota, const int pos, const Instance &instance);
 
     float calculaCargaEv(const EvRoute &rota, const Instance &instance);
+
+    */
 }
+
 
 #endif //INC_2E_EVRP_LOCALSEARCH_H
 

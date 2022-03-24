@@ -289,6 +289,48 @@ void EvRoute::atualizaPosMenorFolga(const Instance &instance)
     }
 }
 
+bool EvRoute::alteraTempoSaida(const double novoTempoSaida, const Instance &instance)
+{
+    if(routeSize <= 2)
+        return false;
+
+    route[0].tempoSaida = novoTempoSaida;
+    route[0].bateriaRestante = instance.getEvBattery(idRota);
+
+
+    for(int i=0; (i+1) < routeSize; ++i)
+    {
+        const double dist = instance.getDistance(route[i].cliente, route[i+1].cliente);
+        route[i+1].tempoCheg = route[i].tempoSaida + dist;
+        route[i+1].bateriaRestante = route[i].bateriaRestante - dist;
+
+        if(route[i+1].bateriaRestante < -TOLERANCIA_BATERIA)
+        {
+            return false;
+        }
+
+        if((route[i+1].tempoCheg - instance.vectCliente[route[i+1].cliente].fimJanelaTempo) >= -TOLERANCIA_TEMPO)
+        {
+            return false;
+        }
+
+        if(instance.isRechargingStation(route[i+1].cliente))
+        {
+            const double incrementoBateria = instance.getEvBattery(idRota) - route[i+1].bateriaRestante;
+
+            if(!instance.vectVeiculo[idRota].eletrico)
+            {
+                PRINT_DEBUG("", "ERRO EV_ROUTE ID: "<<idRota<<", NAO EH ELETRICO\n");
+                throw "ERRO";
+            }
+
+            route[i+1].tempoSaida = route[i+1].tempoCheg + incrementoBateria*instance.vectVeiculo[idRota].taxaConsumoDist;
+            route[i+1].bateriaRestante = instance.getEvBattery(idRota);
+        }
+    }
+
+}
+
 EvNo::EvNo(const EvNo &outro)
 {
 
@@ -299,3 +341,8 @@ EvNo::EvNo(const EvNo &outro)
 }
 
 EvNo::EvNo(int _cliente, double _bateeria, double _tempo_ini, double _tempo_f): cliente(_cliente), bateriaRestante(_bateeria), tempoCheg(_tempo_ini), tempoSaida(_tempo_f) {}
+
+double EvRoute::getCurrentTime()
+{
+    return route[routeSize-1].tempoCheg;
+}
