@@ -26,6 +26,7 @@ namespace GreedyAlgNS
         float demand = 0.0;
         double incrementoDistancia = 0.0;
         int pos = -1;
+        double tempoSaida = 0.0;
 
         Candidato(int _rotaId, int _satelliteId, float _demand, double _incrDist):rotaId(_rotaId), satelliteId(_satelliteId),
             demand(_demand), incrementoDistancia(_incrDist){};

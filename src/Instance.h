@@ -48,12 +48,12 @@ public:
     int getFirstSatIndex() const;
     int getEndSatIndex() const;
 
-    int getFirstTruckIndex() const;
-    int getEndTruckIndex() const;
+    int getFirstTruckIndex() const {return 0;}
+    int getEndTruckIndex() const {return numTruck-1;}
 
 
-    int getFirstEvIndex() const;
-    int getEndEvIndex() const;
+    int getFirstEvIndex() const {return numTruck;}
+    int getEndEvIndex() const {return numTruck + numEv -1;}
 
     float getTruckCap(const int id) const;
     float getEvCap(const int id) const;

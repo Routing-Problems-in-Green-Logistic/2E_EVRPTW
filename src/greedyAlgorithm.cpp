@@ -209,7 +209,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
                                     for(int t=p+1; (t+1) < route.routeSize; ++t)
                                     {
                                         tempoChegTemp += Inst.getDistance(route.rota[t].satellite, route.rota[t+1].satellite);
-                                        Satelite &sateliteTemp = sol.satelites[route.rota[t+1].satellite];
+                                        Satelite &sateliteTemp = sol.satelites[route.rota[t+1].satellite-1];
 
                                         if(!verificaViabilidadeSatelite(tempoChegTemp, sateliteTemp, Inst, false))
                                         {
@@ -227,6 +227,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
                                 {
                                     candidato.incrementoDistancia = incrementoDist;
                                     candidato.pos = p;
+                                    candidato.tempoSaida = tempoChegCand;
                                 }
                             }
                         }
@@ -258,8 +259,26 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
             // Insere candidato na solucao
             Route &route = sol.primeiroNivel[candidato.rotaId];
             shiftVectorDir(route.rota, candidato.pos + 1, 1, route.routeSize);
-            //route.rota[candidato.pos + 1] = candidato.satelliteId;
+
+            route.rota[candidato.pos+1].satellite = candidato.satelliteId;
+            route.rota[candidato.pos+1].tempoChegada = candidato.tempoSaida;
             route.routeSize += 1;
+            double tempoSaida = candidato.tempoSaida;
+
+            for(int i=candidato.pos+1; (i+1) < route.routeSize; ++i)
+            {
+                const int satTemp = route.rota[i].satellite;
+                if(!verificaViabilidadeSatelite(tempoSaida, sol.satelites[satTemp-1], Inst, true))
+                {
+                    string satStr;
+                    sol.satelites[satTemp-1].print(satStr, Inst);
+
+                    cout<<"ERRO! FUNCAO 'verificaViabilidadeSatelite' DEVERIA RETORNAR TRUE. TEMPO SAIDA SATELITE: "<<tempoSaida<<"\n\tSATELITE:\n\n"<<satStr<<"\n\n";
+                    throw "ERRO!";
+                }
+
+                tempoSaida += Inst.getDistance(satTemp, route.rota[i+1].satellite);
+            }
 
             // Atualiza demanda, vetor de demanda e distancia
             route.totalDemand += candidato.demand;
@@ -270,7 +289,8 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
         }
         else
         {
-            throw "ERRO";
+            sol.viavel = false;
+            break;
         }
     }
 
