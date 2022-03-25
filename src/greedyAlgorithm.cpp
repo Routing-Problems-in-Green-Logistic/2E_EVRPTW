@@ -77,7 +77,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const
                     Satelite *sat = sol.getSatelite(satId - Inst.getFirstSatIndex());
 
                     bool routeEmpty = false;
-                    for(int routeId = 0; routeId < sol.getSatelite(satId - Inst.getFirstSatIndex())->getNRoutes(); routeId++)
+                    for(int routeId = 0; routeId < sol.getSatelite(satId)->getNRoutes(); routeId++)
                     {
                         EvRoute &route = sat->getRoute(routeId);
                         if((route.routeSize == 2)&&(!routeEmpty) || (route.routeSize > 2))
@@ -157,7 +157,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
         // Percorre os satellites
         for(int i=1; i < NumSatMaisDep; ++i)
         {
-            Satelite &satelite = sol.satelites[i-1];
+            Satelite &satelite = sol.satelites[i];
 
             // Verifica se a demanda não atendida eh positiva
             if(demandaNaoAtendidaSat[i] > 0.0)
@@ -209,7 +209,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
                                     for(int t=p+1; (t+1) < route.routeSize; ++t)
                                     {
                                         tempoChegTemp += Inst.getDistance(route.rota[t].satellite, route.rota[t+1].satellite);
-                                        Satelite &sateliteTemp = sol.satelites[route.rota[t+1].satellite-1];
+                                        Satelite &sateliteTemp = sol.satelites[route.rota[t+1].satellite];
 
                                         if(!verificaViabilidadeSatelite(tempoChegTemp, sateliteTemp, Inst, false))
                                         {
@@ -268,10 +268,10 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
             for(int i=candidato.pos+1; (i+1) < route.routeSize; ++i)
             {
                 const int satTemp = route.rota[i].satellite;
-                if(!verificaViabilidadeSatelite(tempoSaida, sol.satelites[satTemp-1], Inst, true))
+                if(!verificaViabilidadeSatelite(tempoSaida, sol.satelites[satTemp], Inst, true))
                 {
                     string satStr;
-                    sol.satelites[satTemp-1].print(satStr, Inst);
+                    sol.satelites[satTemp].print(satStr, Inst);
 
                     cout<<"ERRO! FUNCAO 'verificaViabilidadeSatelite' DEVERIA RETORNAR TRUE. TEMPO SAIDA SATELITE: "<<tempoSaida<<"\n\tSATELITE:\n\n"<<satStr<<"\n\n";
                     throw "ERRO!";

@@ -14,15 +14,15 @@ Route::Route(const Instance &instance)
     routeSizeMax = instance.getNSats() + 2;
 
     rota.reserve(routeSizeMax);
-    satelliteDemand.reserve(routeSizeMax);
+    satelliteDemand.reserve(instance.numSats+1);
     this->routeSize = 2;
 
     for(int i=0; i < routeSizeMax; ++i)
-    {
+
         rota.push_back({0, 0.0});
 
+    for(int i=0; i < instance.numSats+1; ++i)
         satelliteDemand.push_back(0.0);
-    }
 
 }
 

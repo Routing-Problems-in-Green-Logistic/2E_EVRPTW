@@ -33,7 +33,7 @@ public:
     float totalDistence = 0.0;
 
     // Armazena a demanda levada pelo veiculo de cada satellite.
-    // Possui uma entrada para cada satellite da instancia
+    // Possui uma entrada para cada satellite da instancia + deposito!
     std::vector<float> satelliteDemand;
 };
 

@@ -21,6 +21,7 @@ public:
 
     void atualizaVetSatTempoChegMax(const Instance &instance);
 
+    // Possui numSat + 1 !!
     std::vector<Satelite> satelites;
     // Guarda o ultimo tempo de chegada do veiculo do 1° nivel
     std::vector<double> satTempoChegMax;
