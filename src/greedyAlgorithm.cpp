@@ -244,8 +244,6 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
         if(!listaCandidatos.empty())
         {
 
-            throw "ERRO FUNCAO NAO FINALIZADA!!\n";
-
             listaCandidatos.sort();
 
             // Escolhe o candidado da lista restrita
