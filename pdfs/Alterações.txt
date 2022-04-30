@@ -14,4 +14,4 @@
 
 . Tempo de deslocamento entre (i,j) é igual a distância de (i,j)
 
-. 'Janela de tempo' do satelite é a rota com tempo de saida mais cedoy
+. Adicionar fim da janela de tempo ao satelite

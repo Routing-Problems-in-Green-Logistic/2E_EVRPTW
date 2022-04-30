@@ -13,7 +13,7 @@ namespace NameViabRotaEv
     {
         int estacao = -1;
         int pos = -1;
-        float distanciaRota = FLOAT_MAX;
+        double distanciaRota = DOUBLE_MAX;
 
         friend bool operator < (const InsercaoEstacao &aux0, const InsercaoEstacao &aux1)
         {
@@ -21,8 +21,8 @@ namespace NameViabRotaEv
         }
     };
 
-    bool viabilizaRotaEv(vector<int> &route, int tamRout, const Instance &instance, const bool best, InsercaoEstacao &insercaoEstacao);
-    float testaRota(const vector<int> &evRoute, const int tamRoute, const Instance &instance, vector<float> *vetRemainingBattery);
+    bool viabilizaRotaEv(EvRoute &evRoute, const Instance &instance, const bool best, InsercaoEstacao &insercaoEstacao);
+    double testaRota(EvRoute &evRoute, const int tamRoute, const Instance &instance, const bool escrita, const double tempoSaidaSat);
 
 };
 

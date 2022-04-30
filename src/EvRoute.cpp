@@ -11,33 +11,36 @@ using namespace GreedyAlgNS;
 
 
 
-EvRoute::EvRoute(const int _satellite, const int RouteSizeMax, const int _idRota, const Instance &instance):firstRechargingSIndex(instance.getFirstRechargingSIndex())
+EvRoute::EvRoute(const int _satellite, const int _idRota, const int RouteSizeMax, const Instance &instance):firstRechargingSIndex(instance.getFirstRechargingSIndex())
 {
     satelite = _satellite;
-
-    route.reserve(RouteSizeMax);
-    route.emplace_back(satelite, -1.0, -1.0, -1.0);
-    route.emplace_back(satelite, -1.0, -1.0, -1.0);
-
-    for(int i=2; i < RouteSizeMax; ++i)
-    {
-        route.emplace_back();
-    }
-
     routeSize = 2;
     routeSizeMax = RouteSizeMax;
     distancia = 0.0;
     demanda = 0.0;
     idRota = _idRota;
 
+    route.reserve(RouteSizeMax);
+    route.emplace_back(satelite, instance.getEvBattery(idRota), -1.0, -1.0);
+    route.emplace_back(satelite, instance.getEvBattery(idRota), -1.0, -1.0);
+
+
+    for(int i=2; i < RouteSizeMax; ++i)
+    {
+        route.emplace_back();
+    }
+
+
     vetRecarga.reserve(instance.getN_RechargingS());
 
     for(int i=0; i < instance.getN_RechargingS(); ++i)
     {
-        vetRecarga.emplace_back(i+firstRechargingSIndex,0);
+        vetRecarga.emplace_back((i+firstRechargingSIndex), 0);
+        //vetRecarga[i].recargaId = (i+firstRechargingSIndex);
+        //avetRecarga[i].utilizado = 0;
     }
 
-    numRecarga = instance.getN_RechargingS();
+    numEstRecarga = instance.getN_RechargingS();
     numMaxUtilizacao = instance.numUtilEstacao;
 
 }
@@ -47,27 +50,40 @@ int EvRoute::size() const{
 }
 
 
-void EvRoute::print(const Instance &instance) const
+void EvRoute::print(const Instance &instance, const bool somenteNo) const
 {
     for(int i=0; i < routeSize; ++i)
     {
-        if(instance.isRechargingStation(route[i].cliente))
-            std::cout<<"RS("<<route[i]<<";[";
-        else
-            std::cout<<route[i]<<"([";
+        if(!somenteNo)
+        {
+            if(instance.isRechargingStation(route[i].cliente))
+                std::cout << "RS(" << route[i].cliente << ";[";
+            else
+                std::cout << "NO: " << route[i].cliente << "([";
 
-        std::cout<<route[i].tempoCheg<<";"<<route[i].tempoSaida<<"] BT: "<<route[i].bateriaRestante<<"\t";
+            std::cout << route[i].tempoCheg << ";" << route[i].tempoSaida << "] BT: " << route[i].bateriaRestante
+                      << "\t";
+        }
+        else
+            cout<<route[i].cliente<<" ";
     }
 
     std::cout <<"\nDistance: "<<distancia<<"\n\n";
+
 }
 
 
 int EvRoute::getUtilizacaoRecarga(int id)
 {
     const int temp = id - firstRechargingSIndex;
-    if( temp < 0 || temp >= numRecarga)
+    if( temp < 0 || temp >= numEstRecarga)
         return -1;
+
+    if(temp >= numEstRecarga)
+    {
+        PRINT_DEBUG("", "ERRO INDEX VET RECARGA!!!!");
+        throw "ERRO";
+    }
 
     return vetRecarga[temp].utilizado;
 }
@@ -78,6 +94,11 @@ bool EvRoute::setUtilizacaoRecarga(const int id, const int utilizacao)
         return false;
     else
     {
+        if((id-firstRechargingSIndex) < 0 || (id-firstRechargingSIndex) >= numEstRecarga)
+        {
+            PRINT_DEBUG("", "ERRO INDEX VET RECARGA!!!!");
+            throw "ERRO";
+        }
         vetRecarga[id - firstRechargingSIndex].utilizado = utilizacao;
         return true;
     }
@@ -265,27 +286,50 @@ void EvRoute::print(std::string &str, const Instance &instance) const
 
 }
 
-void EvRoute::atualizaPosMenorFolga(const Instance &instance)
+void EvRoute::atualizaParametrosRota(const Instance &instance)
 {
 
     if(routeSize > 2)
     {
+        //print(instance, true);
 
-        int posMenorFolga = -1;
-        double menorDiferenca = DOUBLE_MAX;
+        int posMenorFolga = routeSize-1;
+        double menorDiferenca = instance.vectCliente[route[posMenorFolga].cliente].fimJanelaTempo - route[posMenorFolga].tempoCheg;
+        int posProxEstacao = -1;
 
-        for(int i=1; i < (routeSize-1); ++i)
+        for(int i=0; i < numEstRecarga; ++i)
         {
-            const EvNo &evNo = route[i];
-            const double diferenca = evNo.tempoCheg - instance.vectCliente[evNo.cliente].fimJanelaTempo;
+            vetRecarga[i].utilizado = 0;
+        }
+
+        for(int i=(routeSize-2); i >= 0; --i)
+        {
+            EvNo &evNo = route[i];
+
+            evNo.posMenorFolga = posMenorFolga;
+            evNo.posProxEstacao = posProxEstacao;
+
+            if(instance.isRechargingStation(evNo.cliente))
+            {
+                PRINT_DEBUG("", ""<<route[i-1].cliente<<" "<<evNo.cliente);
+                evNo.estacaoBateriaRestante = route[i-1].bateriaRestante - instance.getDistance(route[i-1].cliente, evNo.cliente);
+                posProxEstacao = i;
+
+                vetRecarga[evNo.cliente-firstRechargingSIndex].utilizado += 1;
+
+            }
+            else
+                evNo.estacaoBateriaRestante = -1.0;
+
+            double diferenca = instance.vectCliente[evNo.cliente].fimJanelaTempo - evNo.tempoCheg;
             if(diferenca < menorDiferenca)
             {
-                menorDiferenca = diferenca;
                 posMenorFolga = i;
+                menorDiferenca = diferenca;
             }
 
-            route[i-1].posMenorFolga = posMenorFolga;
         }
+
     }
 }
 
@@ -345,4 +389,23 @@ EvNo::EvNo(int _cliente, double _bateeria, double _tempo_ini, double _tempo_f): 
 double EvRoute::getCurrentTime()
 {
     return route[routeSize-1].tempoCheg;
+}
+
+std::string EvRoute::getRota(const Instance &instance, const bool somenteNo)
+{
+    string str;
+
+    for(int i=0; i < routeSize; ++i)
+    {
+        if(instance.isRechargingStation(route[i].cliente))
+            str += "RS("+ to_string(route[i].cliente)+";[";
+        else
+            str +=  to_string(route[i].cliente)+"([";
+
+        str += to_string(route[i].tempoCheg) + ";" + to_string(route[i].tempoSaida) + "] BT: " + to_string(route[i].bateriaRestante) + "\t";
+    }
+
+    str += "\nDistance: " + to_string(distancia) + "\n\n";
+
+    return str;
 }

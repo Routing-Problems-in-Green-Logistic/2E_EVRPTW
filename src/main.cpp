@@ -1,3 +1,8 @@
+/*
+ *  ERRO:
+ *  ./run ../instancias/2e-vrp-tw/Customer_5/C103_C5x.txt 1650565715
+ */
+
 #include <iostream>
 #include "Instance.h"
 #include "Solution.h"
@@ -52,7 +57,7 @@ int main(int argc, char* argv[])
     if(argc == 3)
     {
         semente = atol(argv[2]);
-        cout<<"SEMENTE: \t"<<semente<<"\n";
+        //cout<<"SEMENTE: \t"<<semente<<"\n";
     }
     else
         semente = time(nullptr);
@@ -60,11 +65,60 @@ int main(int argc, char* argv[])
     seed(semente);
 
 
-    std::string file(argv[1]);
-    const string nomeInst = getNomeInstancia(file);
-    cout<<"INSTANCIA: \t"<<nomeInst<<"\n";
+    try
+    {
 
-    Instance instance(file);
+        std::string file(argv[1]);
+        const string nomeInst = getNomeInstancia(file);
+
+        cout << "INSTANCIA: \t" << nomeInst << "\n";
+        cout<<"SEMENTE: \t"<<semente<<"\n";
+        double val = 0.0;
+        double tempo = 0.0;
+        double best = DOUBLE_MAX;
+        int num = 0;
+
+
+        auto start = std::chrono::high_resolution_clock::now();
+
+        for(int i=0; i < 2000; ++i)
+        {
+
+            Instance instance(file);
+            Solution sol(instance);
+            greedy(sol, instance, 0.5, 0.5);
+
+            if(sol.viavel)
+            {
+                num += 1;
+                val += sol.distancia;
+
+                if(sol.distancia < best)
+                    best = sol.distancia;
+            }
+
+
+        }
+
+
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> tempoAux = end - start;
+        tempo = tempoAux.count();
+
+        cout<<"INST\tDISTANCIA_MEDIA\tBEST\tNUM\tTEMPO\n";
+        cout<<nomeInst<<"\t"<<val/num<<"\t"<<best<<"\t"<<num<<"\t"<<tempo<<"\n\n";
+
+    }
+    catch(std::exception &e)
+    {
+        cout<<"EXCEPTION:\n";
+        cout<<e.what()<<"\n";
+    }
+    catch(char const* exception)
+    {
+        cout<<"EXCEPTION:\n"<<exception<<"\n\n";
+    }
+
 
 
 }

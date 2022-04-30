@@ -6,7 +6,7 @@
 Satelite::Satelite(const Instance& instance, const int _satId)
 {
 
-    const int max = 2 + instance.getNClients() + instance.getN_RechargingS();
+    const int max = instance.getEvRouteSizeMax();
 
     vetEvRoute.reserve(instance.getN_Evs());
     tamVetEvRoute = instance.getN_Evs();
@@ -15,7 +15,9 @@ Satelite::Satelite(const Instance& instance, const int _satId)
     {
         const VeiculoInst &veic = instance.vectVeiculo[instance.getFirstEvIndex()+i];
         vetEvRoute.emplace_back(_satId, instance.getFirstEvIndex()+i, max, instance);
+        PRINT_DEBUG("\t\t", "idRota: "<<instance.getFirstEvIndex()+i);
     }
+
 
     vetTempoSaidaEvRoute.reserve(instance.getN_Evs());
 
@@ -24,6 +26,8 @@ Satelite::Satelite(const Instance& instance, const int _satId)
         EvRoute *evRoute = &vetEvRoute[i];
         vetTempoSaidaEvRoute.emplace_back(evRoute);
     }
+
+//    cout<<"vetTempoSaidaEvRoute size: "<<vetTempoSaidaEvRoute.size()<<"\n";
 
     sateliteId = _satId;
 }
@@ -82,7 +86,7 @@ void Satelite::print(std::string &str, const Instance &instance)
 
     for(EvRoute &evRoute:vetEvRoute)
     {
-        str += "\tROTA ID: "+ std::to_string(i)+".:  ";
+        str += "\tROTA ID: "+ std::to_string(evRoute.idRota)+".:  ";
         evRoute.print(str, instance);
         str+= "\n";
     }
@@ -99,7 +103,7 @@ void Satelite::print(const Instance &instance)
     for(EvRoute &evRoute:vetEvRoute)
     {
         std::cout<<"\tROTA ID: "<<evRoute.idRota<<".:  ";
-        evRoute.print(instance);
+        evRoute.print(instance, false);
         std::cout<<"\n";
     }
 

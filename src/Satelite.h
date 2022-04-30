@@ -14,6 +14,12 @@ public:
 
     explicit TempoSaidaEvRoute(EvRoute *evRouteAux){evRoute = evRouteAux;}
 
+    ~TempoSaidaEvRoute()
+    {
+        evRoute = nullptr;
+    }
+
+
     bool operator < (const TempoSaidaEvRoute &tempo2) const
     {
         if(evRoute->routeSize > 2 && tempo2.evRoute->routeSize <= 2)
@@ -23,11 +29,18 @@ public:
 
         return evRoute->route[0].tempoSaida < tempo2.evRoute->route[0].tempoSaida;
     }
+
+
+
 };
 
-class Satelite {
+class Satelite
+{
 public:
+
     Satelite(const Instance&, int _satId);
+    //Satelite(const Satelite &satelite)
+
     int getNRoutes() const;
     EvRoute& getRoute(int i);
     bool checkSatellite(std::string &erro, const Instance &Inst);

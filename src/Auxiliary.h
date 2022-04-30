@@ -20,10 +20,14 @@ using namespace std;
 #define INCREM_DIST             1E-4
 
 #define FLOAT_MAX               FLT_MAX
+#define FLOAT_MIN               FLT_MIN
+
 #define DOUBLE_MAX              DBL_MAX
+#define DOUBLE_MIN              DBL_MIN
 
 
-#define PRINT_DEBUG(inicio, texto) cout<<inicio<<"DEBUG: "<<texto<<"  FILE: "<<__FILE__<<"  LINHA: "<<__LINE__<<"\n";
+#define PRINT_DEBUG(inicio, texto)
+//cout<<inicio<<"DEBUG: "<<texto<<"  FILE: "<<__FILE__<<"  LINHA: "<<__LINE__<<"\n";
 
 namespace NS_Auxiliary
 {
@@ -46,6 +50,28 @@ namespace NS_Auxiliary
             vector[i + quant] = vector[i];
         }
 
+    }
+
+    template<typename T>
+
+    void shiftVectorClienteDir(std::vector<T> &vector, const int pos, const int quant, const int sizeVector)
+    {
+
+        for(int i=sizeVector-1; i >= pos; --i)
+        {
+            vector[i + quant].cliente = vector[i].cliente;
+        }
+    }
+
+    template<typename T>
+
+    void copiaVector(std::vector<T> &vector, std::vector<T> &vectorDest, const int n)
+    {
+        if(n > vector.size() || n > vectorDest.size())
+            throw "ERRO";
+
+        for(int i=0; i < n; ++i)
+            vectorDest[i] = vector[i];
     }
 
     template<typename T>

@@ -4,6 +4,7 @@
 #include "Instance.h"
 #include "Route.h"
 #include <list>
+#include "Auxiliary.h"
 
 /*
 class Recharge {
@@ -60,13 +61,20 @@ struct PosRota0Rota1Estacao
 };
 */
 
-struct EvRecarga
+class EvRecarga
 {
+
+public:
+
     int recargaId = -1;
     int utilizado = 0;
 
     EvRecarga()=default;
     EvRecarga(int id, int ut){recargaId = id; utilizado = ut;}
+    ~EvRecarga()
+    {
+
+    }
 };
 
 class EvNo
@@ -80,6 +88,12 @@ public:
 
     // Considerando somente as proximas posicoes, armazena a de menor folga (tempo chegada - final janela)
     int posMenorFolga   = -1;
+
+    // Considerando somente as proximas posicoes, armazena a proxima estacao de recarga da rota
+    int posProxEstacao = -1;
+
+    // Se o no eh uma estacao de recarga estacaoBateriaRestante guarda a quantidade de bateria antes no momento da chegada (antes de recaregar)
+    double estacaoBateriaRestante = -1.0;
 
     EvNo()= default;
     EvNo(int _cliente, double _bateeria, double _tempo_ini, double _tempo_f);
@@ -99,14 +113,21 @@ public:
     int size() const;
     float getDemand() const {return demanda;};
 
+    EvRoute(const EvRoute &evRoute):firstRechargingSIndex(evRoute.firstRechargingSIndex)
+    {
+        throw "ERRO!!";
+    }
+
     EvRoute(int satelite, int idRota, int RouteSizeMax, const Instance &instance);
 
-    void print(const Instance &instance) const;
+    void print(const Instance &instance, const bool somenteNo) const;
     void print(std::string &str, const Instance &instance) const;
+    std::string getRota(const Instance &instance, const bool somenteNo);
     bool checkRoute(std::string &erro, const Instance &instance) const;
-    void atualizaPosMenorFolga(const Instance &instance);
+    void atualizaParametrosRota(const Instance &instance);
     double getCurrentTime();
     bool alteraTempoSaida(double novoTempoSaida, const Instance &instance);
+
 
 
     EvNo & operator [](int pos)
@@ -126,12 +147,20 @@ public:
     int getUtilizacaoRecarga(int id);
     bool setUtilizacaoRecarga(int id, int utilizacao);
 
-private:
+    /**
+     * **************************************************************
+     * **************************************************************
+     * Guarda o numero de vezes que uma estacao eh utilizada,
+     * INDICE NAO EH RELATIVO A CLIENTES.
+     * 1° estacao: indice: 0: idEstacao - firstRechargingSIndex !!!
+     * **************************************************************
+     * **************************************************************
+     */
+
     std::vector<EvRecarga> vetRecarga;
-    int numRecarga=-1;
+
+    int numEstRecarga=-1;
     int numMaxUtilizacao=-1;
     const int firstRechargingSIndex;
-
-
 };
 #endif

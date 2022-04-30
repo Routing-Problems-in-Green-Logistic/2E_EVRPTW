@@ -41,7 +41,7 @@ void NameTeste::testeMovimentos(string &saida, const Instance &instance, long se
                     continue;
                 }
             }
-
+auto start = std::chrono::high_resolution_clock::now();
         auto end = std::chrono::high_resolution_clock::now();
 
         std::chrono::duration<double> tempoAux = end - start;

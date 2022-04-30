@@ -6,144 +6,145 @@
 #include "LocalSearch.h"
 #include "ViabilizadorRotaEv.h"
 
-struct comparaCliente { // TODO: verifica na instancia qual cliente tem tempo final mais proximo
-    bool operator() (const int& lhs, const int& rhs) const {
-        return false;
-    }
-};
-
-float GreedyAlgNS::palpiteTempoFinalPrimeiroNivel(const Instance &inst){
-    int depotId = inst.getDepotIndex();
-    float bestDistance = -1.0f;
-    //> percorre todos os satelites procurando a maior distancia ate o deposito
-    for(int i = inst.getFirstSatIndex(); i <= inst.getEndSatIndex(); i++){
-        float distance = inst.getDistance(depotId, i);
-        if(distance > bestDistance){
-            bestDistance = distance;
-        }
-    }
-    if( bestDistance == -1.0f){
-        PRINT_DEBUG("", "ERRO @ GreedyAlgNS::palpiteTempoFinalPrimeiroNivel -> maior distancia = -1\n\n");
-        throw "ERRO";
-    }
-    return bestDistance;
-}
-
-
 using namespace GreedyAlgNS;
 using namespace std;
 using namespace NS_Auxiliary;
 using namespace NS_LocalSearch;
 using namespace NameViabRotaEv;
 
-
-bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& Inst, const float alpha)
+// Roteamento dos veiculos eletricos
+bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, const float alpha)
 {
 
-    std::vector<int> visitedClients(1+Inst.getNSats()+Inst.getNClients());
-    visitedClients[0]       = -1;
+    std::vector<int> visitedClients(1 + instance.getNSats() + instance.getN_RechargingS() + instance.getNClients());
 
-    for(int i=1; i < Inst.getNSats()+1; ++i)
+    for(int i=0; i < instance.getFirstClientIndex(); ++i)
         visitedClients[i] = -1;
 
-    for(int i=Inst.getNSats()+1; i < visitedClients.size(); ++i)
+    for(int i= instance.getFirstClientIndex(); i < visitedClients.size(); ++i)
         visitedClients[i] = 0;
 
-    const auto ItSat        = visitedClients.begin() + Inst.getFirstSatIndex();
-    const auto ItSatEnd     = visitedClients.begin() + Inst.getEndSatIndex();
-    const auto ItClient     = visitedClients.begin() + Inst.getFirstClientIndex();
 
-    const int FistIdClient  = 1 + Inst.getNSats();
-    const int LastIdClient  = Inst.getNSats() + Inst.getNClients();
-    const auto ItEnd        = visitedClients.begin() + Inst.getNSats() + Inst.getNClients();
+    const int FistIdClient  = instance.getFirstClientIndex();
+    const int LastIdClient  = FistIdClient + instance.getNClients()-1;
+    const auto ItEnd        = visitedClients.begin() + instance.getNSats() + instance.getNClients();
+    const double tempoSaidaInicialSat = GreedyAlgNS::calculaTempoSaidaInicialSat(instance);
 
-    std::fill(ItSat, ItSatEnd, -1);
-    std::fill(ItClient, ItEnd, 0);
-    std::set<int, comparaCliente> clientsByTime;
-    // TODO: fill clientsbytime;
 
-    while(!visitAllClientes(visitedClients, Inst))
+    EvRoute evRouteAux(-1, -1, instance.getEvRouteSizeMax(), instance);
+
+    while(!visitAllClientes(visitedClients, instance))
     {
-        std::list<Insertion> restrictedList;
 
-        for(auto& client : clientsByTime)
-        // for(int clientId = FistIdClient; clientId < LastIdClient + 1; ++clientId)
+        std::list<Insertion> listaCandidatos;
+
+        //for(auto& client : clientsByTime)
+        for(int clientId = FistIdClient; clientId <= LastIdClient; ++clientId)
         {
 
-            if(visitedClients[client] == 0)
+
+            if(!visitedClients[clientId])
             {
-                for(int satId = Inst.getFirstSatIndex(); satId <= Inst.getEndSatIndex(); satId++)
+                //PRINT_DEBUG("", "clienteId: "<<clientId);
+
+                for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); satId++)
                 {
-                    Satelite *sat = sol.getSatelite(satId - Inst.getFirstSatIndex());
+
+                    //PRINT_DEBUG("", "SAT ID: "<<satId);
+
+                    Satelite *sat = sol.getSatelite(satId);
 
                     bool routeEmpty = false;
-                    for(int routeId = 0; routeId < sol.getSatelite(satId)->getNRoutes(); routeId++)
+//                    for(int routeId = 0; routeId < sol.getSatelite(satId)->getNRoutes(); routeId++)
+                    for(int routeId = 0; routeId < sat->getNRoutes(); routeId++)
                     {
+                        //PRINT_DEBUG("", "ROUTE ID: "<<routeId);
+
                         EvRoute &route = sat->getRoute(routeId);
-                        if((route.routeSize == 2)&&(!routeEmpty) || (route.routeSize > 2))
-                        {
-                            if(route.routeSize == 2)
-                                routeEmpty = true;
-                            if(route.getCurrentTime() < Inst.getClient(client).fimJanelaTempo){
-                                Insertion insertion(routeId);
-                                insertion.satId = satId;
-                                if(canInsertSemBateria(route, client, Inst, insertion))
-                                    restrictedList.push_back(insertion);
-                            }
-                        }
+                        Insertion insertion(routeId);
+                        insertion.satId = satId;
+                        bool resultado = canInsert(route, clientId, instance, insertion, satId, tempoSaidaInicialSat, evRouteAux);
+
+                        if(resultado)
+                            listaCandidatos.push_back(insertion);
+
+                        //cout<<"\n******************************************************************************************************";
+                        //cout<<"\n******************************************************************************************************\n\n";
                     }
                 }
             }
         }
 
-        if(restrictedList.empty())
+        if(listaCandidatos.empty())
         {
+            //PRINT_DEBUG("\t","LISTA DE CANDIDATOS VAZIA");
             sol.viavel = false;
-            break;
+            return false;
         }
 
 
-        int randIndex = rand_u32()%(int(alpha*restrictedList.size() + 1));
+        int randIndex = rand_u32()%(int(alpha * listaCandidatos.size() + 1));
 
-        auto topItem = std::next(restrictedList.begin(), randIndex);
+        auto topItem = std::next(listaCandidatos.begin(), randIndex);
 
         visitedClients[topItem->clientId] = 1;
 
-        Satelite *satelite = sol.getSatelite(topItem->satId-Inst.getFirstSatIndex());
+        Satelite *satelite = sol.getSatelite(topItem->satId);
         satelite->demanda += topItem->demand;
         EvRoute &evRoute = satelite->getRoute(topItem->routeId);
-        insert(evRoute, *topItem, Inst);
+        insert(evRoute, *topItem, instance, tempoSaidaInicialSat, sol);
     }
+
+    PRINT_DEBUG("", "vetTempoSaidaEvRoute size: "<<sol.satelites[0].vetTempoSaidaEvRoute.size());
+
     return true;
 }
 
 
 
-bool GreedyAlgNS::visitAllClientes(std::vector<int> &visitedClients, const Instance &Inst)
+bool GreedyAlgNS::visitAllClientes(std::vector<int> &visitedClients, const Instance &instance)
 {
 
-    auto itClient = visitedClients.begin() + Inst.getFirstClientIndex();
+    auto itClient = visitedClients.begin() + instance.getFirstClientIndex();
+    int i=instance.getFirstClientIndex();
 
-    for(; itClient != visitedClients.end(); ++itClient)
-        if(*itClient == 0) return false;
+    for(; i < visitedClients.size(); ++i)
+    {
+
+        if(visitedClients[i] == 0)
+            return false;
+        else if(visitedClients[i] != 1)
+        {
+            PRINT_DEBUG("\t\t", "indice "<<i<<"eh invalido para vetor visitedClients");
+            throw "ERRO";
+
+        }
+
+    }
+
+    //for(i=0; i < visitedClients.size(); ++i)
+     //   cout<<i<<": "<<visitedClients[i]<<"\n";
 
     return true;
 
 }
+
 
 void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const float beta)
 {
 
     // Cria o vetor com a demanda de cada satellite
 
-    std::vector<float> demandaNaoAtendidaSat;
+    PRINT_DEBUG("\t", "vetTempoSaidaEvRoute size: "<<sol.satelites[1].vetTempoSaidaEvRoute.size());
+
+    std::vector<double> demandaNaoAtendidaSat;
     demandaNaoAtendidaSat.reserve(sol.getNSatelites()+1);
     int satId = 1;
     demandaNaoAtendidaSat.push_back(0.0);
 
-    for(Satelite &satelite:sol.satelites)
+    for(int sat=Inst.getFirstSatIndex(); sat <= Inst.getEndSatIndex(); ++sat)
     {
-        demandaNaoAtendidaSat.push_back(satelite.demanda);
+        demandaNaoAtendidaSat.push_back(sol.satelites[sat].demanda);
     }
 
     const int NumSatMaisDep = sol.getNSatelites()+1;
@@ -159,10 +160,13 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
         {
             Satelite &satelite = sol.satelites[i];
 
+            PRINT_DEBUG("\t", "i: "<<i<<"\t\tsat id: "<<satelite.sateliteId);
+            PRINT_DEBUG("\t", "vetTempoSaidaEvRoute size: "<<satelite.vetTempoSaidaEvRoute.size());
+
             // Verifica se a demanda não atendida eh positiva
             if(demandaNaoAtendidaSat[i] > 0.0)
             {
-
+                PRINT_DEBUG("\t", "DEMANDA NAO ATENDIDA SAT "<<i<<": "<<demandaNaoAtendidaSat[i]);
                 // Percorre todas as rotas
                 for(int rotaId = 0; rotaId < sol.primeiroNivel.size(); ++rotaId)
                 {
@@ -172,11 +176,13 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
                     if(route.totalDemand < Inst.getTruckCap(rotaId))
                     {
                         // Calcula a capacidade restante do veiculo
-                        float capacidade = Inst.getTruckCap(rotaId) - route.totalDemand;
-                        float demandaAtendida = capacidade;
+                        double capacidade = Inst.getTruckCap(rotaId) - route.totalDemand;
+                        double demandaAtendida = capacidade;
 
                         if(demandaNaoAtendidaSat[i] < capacidade)
                             demandaAtendida = demandaNaoAtendidaSat[i];
+
+                        PRINT_DEBUG("\t", "ROUTE ID: "<<rotaId<<", demanda: "<<demandaAtendida);
 
                         Candidato candidato(rotaId, i, demandaAtendida, DOUBLE_MAX);
 
@@ -195,7 +201,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
 
                             if(incrementoDist < candidato.incrementoDistancia)
                             {
-
+                                PRINT_DEBUG("\t\t", "INCREMENTO: "<<incrementoDist);
                                 // Calcula o tempo de chegada e verifica a janela de tempo
                                 const double tempoChegCand = clienteP.tempoChegada + Inst.getDistance(clienteP.satellite, i);
 
@@ -213,6 +219,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
 
                                         if(!verificaViabilidadeSatelite(tempoChegTemp, sateliteTemp, Inst, false))
                                         {
+                                            PRINT_DEBUG("\t", "verificaViabilidadeSat = false");
                                             satViavel = false;
                                             break;
                                         }
@@ -221,7 +228,10 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
 
                                 }
                                 else
+                                {
+                                    PRINT_DEBUG("\n\t", "VIABILIDADE SAT: FALSE");
                                     satViavel = false;
+                                }
 
                                 if(satViavel)
                                 {
@@ -238,11 +248,13 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
                     }
                 }
             }
+
         }
 
 
         if(!listaCandidatos.empty())
         {
+            PRINT_DEBUG("", "");
 
             listaCandidatos.sort();
 
@@ -280,6 +292,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
 
             // Atualiza demanda, vetor de demanda e distancia
             route.totalDemand += candidato.demand;
+            sol.distancia += candidato.incrementoDistancia;
             route.satelliteDemand[candidato.satelliteId] = candidato.demand;
             route.totalDistence += candidato.incrementoDistancia;
 
@@ -287,6 +300,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
         }
         else
         {
+            PRINT_DEBUG("", "PRIMEIRO NIVEL FALHOU");
             sol.viavel = false;
             break;
         }
@@ -294,17 +308,25 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
 
 }
 
+
 // Com o tempo de chegada ao satelite, eh verificado se as rotas dos EV's podem sair apos o tempo de chegada do veic a combustao
+
 bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelite &satelite, const Instance &instance, const bool modificaSatelite)
 {
 
     bool viavel = false;
 
-    // Verifica se os tempos de saida das rotas dos EV's eh maior que o tempo de chegada do veic a combustao
-    for(auto &tempoSaidaEv:satelite.vetTempoSaidaEvRoute)
-    {
+    PRINT_DEBUG("\t\t\t", "TEMPO CHEGADA VEIC COMB: "<<tempoChegada);
 
+
+    // Verifica se os tempos de saida das rotas dos EV's eh maior que o tempo de chegada do veic a combustao
+    for(int evId = 0; evId < instance.getN_Evs(); ++evId)
+    {
+        TempoSaidaEvRoute &tempoSaidaEv = satelite.vetTempoSaidaEvRoute[evId];
         const double tempoEv = tempoSaidaEv.evRoute->route[0].tempoSaida;
+
+        PRINT_DEBUG("\t\t\t", "TEMPO SAIDA EV: "<<tempoEv<<"; TEMPO CHEGADA VEIC COMB: "<<tempoChegada);
+
         if(tempoEv >= tempoChegada)
         {
             viavel = true;
@@ -382,9 +404,11 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
 
 }
 
-bool GreedyAlgNS::existeDemandaNaoAtendida(std::vector<float> &demandaNaoAtendida)
+
+
+bool GreedyAlgNS::existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendida)
 {
-    for(float dem:demandaNaoAtendida)
+    for(double dem:demandaNaoAtendida)
     {
         if(dem > 0.0)
             return true;
@@ -396,141 +420,295 @@ bool GreedyAlgNS::existeDemandaNaoAtendida(std::vector<float> &demandaNaoAtendid
 void GreedyAlgNS::greedy(Solution &sol, const Instance &Inst, const float alpha, const float beta)
 {
     //if(secondEchelonGreedy(sol, Inst, alpha))
+    if(secondEchelonGreedy(sol, Inst, alpha))
+    {
+        firstEchelonGreedy(sol, Inst, beta);
+
+        PRINT_DEBUG("\n\n", "Segundo nivel");
+        //sol.print(Inst);
 
 
-    firstEchelonGreedy(sol, Inst, beta);
-
+    }
 
 }
 
 
-/*
-bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &Inst, Insertion &insertion)
+
+bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance, Insertion &insertion, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux)
 {
-    float demand = Inst.getDemand(node);
-    float bestInsertionCost = FLOAT_MAX;
+    float demand = instance.getDemand(node);
+    double bestInsertionCost = DOUBLE_MAX;
     bool viavel = false;
-    EvRoute evRouteAux(Inst);
+
+//    EvRoute evRouteAux(satelite, evRoute.idRota, evRoute.routeSizeMax, instance);
+
+    evRouteAux.satelite = satelite;
+    evRouteAux.idRota = evRoute.idRota;
+    evRouteAux.routeSizeMax = evRoute.routeSizeMax;
+
+
     InsercaoEstacao insercaoEstacao;
 
 
-    if((evRoute.getDemand() + demand) > Inst.getEvCap()){
+    if((evRoute.getDemand() + demand) > instance.getEvCap(satelite))
+    {
+        //PRINT_DEBUG("\t\t", "DEMANDA INVIAVEL\n");
         return false;
     }
 
-    std::copy(evRoute.route.begin(), evRoute.route.begin()+evRoute.routeSize, evRouteAux.route.begin());
+
+    //std::copy(evRoute.route.begin(), evRoute.route.begin()+evRoute.routeSize, evRouteAux.route.begin());
+
+    copiaVector(evRoute.route, evRouteAux.route, evRoute.routeSize);
     shiftVectorDir(evRouteAux.route, 1, 1, evRoute.routeSize);
     evRouteAux.routeSize = evRoute.routeSize+1;
 
-    float distanciaRota  = 0.0;
+    evRouteAux[0].bateriaRestante = instance.getEvBattery(evRoute.idRota);
+    evRouteAux[0].tempoSaida = tempoSaidaSat;
+
+    double distanciaRota  = 0.0;
     if(evRoute.routeSize > 2)
     {
         for(int i=0; (i+1) < evRoute.routeSize; ++i)
-            distanciaRota += Inst.getDistance(evRoute[i], evRoute[i+1]);
+            distanciaRota += instance.getDistance(evRoute[i].cliente, evRoute[i + 1].cliente);
     }
 
-    //cout<<"\tnode: "<<node<<"\n";
-    //cout<<"ROTA: "<<printVector(evRoute.route, evRoute.routeSize)<<"\n";
+/*    cout<<"\tnode: "<<node<<"\n";
+    cout<<"ROTA: ";
+    evRoute.print(instance, false);
+    cout<<"\n";*/
+
+    /* *****************************************************JANELA DE TEMPO******************************************************
+     * **************************************************************************************************************************
+     *
+     * 0 1 2 3 0
+     *
+     *      Para verificar a janela de tempo ao inserir o cliente 4 eh necessario verificar se eh possivel chegar ao cliente 4,
+     * verifica-se a viabilidade: <CLIENTE MENOR> acresentando a (diferença do tempo de chegada do proximo cliente).
+     *
+     *
+     * **************************************************************************************************************************
+     * **************************************************************************************************************************
+     */
+
+     const ClienteInst &instNode = instance.vectCliente[node];
+
     for(int pos = 0; pos < evRoute.routeSize-1; pos++)
     {
 
         //int prevNode = evRoute.route.at(pos);
         //int nextNode = evRoute.route.at(pos + 1);
-        evRouteAux.route[pos+1] = node;
+        evRouteAux.route[pos+1].cliente = node;
 
-        //cout<<"NOVA ROTA: "<<printVector(evRouteAux.route, evRouteAux.routeSize)<<"\n";
-
-
-        float distanceAux = Inst.getDistance(evRoute[pos], node) + Inst.getDistance(node, evRoute[pos+1]) - Inst.getDistance(evRoute[pos], evRoute[pos+1]);
-
-        float batteryConsumptionAux = 0.0;
-
-        // Ate nextNode(pos+1)
-        float remaingBattery = evRoute.vetRemainingBattery[pos] - Inst.getDistance(evRoute[pos], node) - Inst.getDistance(node, evRoute[pos+1]);
+/*        PRINT_DEBUG("", "");
+        cout<<"\n\nNOVA ROTA: ";
+        evRouteAux.print(instance, true);
+        cout<<"\n";*/
 
 
-        bool batteryOk = true;
+        double distanceAux = instance.getDistance(evRouteAux[pos].cliente, node) + instance.getDistance(node, evRouteAux[pos+2].cliente) -
+                             instance.getDistance(evRouteAux[pos].cliente, evRouteAux[pos+2].cliente);
 
+        double tempoChegada = evRouteAux[pos].tempoSaida + instance.getDistance(evRouteAux[pos].cliente, node);
 
-        if(remaingBattery < -TOLERANCIA_BATERIA)
-               batteryOk = false;
+        //cout<<"tempo de chegada no: "<<node<<".: "<<tempoChegada<<"  fim janela de tempo: "<<instNode.fimJanelaTempo<<"\n";
 
-        if(Inst.isRechargingStation(evRoute[pos+1]))
-            remaingBattery = Inst.getEvBattery();
-
-        //cout<<"pos: "<<pos<<"; "<<evRoute[pos]<<": "<<evRoute.vetRemainingBattery[pos]<<"\n";
-        //cout<<"pos+1: "<<pos+1<<"; "<<evRoute[pos+1]<<": "<<remaingBattery<<";\n";
-
-        if(batteryOk)
+        // Verifica a janela de tempo
+        if((tempoChegada <= instNode.fimJanelaTempo) || (abs(tempoChegada-instNode.fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO))
         {
+            if(tempoChegada < instNode.inicioJanelaTempo)
+                tempoChegada = instNode.inicioJanelaTempo;
 
-            for(int i = pos + 1; (i + 1) < evRoute.routeSize; ++i)
+            tempoChegada += instNode.tempoServico;
+
+            // Calcula tempo de chegada em CLIENTE[pos+2]
+            tempoChegada += instance.getDistance(node, evRouteAux[pos + 2].cliente);
+
+
+            const ClienteInst &instPosProx = instance.vectCliente[evRouteAux[pos+2].cliente];
+            double tempo = tempoChegada;
+
+            //cout<<"tempo de chegada no pos+1: "<<evRouteAux[pos+2].cliente<<".: "<<tempoChegada<<"  fim janela de tempo: "<<instPosProx.fimJanelaTempo<<"\n";
+
+            // Verifica janela de tempo cliente(pos+2)
+            if((tempoChegada <= instPosProx.fimJanelaTempo) || (abs(tempoChegada-instPosProx.fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO))
             {
-                remaingBattery -= Inst.getDistance(evRoute[i], evRoute[i+1]);
+                if(tempoChegada < instPosProx.inicioJanelaTempo)
+                    tempoChegada = instPosProx.inicioJanelaTempo;
 
-                if(remaingBattery < -TOLERANCIA_BATERIA)
+                bool janelaTempoAtend = true;
+
+                if(!instance.isSatelite(evRouteAux[pos+2].cliente))
                 {
-                    batteryOk = false;
-                    break;
+                    // Verificar se eh possivel atender o cliente que possui a menor diferenca entre o final da janela de tempo e a sua janela de tempo
+
+                    const int indice = evRouteAux[pos+2].posMenorFolga;
+
+                    const int posProxEstacao = evRouteAux[pos+2].posProxEstacao;
+
+                    if(indice >= 0)
+                    {
+                        const double incremento = tempoChegada - evRouteAux[pos+2].tempoCheg;
+                        if(incremento < 0.0)
+                        {
+                            throw string("INCREMENTO NEGATIVO\n FILE: "+ string(__FILE__)+"  LINHA: "+to_string(__LINE__)+"\n");
+                        }
+
+                        double tempoChegadaMenor = evRoute[indice].tempoCheg + incremento;
+                        const ClienteInst &clienteInstMenor = instance.vectCliente[evRoute[indice].cliente];
+
+                        janelaTempoAtend = ((tempoChegadaMenor <= clienteInstMenor.fimJanelaTempo) ||
+                                                (abs(tempoChegadaMenor - clienteInstMenor.fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO));
+
+
+                    }
                 }
 
-
-                if(Inst.isRechargingStation(evRoute[i]))
-                    remaingBattery = Inst.getEvBattery();
-
-
-                //cout<<"\tpos: "<<pos<<"; "<<evRoute[pos]<<": "<<remaingBattery<<";\n";
-
-                //cout<<evRoute[i+1]<<": "<<remaingBattery<<"\n";
-                //cout<<"pos: "<<i+1<<"; "<<evRoute[i+1]<<": "<<remaingBattery<<";\n";
-            }
-        }
-
-        if(batteryOk)
-        {
-
-            float insertionCost = distanceAux;
-            if(insertionCost < bestInsertionCost)
-            {
-                bestInsertionCost = insertionCost;
-                insertion = Insertion(pos, node, insertionCost, demand, batteryConsumptionAux, insertion.routeId, insertion.satId, -1, -1, {});
-                viavel = true;
-                //cout<<"\t\tATUALIZOU BEST_INSERTION\n";
-
-            }
-        }
-        else
-        {
-            //cout<<"VIABILIZA ROTA: "<<printVector(evRouteAux.route, evRouteAux.routeSize)<<"\n";
-            if(viabilizaRotaEv(evRouteAux.route, evRouteAux.routeSize, Inst, true, insercaoEstacao))
-            {
-                float insertionCost = insercaoEstacao.distanciaRota - distanciaRota;
-                if(insertionCost < bestInsertionCost)
+                if(janelaTempoAtend)
                 {
-                    bestInsertionCost = insertionCost;
-                    insertion = Insertion(pos, node, insertionCost, demand, batteryConsumptionAux, insertion.routeId, insertion.satId, -1, -1, insercaoEstacao);
-                    viavel = true;
-                    //cout<<"\t\tVIABILIZA ROTA ATUALIZOU BEST_INSERTION\n";
+
+                    double batteryConsumptionAux = 0.0;
+
+                    // Ate nextNode(pos+1)
+                    double remaingBattery = evRouteAux[pos].bateriaRestante - instance.getEvTaxaConsumo(evRoute.idRota)*(instance.getDistance(evRouteAux[pos].cliente, node) +
+                            instance.getDistance(node, evRouteAux[pos+2].cliente));
+
+                    bool batteryOk = true;
+
+
+                    if(remaingBattery < -TOLERANCIA_BATERIA)
+                    {
+                        batteryOk = false;
+                    }
+
+                    if(batteryOk)
+                    {
+
+
+                        tempo = tempoChegada;
+
+                        if(instance.isRechargingStation(evRouteAux[pos+2].cliente))
+                        {
+                            // Acresenta tempo de recarga
+                            tempo += instance.tempoRecarga(evRouteAux[pos+2].cliente, remaingBattery);
+                            remaingBattery = instance.getEvBattery(evRoute.idRota);
+
+                        }
+
+
+
+                        for(int i = pos+2; (i+1) < (evRoute.routeSize+1); ++i)
+                        {
+                            const int clienteI  = evRouteAux[i].cliente;
+                            const int clienteII = evRouteAux[i + 1].cliente;
+
+                            remaingBattery -= instance.getDistance(clienteI, clienteII);
+                            tempo += instance.getDistance(clienteI, clienteII);
+
+                            if(remaingBattery < -TOLERANCIA_BATERIA)
+                            {
+                                batteryOk = false;
+                                //PRINT_DEBUG("\t\t", "pos: " << pos << ";  remaingBattery: " << remaingBattery);
+                                break;
+                            }
+
+                            if(!TESTE_JANELA_TEMPO(tempo, clienteII, instance))
+                            {
+                                janelaTempoAtend = false;
+                                break;
+                            }
+
+                            if(tempo < instance.getInicioJanelaTempoCliente(clienteII))
+                                tempo = instance.getInicioJanelaTempoCliente(clienteII);
+
+
+                            if(instance.isRechargingStation(clienteII))
+                            {
+                                tempo += instance.tempoRecarga(evRoute.idRota, remaingBattery);
+                                remaingBattery = instance.getEvBattery(evRoute.idRota);
+                            }
+
+
+                            //cout<<"\tpos: "<<pos<<"; "<<evRoute[pos]<<": "<<remaingBattery<<";\n";
+
+                            //cout<<evRoute[i+1]<<": "<<remaingBattery<<"\n";
+                            //cout<<"pos: "<<i+1<<"; "<<evRoute[i+1]<<": "<<remaingBattery<<";\n";
+                        }
+                    }
+
+                    if(batteryOk && janelaTempoAtend)
+                    {
+                        //cout << "BATERIA OK\n";
+
+                        double insertionCost = distanceAux;
+                        if(insertionCost < bestInsertionCost)
+                        {
+                            bestInsertionCost = insertionCost;
+                            insertion = Insertion(pos, node, insertionCost, demand, batteryConsumptionAux, insertion.routeId, insertion.satId, -1, -1, {});
+                            viavel = true;
+                           // cout<<"\t\tATUALIZOU BEST_INSERTION\n";
+
+                        }
+                    } else
+                    {
+
+                        //cout<<"VIABILIZA ROTA: "<<evRouteAux.getRota(instance, true) << "\n";
+
+                        if(viabilizaRotaEv(evRouteAux, instance, true, insercaoEstacao))
+                        {
+                            double insertionCost = insercaoEstacao.distanciaRota - distanciaRota;
+                            if(insertionCost < bestInsertionCost)
+                            {
+                                bestInsertionCost = insertionCost;
+                                insertion = Insertion(pos, node, insertionCost, demand, batteryConsumptionAux, insertion.routeId, insertion.satId, -1, -1, insercaoEstacao);
+                                viavel = true;
+                                //cout<<"\t\tVIABILIZA ROTA ATUALIZOU BEST_INSERTION\n";
+                            }
+                        }
+
+                    }
                 }
+
             }
+
         }
 
         evRouteAux[pos+1] = evRouteAux[pos+2];
 
+        //PRINT_DEBUG("", "");
+
     }
+
+    //PRINT_DEBUG("", "");
 
     //cout<<"\n\n";
     return viavel;
 
 }
 
-
-
-bool GreedyAlgNS::insert(EvRoute &evRoute, Insertion &insertion, const Instance &Inst)
+double GreedyAlgNS::calculaTempoSaidaInicialSat(const Instance &instance)
 {
+    double dist = -DOUBLE_MAX;
+
+    for(int i=instance.getFirstSatIndex(); i <= instance.getEndSatIndex(); ++i)
+    {
+        if(instance.getDistance(instance.getDepotIndex(), i) > dist)
+            dist = instance.getDistance(instance.getDepotIndex(), i);
+    }
+
+    return 2*dist;
+
+}
+
+bool GreedyAlgNS::insert(EvRoute &evRoute, Insertion &insertion, const Instance &instance, const double tempoSaidaSat, Solution &sol)
+{
+    //cout<<"**********INSERT***********\n";
 
     const int pos = insertion.pos;
     const int node = insertion.clientId;
+
+    //PRINT_DEBUG("", "INSERT NO: "<<node<<"; POS: "<<pos);
+
     if(pos < 0 )
         return false;
 
@@ -538,18 +716,19 @@ bool GreedyAlgNS::insert(EvRoute &evRoute, Insertion &insertion, const Instance 
         return false;
 
 
-    // checar se consegue com a capacidade atual
-    // checar se consegue com a bateria atual (a bateria do veiculo antes da proxima recarga.
-    //  inserir
-    //  atualizar capacidade
-    //  atualizar bateria
-    //  atualizar custo
+    /*
+
+        checar se consegue com a capacidade atual
+        checar se consegue com a bateria atual (a bateria do veiculo antes da proxima recarga.
+        inserir
+        atualizar capacidade
+        atualizar bateria
+        atualizar custo
+
+     */
 
     // atualiza estruturas auxiliares:
-    evRoute.totalDemand += insertion.demand;
-    evRoute.distance += insertion.cost;
-    evRoute.maxDemand = insertion.demand > evRoute.maxDemand ? insertion.demand : evRoute.maxDemand;
-    evRoute.minDemand = insertion.demand < evRoute.maxDemand ? insertion.demand : evRoute.maxDemand;
+
 
     // ignoring battery distance for now;
     //this->rechargingStations;
@@ -559,41 +738,39 @@ bool GreedyAlgNS::insert(EvRoute &evRoute, Insertion &insertion, const Instance 
     //cout<<"ROTA ANTIGA: "<<printVector(evRoute.route, evRoute.routeSize)<<"\n";
 
     shiftVectorDir(evRoute.route, pos+1, 1, evRoute.routeSize);
-    evRoute.route[pos+1] = node;
+    evRoute.route[pos+1].cliente = node;
     evRoute.routeSize += 1;
 
     //cout<<"ROTA CLIENTE: "<<printVector(evRoute.route, evRoute.routeSize)<<"\n";
 
     if(insertion.insercaoEstacao.pos >= 0)
     {
-
-
         shiftVectorDir(evRoute.route, insertion.insercaoEstacao.pos+1, 1, evRoute.routeSize);
-        evRoute.route[insertion.insercaoEstacao.pos+1] = insertion.insercaoEstacao.estacao;
+        evRoute.route[insertion.insercaoEstacao.pos+1].cliente = insertion.insercaoEstacao.estacao;
         evRoute.routeSize += 1;
     }
 
 
-
-
-    // Atualizando estruturas auxiliares (demanda maxima e minima da rota)
-    if(insertion.demand < evRoute.getMinDemand())
-        evRoute.minDemand = insertion.demand;
-
-    if(insertion.demand > evRoute.getMaxDemand())
-        evRoute.maxDemand = insertion.demand;
-
-
     //cout<<"INSERTE\n";
 
-    evRoute.distance = testaRota(evRoute.route, evRoute.routeSize, Inst, &evRoute.vetRemainingBattery);
+    if(evRoute.routeSize > 2)
+    {
+        sol.distancia += -evRoute.distancia;
+    }
 
-    if(evRoute.distance <= 0.0)
+    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaidaSat);
+    evRoute.demanda += insertion.demand;
+    sol.distancia += evRoute.distancia;
+
+    if(evRoute.distancia <= 0.0)
     {
         string rotaStr;
-        evRoute.print(rotaStr, Inst);
+        evRoute.print(rotaStr, instance);
 
         PRINT_DEBUG("", "ERRO NA FUNCAO GreedyAlgNS::insert, BATERIA DA ROTA EH INVIAVEL: "<<rotaStr<<"\n\n");
+        cout<<"FUNCAO TESTA ROTA RETORNOU DISTANCIA NEGATIVA, ROTA: ";
+        evRoute.print(instance, false);
+        cout<<" EH INVALIDA\nFILE: "<<__FILE__<<"\nLINHA: "<<__LINE__<<"\n\n";
         throw "ERRO";
     }
 
@@ -604,11 +781,4 @@ bool GreedyAlgNS::insert(EvRoute &evRoute, Insertion &insertion, const Instance 
     return true;
 }
 
-*/
 bool GreedyAlgNS::insereEstacao(int rotaId, int satId) { return false; };
-
-bool GreedyAlgNS::canInsertSemBateria(EvRoute &evRoute, int node,
-                                      const Instance &Instance,
-                                      Insertion &insertion) {
-  return false;
-};

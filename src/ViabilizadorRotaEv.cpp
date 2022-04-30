@@ -10,7 +10,9 @@ using namespace NS_Auxiliary;
 
 /**
  *
- * @param evRoute
+ * Tenta viabilizar a rota inserindo um estacao de recarga em uma posicao da rota
+ *
+ * @param evRoute               Eh alterado durante a execucao
  * @param pos
  * @param instance
  * @param best
@@ -18,95 +20,91 @@ using namespace NS_Auxiliary;
  * @return
  */
 
-/*
 
 
-bool NameViabRotaEv::viabilizaRotaEv(vector<int> &route, int tamRoute, const Instance &instance, const bool best, InsercaoEstacao &insercaoEstacao)
+bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, const Instance &instance, const bool best, NameViabRotaEv::InsercaoEstacao &insercaoEstacao)
 {
+    /* *************************************************************************************************************
+     * *************************************************************************************************************
+     * Tenta viabilizar a rota inserindo um estacao de recarga em uma posicao da rota
+     *
+     * evRoute nao eh uma rota valida, somente o cliente eh valido.
+     * *************************************************************************************************************
+     * *************************************************************************************************************
+     */
+
+
     //PRINT_DEBUG("", "Rota: ");
     //for(int i=0; i < tamRoute; ++i)
     //    cout<<route[i]<<" ";
 
     //cout<<"\n\n";
 
-    std::vector<PosicaoEstacao> vectorPosicaoEstacao(instance.getN_RechargingS());
-    int proxVectorPosEst = 0;
+//    std::vector<PosicaoEstacao> vectorPosicaoEstacao(instance.getN_RechargingS());
+//    int proxVectorPosEst = 0;
 
-    // Encontra estacoes que sao utilizadas
-    for(int i=0; i < tamRoute; ++i)
+    bool existeEstacao = false;
+
+    // Verifica se todas as estacoes estao sendo utilizadas
+    for(int i=instance.getFirstSatIndex(); i <= instance.getEndSatIndex(); ++i)
     {
-        if(instance.isRechargingStation(route[i]))
+        if(evRoute.getUtilizacaoRecarga(i) < evRoute.numMaxUtilizacao)
         {
-            vectorPosicaoEstacao[proxVectorPosEst].pos = i;
-            vectorPosicaoEstacao[proxVectorPosEst].rechargingStationId = route[i];
-            ++proxVectorPosEst;
+            existeEstacao = true;
+            break;
         }
     }
 
-    if(proxVectorPosEst == instance.getN_RechargingS())
-        return false;
-
-    if(proxVectorPosEst != 0)
-        sort(vectorPosicaoEstacao.begin(), vectorPosicaoEstacao.begin()+proxVectorPosEst);
-
-
-
-    // Encontra estacoes que nao sao utilizadas
-    std::vector<int> estacoesNaoUtilizadas(instance.getN_RechargingS());
-    int proxEstN = 0;
-    PosicaoEstacao posicaoEstacao;
-
-    //cout<<"proxVectorPosEst: "<<proxVectorPosEst<<"\n";
-
-    for(int i=instance.getFirstRechargingSIndex(); i <= instance.getEndRechargingSIndex(); ++i)
-    {
-        posicaoEstacao.rechargingStationId = i;
-        if(buscaBinaria(vectorPosicaoEstacao, posicaoEstacao, proxVectorPosEst) == -1)
-        {
-            estacoesNaoUtilizadas[proxEstN] = i;
-            proxEstN += 1;
-        }
-    }
-
-    if(proxEstN == 0)
-        return false;
-
-    insercaoEstacao.distanciaRota = FLOAT_MAX;
+    insercaoEstacao.distanciaRota = DOUBLE_MAX;
     insercaoEstacao.estacao = -1;
     insercaoEstacao.pos = -1;
 
-    for(int est = 0; est < proxEstN; ++est)
+
+    // Percorre as estacoes de recarga
+    for(int est = instance.getFirstRechargingSIndex(); est <= instance.getEndRechargingSIndex(); ++est)
     {
 
-        shiftVectorDir(route, 1, 1, tamRoute);
-        tamRoute += 1;
-
-        for(int i = 0; (i+2) < (tamRoute); ++i)
+        // Verifica se eh possivel utilizar a estacao
+        if(evRoute.getUtilizacaoRecarga(est) < evRoute.numMaxUtilizacao)
         {
-            route[i + 1] = estacoesNaoUtilizadas[est];
-            float dist = testaRota(route, tamRoute, instance, nullptr);
 
-            if(dist > 0.0 && dist < insercaoEstacao.distanciaRota)
+            shiftVectorClienteDir(evRoute.route, 1, 1, evRoute.routeSize);
+            evRoute.routeSize += 1;
+
+            // Percorre a rota tentando inserir a estacao
+            for(int i = 0; (i + 2) < (evRoute.routeSize); ++i)
             {
-                insercaoEstacao.distanciaRota = dist;
-                insercaoEstacao.pos = i;
-                insercaoEstacao.estacao = estacoesNaoUtilizadas[est];
+                evRoute[i + 1].cliente = est;
 
-                if(!best)
-                    return true;
+                // Verifica se as possicoes adjacentes sao diferentes da estacao
+                if((evRoute[i].cliente != est) && (evRoute[i + 2].cliente != est))
+                {
+                    double dist = testaRota(evRoute, evRoute.routeSize, instance, false, evRoute.route[0].tempoSaida);
+
+                    if(dist > 0.0 && dist < insercaoEstacao.distanciaRota)
+                    {
+                        insercaoEstacao.distanciaRota = dist;
+                        insercaoEstacao.pos = i;
+                        insercaoEstacao.estacao = est;
+
+                        if(!best)
+                            return true;
+                    }
+
+                }
+
+                evRoute[i + 1].cliente = evRoute[i + 2].cliente;
+
             }
 
-            route[i+1] = route[i+2];
-
+            evRoute.route[evRoute.routeSize - 2].cliente = evRoute.route[evRoute.routeSize - 1].cliente;
+            evRoute.routeSize -= 1;
         }
-
-        route[tamRoute-2] = route[tamRoute-1];
-        tamRoute -= 1;
 
     }
 
 
-    if(insercaoEstacao.distanciaRota < FLOAT_MAX)
+    if(insercaoEstacao.distanciaRota < DOUBLE_MAX)
     {
         return true;
     }
@@ -115,39 +113,74 @@ bool NameViabRotaEv::viabilizaRotaEv(vector<int> &route, int tamRoute, const Ins
 
 }
 
-float NameViabRotaEv::testaRota(const vector<int> &evRoute, const int tamRoute, const Instance &instance, vector<float> *vetRemainingBattery)
+
+
+
+double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Instance &instance, const bool escrita, const double tempoSaidaSat)
 {
 
-    float bateriaRestante = instance.getEvBattery();
-    float distanciaRota = 0.0;
+    double bateriaRestante = instance.getEvBattery(evRoute.idRota);
+    double distanciaRota = 0.0;
 
-// / *    PRINT_DEBUG("\t", "TESTA ROTA:");
-    cout<<"\tRota: "<<printVector(evRoute, tamRoute)<<";  ";
-    // * /
+    if(escrita)
+    {
+        evRoute[0].tempoSaida = tempoSaidaSat;
+        evRoute[0].bateriaRestante = instance.getEvBattery(evRoute.idRota);
+    }
+
+    double tempo = tempoSaidaSat;
 
     for(int i=0; i < (tamRoute-1); ++i)
     {
-        float dist = instance.getDistance(evRoute[i], evRoute[i+1]);
-        bateriaRestante -= dist;
+        double dist = instance.getDistance(evRoute[i].cliente, evRoute[i+1].cliente);
+        bateriaRestante -= instance.getEvTaxaConsumo(evRoute.idRota)*dist;
         distanciaRota += dist;
+        tempo += dist;
+        const ClienteInst &clienteInstProx = instance.vectCliente[evRoute[i+1].cliente];
 
-        if(bateriaRestante < -TOLERANCIA_BATERIA)
+        if(!((tempo <= clienteInstProx.fimJanelaTempo) || (abs(tempo-clienteInstProx.fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO)))
         {
-            //cout<<"FALHA\n";
+/*            if(escrita)
+            {
+                PRINT_DEBUG("", "");
+                cout << "JANELA DE TEMPO\n";
+                cout<<"cliente: "<<evRoute[i+1].cliente<<"\n";
+                cout<<"tempo chegada: "<<tempo<<"\nfinal janela de tempo: "<<clienteInstProx.fimJanelaTempo<<"\n";
+            }*/
+
             return -1.0;
         }
 
-        if(instance.isRechargingStation(evRoute[i+1]))
-            bateriaRestante = instance.getEvBattery();
+        if(tempo < clienteInstProx.inicioJanelaTempo)
+            tempo = clienteInstProx.inicioJanelaTempo;
 
-        if(vetRemainingBattery)
-            (*vetRemainingBattery)[i+1] = bateriaRestante;
+        if(escrita)
+            evRoute[i+1].tempoCheg  = tempo;
+
+        tempo += clienteInstProx.tempoServico;
+
+        if(escrita)
+            evRoute[i+1].tempoSaida = tempo;
+
+        if(bateriaRestante < -TOLERANCIA_BATERIA)
+        {
+
+            return -1.0;
+        }
+
+        if(instance.isRechargingStation(evRoute[i+1].cliente))
+            bateriaRestante = instance.getEvBattery(evRoute.idRota);
+
+        if(escrita)
+            evRoute[i+1].bateriaRestante = bateriaRestante;
 
     }
 
-    //cout<<"OK\n\tDISTANCIA: "<<distanciaRota<<"\n";
+    if(escrita)
+        evRoute.atualizaParametrosRota(instance);
+
+/*    if(escrita)
+        cout<<"OK\n\tDISTANCIA: "<<distanciaRota<<"\n";*/
     return distanciaRota;
 
 }
-
-*/

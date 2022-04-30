@@ -2,6 +2,7 @@
 #include "Instance.h"
 #include <fstream>
 #include <boost/format.hpp>
+#include "Auxiliary.h"
 
 using namespace std;
 
@@ -37,20 +38,39 @@ Instance::Instance(std::vector<std::vector<double>> &distMat, float truckCap, fl
 
 
 // Getters and Setters
-float Instance::getDemand(int node) const {
+double Instance::getDemand(int node) const {
     return vectCliente[node].demanda;
 }
 
-float Instance::getTruckCap(const int id) const {
+double Instance::getTruckCap(const int id) const {
     return vectVeiculo[id].capacidade;
 }
 
-float Instance::getEvCap(const int id) const {
+double Instance::getEvCap(const int id) const {
     return vectVeiculo[id].capacidade;
 }
 
-float Instance::getEvBattery(const int id) const {
-    return vectVeiculo[id].capacidadeBateria;
+double Instance::getEvBattery(const int id) const {
+
+    if(vectVeiculo[id].capacidadeBateria < 0.0)
+    {
+        cout<<"INDICE NAO EH DE VEIC EV\nFILE: " << string(__FILE__) << "\nLINHA: " << to_string(__LINE__)<<"\n\n";
+        throw "ERRO";
+    }
+    else
+        return vectVeiculo[id].capacidadeBateria;
+}
+
+double Instance::getEvTaxaConsumo(const int id) const
+{
+    if(vectVeiculo[id].taxaConsumoDist < 0.0)
+    {
+
+        cout<<"INDICE NAO EH DE VEIC EV\nFILE: " << string(__FILE__) << "\nLINHA: " << to_string(__LINE__);
+        throw "ERRO";
+    }
+    else
+        return vectVeiculo[id].taxaConsumoDist;
 }
 
 int Instance::getNSats() const {
@@ -183,7 +203,7 @@ Instance::Instance(const std::string &str)
 
     for(int i=0; i < numNos; ++i)
     {
-        float x,y, dem, temp, tw_i, tw_f, serv;
+        double x,y, dem, temp, tw_i, tw_f, serv;
 
         file>>x>>y>>dem>>temp>>temp>>tw_i>>tw_f>>serv;
         getline(file, lixo);
@@ -196,17 +216,28 @@ Instance::Instance(const std::string &str)
     // Cria matriz de distancia
     matDist.resize(numNos, numNos, false);
 
+/*    cout<<"DEP: "<<getDepotIndex()<<"\nSAT ID INICIO: "<<getFirstSatIndex()<<"\nSAT ID FIM: "<<getEndSatIndex();
+    cout<<"\nEST ID INICIO: "<<getFirstRechargingSIndex()<<"\nEST ID FIM: "<<getEndRechargingSIndex()<<"\n";
+    cout<<"CLIENTE ID INICIO: "<<getFirstClientIndex()<<"\nCLIENTE ID FIM: "<<getEndClientIndex()<<"\n\n";
+
+    PRINT_DEBUG("", "");
+    cout<<"I J DIST(I,J)\n\n";*/
+
     for(int i=0; i < numNos; ++i)
     {
         matDist(i,i) = 0.0;
 
         for(int j=i+1; j < numNos; ++j)
         {
-            double dist = sqrt(powf(vectCliente[i].coordX - vectCliente[j].coordX,2) + powf(vectCliente[i].coordY - vectCliente[j].coordY,2));
+            double dist = sqrt(pow(vectCliente[i].coordX - vectCliente[j].coordX,2) + pow(vectCliente[i].coordY - vectCliente[j].coordY,2));
             matDist(i,j) = matDist(j,i) = dist;
+            //cout<<i<<" "<<j<<": "<<dist<<"\n";
         }
     }
 
+    evRouteSizeMax = 2 + numClients + numUtilEstacao*numRechargingS;
+
+    //cout<<"\n";
 
 
 /*    for(int i=0; i < numNos; ++i)
@@ -218,5 +249,48 @@ Instance::Instance(const std::string &str)
 
         cout<<"\n";
     }*/
+
+}
+
+void Instance::print() const
+{
+    cout<<"INSTANCIA:\n";
+    cout<<"\tnum satelites: "<<numSats<<"\n";
+    cout<<"\tnum estacoes de recarga: "<<numRechargingS<<"\n";
+    cout<<"\tnum clientes: "<<numClients<<"\n";
+
+    cout<<"\tnum veiculos a combustao: "<<numTruck<<"\n";
+    cout<<"\tnum veiculos eletricos: "<<numEv<<"\n";
+    cout<<"\n\tbateria veiculos eletricos: ";
+
+    for(int i=getFirstEvIndex(); i <= getEndEvIndex(); ++i)
+        cout<<vectVeiculo[i].capacidadeBateria<<" ";
+
+    cout<<"\n\n";
+
+    cout<<"SATELITE ID \t TW INICIO \t TW FIM\n\n";
+    for(int i=getFirstSatIndex(); i <= getEndSatIndex(); ++i)
+    {
+        const ClienteInst &clienteInst = vectCliente[i];
+        cout<<"\t"<<i<< " \t " <<clienteInst.inicioJanelaTempo<<" \t\t "<<clienteInst.fimJanelaTempo<<"\n";
+    }
+
+    cout<<"\nCLIENTE ID \t TW INICIO \t TW FIM\n\n";
+    for(int i=getFirstClientIndex(); i <= getEndClientIndex(); ++i)
+    {
+        const ClienteInst &clienteInst = vectCliente[i];
+        cout<< "\t"<< i << " \t " <<clienteInst.inicioJanelaTempo<<" \t\t "<<clienteInst.fimJanelaTempo<<"\n";
+    }
+
+    cout<<"\n\n";
+
+    cout<<"DISTANCIA DEPOSITO <SATELITE>\n\n";
+
+    const int dep = getDepotIndex();
+    for(int i=getFirstSatIndex(); i <= getEndSatIndex(); ++i)
+        cout<<"\tSAT ID: "<<i<<"\t"<<getDistance(dep, i);
+
+    cout<<"\n\n";
+
 
 }

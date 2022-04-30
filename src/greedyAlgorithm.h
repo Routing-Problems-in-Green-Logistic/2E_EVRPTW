@@ -9,14 +9,6 @@
 namespace GreedyAlgNS
 {
 
-    bool secondEchelonGreedy(Solution& Sol, const Instance& Inst, float alpha);
-    void firstEchelonGreedy(Solution &Sol, const Instance &Inst, const float beta);
-    void greedy(Solution &Sol, const Instance &Inst, const float alpha, const float beta);
-    bool visitAllClientes(std::vector<int> &visitedClients, const Instance &Inst);
-    bool existeDemandaNaoAtendida(std::vector<float> &demandaNaoAtendida);
-    float palpiteTempoFinalPrimeiroNivel(const Instance& inst);
-    bool insereEstacao(int rotaId, int satId);
-
     class Candidato
     {
     public:
@@ -44,11 +36,11 @@ namespace GreedyAlgNS
         int clientId        = -1;
         int routeId         = -1;
         int satId           = -1;
-        float cost          = 0.0;
+        double cost          = 0.0;
         float demand        = 0.0;
         NameViabRotaEv::InsercaoEstacao insercaoEstacao;
 
-        Insertion(int pos, int clientId, float cost, float demand, float batteryCost, int routeId, int satId, int rsPos,
+        Insertion(int pos, int clientId, double cost, float demand, double batteryCost, int routeId, int satId, int rsPos,
                   int rsId, NameViabRotaEv::InsercaoEstacao insercaoEstacao_)
         {
             this->pos = pos;
@@ -58,7 +50,7 @@ namespace GreedyAlgNS
             this->routeId = routeId;
             this->satId = satId;
 
-            if(insercaoEstacao_.distanciaRota < FLOAT_MAX)
+            if(insercaoEstacao_.distanciaRota < DOUBLE_MAX)
                 this->insercaoEstacao = insercaoEstacao_;
         }
         Insertion(int routeId) { this->routeId = routeId;}
@@ -69,10 +61,21 @@ namespace GreedyAlgNS
     };
 
 
-    bool canInsert(EvRoute &evRoute, int node, const Instance &Instance, Insertion &insertion);
+    bool secondEchelonGreedy(Solution& Sol, const Instance& instance, float alpha);
+    void firstEchelonGreedy(Solution &Sol, const Instance &Inst, const float beta);
+    void greedy(Solution &Sol, const Instance &Inst, const float alpha, const float beta);
+    bool visitAllClientes(std::vector<int> &visitedClients, const Instance &instance);
+    bool existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendida);
+    float palpiteTempoFinalPrimeiroNivel(const Instance& inst);
+    bool insereEstacao(int rotaId, int satId);
+
+    bool canInsert(EvRoute &evRoute, int node, const Instance &instance, Insertion &insertion, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux);
     bool canInsertSemBateria(EvRoute &evRoute, int node, const Instance &Instance, Insertion &insertion);
-    bool insert(EvRoute &evRoute, Insertion& insertion, const Instance& Inst);
+    bool
+    insert(EvRoute &evRoute, Insertion &insertion, const Instance &instance, const double tempoSaidaSat, Solution &sol);
     bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instance &instance, bool modficaSatelite);
+
+    double calculaTempoSaidaInicialSat(const Instance &instance);
 }
 
 #endif //INC_2E_EVRP_GREEDYALGORITHM_H

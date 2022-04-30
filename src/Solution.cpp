@@ -5,10 +5,10 @@
 
 Solution::Solution(const Instance &Inst)
 {
-    satelites.reserve(Inst.getNSats());
+    satelites.reserve(Inst.getNSats()+1);
 
-    for(int i = 0; i < Inst.getNSats(); i++)
-        satelites.emplace_back(Inst, Inst.getFirstSatIndex() + i);
+    for(int i = 0; i < Inst.getNSats()+1; i++)
+        satelites.emplace_back(Inst, i);
 
 
     numTrucks = Inst.getN_Trucks();
@@ -54,7 +54,7 @@ void Solution::atualizaVetSatTempoChegMax(const Instance &instance)
 //void Solution::copia(const Solution &solution)
 
 int Solution::getNSatelites() const {
-    return satelites.size();
+    return satelites.size()-1;
 }
 
 Satelite* Solution::getSatelite(int index) {
@@ -67,7 +67,7 @@ bool Solution::checkSolution(std::string &erro, const Instance &inst)
 
     // Verifica segundo nivel
 
-    for(Satelite satelite:satelites)
+    for(Satelite &satelite:satelites)
     {
         if(!satelite.checkSatellite(erro, inst))
             return false;
@@ -80,7 +80,7 @@ bool Solution::checkSolution(std::string &erro, const Instance &inst)
     for(int i=0; i < inst.getNClients(); ++i)
         vetCliente[i] = 0;
 
-    for(Satelite satelite:satelites)
+    for(Satelite &satelite:satelites)
     {
         for(EvRoute &evRoute:satelite.vetEvRoute)
         {
@@ -204,9 +204,9 @@ void Solution::print(std::string &str,  const Instance &instance)
 
     str += "2º NIVEL:\n";
 
-    for(Satelite satelite:satelites)
+    for(int sat = instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
     {
-        satelite.print(str, instance);
+        satelites[sat].print(str, instance);
     }
 
 
@@ -225,9 +225,9 @@ void Solution::print(const Instance& Inst)
 
     std::cout<<"2º NIVEL:\n";
 
-    for(Satelite satelite:satelites)
+    for(int sat = Inst.getFirstSatIndex(); sat <= Inst.getEndSatIndex(); ++sat)
     {
-        satelite.print(Inst);
+        satelites[sat].print(Inst);
     }
 
     std::cout<<"1° NIVEL:\n";

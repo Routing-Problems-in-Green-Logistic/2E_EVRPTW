@@ -6,29 +6,32 @@
 #include <boost/numeric/ublas/matrix.hpp>
 using namespace boost::numeric;
 
+#define TESTE_JANELA_TEMPO(tempoCheg, cliente, instancia) (tempoCheg <= instancia.vectCliente[cliente].fimJanelaTempo) || \
+                                                        (abs(tempo - instancia.vectCliente[cliente].fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO)
+
 struct VeiculoInst
 {
     const bool  eletrico;
-    const float capacidade;
+    const double  capacidade;
 
-    const float capacidadeBateria;
-    const float taxaRecarga;
-    const float taxaConsumoDist;
+    const double capacidadeBateria;
+    const double taxaRecarga;
+    const double taxaConsumoDist;
 
-    explicit VeiculoInst(float _cap):eletrico(false), capacidade(_cap), capacidadeBateria(0.0), taxaRecarga(0.0), taxaConsumoDist(0.0){}
-    VeiculoInst(float _cap, float _capBat, float _taxaR, float _taxaC):eletrico(true), capacidade(_cap), capacidadeBateria(_capBat), taxaRecarga(_taxaR), taxaConsumoDist(_taxaC){}
+    explicit VeiculoInst(double _cap):eletrico(false), capacidade(_cap), capacidadeBateria(-1.0), taxaRecarga(-1.0), taxaConsumoDist(-1.0){}
+    VeiculoInst(double _cap, double _capBat, double _taxaR, double _taxaC):eletrico(true), capacidade(_cap), capacidadeBateria(_capBat), taxaRecarga(_taxaR), taxaConsumoDist(_taxaC){}
 
 };
 
 struct ClienteInst
 {
 
-    const float coordX;
-    const float coordY;
-    const float demanda;
-    const float inicioJanelaTempo;
-    const float fimJanelaTempo;
-    const float tempoServico;
+    const double coordX;
+    const double coordY;
+    const double demanda;
+    const double inicioJanelaTempo;
+    const double fimJanelaTempo;
+    const double tempoServico;
 
 
 };
@@ -36,7 +39,7 @@ struct ClienteInst
 class Instance{
 public:
     Instance(const std::string &file);
-    float getDemand(int node) const; // the const means that the method promises not to alter any members of the class.
+    double getDemand(int node) const; // the const means that the method promises not to alter any members of the class.
     double getDistance(int n1, int n2) const;
 
     std::pair<float,float> getCoordinate(int node) const;
@@ -55,9 +58,10 @@ public:
     int getFirstEvIndex() const {return numTruck;}
     int getEndEvIndex() const {return numTruck + numEv -1;}
 
-    float getTruckCap(const int id) const;
-    float getEvCap(const int id) const;
-    float getEvBattery(const int id) const;
+    double getTruckCap(const int id) const;
+    double getEvCap(const int id) const;
+    double getEvBattery(const int id) const;
+    double getEvTaxaConsumo(const int id) const;
     int getNSats() const;
     int getNClients() const;
 
@@ -73,6 +77,20 @@ public:
     int getNNodes() const;
     const ClienteInst& getClient(int clientId) const { return this->vectCliente.at(clientId);}
 
+    void print() const;
+
+    double tempoRecarga(const int idRota, const double bat) const
+    {
+        if(bat > 0)
+            return vectVeiculo[idRota].taxaRecarga * (vectVeiculo[idRota].capacidadeBateria-bat);
+        else
+            return vectVeiculo[idRota].taxaRecarga * vectVeiculo[idRota].capacidadeBateria;
+    }
+
+    double getInicioJanelaTempoCliente(int id) const {return vectCliente[id].inicioJanelaTempo;}
+    double getFimJanelaTempoCliente(int id) const {return vectCliente[id].fimJanelaTempo;}
+
+    int getEvRouteSizeMax() const {return evRouteSizeMax;}
 
 //private:
     ublas::matrix<double> matDist;
@@ -84,6 +102,7 @@ public:
     int numNos; // deposito + numSats + numRechargingS + numClients
     const int numUtilEstacao = 3;
 
+    int evRouteSizeMax = -1;
 
 
 };
