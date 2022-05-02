@@ -33,6 +33,9 @@ Instance* getInstanceFromFile(std::string &fileName);
 void saveSolutionToFile(const Solution& Sol, const std::string& fileName="solution.txt");
 string getNomeInstancia(string str);
 
+
+#define NUM_EXEC 400
+
 #define MAIN_METODO     0
 #define MAIN_DIST       1
 #define MAIN_TESTE      2
@@ -51,19 +54,22 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    long semente = 0;
+    uint32_t semente = 0;
 
 
     if(argc == 3)
     {
-        semente = atol(argv[2]);
+        semente = atoll(argv[2]);
         //cout<<"SEMENTE: \t"<<semente<<"\n";
     }
     else
-        semente = time(nullptr);
+    {
+        //auto aux = std::chrono::high_resolution_clock::now();
+        semente = duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    }
 
     seed(semente);
-
 
     try
     {
@@ -81,7 +87,7 @@ int main(int argc, char* argv[])
 
         auto start = std::chrono::high_resolution_clock::now();
 
-        for(int i=0; i < 2000; ++i)
+        for(int i=0; i < NUM_EXEC; ++i)
         {
 
             Instance instance(file);
@@ -105,7 +111,7 @@ int main(int argc, char* argv[])
         std::chrono::duration<double> tempoAux = end - start;
         tempo = tempoAux.count();
 
-        cout<<"INST\tDISTANCIA_MEDIA\tBEST\tNUM\tTEMPO\n";
+        cout<<"\nINST\tDISTANCIA_MEDIA\tBEST\tNUM\tTEMPO\n";
         cout<<nomeInst<<"\t"<<val/num<<"\t"<<best<<"\t"<<num<<"\t"<<tempo<<"\n\n";
 
     }

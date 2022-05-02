@@ -21,8 +21,18 @@ EvRoute::EvRoute(const int _satellite, const int _idRota, const int RouteSizeMax
     idRota = _idRota;
 
     route.reserve(RouteSizeMax);
-    route.emplace_back(satelite, instance.getEvBattery(idRota), -1.0, -1.0);
-    route.emplace_back(satelite, instance.getEvBattery(idRota), -1.0, -1.0);
+
+    if(idRota != -1)
+    {
+        route.emplace_back(satelite, instance.getEvBattery(idRota), -1.0, -1.0);
+        route.emplace_back(satelite, instance.getEvBattery(idRota), -1.0, -1.0);
+    }
+    else
+    {
+
+        route.emplace_back(satelite, 0, -1.0, -1.0);
+        route.emplace_back(satelite, 0, -1.0, -1.0);
+    }
 
 
     for(int i=2; i < RouteSizeMax; ++i)

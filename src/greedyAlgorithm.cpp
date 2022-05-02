@@ -314,7 +314,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
 bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelite &satelite, const Instance &instance, const bool modificaSatelite)
 {
 
-    bool viavel = false;
+    bool viavel = true;
 
     PRINT_DEBUG("\t\t\t", "TEMPO CHEGADA VEIC COMB: "<<tempoChegada);
 
@@ -327,27 +327,33 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
 
         PRINT_DEBUG("\t\t\t", "TEMPO SAIDA EV: "<<tempoEv<<"; TEMPO CHEGADA VEIC COMB: "<<tempoChegada);
 
-        if(tempoEv >= tempoChegada)
+        if(tempoSaidaEv.evRoute->routeSize > 2)
         {
-            viavel = true;
-            break;
-        }
-        else
-        {
-            // Verifica se eh possivel realizar um shift na rota
 
-            const int indice = tempoSaidaEv.evRoute->route[0].posMenorFolga;
-            const int cliente = tempoSaidaEv.evRoute->route[indice].cliente;
-            const double twFim = instance.vectCliente[cliente].fimJanelaTempo;
-
-            double diferenca = twFim - tempoSaidaEv.evRoute->route[indice].tempoCheg;
-            if(diferenca < 0.0)
-                diferenca = 0.0;
-
-            if(!((tempoEv+diferenca) >= tempoChegada))
+/*            if(tempoEv >= tempoChegada)
             {
-                viavel = false;
+                viavel = true;
                 break;
+            } else*/
+            if(tempoEv < tempoChegada)
+            {
+                // Verifica se eh possivel realizar um shift na rota
+
+                const int indice = tempoSaidaEv.evRoute->route[0].posMenorFolga;
+                cout << "indice: " << indice << "\n";
+                const int cliente = tempoSaidaEv.evRoute->route[indice].cliente;
+                const double twFim = instance.vectCliente[cliente].fimJanelaTempo;
+
+                double diferenca = twFim - tempoSaidaEv.evRoute->route[indice].tempoCheg;
+                if(diferenca < 0.0)
+                    diferenca = 0.0;
+
+                if(!((tempoEv + diferenca) >= tempoChegada))
+                {
+                    viavel = false;
+                    break;
+                }
+
             }
 
         }
@@ -362,33 +368,38 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
         {
 
             const double tempoEv = tempoSaidaEv.evRoute->route[0].tempoSaida;
-            if(tempoEv >= tempoChegada)
+
+            if(tempoSaidaEv.evRoute->routeSize > 2)
             {
-                return true;
-            }
-            else
-            {
-                // Verifica se eh possivel realizar um shift na rota
-
-                const int indice = tempoSaidaEv.evRoute->route[0].posMenorFolga;
-                const int cliente = tempoSaidaEv.evRoute->route[indice].cliente;
-                const double twFim = instance.vectCliente[cliente].fimJanelaTempo;
-
-                double diferenca = twFim - tempoSaidaEv.evRoute->route[indice].tempoCheg;
-                if(diferenca < 0.0)
-                    diferenca = 0.0;
-
-                if(!((tempoEv+diferenca) >= tempoChegada))
+                if(tempoEv >= tempoChegada)
                 {
-                    // Nao deve chegar aqui
-                    return false;
-                }
-                else
+                    return true;
+                } else
                 {
-                    if(!tempoSaidaEv.evRoute->alteraTempoSaida(tempoChegada, instance))
+                    // Verifica se eh possivel realizar um shift na rota
+
+                    const int indice = tempoSaidaEv.evRoute->route[0].posMenorFolga;
+                    const int cliente = tempoSaidaEv.evRoute->route[indice].cliente;
+                    const double twFim = instance.vectCliente[cliente].fimJanelaTempo;
+
+                    double diferenca = twFim - tempoSaidaEv.evRoute->route[indice].tempoCheg;
+                    if(diferenca < 0.0)
+                        diferenca = 0.0;
+
+                    if(!((tempoEv + diferenca) >= tempoChegada))
                     {
-                        PRINT_DEBUG("", "ERRO AO ALTERAR O TEMPO DE SAIDA DA ROTA EV DE ID: "<<tempoSaidaEv.evRoute->idRota<<" DO SATELITE: "<<satelite.sateliteId<<"\n\n");
-                        throw "ERRO";
+                        // Nao deve chegar aqui
+                        return false;
+                    } else
+                    {
+                        if(!tempoSaidaEv.evRoute->alteraTempoSaida(tempoChegada, instance))
+                        {
+                            PRINT_DEBUG("", "ERRO AO ALTERAR O TEMPO DE SAIDA DA ROTA EV DE ID: "
+                                    << tempoSaidaEv.evRoute->idRota << " DO SATELITE: " << satelite.sateliteId
+                                    << "\n\n");
+                            throw "ERRO";
+                        }
+
                     }
 
                 }
