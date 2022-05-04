@@ -42,7 +42,7 @@ EvRoute &Satelite::getRoute(int i) {
 
 bool Satelite::checkSatellite(std::string &erro, const Instance &Inst)
 {
-    float demandaAux = 0.0;
+    double demandaAux = 0.0;
     double distanciaAux = 0.0;
 
     // Verifica os satellite
@@ -87,7 +87,7 @@ void Satelite::print(std::string &str, const Instance &instance)
     for(EvRoute &evRoute:vetEvRoute)
     {
         str += "\tROTA ID: "+ std::to_string(evRoute.idRota)+".:  ";
-        evRoute.print(str, instance);
+        evRoute.print(str, instance, false);
         str+= "\n";
     }
 

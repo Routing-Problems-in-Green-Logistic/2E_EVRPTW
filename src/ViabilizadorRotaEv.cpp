@@ -138,46 +138,66 @@ double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Ins
         tempo += dist;
         const ClienteInst &clienteInstProx = instance.vectCliente[evRoute[i+1].cliente];
 
+
+        if(tempo < clienteInstProx.inicioJanelaTempo)
+            tempo = clienteInstProx.inicioJanelaTempo;
+
+
         if(!((tempo <= clienteInstProx.fimJanelaTempo) || (abs(tempo-clienteInstProx.fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO)))
         {
-/*            if(escrita)
+            if(escrita)
             {
+                /*
                 PRINT_DEBUG("", "");
                 cout << "JANELA DE TEMPO\n";
                 cout<<"cliente: "<<evRoute[i+1].cliente<<"\n";
                 cout<<"tempo chegada: "<<tempo<<"\nfinal janela de tempo: "<<clienteInstProx.fimJanelaTempo<<"\n";
-            }*/
+                 */
+            }
+
+            //cout<<"Inviavel, janela de tempo i: "<<i<<" \n";
+            //cout<<"\tFim Janela: "<<clienteInstProx.fimJanelaTempo<<"; tempo chegada: "<<tempo<<"\n";
+
+            //evRoute.print(instance, true);
 
             return -1.0;
         }
 
-        if(tempo < clienteInstProx.inicioJanelaTempo)
-            tempo = clienteInstProx.inicioJanelaTempo;
 
         if(escrita)
             evRoute[i+1].tempoCheg  = tempo;
 
         tempo += clienteInstProx.tempoServico;
 
-        if(escrita)
-            evRoute[i+1].tempoSaida = tempo;
-
         if(bateriaRestante < -TOLERANCIA_BATERIA)
         {
+            //cout<<"BATERIA!\n";
 
+            //cout<<"Inviavel: \n";
+            //evRoute.print(instance, true);
             return -1.0;
         }
 
         if(instance.isRechargingStation(evRoute[i+1].cliente))
+        {
+            tempo += (instance.getEvBattery(evRoute.idRota) - bateriaRestante) *  instance.vectVeiculo[evRoute.idRota].taxaRecarga;
             bateriaRestante = instance.getEvBattery(evRoute.idRota);
+        }
+
 
         if(escrita)
-            evRoute[i+1].bateriaRestante = bateriaRestante;
+        {
+            evRoute[i + 1].tempoSaida = tempo;
+            evRoute[i + 1].bateriaRestante = bateriaRestante;
+        }
 
     }
 
     if(escrita)
         evRoute.atualizaParametrosRota(instance);
+
+
+
 
 /*    if(escrita)
         cout<<"OK\n\tDISTANCIA: "<<distanciaRota<<"\n";*/

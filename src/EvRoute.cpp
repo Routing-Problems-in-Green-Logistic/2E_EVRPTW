@@ -142,20 +142,20 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
     if(!((route[0].cliente == satelite) && (route[routeSize - 1].cliente == satelite)))
     {
         erro += "ERRO EV_ROUTE, SATELLITE " + std::to_string(satelite) + "\nINICIO E FIM DA ROTA SAO DIFERENTES DE SATELLITE_ID.\nROTA: ";
-        print(erro, instance);
+        print(erro, instance, false);
         return false;
     }
 
-    float battery = instance.getEvBattery(idRota);
+    double battery = instance.getEvBattery(idRota);
     double distanceAux = 0.0;
-    float demandaAux = 0.0;
+    double demandaAux = 0.0;
 
     // Verifica se a bateria no  inicio da rota eh igual a quantidade de bateria
     if(route[0].bateriaRestante != battery)
     {
         erro += "ERRO EV_ROUTE, SATELLITE " + std::to_string(satelite) + "\nBATERIA RESTANTE INCORRETO. POSICAO: " + std::to_string(0) + "\nROTA: ";
 
-        print(erro, instance);
+        print(erro, instance, false);
         return false;
     }
 
@@ -176,25 +176,27 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
         // Calcula o tempo de chegada
         tempo += aux;
 
+
+        // Verifica se o EV chega antes do inicio da tw
+        if(tempo < instance.vectCliente[clienteI].inicioJanelaTempo)
+            tempo = instance.vectCliente[clienteI].inicioJanelaTempo;
+
         if(abs(tempo-route[i].tempoCheg) > TOLERANCIA_TEMPO)
         {
             erro += "ERRO EV_ROUTE, SATELLITE " + std::to_string(satelite) + "\nTEMPO DE CHEGADA AO CLIENTE " + to_string(route[i].cliente) +
                     " ESTA ERRADO. CALCULADO: " + to_string(tempo) + ", ARMAZENADO: " + to_string(route[i].tempoCheg) + "\nROTA:\n";
-            print(erro, instance);
+            print(erro, instance, false);
             return false;
         }
 
         // Verifica a janela de tempo
-        if(abs(tempo - instance.vectCliente[clienteI].fimJanelaTempo) > TOLERANCIA_JANELA_TEMPO)
+        if((tempo > instance.vectCliente[clienteI].fimJanelaTempo) && (abs(tempo - instance.vectCliente[clienteI].fimJanelaTempo) > TOLERANCIA_JANELA_TEMPO))
         {
             erro += "ERRO EV_ROUTE, SATELLITE " + std::to_string(satelite) + "\nJANELA DE TEMPO DO CLIENTE " + to_string(clienteI) +
                     " EH VIOLADA, FINAL DA TW: " + to_string(instance.vectCliente[clienteI].fimJanelaTempo) + "; TEMPO DE CHEGADA: " +
                     to_string(tempo);
         }
 
-        // Verifica se o EV chega antes do inicio da tw
-        if(tempo < instance.vectCliente[clienteI].inicioJanelaTempo)
-            tempo = instance.vectCliente[clienteI].inicioJanelaTempo;
 
         if(instance.isRechargingStation(route[i].cliente))
         {
@@ -207,7 +209,7 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
                 throw "ERRO";
             }
 
-            float tempoRecarga = (instance.getEvBattery(idRota) - battery) * instance.vectVeiculo[idRota].taxaRecarga;
+            double tempoRecarga = (instance.getEvBattery(idRota) - battery) * instance.vectVeiculo[idRota].taxaRecarga;
             tempo += tempoRecarga;
 
         }
@@ -222,7 +224,7 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
             erro += "ERRO EV_ROUTE, SATELLITE " + std::to_string(satelite) + "\nTEMPO DE SAIDA DO CLIENTE " +
                     to_string(route[i].cliente) + " ESTA ERRADO. CALCULADO: " + to_string(tempo) +
                     ", ARMAZENADO: " + to_string(route[i].tempoSaida) + "\nROTA:\n";
-            print(erro, instance);
+            print(erro, instance, false);
             return false;
         }
 
@@ -233,7 +235,7 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
             erro += "ERRO EV_ROUTE, SATELLITE " + std::to_string(satelite) + "\nBATERIA!  " + " POSICAO: " +
                     std::to_string(i) + "\nROTA: ";
 
-            print(erro, instance);
+            print(erro, instance, false);
 
             erro += "BATERIA: "+ to_string(battery);
 
@@ -249,7 +251,7 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
     if(abs(demanda - demandaAux) > TOLERANCIA_DEMANDA)
     {
         string erroPrint;
-        print(erroPrint, instance);
+        print(erroPrint, instance, false);
 
         erro += "ERRO, SATELLITE: " + to_string(satelite) + ", ROTA: " + erroPrint + "; DEMANDA ESTA ERRADA, DEMANDA ROTA: " +
                 to_string(demanda) + ", DEMANDA CALCULADA: " + to_string(demandaAux) + "\n\n";
@@ -268,7 +270,7 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
     {
 
         string erroPrint;
-        print(erroPrint, instance);
+        print(erroPrint, instance, false);
 
         erro += "ERRO, SATELLITE: " + to_string(satelite) + ", ROTA: " + erroPrint + "; DISTANCIA ESTA ERRADA, DISTANCIA ROTA: " +
                 to_string(distancia) + ", DISTANCIA CALCULADA: " + to_string(distanceAux) + "\n\n";
@@ -279,17 +281,27 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
     return true;
 }
 
-void EvRoute::print(std::string &str, const Instance &instance) const
+void EvRoute::print(std::string &str, const Instance &instance, const bool somenteNo) const
 {
 
     for(int i=0; i < routeSize; ++i)
     {
-        if(instance.isRechargingStation(route[i].cliente))
-            str += "RS("+ to_string(route[i].cliente)+";[";
-        else
-            str +=  to_string(route[i].cliente)+"([";
+        if(!somenteNo)
+        {
+            if(instance.isRechargingStation(route[i].cliente))
+                str += "RS(" + to_string(route[i].cliente) + ";[";
+            else
+                str += to_string(route[i].cliente) + "([";
 
-        str += to_string(route[i].tempoCheg) + ";" + to_string(route[i].tempoSaida) + "] BT: " + to_string(route[i].bateriaRestante) + "\t";
+            str += to_string(route[i].tempoCheg) + ";" + to_string(route[i].tempoSaida) + "] BT: " +to_string(route[i].bateriaRestante) + "\t";
+        }
+        else
+        {
+            if(instance.isRechargingStation(route[i].cliente))
+                str += "RS(" + to_string(route[i].cliente) + ") ";
+            else
+                str += to_string(route[i].cliente) + " ";
+        }
     }
 
     str += "\nDistance: " + to_string(distancia) + "\n\n";
@@ -321,7 +333,6 @@ void EvRoute::atualizaParametrosRota(const Instance &instance)
 
             if(instance.isRechargingStation(evNo.cliente))
             {
-                PRINT_DEBUG("", ""<<route[i-1].cliente<<" "<<evNo.cliente);
                 evNo.estacaoBateriaRestante = route[i-1].bateriaRestante - instance.getDistance(route[i-1].cliente, evNo.cliente);
                 posProxEstacao = i;
 

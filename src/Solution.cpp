@@ -115,11 +115,14 @@ bool Solution::checkSolution(std::string &erro, const Instance &inst)
 
     // Verifica se as demandas dos satelites sao atendidas
 
-    std::vector<float> satelliteDemand;
+    std::vector<double> satelliteDemand;
     satelliteDemand.reserve(inst.getNSats() + 1);
 
     for(int i=0; i < inst.getNSats() + 1; ++i)
         satelliteDemand.push_back(0.0);
+
+
+    string aux;
 
     for(int t=0; t < numTrucks; ++t)
     {
@@ -135,18 +138,31 @@ bool Solution::checkSolution(std::string &erro, const Instance &inst)
 
         double dist = 0.0;
 
-        if(!route.checkDistence(inst, &dist))
+        if(!route.checkDistence(inst, &dist, aux))
         {
-            erro += "ERRO, TRUCK "+std::to_string(t)+":: DISTANCIA CALCULADA: "+ std::to_string(dist) + " != DISTANCIA R0TA: "+ std::to_string(route.totalDistence)+"\n";
+            erro += "ERRO, TRUCK "+std::to_string(t)+":: " + aux;
             erroB = true;
+            break;
         }
+
+        distanciaAux += dist;
 
         for(int c=1; (c+1) < inst.getNSats() + 1; ++c)
             satelliteDemand[c] += route.satelliteDemand[c];
     }
 
+    // Verifica satelite
+
     for(int c=1; (c+1) < inst.getNSats() + 1; ++c)
     {
+
+
+        if(!satelites[c].checkSatellite(erro, inst))
+        {
+            erro += "SATELITE "+ to_string(c)+" ERRO: "+erro+"\n";
+            erroB = true;
+            break;
+        }
 
         if(std::abs(satelliteDemand[c]- satelites[c-1].demanda) > TOLERANCIA_DEMANDA)
         {
@@ -154,47 +170,59 @@ bool Solution::checkSolution(std::string &erro, const Instance &inst)
                     "; ATENDIDO: "+to_string(satelliteDemand[c])+"\n";
 
             erroB = true;
+            break;
         }
     }
 
-    // Verifica a sincronização entre o primeiro e o segundo nivel
-
-    atualizaVetSatTempoChegMax(inst);
-
-    // vet satTempo contem o tempo de chegada mais tarde de um veiculo do primeiro nivel para o i° satelite
-    // Todos os tempos de saida do i° satelite tem que ser após o tempo em satTempo
-
-    for(int sat=0; sat < inst.getNSats(); ++sat)
+    if(!erroB)
     {
-        const double tempo = satTempoChegMax[sat];
-        Satelite &satelite = satelites[sat];
+        // Verifica a sincronização entre o primeiro e o segundo nivel
 
-        // Verifica as rotas
-        for(EvRoute &evRoute:satelite.vetEvRoute)
+        atualizaVetSatTempoChegMax(inst);
+
+        // vet satTempo contem o tempo de chegada mais tarde de um veiculo do primeiro nivel para o i° satelite
+        // Todos os tempos de saida do i° satelite tem que ser após o tempo em satTempo
+
+        for(int sat = 0; sat < inst.getNSats(); ++sat)
         {
-            if(evRoute.routeSize > 2)
+            const double tempo = satTempoChegMax[sat];
+            Satelite &satelite = satelites[sat];
+
+            // Verifica as rotas
+            for(EvRoute &evRoute: satelite.vetEvRoute)
             {
-                if(evRoute[0].tempoSaida < tempo)
+                if(evRoute.routeSize > 2)
                 {
-                    string strRota;
-                    evRoute.print(strRota, inst);
-                    erro += "ERRO SATELITE: "+ to_string(sat)+" O TEMPO DE SAIDA DA ROTA: "+strRota+" EH MENOR DO QUE O TEMPO DE CHEGADA DA ULTIMA ROTA DO 1° NIVEL: "+to_string(tempo) + "\n";
-                    erroB = true;
+                    if(evRoute[0].tempoSaida < tempo)
+                    {
+                        string strRota;
+                        evRoute.print(strRota, inst, false);
+                        erro += "ERRO SATELITE: " + to_string(sat) + " O TEMPO DE SAIDA DA ROTA: " + strRota +
+                                " EH MENOR DO QUE O TEMPO DE CHEGADA DA ULTIMA ROTA DO 1° NIVEL: " + to_string(tempo) +
+                                "\n";
+                        erroB = true;
+                        break;
+                    }
+
+                    distanciaAux += evRoute.distancia;
                 }
-
-                distanciaAux += evRoute.distancia;
             }
+
+            if(erroB)
+                break;
         }
-
     }
 
-    if(abs(distanciaAux-distancia) > TOLERANCIA_DIST_SOLUCAO)
+    if(!erroB)
     {
-        erro += "ERRO NA DISTANCIA DA SOLUCAO, DIST: "+ to_string(distancia) + "; CALCULADO: " + to_string(distanciaAux) + "; TOLERANCIA_DIST_SOLUCAO: "+
-                  to_string(TOLERANCIA_DIST_SOLUCAO) + "\n";
-        erroB = true;
-    }
 
+        if(abs(distanciaAux - distancia) > TOLERANCIA_DIST_SOLUCAO)
+        {
+            erro += "ERRO NA DISTANCIA DA SOLUCAO, DIST: " + to_string(distancia) + "; CALCULADO: " +
+                    to_string(distanciaAux) + "; TOLERANCIA_DIST_SOLUCAO: " + to_string(TOLERANCIA_DIST_SOLUCAO) + "\n";
+            erroB = true;
+        }
+    }
     return !erroB;
 
 }

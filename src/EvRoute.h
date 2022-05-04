@@ -121,7 +121,7 @@ public:
     EvRoute(int satelite, int idRota, int RouteSizeMax, const Instance &instance);
 
     void print(const Instance &instance, const bool somenteNo) const;
-    void print(std::string &str, const Instance &instance) const;
+    void print(std::string &str, const Instance &instance, const bool somenteNo) const;
     std::string getRota(const Instance &instance, const bool somenteNo);
     bool checkRoute(std::string &erro, const Instance &instance) const;
     void atualizaParametrosRota(const Instance &instance);

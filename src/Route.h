@@ -23,7 +23,7 @@ public:
     float getCost() const {return totalDistence;}
     void print();
     void print(std::string &str);
-    bool checkDistence(const Instance &instance, double *dist);
+    bool checkDistence(const Instance &instance, double *dist, std::string &str);
 
     std::vector<RouteNo> rota;
     int routeSize = 2;
@@ -34,7 +34,7 @@ public:
 
     // Armazena a demanda levada pelo veiculo de cada satellite.
     // Possui uma entrada para cada satellite da instancia + deposito!
-    std::vector<float> satelliteDemand;
+    std::vector<double> satelliteDemand;
 };
 
 #endif

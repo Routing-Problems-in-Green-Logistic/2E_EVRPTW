@@ -1,6 +1,9 @@
 /*
- *  ERRO:
- *  ./run ../instancias/2e-vrp-tw/Customer_5/C103_C5x.txt 1650565715
+ *  ./run ../instancias/2e-vrp-tw/Customer_10/C101_C10x.txt 1651594136
+ *
+ *  ERRO escrita da rota
+ *
+ *  Esta processando 1 9 12 4 15 1 (ja esta na solucao) no lugar de 1 11 9 12 4 15 1 (nao esta na solucao e eh inviavel)
  */
 
 #include <iostream>
@@ -86,6 +89,7 @@ int main(int argc, char* argv[])
 
 
         auto start = std::chrono::high_resolution_clock::now();
+        string erro;
 
         for(int i=0; i < NUM_EXEC; ++i)
         {
@@ -93,14 +97,27 @@ int main(int argc, char* argv[])
             Instance instance(file);
             Solution sol(instance);
             greedy(sol, instance, 0.5, 0.5);
+            //cout<<"i: "<<i<<"\n";
 
             if(sol.viavel)
             {
-                num += 1;
-                val += sol.distancia;
+                erro = "";
 
-                if(sol.distancia < best)
-                    best = sol.distancia;
+                if(!sol.checkSolution(erro, instance))
+                {
+                    cout << erro<< "\n****************************************************************************************\n\n";
+                    break;
+
+                }
+                else
+                {
+
+                    num += 1;
+                    val += sol.distancia;
+
+                    if(sol.distancia < best)
+                        best = sol.distancia;
+                }
             }
 
 
@@ -119,11 +136,18 @@ int main(int argc, char* argv[])
     {
         cout<<"EXCEPTION:\n";
         cout<<e.what()<<"\n";
+
+        cout<<"SEMENTE: \t"<<semente<<"\n";
     }
     catch(char const* exception)
     {
         cout<<"EXCEPTION:\n"<<exception<<"\n\n";
+        cout<<"SEMENTE: \t"<<semente<<"\n";
+
+
     }
+
+
 
 
 

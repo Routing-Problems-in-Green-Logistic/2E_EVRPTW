@@ -61,16 +61,32 @@ void Route::print(std::string &str)
     str += "\nDISTANCIA: "+to_string(totalDistence) +"\n";
 }
 
-bool Route::checkDistence(const Instance &instance, double *dist)
+bool Route::checkDistence(const Instance &instance, double *dist, string &str)
 {
 
     *dist = 0.0;
 
+
     for(int i=0; (i+1)<routeSize; ++i)
-        *dist += instance.getDistance(rota[i].satellite, rota[i+1].satellite);
+    {
+        *dist += instance.getDistance(rota[i].satellite, rota[i + 1].satellite);
+
+        if((i+1) != (routeSize-1))
+        {
+            if(satelliteDemand[i+1] == 0.0 || satelliteDemand[i+1] < TOLERANCIA_DEMANDA)
+            {
+                str += "SATELITE "+ to_string(rota[i+1].satellite) + "EH VISITADO LEVANDO 0 DE DEMANDA\n";
+                return false;
+            }
+        }
+
+    }
 
     if(std::abs(*dist-totalDistence) > TOLERANCIA_DISTANCIA)
+    {
+        str += "DISTANCIA CALCULADA: "+ std::to_string(*dist) + " != DISTANCIA R0TA: "+ std::to_string(totalDistence)+"\n";
         return false;
+    }
     else
         return true;
 
