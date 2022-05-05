@@ -147,12 +147,11 @@ double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Ins
         {
             if(escrita)
             {
-                /*
-                PRINT_DEBUG("", "");
+
                 cout << "JANELA DE TEMPO\n";
                 cout<<"cliente: "<<evRoute[i+1].cliente<<"\n";
                 cout<<"tempo chegada: "<<tempo<<"\nfinal janela de tempo: "<<clienteInstProx.fimJanelaTempo<<"\n";
-                 */
+
             }
 
             //cout<<"Inviavel, janela de tempo i: "<<i<<" \n";
@@ -171,7 +170,8 @@ double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Ins
 
         if(bateriaRestante < -TOLERANCIA_BATERIA)
         {
-            //cout<<"BATERIA!\n";
+            if(escrita)
+                cout<<"BATERIA!\n";
 
             //cout<<"Inviavel: \n";
             //evRoute.print(instance, true);

@@ -309,9 +309,12 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
 
 }
 
+/*
+ * Erro!
+ * Verificar o shift da rota, possibilidade de atrasar a rota
+ */
 
 // Com o tempo de chegada ao satelite, eh verificado se as rotas dos EV's podem sair apos o tempo de chegada do veic a combustao
-
 bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelite &satelite, const Instance &instance, const bool modificaSatelite)
 {
 
@@ -452,6 +455,7 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance
     double bestInsertionCost = DOUBLE_MAX;
     bool viavel = false;
 
+    //cout<<"func: canInsert\n";
 
 //    EvRoute evRouteAux(satelite, evRoute.idRota, evRoute.routeSizeMax, instance);
 
@@ -524,6 +528,34 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance
         double distanceAux = instance.getDistance(evRouteAux[pos].cliente, node) + instance.getDistance(node, evRouteAux[pos+2].cliente) -
                              instance.getDistance(evRouteAux[pos].cliente, evRouteAux[pos+2].cliente);
 
+
+        if(distanceAux < bestInsertionCost)
+        {
+            double custo = testaRota(evRouteAux, evRouteAux.routeSize, instance, false, tempoSaidaSat);
+
+            if(custo > 0.0)
+            {
+
+                bestInsertionCost = distanceAux;
+                insertion = Insertion(pos, node, distanceAux, demand, 0.0, insertion.routeId, insertion.satId, -1, -1, {});
+                viavel = true;
+
+            }
+            else if(viabilizaRotaEv(evRouteAux, instance, true, insercaoEstacao))
+            {
+
+                double insertionCost = insercaoEstacao.distanciaRota - distanciaRota;
+                if(insertionCost < bestInsertionCost)
+                {
+                    bestInsertionCost = insertionCost;
+                    insertion = Insertion(pos, node, insertionCost, demand, 0.0, insertion.routeId, insertion.satId, -1, -1, insercaoEstacao);
+                    viavel = true;
+                }
+            }
+        }
+
+
+        /*
         double tempoChegada = evRouteAux[pos].tempoSaida + instance.getDistance(evRouteAux[pos].cliente, node);
 
         //cout<<"tempo de chegada no: "<<node<<".: "<<tempoChegada<<"  fim janela de tempo: "<<instNode.fimJanelaTempo<<"\n";
@@ -538,6 +570,7 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance
 
             // Calcula tempo de chegada em CLIENTE[pos+2]
             tempoChegada += instance.getDistance(node, evRouteAux[pos + 2].cliente);
+            cout<<evRouteAux[pos+2].cliente<<" tempo cheg: "<<tempoChegada<<"\n";
 
 
             const ClienteInst &instPosProx = instance.vectCliente[evRouteAux[pos+2].cliente];
@@ -596,6 +629,9 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance
                         batteryOk = false;
                     }
 
+                    int ultimo = -1;
+                    double tempTempoCheg = -1.0;
+
                     if(batteryOk)
                     {
 
@@ -609,6 +645,8 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance
                             remaingBattery = instance.getEvBattery(evRoute.idRota);
 
                         }
+                        else
+                            tempo += instance.vectCliente[evRouteAux[pos+2].cliente].tempoServico;
 
 
 
@@ -619,6 +657,9 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance
 
                             remaingBattery -= instance.getDistance(clienteI, clienteII);
                             tempo += instance.getDistance(clienteI, clienteII);
+
+                            tempTempoCheg = tempo;
+                            ultimo = clienteII;
 
                             if(remaingBattery < -TOLERANCIA_BATERIA)
                             {
@@ -649,6 +690,9 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance
                             }
 
 
+                            cout<<evRouteAux[i+1].cliente<<": tempo ["<<tempoChegada<<";"<<tempo<<"] dist("<<evRouteAux[i].cliente<<", "<<evRouteAux[i+1].cliente<<"): "<<instance.getDistance(clienteI, clienteII)<<
+                                ";  tempoAtend: "<<instance.vectCliente[clienteII].tempoServico<<"\n";
+
                             //cout<<"\tpos: "<<pos<<"; "<<evRoute[pos]<<": "<<remaingBattery<<";\n";
 
                             //cout<<evRoute[i+1]<<": "<<remaingBattery<<"\n";
@@ -666,6 +710,11 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance
                             bestInsertionCost = insertionCost;
                             insertion = Insertion(pos, node, insertionCost, demand, batteryConsumptionAux, insertion.routeId, insertion.satId, -1, -1, {});
                             viavel = true;
+                            cout<<"Ultmo: \t"<<ultimo<<"\n";
+                            cout<<"tempo chegada: \t"<<tempTempoCheg<<"\n";
+                            cout<<"Rota: \t";
+                            evRouteAux.print(instance, true);
+
                            // cout<<"\t\tATUALIZOU BEST_INSERTION\n";
 
                         }
@@ -691,7 +740,8 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance
 
             }
 
-        }
+        }*/
+
 
         evRouteAux[pos+1] = evRouteAux[pos+2];
 
@@ -726,7 +776,8 @@ double GreedyAlgNS::calculaTempoSaidaInicialSat(const Instance &instance)
 
 bool GreedyAlgNS::insert(EvRoute &evRoute, Insertion &insertion, const Instance &instance, const double tempoSaidaSat, Solution &sol)
 {
-    //cout<<"**********INSERT***********\n";
+  //  cout<<"**********INSERT***********\n";
+
 
     const int pos = insertion.pos;
     const int node = insertion.clientId;
@@ -784,6 +835,8 @@ bool GreedyAlgNS::insert(EvRoute &evRoute, Insertion &insertion, const Instance 
         sol.satelites[evRoute.satelite].distancia += -evRoute.distancia;
     }
 
+    //evRoute.print(instance, true);
+
     evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaidaSat);
     evRoute.demanda += insertion.demand;
     sol.distancia += evRoute.distancia;
@@ -799,6 +852,8 @@ bool GreedyAlgNS::insert(EvRoute &evRoute, Insertion &insertion, const Instance 
         PRINT_DEBUG("", "ERRO NA FUNCAO GreedyAlgNS::insert, BATERIA DA ROTA EH INVIAVEL: "<<rotaStr<<"\n\n");
         cout<<"FUNCAO TESTA ROTA RETORNOU DISTANCIA NEGATIVA, ROTA: ";
         evRoute.print(instance, false);
+
+        evRoute.print(instance, true);
         cout<<" EH INVALIDA\nFILE: "<<__FILE__<<"\nLINHA: "<<__LINE__<<"\n\n";
         throw "ERRO";
     }
