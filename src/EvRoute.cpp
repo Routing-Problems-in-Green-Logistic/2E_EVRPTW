@@ -304,7 +304,7 @@ void EvRoute::print(std::string &str, const Instance &instance, const bool somen
         }
     }
 
-    str += "\nDistance: " + to_string(distancia) + "\n\n";
+    str += "\nDistance: " + to_string(distancia) + "\n";
 
 }
 
@@ -366,18 +366,25 @@ bool EvRoute::alteraTempoSaida(const double novoTempoSaida, const Instance &inst
     for(int i=0; (i+1) < routeSize; ++i)
     {
         const double dist = instance.getDistance(route[i].cliente, route[i+1].cliente);
-        route[i+1].tempoCheg = route[i].tempoSaida + dist;
+        //route[i+1].tempoCheg = route[i].tempoSaida + dist;
         route[i+1].bateriaRestante = route[i].bateriaRestante - dist;
 
-        if(route[i+1].bateriaRestante < -TOLERANCIA_BATERIA)
+        if(!(route[i+1].bateriaRestante >= -TOLERANCIA_BATERIA))
         {
             return false;
         }
 
-        if((route[i+1].tempoCheg - instance.vectCliente[route[i+1].cliente].fimJanelaTempo) >= -TOLERANCIA_TEMPO)
+        double tempo = route[i].tempoSaida + dist;
+
+        if(!TESTE_JANELA_TEMPO(tempo, route[i+1].cliente, instance))
         {
             return false;
         }
+
+        if(tempo < instance.vectCliente[route[i+1].cliente].inicioJanelaTempo)
+            tempo = instance.vectCliente[route[i+1].cliente].inicioJanelaTempo;
+
+        route[i+1].tempoCheg = tempo;
 
         if(instance.isRechargingStation(route[i+1].cliente))
         {
@@ -386,13 +393,20 @@ bool EvRoute::alteraTempoSaida(const double novoTempoSaida, const Instance &inst
             if(!instance.vectVeiculo[idRota].eletrico)
             {
                 PRINT_DEBUG("", "ERRO EV_ROUTE ID: "<<idRota<<", NAO EH ELETRICO\n");
+                cout<<"Veic nao eh eletrico\n";
                 throw "ERRO";
             }
 
-            route[i+1].tempoSaida = route[i+1].tempoCheg + incrementoBateria*instance.vectVeiculo[idRota].taxaConsumoDist;
+            route[i+1].tempoSaida = route[i+1].tempoCheg + incrementoBateria*instance.vectVeiculo[idRota].taxaRecarga;
             route[i+1].bateriaRestante = instance.getEvBattery(idRota);
         }
+        else
+        {
+            route[i+1].tempoSaida = route[i+1].tempoCheg + instance.vectCliente[route[i+1].cliente].tempoServico;
+        }
     }
+
+    return true;
 
 }
 

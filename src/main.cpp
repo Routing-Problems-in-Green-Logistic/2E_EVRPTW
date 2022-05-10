@@ -51,6 +51,8 @@ string getNomeInstancia(string str);
 int main(int argc, char* argv[])
 {
 
+
+
     if(argc != 2 && argc != 3)
     {
         std::cerr<<"FORMATO: a.out file.txt\n";
@@ -90,11 +92,14 @@ int main(int argc, char* argv[])
 
         auto start = std::chrono::high_resolution_clock::now();
         string erro;
+        Instance instance(file);
+
+        instance.print();
 
         for(int i=0; i < NUM_EXEC; ++i)
         {
 
-            Instance instance(file);
+
             Solution sol(instance);
             greedy(sol, instance, 0.5, 0.5);
             //cout<<"i: "<<i<<"\n";
@@ -105,6 +110,10 @@ int main(int argc, char* argv[])
 
                 if(!sol.checkSolution(erro, instance))
                 {
+
+                    cout<<"\n\nSOLUCAO:\n\n";
+                    sol.print(instance);
+
                     cout << erro<< "\n****************************************************************************************\n\n";
                     break;
 
@@ -129,7 +138,12 @@ int main(int argc, char* argv[])
         tempo = tempoAux.count();
 
         cout<<"\nINST\tDISTANCIA_MEDIA\tBEST\tNUM\tTEMPO\n";
-        cout<<nomeInst<<"\t"<<val/num<<"\t"<<best<<"\t"<<num<<"\t"<<tempo<<"\n\n";
+        cout<<nomeInst<<";\t"<<val/num<<";\t"<<best<<";\t"<<num<<";\t"<<tempo<<"\n";
+
+        std::ofstream outfile;
+        outfile.open("resultado.csv", std::ios_base::app);
+        outfile<<nomeInst<<";\t"<<val/num<<";\t"<<best<<";\t"<<num<<";\t"<<tempo<<"\n";
+        outfile.close();
 
     }
     catch(std::exception &e)

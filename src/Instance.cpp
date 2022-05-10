@@ -219,9 +219,9 @@ Instance::Instance(const std::string &str)
 /*    cout<<"DEP: "<<getDepotIndex()<<"\nSAT ID INICIO: "<<getFirstSatIndex()<<"\nSAT ID FIM: "<<getEndSatIndex();
     cout<<"\nEST ID INICIO: "<<getFirstRechargingSIndex()<<"\nEST ID FIM: "<<getEndRechargingSIndex()<<"\n";
     cout<<"CLIENTE ID INICIO: "<<getFirstClientIndex()<<"\nCLIENTE ID FIM: "<<getEndClientIndex()<<"\n\n";
-
+*/
     PRINT_DEBUG("", "");
-    cout<<"I J DIST(I,J)\n\n";*/
+    cout<<"I J DIST(I,J)\n\n";
 
     for(int i=0; i < numNos; ++i)
     {
@@ -231,7 +231,7 @@ Instance::Instance(const std::string &str)
         {
             double dist = sqrt(pow(vectCliente[i].coordX - vectCliente[j].coordX,2) + pow(vectCliente[i].coordY - vectCliente[j].coordY,2));
             matDist(i,j) = matDist(j,i) = dist;
-            //cout<<i<<" "<<j<<": "<<dist<<"\n";
+            cout<<i<<" "<<j<<": "<<dist<<"\n";
         }
     }
 

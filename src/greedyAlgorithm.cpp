@@ -45,12 +45,12 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, c
 
             if(!visitedClients[clientId])
             {
-                //PRINT_DEBUG("", "clienteId: "<<clientId);
+
 
                 for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); satId++)
                 {
 
-                    //PRINT_DEBUG("", "SAT ID: "<<satId);
+
 
                     Satelite *sat = sol.getSatelite(satId);
 
@@ -58,7 +58,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, c
 //                    for(int routeId = 0; routeId < sol.getSatelite(satId)->getNRoutes(); routeId++)
                     for(int routeId = 0; routeId < sat->getNRoutes(); routeId++)
                     {
-                        //PRINT_DEBUG("", "ROUTE ID: "<<routeId);
+
 
                         EvRoute &route = sat->getRoute(routeId);
                         Insertion insertion(routeId);
@@ -77,7 +77,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, c
 
         if(listaCandidatos.empty())
         {
-            PRINT_DEBUG("\t","LISTA DE CANDIDATOS VAZIA");
+
             //cout<<"LISTA DE CANDIDADOS VAZIA\n\n";
             sol.viavel = false;
             return false;
@@ -96,7 +96,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, c
         insert(evRoute, *topItem, instance, tempoSaidaInicialSat, sol);
     }
 
-    PRINT_DEBUG("", "vetTempoSaidaEvRoute size: "<<sol.satelites[0].vetTempoSaidaEvRoute.size());
+
 
     return true;
 }
@@ -136,7 +136,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
 
     // Cria o vetor com a demanda de cada satellite
 
-    PRINT_DEBUG("\t", "vetTempoSaidaEvRoute size: "<<sol.satelites[1].vetTempoSaidaEvRoute.size());
+
 
     std::vector<double> demandaNaoAtendidaSat;
     demandaNaoAtendidaSat.reserve(sol.getNSatelites()+1);
@@ -161,13 +161,10 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
         {
             Satelite &satelite = sol.satelites[i];
 
-            PRINT_DEBUG("\t", "i: "<<i<<"\t\tsat id: "<<satelite.sateliteId);
-            PRINT_DEBUG("\t", "vetTempoSaidaEvRoute size: "<<satelite.vetTempoSaidaEvRoute.size());
-
             // Verifica se a demanda não atendida eh positiva
             if(demandaNaoAtendidaSat[i] > 0.0)
             {
-                PRINT_DEBUG("\t", "DEMANDA NAO ATENDIDA SAT "<<i<<": "<<demandaNaoAtendidaSat[i]);
+
                 // Percorre todas as rotas
                 for(int rotaId = 0; rotaId < sol.primeiroNivel.size(); ++rotaId)
                 {
@@ -183,7 +180,6 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
                         if(demandaNaoAtendidaSat[i] < capacidade)
                             demandaAtendida = demandaNaoAtendidaSat[i];
 
-                        PRINT_DEBUG("\t", "ROUTE ID: "<<rotaId<<", demanda: "<<demandaAtendida);
 
                         Candidato candidato(rotaId, i, demandaAtendida, DOUBLE_MAX);
 
@@ -255,7 +251,6 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
 
         if(!listaCandidatos.empty())
         {
-            PRINT_DEBUG("", "");
 
             listaCandidatos.sort();
 
@@ -307,6 +302,9 @@ void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const 
         }
     }
 
+    PRINT_DEBUG("", "SOL VIAVEL: "<<sol.viavel);
+
+
 }
 
 /*
@@ -320,7 +318,16 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
 
     bool viavel = true;
 
-    PRINT_DEBUG("\t\t\t", "TEMPO CHEGADA VEIC COMB: "<<tempoChegada);
+    PRINT_DEBUG("\t", "TEMPO CHEGADA VEIC COMB: "<<tempoChegada);
+
+/*    for(int i=0; i < instance.getNSats(); ++i)
+    {
+        if(satelite.vetEvRoute[i].routeSize > 2)
+        {
+            PRINT_DEBUG("\t\t", "TEMPO SAIDA VEICULO EV: " << satelite.vetEvRoute[i].route[0].tempoSaida);
+
+        }
+    }*/
 
 
     // Verifica se os tempos de saida das rotas dos EV's eh maior que o tempo de chegada do veic a combustao
@@ -329,18 +336,20 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
         TempoSaidaEvRoute &tempoSaidaEv = satelite.vetTempoSaidaEvRoute[evId];
         const double tempoEv = tempoSaidaEv.evRoute->route[0].tempoSaida;
 
-        PRINT_DEBUG("\t\t\t", "TEMPO SAIDA EV: "<<tempoEv<<"; TEMPO CHEGADA VEIC COMB: "<<tempoChegada);
+        PRINT_DEBUG("\t\t", "TEMPO SAIDA EV: "<<tempoEv<<"; TEMPO CHEGADA VEIC COMB: "<<tempoChegada);
 
         if(tempoSaidaEv.evRoute->routeSize > 2)
         {
 
-/*            if(tempoEv >= tempoChegada)
-            {
-                viavel = true;
-                break;
-            } else*/
+            // Verifica se o tempo de saida do ev eh inconpativel com o tempo de chegada do veic a comb
             if(tempoEv < tempoChegada)
             {
+                string rotaStr;
+                tempoSaidaEv.evRoute->print(rotaStr, instance, true);
+                cout<<"ROTA: "<<rotaStr;
+
+                PRINT_DEBUG("\t\t", "tempoEv < tempoChegada");
+
                 // Verifica se eh possivel realizar um shift na rota
 
                 const int indice = tempoSaidaEv.evRoute->route[0].posMenorFolga;
@@ -358,6 +367,9 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
                     break;
                 }
 
+                else
+                    PRINT_DEBUG("\t\t", "VIAVEL");
+
             }
 
         }
@@ -365,7 +377,7 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
 
     if(!modificaSatelite)
         return viavel;
-    else
+    else if(viavel)
     {
 
         for(auto &tempoSaidaEv:satelite.vetTempoSaidaEvRoute)
@@ -378,6 +390,7 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
                 if(tempoEv >= tempoChegada)
                 {
                     return true;
+
                 } else
                 {
                     // Verifica se eh possivel realizar um shift na rota
@@ -412,10 +425,13 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
         }
 
 
-        PRINT_DEBUG("", "ERRO SATELITE: "<<satelite.sateliteId<<", DEVERIA TER PELO MENOS UMA ROTA(ORDENADAS DE FORMA CRESENTE COM TEMPO DE SAIDA) COM TEMPO DE SAIDA MAIOR OU IGUAL A "<<tempoChegada<<"\n\n");
-        throw "ERRO";
+        //PRINT_DEBUG("", "ERRO SATELITE: "<<satelite.sateliteId<<", DEVERIA TER PELO MENOS UMA ROTA(ORDENADAS DE FORMA CRESENTE COM TEMPO DE SAIDA) COM TEMPO DE SAIDA MAIOR OU IGUAL A "<<tempoChegada);
+        //throw "ERRO";
+        return true;
 
     }
+    else
+        return false;
 
 }
 
@@ -439,8 +455,11 @@ void GreedyAlgNS::greedy(Solution &sol, const Instance &Inst, const float alpha,
     {
         firstEchelonGreedy(sol, Inst, beta);
 
-        PRINT_DEBUG("\n\n", "Segundo nivel");
+
         //sol.print(Inst);
+
+        if(sol.viavel)
+            sol.atualizaVetSatTempoChegMax(Inst);
 
 
     }
@@ -469,7 +488,7 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance
 
     if((evRoute.getDemand() + demand) > instance.getEvCap(evRoute.idRota))
     {
-        //PRINT_DEBUG("\t\t", "DEMANDA INVIAVEL\n");
+
         return false;
     }
 

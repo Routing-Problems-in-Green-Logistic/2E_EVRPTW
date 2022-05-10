@@ -15,7 +15,6 @@ Satelite::Satelite(const Instance& instance, const int _satId)
     {
         const VeiculoInst &veic = instance.vectVeiculo[instance.getFirstEvIndex()+i];
         vetEvRoute.emplace_back(_satId, instance.getFirstEvIndex()+i, max, instance);
-        PRINT_DEBUG("\t\t", "idRota: "<<instance.getFirstEvIndex()+i);
     }
 
 

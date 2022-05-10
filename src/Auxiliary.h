@@ -25,9 +25,12 @@ using namespace std;
 #define DOUBLE_MAX              DBL_MAX
 #define DOUBLE_MIN              DBL_MIN
 
+#include <string.h>
 
-#define PRINT_DEBUG(inicio, texto)
-//cout<<inicio<<"DEBUG: "<<texto<<"  FILE: "<<__FILE__<<"  LINHA: "<<__LINE__<<"\n";
+#define __PRETTYFILE__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
+#define PRINT_DEBUG(inicio, texto) cout<<inicio<<"DEBUG: "<<texto<<"  FILE: "<<__PRETTYFILE__<<"  FUNC: "<<__PRETTY_FUNCTION__<<"  LINHA: "<<__LINE__<<"\n";
+
 
 namespace NS_Auxiliary
 {

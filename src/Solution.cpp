@@ -19,8 +19,8 @@ Solution::Solution(const Instance &Inst)
     for(int i=0; i < numTrucks; ++i)
         primeiroNivel.emplace_back(Inst);
 
-    satTempoChegMax.reserve(Inst.getNSats());
-    for(int i = 0; i < Inst.getNSats(); i++)
+    satTempoChegMax.reserve(Inst.getNSats()+1);
+    for(int i = 0; i < Inst.getNSats()+1; i++)
         satTempoChegMax.emplace_back(-1.0);
 
 
@@ -30,20 +30,19 @@ void Solution::atualizaVetSatTempoChegMax(const Instance &instance)
 {
 
     // Inicializa vetor
-    for(int i=0; i < instance.getNSats(); ++i)
+    for(int i=0; i < instance.getNSats()+1; ++i)
         satTempoChegMax[i] = -1.0;
 
     // Percorre as rotas do 1° nivel
-
     for(const Route &route:primeiroNivel)
     {
+        // Percorre as rotas do 2° nivel
         for(const RouteNo &routeNo:route.rota)
         {
             if(routeNo.satellite != Instance::getDepotIndex())
             {
-                if(routeNo.tempoChegada > satTempoChegMax[routeNo.satellite - 1])
-                    satTempoChegMax[routeNo.satellite - 1] = routeNo.tempoChegada;
-
+                if(routeNo.tempoChegada > satTempoChegMax[routeNo.satellite])
+                    satTempoChegMax[routeNo.satellite] = routeNo.tempoChegada;
             }
         }
     }
@@ -69,6 +68,9 @@ bool Solution::checkSolution(std::string &erro, const Instance &inst)
 
     for(Satelite &satelite:satelites)
     {
+        if(satelite.sateliteId == 0)
+            continue;
+
         if(!satelite.checkSatellite(erro, inst))
             return false;
 
@@ -82,6 +84,10 @@ bool Solution::checkSolution(std::string &erro, const Instance &inst)
 
     for(Satelite &satelite:satelites)
     {
+
+        if(satelite.sateliteId == 0)
+            continue;
+
         for(EvRoute &evRoute:satelite.vetEvRoute)
         {
             for(int i=0; i < evRoute.routeSize; ++i)
@@ -164,9 +170,9 @@ bool Solution::checkSolution(std::string &erro, const Instance &inst)
             break;
         }
 
-        if(std::abs(satelliteDemand[c]- satelites[c-1].demanda) > TOLERANCIA_DEMANDA)
+        if(std::abs(satelliteDemand[c]- satelites[c].demanda) > TOLERANCIA_DEMANDA)
         {
-            erro += "SATELLITE: "+ to_string(c)+"NAO FOI TOTALMENTE ATENDIDO. DEMANDA: "+ to_string(satelites[c-1].demanda) +
+            erro += "SATELLITE: "+ to_string(c)+"NAO FOI TOTALMENTE ATENDIDO. DEMANDA: "+ to_string(satelites[c].demanda) +
                     "; ATENDIDO: "+to_string(satelliteDemand[c])+"\n";
 
             erroB = true;
@@ -183,7 +189,7 @@ bool Solution::checkSolution(std::string &erro, const Instance &inst)
         // vet satTempo contem o tempo de chegada mais tarde de um veiculo do primeiro nivel para o i° satelite
         // Todos os tempos de saida do i° satelite tem que ser após o tempo em satTempo
 
-        for(int sat = 0; sat < inst.getNSats(); ++sat)
+        for(int sat = 1; sat < inst.getNSats()+1; ++sat)
         {
             const double tempo = satTempoChegMax[sat];
             Satelite &satelite = satelites[sat];
