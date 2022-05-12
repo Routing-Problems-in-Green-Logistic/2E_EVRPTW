@@ -39,10 +39,10 @@ namespace NS_LocalSearch {
         float incrementoDistancia = FLOAT_MAX;
 
         // Shifit: insert0 -> insert1
-        Insertion inser0;
+        CandidatoEV inser0;
         NameViabRotaEv::InsercaoEstacao insercaoEstacaoRota0;
 
-        Insertion inser1;
+        CandidatoEV inser1;
         NameViabRotaEv::InsercaoEstacao insercaoEstacaoRota1;
 
 

@@ -9,26 +9,26 @@
 namespace GreedyAlgNS
 {
 
-    class Candidato
+    class CandidatoVeicComb
     {
     public:
 
         int rotaId = -1;
         int satelliteId = -1;
         float demand = 0.0;
-        double incrementoDistancia = 0.0;
+        double incrementoDistancia = DOUBLE_MAX;
         int pos = -1;
         double tempoSaida = 0.0;
 
-        Candidato(int _rotaId, int _satelliteId, float _demand, double _incrDist):rotaId(_rotaId), satelliteId(_satelliteId),
+        CandidatoVeicComb(int _rotaId, int _satelliteId, float _demand, double _incrDist):rotaId(_rotaId), satelliteId(_satelliteId),
             demand(_demand), incrementoDistancia(_incrDist){};
 
-        bool operator < (const Candidato &candidato) const {return incrementoDistancia < candidato.incrementoDistancia;}
+        bool operator < (const CandidatoVeicComb &candidato) const {return incrementoDistancia < candidato.incrementoDistancia;}
 
     };
 
 
-    class Insertion
+    class CandidatoEV
     {
     public:
 
@@ -36,16 +36,16 @@ namespace GreedyAlgNS
         int clientId        = -1;
         int routeId         = -1;
         int satId           = -1;
-        double cost          = 0.0;
-        float demand        = 0.0;
+        double incremento   = DOUBLE_MAX;
+        double demand       = 0.0;
         NameViabRotaEv::InsercaoEstacao insercaoEstacao;
 
-        Insertion(int pos, int clientId, double cost, float demand, double batteryCost, int routeId, int satId, int rsPos,
-                  int rsId, NameViabRotaEv::InsercaoEstacao insercaoEstacao_)
+        CandidatoEV(int pos, int clientId, double cost, float demand, double batteryCost, int routeId, int satId, int rsPos,
+                    int rsId, NameViabRotaEv::InsercaoEstacao insercaoEstacao_)
         {
             this->pos = pos;
             this->clientId = clientId;
-            this->cost = cost;
+            this->incremento = cost;
             this->demand = demand;
             this->routeId = routeId;
             this->satId = satId;
@@ -53,10 +53,10 @@ namespace GreedyAlgNS
             if(insercaoEstacao_.distanciaRota < DOUBLE_MAX)
                 this->insercaoEstacao = insercaoEstacao_;
         }
-        Insertion(int routeId) { this->routeId = routeId;}
-        Insertion() = default;
-        bool operator< (const Insertion& that) const {
-            return (this->cost < that.cost);
+        CandidatoEV(int routeId) { this->routeId = routeId;}
+        CandidatoEV() = default;
+        bool operator< (const CandidatoEV& that) const {
+            return (this->incremento < that.incremento);
         }
     };
 
@@ -69,13 +69,13 @@ namespace GreedyAlgNS
     float palpiteTempoFinalPrimeiroNivel(const Instance& inst);
     bool insereEstacao(int rotaId, int satId);
 
-    bool canInsert(EvRoute &evRoute, int node, const Instance &instance, Insertion &insertion, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux);
-    bool canInsertSemBateria(EvRoute &evRoute, int node, const Instance &Instance, Insertion &insertion);
+    bool canInsert(EvRoute &evRoute, int node, const Instance &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux);
+    bool canInsertSemBateria(EvRoute &evRoute, int node, const Instance &Instance, CandidatoEV &insertion);
     bool
-    insert(EvRoute &evRoute, Insertion &insertion, const Instance &instance, const double tempoSaidaSat, Solution &sol);
+    insert(EvRoute &evRoute, CandidatoEV & insertion, const Instance &instance, const double tempoSaidaSat, Solution &sol);
     bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instance &instance, bool modficaSatelite);
 
-    double calculaTempoSaidaInicialSat(const Instance &instance);
+    std::vector<double> calculaTempoSaidaInicialSat(const Instance &instance);
 }
 
 #endif //INC_2E_EVRP_GREEDYALGORITHM_H

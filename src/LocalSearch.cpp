@@ -353,7 +353,7 @@ bool NS_LocalSearch::mvShifitIntraRota(Solution &solution, const Instance &insta
 //        cout<<str<<"\n\n";
 
         Satelite *satelite = solution.satelites[localSearchBest.idSat0];
-        Insertion &insertion = localSearchBest.inser0;
+        CandidatoEV &insertion = localSearchBest.inser0;
         EvRoute &evRoute = satelite->vetEvRoute[insertion.routeId];
 
         //   V   .
