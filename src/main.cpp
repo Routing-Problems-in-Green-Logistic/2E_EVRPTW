@@ -1,9 +1,6 @@
 /*
- *  ./run ../instancias/2e-vrp-tw/Customer_10/C101_C10x.txt 1651594136
- *
- *  ERRO escrita da rota
- *
- *  Esta processando 1 9 12 4 15 1 (ja esta na solucao) no lugar de 1 11 9 12 4 15 1 (nao esta na solucao e eh inviavel)
+ *  ./run ../instancias/2e-vrp-tw/Customer_15/C101_C15x.txt 1652188790
+ *  ERRO NA DISTANCIA DA SOLUCAO, DIST: 1109.149810; CALCULADO: 1968.299619; TOLERANCIA_DIST_SOLUCAO: 0.01
  */
 
 #include <iostream>
@@ -98,17 +95,16 @@ int main(int argc, char* argv[])
 
         for(int i=0; i < NUM_EXEC; ++i)
         {
-
+            //cout<<"i: "<<i<<"\n";
 
             Solution sol(instance);
             greedy(sol, instance, 0.5, 0.5);
-            //cout<<"i: "<<i<<"\n";
 
             if(sol.viavel)
             {
                 erro = "";
 
-                if(!sol.checkSolution(erro, instance))
+/*                if(!sol.checkSolution(erro, instance))
                 {
 
                     cout<<"\n\nSOLUCAO:\n\n";
@@ -118,7 +114,7 @@ int main(int argc, char* argv[])
                     break;
 
                 }
-                else
+                else*/
                 {
 
                     num += 1;
@@ -137,8 +133,13 @@ int main(int argc, char* argv[])
         std::chrono::duration<double> tempoAux = end - start;
         tempo = tempoAux.count();
 
-        cout<<"\nINST\tDISTANCIA_MEDIA\tBEST\tNUM\tTEMPO\n";
+        cout<<"\nINST \tDISTANCIA_MEDIA \tBEST \tNUM \tTEMPO\n";
         cout<<nomeInst<<";\t"<<val/num<<";\t"<<best<<";\t"<<num<<";\t"<<tempo<<"\n";
+
+
+#if TEMPO_FUNC_VIABILIZA_ROTA_EV
+        cout<<"\nTEMPO TOTAL FUNC VIABILIZA ROTA EV: "<<NameViabRotaEv::global_tempo<<"  "<<100.0*(NameViabRotaEv::global_tempo/tempo)<<" % DO TEMPO TOTAL\n";
+#endif
 
         std::ofstream outfile;
         outfile.open("resultado.csv", std::ios_base::app);
@@ -162,7 +163,7 @@ int main(int argc, char* argv[])
     }
 
 
-
+    return 0;
 
 
 }

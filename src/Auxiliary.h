@@ -25,6 +25,11 @@ using namespace std;
 #define DOUBLE_MAX              DBL_MAX
 #define DOUBLE_MIN              DBL_MIN
 
+#define TRUE  1
+#define FALSE 0
+
+#define TEMPO_FUNC_VIABILIZA_ROTA_EV FALSE
+
 #include <string.h>
 
 #define __PRETTYFILE__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)

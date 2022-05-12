@@ -2,11 +2,16 @@
 // Created by igor on 23/01/2022.
 //
 
+#include <chrono>
 #include "ViabilizadorRotaEv.h"
 #include "Auxiliary.h"
 
 using namespace NameViabRotaEv;
 using namespace NS_Auxiliary;
+
+#if TEMPO_FUNC_VIABILIZA_ROTA_EV
+    double NameViabRotaEv::global_tempo = 0.0;
+#endif
 
 /**
  *
@@ -24,6 +29,23 @@ using namespace NS_Auxiliary;
 
 bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, const Instance &instance, const bool best, NameViabRotaEv::InsercaoEstacao &insercaoEstacao)
 {
+
+
+#if TEMPO_FUNC_VIABILIZA_ROTA_EV
+
+    static auto start = std::chrono::high_resolution_clock::now();
+    static auto end   = std::chrono::high_resolution_clock::now();
+    static std::chrono::duration<double> duracao = end - start;
+
+    start = std::chrono::high_resolution_clock::now();
+
+
+    end   = std::chrono::high_resolution_clock::now();
+    duracao = end - start;
+    global_tempo += duracao.count();
+
+#endif
+
     /* *************************************************************************************************************
      * *************************************************************************************************************
      * Tenta viabilizar a rota inserindo um estacao de recarga em uma posicao da rota
@@ -88,7 +110,15 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, const Instance &instance,
                         insercaoEstacao.estacao = est;
 
                         if(!best)
+                        {
+
+#if TEMPO_FUNC_VIABILIZA_ROTA_EV
+                            end   = std::chrono::high_resolution_clock::now();
+                            duracao = end - start;
+                            global_tempo += duracao.count();
+#endif
                             return true;
+                        }
                     }
 
                 }
@@ -103,6 +133,12 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, const Instance &instance,
 
     }
 
+
+#if TEMPO_FUNC_VIABILIZA_ROTA_EV
+    end   = std::chrono::high_resolution_clock::now();
+    duracao = end - start;
+    global_tempo += duracao.count();
+#endif
 
     if(insercaoEstacao.distanciaRota < DOUBLE_MAX)
     {

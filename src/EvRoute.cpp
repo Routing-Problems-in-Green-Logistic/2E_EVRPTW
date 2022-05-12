@@ -167,7 +167,7 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
 
         const int clienteI = route[i].cliente;
 
-        float aux = instance.getDistance(route[i - 1].cliente, route[i].cliente);
+        double aux = instance.getDistance(route[i - 1].cliente, route[i].cliente);
         demandaAux += instance.getDemand(route[i].cliente);
 
         distanceAux += aux;

@@ -9,6 +9,10 @@
 namespace NameViabRotaEv
 {
 
+#if TEMPO_FUNC_VIABILIZA_ROTA_EV
+    extern double global_tempo;
+#endif
+
     struct InsercaoEstacao
     {
         int estacao = -1;

@@ -74,7 +74,7 @@ bool Solution::checkSolution(std::string &erro, const Instance &inst)
         if(!satelite.checkSatellite(erro, inst))
             return false;
 
-        distanciaAux += satelite.distancia;
+        //distanciaAux += satelite.distancia;
     }
 
     int *vetCliente = new int[inst.getNClients()];

@@ -128,7 +128,7 @@ int Instance::getFirstSatIndex() const {
 
 int Instance::getEndSatIndex() const
 {
-    return 1 + numSats - 1;
+    return numSats;
 }
 
 bool Instance::isClient(int node) const {
