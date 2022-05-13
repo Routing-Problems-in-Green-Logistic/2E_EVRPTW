@@ -62,6 +62,7 @@ int EvRoute::size() const{
 
 void EvRoute::print(const Instance &instance, const bool somenteNo) const
 {
+    cout<<"Ev id: "<<idRota<<";  ";
     for(int i=0; i < routeSize; ++i)
     {
         if(!somenteNo)
@@ -283,7 +284,7 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
 
 void EvRoute::print(std::string &str, const Instance &instance, const bool somenteNo) const
 {
-
+    str += "idRota: "+ to_string(idRota)+";  ";
     for(int i=0; i < routeSize; ++i)
     {
         if(!somenteNo)

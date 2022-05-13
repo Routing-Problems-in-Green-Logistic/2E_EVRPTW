@@ -6,6 +6,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS_RELEASE "-Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "-Wextra")
+set(CMAKE_CXX_FLAGS_RELEASE "-Wnull-dereference")
+set(CMAKE_CXX_FLAGS_RELEASE "-fdelete-null-pointer-checks")
+set(CMAKE_CXX_FLAGS_RELEASE "-Wuninitialized")
+set(CMAKE_CXX_FLAGS_RELEASE "-Winit-self")
+set(CMAKE_CXX_FLAGS_RELEASE "-Wmisleading-indentation")
+set(CMAKE_CXX_FLAGS_RELEASE "-Wunknown-pragmas")
+
 #set(CMAKE_CXX_FLAGS_RELEASE "-pg")
 
 #debug de memnoria:

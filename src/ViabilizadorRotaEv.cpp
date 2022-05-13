@@ -207,7 +207,10 @@ double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Ins
         if(bateriaRestante < -TOLERANCIA_BATERIA)
         {
             if(escrita)
-                cout<<"BATERIA!\n";
+            {
+                cout << "BATERIA!\n"<<bateriaRestante<<"\ncliente: "<<evRoute[i+1].cliente<<"\n\n";
+
+            }
 
             //cout<<"Inviavel: \n";
             //evRoute.print(instance, true);

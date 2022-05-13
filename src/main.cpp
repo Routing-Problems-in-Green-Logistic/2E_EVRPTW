@@ -85,13 +85,12 @@ int main(int argc, char* argv[])
         double tempo = 0.0;
         double best = DOUBLE_MAX;
         int num = 0;
-
+        Instance instance(file);
 
         auto start = std::chrono::high_resolution_clock::now();
         string erro;
-        Instance instance(file);
 
-        instance.print();
+        //instance.print();
 
         for(int i=0; i < NUM_EXEC; ++i)
         {

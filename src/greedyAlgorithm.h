@@ -55,9 +55,16 @@ namespace GreedyAlgNS
         }
         CandidatoEV(int routeId) { this->routeId = routeId;}
         CandidatoEV() = default;
+        CandidatoEV(const CandidatoEV &outro)=default;
+
         bool operator< (const CandidatoEV& that) const {
             return (this->incremento < that.incremento);
         }
+
+        bool operator == (const CandidatoEV &that) const {
+            return clientId == that.clientId && routeId==that.routeId && satId == that.satId;
+        }
+
     };
 
 
@@ -75,6 +82,9 @@ namespace GreedyAlgNS
     bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instance &instance, bool modficaSatelite);
 
     std::vector<double> calculaTempoSaidaInicialSat(const Instance &instance);
+
+
+
 }
 
 #endif //INC_2E_EVRP_GREEDYALGORITHM_H

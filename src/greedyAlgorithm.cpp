@@ -34,36 +34,42 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, c
 
     std::list<CandidatoEV> listaCandidatos;
     std::list<int> clientesSemCandidato;
-    std::vector<ublas::matrix<CandidatoEV*>> matCandidato(1 + instance.getNSats());         //COLUNAS DA MATRIZ POSSUEM SOMENTE A QUANTIDADE DE CLIENTES!!
+    static std::vector<ublas::matrix<CandidatoEV*>> matCandidato(1 + instance.getNSats());         //COLUNAS DA MATRIZ POSSUEM SOMENTE A QUANTIDADE DE CLIENTES!!
+    static bool primeiraChamada = true;
     std::vector<CandidatoEV*> vetCandPtr(instance.getNClients(), nullptr);
 
-    const int numLinhasMat = instance.getN_Evs();
-    const int numColMat    = instance.getNClients();
+    const int numLinhasMat      = instance.getN_Evs();
+    const int numColMat         = instance.getNClients();
     const int idPrimeiroCliente = instance.getFirstClientIndex();
+    const int idPrimeiroEv      = instance.getFirstEvIndex();
 
-    auto funcGetColuna = [&](const int id){return (id-idPrimeiroCliente);};
+    auto transformaIdCliente  = [&](const int id){return (id - idPrimeiroCliente);};
+    auto transformaIdEv       = [&](const int id){return (id-idPrimeiroEv);};
 
-    for(int satId=1; satId < (1+instance.getNSats()); ++satId)
+
+    if(primeiraChamada)
     {
-       matCandidato[satId].resize(numLinhasMat, numColMat, false);
+        for(int satId = 1; satId < (1 + instance.getNSats()); ++satId)
+        {
+            matCandidato[satId].resize(numLinhasMat, numColMat, false);
 
-       for(int i=0; i < numLinhasMat; ++i)
-       {
-           for(int j=0; j < numColMat; ++j)
-               matCandidato[satId](i,j) = nullptr;
-       }
+            for(int i = 0; i < numLinhasMat; ++i)
+            {
+                for(int j = 0; j < numColMat; ++j)
+                    matCandidato[satId](i, j) = nullptr;
+            }
+        }
+        primeiraChamada = false;
     }
 
-
     // Cria um candidato para cada cliente e armazena em matCandidato
-
     for(int clientId = FistIdClient; clientId <= LastIdClient; ++clientId)
     {
 
         CandidatoEV candidatoEv;
         candidatoEv.clientId = clientId;
 
-        for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); satId++)
+        for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); ++satId)
         {
 
             Satelite *sat = sol.getSatelite(satId);
@@ -73,22 +79,23 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, c
             CandidatoEV candidatoEvAux(candidatoEv);
             candidatoEvAux.satId = satId;
 
-            bool resultado = canInsert(route, clientId, instance, candidatoEv, satId, vetTempoSaida[satId], evRouteAux);
+            canInsert(route, clientId, instance, candidatoEv, satId, vetTempoSaida[satId], evRouteAux);
 
-            if(resultado)
-            {
-
-                candidatoEv = candidatoEvAux;
-            }
 
         }
 
         if(candidatoEv.pos != -1)
         {
+
+
             listaCandidatos.push_back(candidatoEv);
             CandidatoEV *candPtr = &listaCandidatos.back();
-            matCandidato[candPtr->satId](candPtr->routeId, funcGetColuna(candPtr->clientId)) = candPtr;
-            vetCandPtr[funcGetColuna(candPtr->clientId)] = candPtr;
+
+
+            matCandidato[candPtr->satId](transformaIdEv(candPtr->routeId), transformaIdCliente(candPtr->clientId)) = candPtr;
+            vetCandPtr[transformaIdCliente(candPtr->clientId)] = candPtr;
+
+
 
         }
         else
@@ -98,9 +105,33 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, c
 
 
 
+    auto printMatCand = [&]()
+    {
+        cout<<"\t";
+        for(int i=idPrimeiroCliente; i <= instance.getEndClientIndex(); ++i)
+            cout<<i<<"\t";
+
+        cout<<"\n";
+
+        for(int evId = instance.getFirstEvIndex(); evId <= instance.getEndEvIndex(); ++evId)
+        {
+            cout<<evId<<"\t";
+            for(int i=idPrimeiroCliente; i <= instance.getEndClientIndex(); ++i)
+            {
+                CandidatoEV *candidatoEv = matCandidato[1](transformaIdEv(evId), transformaIdCliente(i));
+                cout<<(candidatoEv != nullptr)<<"\t";
+            }
+            cout<<"\n";
+
+        }
+
+
+    };
+
+
+
     while(!visitAllClientes(visitedClients, instance) && !listaCandidatos.empty())
     {
-
 
         int randIndex = rand_u32()%(int(alpha * listaCandidatos.size() + 1));
         listaCandidatos.sort();
@@ -112,8 +143,23 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, c
 
         Satelite *satelite = sol.getSatelite(topItem->satId);
         satelite->demanda += topItem->demand;
-        EvRoute &evRoute = satelite->getRoute(topItem->routeId);
-        insert(evRoute, *topItem, instance, vetTempoSaida[topItem->satId], sol);
+
+
+
+        EvRoute &evRoute = satelite->getRoute(transformaIdEv(topItem->routeId));
+        //cout<<"insereEstacao: "<<topItem->insercaoEstacao.pos<<"\n\n";
+        bool resultadoTopItem = insert(evRoute, *topItem, instance, vetTempoSaida[topItem->satId], sol);
+
+        if(!resultadoTopItem)
+        {
+            PRINT_DEBUG("", "ERRO, INSERT RETORNOU FALSE!!!\n\n");
+            throw "ERRO";
+        }
+
+        matCandidato[topItem->satId](transformaIdEv(topItem->routeId), transformaIdCliente(topItem->clientId)) = nullptr;
+
+        string strRota;
+        evRoute.print(strRota, instance, false);
 
         // Corrigi a lista de candidatos
         // 1º Os candidatos que estao no mesmo satelite e na mesma rota precisao ser avaliados novamente
@@ -121,68 +167,133 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, c
         // 3º Os candidatos que nao estao na mesma rota so precisao ser reavaliados na rota que houve mudanca
 
 
-        // 2º Os clientes que nao possuem candidato so tem que ser avaliados na rota que houve mudanca
-
-
-
 
         // 1º Os candidatos que estao no mesmo satelite e na mesma rota precisao ser avaliados novamente em todos os sat e rotas
 
         Satelite *sat = sol.getSatelite(candEvPtr->satId);
-        EvRoute &evRouteEsc = sat->vetEvRoute[candEvPtr->routeId];
+        EvRoute &evRouteEsc = sat->vetEvRoute[transformaIdEv(candEvPtr->routeId)];
 
-        for(int clientId = FistIdClient; clientId <= LastIdClient; ++clientId)
+        if(listaCandidatos.size() > 1)
         {
-
-            CandidatoEV *candidatoEvPtrAux = matCandidato[sat->sateliteId](evRouteEsc.idRota, funcGetColuna(clientId));
-
-            if((!visitedClients[clientId]) && candidatoEvPtrAux)
+            for(int clientId = instance.getFirstClientIndex(); clientId <= instance.getEndClientIndex(); ++clientId)
             {
 
-                matCandidato[sat->sateliteId](evRouteEsc.idRota, funcGetColuna(clientId)) = nullptr;
-                CandidatoEV candidatoEv;
-                candidatoEv.clientId = clientId;
+                CandidatoEV *candidatoEvPtrAux = matCandidato[sat->sateliteId](transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId));
 
-                for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); satId++)
+                if((!visitedClients[clientId]) && candidatoEvPtrAux && clientId != topItem->clientId)
                 {
 
-                    bool routeEmpty = false;
+                    matCandidato[sat->sateliteId](transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId)) = nullptr;
+                    CandidatoEV candidatoEv;
+                    candidatoEv.clientId = clientId;
 
-
-                    for(int routeId = 0; routeId < sat->getNRoutes(); routeId++)
+                    for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); satId++)
                     {
 
-                        EvRoute &route = sat->getRoute(routeId);
-                        canInsert(route, clientId, instance, candidatoEv, satId, vetTempoSaida[satId], evRouteAux);
+                        bool routeEmpty = false;
+
+
+                        for(int routeId = instance.getFirstEvIndex(); routeId <= instance.getEndEvIndex(); routeId++)
+                        {
+                            Satelite *satAux = sol.getSatelite(satId);
+
+                            EvRoute &route = satAux->getRoute(transformaIdEv(routeId));
+                            canInsert(route, clientId, instance, candidatoEv, satId, vetTempoSaida[satId], evRouteAux);
+
+                        }
+
+                    }
+
+                    if(candidatoEv.pos != -1)
+                    {
+                        // Encontrou uma rota viavel
+                        *candidatoEvPtrAux = candidatoEv;
+                        matCandidato[candidatoEv.satId](transformaIdEv(candidatoEv.routeId),
+                                                        transformaIdCliente(candidatoEv.clientId)) = candidatoEvPtrAux;
+                    } else
+                    {
+                        //cout<<"nao encontrou rota viavel para o cliente: "<<clientId<<"\n\n";
+
+                        // Nao existe uma rota viavel para o cliente
+                        listaCandidatos.remove(*candidatoEvPtrAux);
+                        vetCandPtr[transformaIdCliente(clientId)] = nullptr;
+                        candidatoEvPtrAux = nullptr;
+                        clientesSemCandidato.push_back(clientId);
 
                     }
 
                 }
-
-                if(candidatoEv.pos != -1)
+                // 3º Os candidatos que nao estao na mesma rota so precisao ser reavaliados na rota que houve mudanca
+                else if((!visitedClients[clientId]) && !candidatoEvPtrAux && clientId != topItem->clientId)
                 {
-                    *candidatoEvPtrAux = candidatoEv;
-                    matCandidato[candidatoEv.satId](candidatoEv.routeId, funcGetColuna(candidatoEv.clientId)) = candidatoEvPtrAux;
-                }
-                else
-                {
+                    candidatoEvPtrAux = vetCandPtr[transformaIdCliente(clientId)];
 
-                }
 
-            }
-            // 3º Os candidatos que nao estao na mesma rota so precisao ser reavaliados na rota que houve mudanca
-            else if((!visitedClients[clientId]) && !candidatoEvPtrAux)
-            {
-                candidatoEvPtrAux = vetCandPtr[funcGetColuna(clientId)];
+                    if(candidatoEvPtrAux)
+                    {
+                        CandidatoEV candCopia = *candidatoEvPtrAux;
 
-                if(candidatoEvPtrAux)
-                {
+                        //matCandidato[candidatoEvPtrAux->satId](candidatoEvPtrAux->routeId, transformaIdCliente(candidatoEvPtrAux->clientId)) = nullptr;
 
+                        const int satId = topItem->satId;
+                        const int routeId = topItem->routeId;
+
+                        bool resultado = canInsert(sol.satelites[satId].getRoute(transformaIdEv(routeId)), clientId, instance,
+                                                   *candidatoEvPtrAux, satId, vetTempoSaida[satId], evRouteAux);
+
+                        if(resultado)
+                        {
+                            matCandidato[candCopia.satId](transformaIdEv(candCopia.routeId),
+                                                                   transformaIdCliente(candCopia.clientId)) = nullptr;
+
+                            matCandidato[satId](transformaIdEv(candidatoEvPtrAux->routeId),
+                                                transformaIdCliente(candidatoEvPtrAux->clientId)) = candidatoEvPtrAux;
+                        }
+
+                    }
                 }
             }
         }
 
+        bool clientesAntendidos = visitAllClientes(visitedClients, instance);
 
+        if(!clientesAntendidos)
+        {
+            // Tenta inserir os clientes sem candidato na nova rota
+
+            auto itCliente = clientesSemCandidato.begin();
+            int cliente = -1;
+
+            while(itCliente != clientesSemCandidato.end())
+            {
+                cliente = *itCliente;
+                CandidatoEV candidatoEv;
+
+                const int satId = topItem->satId;
+                const int routeId = topItem->routeId;
+
+                bool resultado = canInsert(sol.satelites[satId].getRoute(transformaIdEv(routeId)), cliente, instance,
+                                           candidatoEv, satId, vetTempoSaida[satId], evRouteAux);
+
+                if(resultado)
+                {
+                    listaCandidatos.push_back(candidatoEv);
+                    CandidatoEV *candPtr = &listaCandidatos.back();
+                    matCandidato[satId](transformaIdEv(routeId), transformaIdCliente(cliente)) = candPtr;
+                    vetCandPtr[transformaIdCliente(cliente)] = candPtr;
+                    ++itCliente;
+                    clientesSemCandidato.remove(cliente);
+                }
+                else
+                    ++itCliente;
+
+            }
+        }
+
+        // Remove candidato escolhido
+        vetCandPtr[transformaIdCliente(topItem->clientId)] = nullptr;
+        matCandidato[topItem->satId](transformaIdEv(topItem->routeId), transformaIdCliente(topItem->clientId)) = nullptr;
+        listaCandidatos.erase(topItem);
 
         if(listaCandidatos.empty())
         {
@@ -198,7 +309,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, c
     return sol.viavel;
 }
 
-
+// run ../instancias/2e-vrp-tw/Customer_5/C101_C5x.txt 1652454289
 
 bool GreedyAlgNS::visitAllClientes(std::vector<int> &visitedClients, const Instance &instance)
 {
@@ -630,13 +741,14 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance
 
         if(distanceAux < bestIncremento)
         {
+
             double custo = testaRota(evRouteAux, evRouteAux.routeSize, instance, false, tempoSaidaSat);
 
             if(custo > 0.0)
             {
 
                 bestIncremento = distanceAux;
-                candidatoEv = CandidatoEV(pos, node, distanceAux, demand, 0.0, candidatoEv.routeId, candidatoEv.satId, -1, -1, {});
+                candidatoEv = CandidatoEV(pos, node, distanceAux, demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, {});
                 viavel = true;
 
             }
@@ -647,7 +759,7 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance
                 if(insertionCost < bestIncremento)
                 {
                     bestIncremento = insertionCost;
-                    candidatoEv = CandidatoEV(pos, node, insertionCost, demand, 0.0, candidatoEv.routeId, candidatoEv.satId, -1, -1, insercaoEstacao);
+                    candidatoEv = CandidatoEV(pos, node, insertionCost, demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, insercaoEstacao);
                     viavel = true;
                 }
             }
@@ -656,6 +768,9 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance
         evRouteAux[pos+1] = evRouteAux[pos+2];
 
     }
+    //PRINT_DEBUG("", "<<viavel: "<<viavel);
+
+
 
     return viavel;
 
