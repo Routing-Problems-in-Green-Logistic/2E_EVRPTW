@@ -71,8 +71,7 @@ namespace GreedyAlgNS
 
     bool canInsert(EvRoute &evRoute, int node, const Instance &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux);
     bool canInsertSemBateria(EvRoute &evRoute, int node, const Instance &Instance, CandidatoEV &insertion);
-    bool
-    insert(EvRoute &evRoute, CandidatoEV & insertion, const Instance &instance, const double tempoSaidaSat, Solution &sol);
+    bool insert(EvRoute &evRoute, CandidatoEV & insertion, const Instance &instance, const double tempoSaidaSat, Solution &sol);
     bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instance &instance, bool modficaSatelite);
 
     std::vector<double> calculaTempoSaidaInicialSat(const Instance &instance);

@@ -35,9 +35,13 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, c
     std::list<CandidatoEV> listaCandidatos;
     std::list<int> clientesSemCandidato;
     std::vector<ublas::matrix<CandidatoEV*>> matCandidato(1 + instance.getNSats());         //COLUNAS DA MATRIZ POSSUEM SOMENTE A QUANTIDADE DE CLIENTES!!
+    std::vector<CandidatoEV*> vetCandPtr(instance.getNClients(), nullptr);
 
     const int numLinhasMat = instance.getN_Evs();
     const int numColMat    = instance.getNClients();
+    const int idPrimeiroCliente = instance.getFirstClientIndex();
+
+    auto funcGetColuna = [&](const int id){return (id-idPrimeiroCliente);};
 
     for(int satId=1; satId < (1+instance.getNSats()); ++satId)
     {
@@ -63,11 +67,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, c
         {
 
             Satelite *sat = sol.getSatelite(satId);
-
-
             int routeId = 0;
-
-
             EvRoute &route = sat->getRoute(routeId);
 
             CandidatoEV candidatoEvAux(candidatoEv);
@@ -87,7 +87,8 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, c
         {
             listaCandidatos.push_back(candidatoEv);
             CandidatoEV *candPtr = &listaCandidatos.back();
-            matCandidato[candPtr->satId](candPtr->routeId, candPtr->clientId) = candPtr;
+            matCandidato[candPtr->satId](candPtr->routeId, funcGetColuna(candPtr->clientId)) = candPtr;
+            vetCandPtr[funcGetColuna(candPtr->clientId)] = candPtr;
 
         }
         else
@@ -95,68 +96,106 @@ bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, c
 
     }
 
-    while(!visitAllClientes(visitedClients, instance))
+
+
+    while(!visitAllClientes(visitedClients, instance) && !listaCandidatos.empty())
     {
-
-        //for(auto& client : clientsByTime)
-        for(int clientId = FistIdClient; clientId <= LastIdClient; ++clientId)
-        {
-
-
-            if(!visitedClients[clientId])
-            {
-
-
-                for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); satId++)
-                {
-
-                    Satelite *sat = sol.getSatelite(satId);
-
-                    bool routeEmpty = false;
-
-                    for(int routeId = 0; routeId < sat->getNRoutes(); routeId++)
-                    {
-
-
-                        EvRoute &route = sat->getRoute(routeId);
-                        CandidatoEV insertion(routeId);
-                        insertion.satId = satId;
-                        bool resultado = canInsert(route, clientId, instance, insertion, satId, vetTempoSaida[satId], evRouteAux);
-
-                        if(resultado)
-                            listaCandidatos.push_back(insertion);
-
-                        //cout<<"\n******************************************************************************************************";
-                        //cout<<"\n******************************************************************************************************\n\n";
-                    }
-                }
-            }
-        }
-
-        if(listaCandidatos.empty())
-        {
-
-            //cout<<"LISTA DE CANDIDADOS VAZIA\n\n";
-            sol.viavel = false;
-            return false;
-        }
 
 
         int randIndex = rand_u32()%(int(alpha * listaCandidatos.size() + 1));
         listaCandidatos.sort();
 
         auto topItem = std::next(listaCandidatos.begin(), randIndex);
+        CandidatoEV *candEvPtr = &(*topItem);
+
         visitedClients[topItem->clientId] = 1;
 
         Satelite *satelite = sol.getSatelite(topItem->satId);
         satelite->demanda += topItem->demand;
         EvRoute &evRoute = satelite->getRoute(topItem->routeId);
         insert(evRoute, *topItem, instance, vetTempoSaida[topItem->satId], sol);
+
+        // Corrigi a lista de candidatos
+        // 1º Os candidatos que estao no mesmo satelite e na mesma rota precisao ser avaliados novamente
+        // 2º Os clientes que nao possuem candidato so tem que ser avaliados na rota que houve mudanca
+        // 3º Os candidatos que nao estao na mesma rota so precisao ser reavaliados na rota que houve mudanca
+
+
+        // 2º Os clientes que nao possuem candidato so tem que ser avaliados na rota que houve mudanca
+
+
+
+
+        // 1º Os candidatos que estao no mesmo satelite e na mesma rota precisao ser avaliados novamente em todos os sat e rotas
+
+        Satelite *sat = sol.getSatelite(candEvPtr->satId);
+        EvRoute &evRouteEsc = sat->vetEvRoute[candEvPtr->routeId];
+
+        for(int clientId = FistIdClient; clientId <= LastIdClient; ++clientId)
+        {
+
+            CandidatoEV *candidatoEvPtrAux = matCandidato[sat->sateliteId](evRouteEsc.idRota, funcGetColuna(clientId));
+
+            if((!visitedClients[clientId]) && candidatoEvPtrAux)
+            {
+
+                matCandidato[sat->sateliteId](evRouteEsc.idRota, funcGetColuna(clientId)) = nullptr;
+                CandidatoEV candidatoEv;
+                candidatoEv.clientId = clientId;
+
+                for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); satId++)
+                {
+
+                    bool routeEmpty = false;
+
+
+                    for(int routeId = 0; routeId < sat->getNRoutes(); routeId++)
+                    {
+
+                        EvRoute &route = sat->getRoute(routeId);
+                        canInsert(route, clientId, instance, candidatoEv, satId, vetTempoSaida[satId], evRouteAux);
+
+                    }
+
+                }
+
+                if(candidatoEv.pos != -1)
+                {
+                    *candidatoEvPtrAux = candidatoEv;
+                    matCandidato[candidatoEv.satId](candidatoEv.routeId, funcGetColuna(candidatoEv.clientId)) = candidatoEvPtrAux;
+                }
+                else
+                {
+
+                }
+
+            }
+            // 3º Os candidatos que nao estao na mesma rota so precisao ser reavaliados na rota que houve mudanca
+            else if((!visitedClients[clientId]) && !candidatoEvPtrAux)
+            {
+                candidatoEvPtrAux = vetCandPtr[funcGetColuna(clientId)];
+
+                if(candidatoEvPtrAux)
+                {
+
+                }
+            }
+        }
+
+
+
+        if(listaCandidatos.empty())
+        {
+
+            break;
+        }
+
     }
 
 
+    sol.viavel = visitAllClientes(visitedClients, instance);
 
-    return true;
+    return sol.viavel;
 }
 
 
