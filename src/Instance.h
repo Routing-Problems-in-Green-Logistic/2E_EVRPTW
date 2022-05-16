@@ -4,6 +4,9 @@
 #include <iostream>
 #include <vector>
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/triangular.hpp>
+#include "Auxiliary.h"
+
 using namespace boost::numeric;
 
 #define TESTE_JANELA_TEMPO(tempoCheg, cliente, instancia) (tempoCheg <= instancia.vectCliente[cliente].fimJanelaTempo) || \
@@ -36,9 +39,23 @@ struct ClienteInst
 
 };
 
+struct EstMaisProx
+{
+    int clienteI = -1;
+    int clienteJ = -1;
+    int est      = -1;
+    double dist  = DOUBLE_MAX;
+
+    bool operator < (const EstMaisProx& estMaisProx) const
+    {
+        return dist < estMaisProx.dist;
+    }
+};
+
 class Instance{
 public:
     Instance(const std::string &file);
+    ~Instance();
     double getDemand(int node) const; // the const means that the method promises not to alter any members of the class.
     double getDistance(int n1, int n2) const;
 
@@ -104,7 +121,7 @@ public:
 
     int evRouteSizeMax = -1;
 
-
+    ublas::triangular_matrix<std::vector<int>*, ublas::lower> matEstacao; // matriz eh triangular inferior: i >= j
 };
 
 #endif

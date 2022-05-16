@@ -25,9 +25,22 @@ using namespace NS_Auxiliary;
  * @return
  */
 
+/*
+ *      Rota: 0 1 2 3 4 0       Dist 50
+ * Nova Rota: 0 1 2 3 4 5 0     Dist 60
+ * Incr: 10
+ *
+ * Nova Rota2 0 1 2 3 5 4 0   Dist 54
+ * Incr: 4
+ *
+ * Dif: 10 - 4: 6
+ *
+ * Custo de insercao da estacao tem que ser menor que 6
+ *
+ */
 
-
-bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, const Instance &instance, const bool best, NameViabRotaEv::InsercaoEstacao &insercaoEstacao)
+bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, const Instance &instance, const bool best, NameViabRotaEv::InsercaoEstacao &insercaoEstacao,
+                                     const double custoInserMax)
 {
 
 
@@ -55,15 +68,14 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, const Instance &instance,
      * *************************************************************************************************************
      */
 
+    double aux = 0.0;
 
-    //PRINT_DEBUG("", "Rota: ");
-    //for(int i=0; i < tamRoute; ++i)
-    //    cout<<route[i]<<" ";
+    for(int i=0; (i+1) < evRoute.routeSize; ++i)
+    {
+        aux += instance.getDistance(evRoute[i].cliente,  evRoute[i+1].cliente);
+    }
 
-    //cout<<"\n\n";
-
-//    std::vector<PosicaoEstacao> vectorPosicaoEstacao(instance.getN_RechargingS());
-//    int proxVectorPosEst = 0;
+    const double distanciaEvRoute = aux;
 
     bool existeEstacao = false;
 

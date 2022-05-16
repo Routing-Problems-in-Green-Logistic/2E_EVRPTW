@@ -250,6 +250,67 @@ Instance::Instance(const std::string &str)
         cout<<"\n";
     }*/
 
+
+    int tamMat = 1 + numClients + numRechargingS + numSats;
+    matEstacao.resize(tamMat, tamMat, false);
+
+    for(int i=0; i < tamMat; ++i)
+    {
+        for(int j=0; j <= i; ++j)
+            matEstacao(i,j) = nullptr;
+    }
+
+    std::vector<EstMaisProx> vetEstMaisProx(numClients + numSats - 2);
+
+    for(int i=getFirstRechargingSIndex(); i <= getEndClientIndex(); ++i)
+    {
+        for(int j=getFirstRechargingSIndex(); j < i; ++j)
+        {
+            int prox = 0;
+            for(int est=getFirstRechargingSIndex(); est <= getEndRechargingSIndex(); ++est)
+            {
+                if(i==est || j==est)
+                    continue;
+
+                EstMaisProx *estMaisProx = &vetEstMaisProx[prox];
+
+                estMaisProx->clienteI = i;
+                estMaisProx->clienteJ = j;
+                estMaisProx->est      = est;
+                estMaisProx->dist     = matDist(i, est) + matDist(est, j);
+
+                prox += 1;
+
+            }
+
+            std::sort(vetEstMaisProx.begin(), vetEstMaisProx.end());
+            auto *vetInt = new std::vector<int>(NUM_EST_POR_ARC);
+            cout<<i<<" "<<j<<" estacoes mais prox: ";
+
+            for(int est=0; est < NUM_EST_POR_ARC; ++est)
+            {
+                if(vetEstMaisProx[est].est == -1)
+                    break;
+
+                (*vetInt)[est] = vetEstMaisProx[est].est;
+                cout<<vetEstMaisProx[est].est<<", "<<vetEstMaisProx[est].dist<<"\t";
+            }
+
+            matEstacao(i,j) = vetInt;
+
+        }
+    }
+
+}
+
+Instance::~Instance()
+{
+
+    for(int i=getFirstRechargingSIndex(); i <= getEndClientIndex(); ++i)
+    {
+        for(int j = getFirstRechargingSIndex(); j < i; ++j)
+            delete matEstacao(i,j);
+    }
 }
 
 void Instance::print() const
