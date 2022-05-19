@@ -26,9 +26,10 @@ namespace NameViabRotaEv
     };
 
     bool viabilizaRotaEv(EvRoute &evRoute, const Instance &instance, const bool best,
-                         NameViabRotaEv::InsercaoEstacao &insercaoEstacao, const double custoInserMax);
+                         NameViabRotaEv::InsercaoEstacao &insercaoEstacao, const double custoInserMax,
+                         const bool construtivo, const double tempoSaidaSat);
     double testaRota(EvRoute &evRoute, const int tamRoute, const Instance &instance, const bool escrita, const double tempoSaidaSat);
-
+    double testaRotaTempo(EvRoute &evRoute, const int tamRoute, const Instance &instance, const bool escrita, const double tempoSaidaSat);
 };
 
 

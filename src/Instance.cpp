@@ -284,7 +284,8 @@ Instance::Instance(const std::string &str)
             }
 
             std::sort(vetEstMaisProx.begin(), vetEstMaisProx.end());
-            auto *vetInt = new std::vector<int>(NUM_EST_POR_ARC);
+            auto *vetInt = new std::vector<int>;
+            vetInt->reserve(NUM_EST_POR_ARC);
             cout<<i<<" "<<j<<" estacoes mais prox: ";
 
             for(int est=0; est < NUM_EST_POR_ARC; ++est)
@@ -354,6 +355,14 @@ void Instance::print() const
     cout<<"\n\n";
 
 
+}
+
+std::vector<int>* Instance::getEstacoes(const int clienteI, const int clienteJ)
+{
+    if(clienteI < clienteJ)
+        return matEstacao(clienteJ, clienteI);
+    else
+        return matEstacao(clienteI, clienteJ);
 }
 
 // 1 11 9 12 4 15

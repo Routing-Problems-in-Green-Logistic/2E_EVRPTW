@@ -445,3 +445,16 @@ std::string EvRoute::getRota(const Instance &instance, const bool somenteNo)
 
     return str;
 }
+
+void EvRoute::copiaCliente(const EvRoute &outro)
+{
+
+
+    idRota    = outro.idRota;
+    satelite  = outro.satelite;
+    routeSize = outro.routeSize;
+
+    for(int i=0; i < routeSize; ++i)
+        route[i].cliente = outro.route[i].cliente;
+
+}

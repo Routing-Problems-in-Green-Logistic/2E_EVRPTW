@@ -63,7 +63,6 @@ namespace NS_Auxiliary
     }
 
     template<typename T>
-
     void shiftVectorClienteDir(std::vector<T> &vector, const int pos, const int quant, const int sizeVector)
     {
 
@@ -74,7 +73,6 @@ namespace NS_Auxiliary
     }
 
     template<typename T>
-
     void copiaVector(std::vector<T> &vector, std::vector<T> &vectorDest, const int n)
     {
         if(n > vector.size() || n > vectorDest.size())
@@ -84,8 +82,12 @@ namespace NS_Auxiliary
             vectorDest[i] = vector[i];
     }
 
-    template<typename T>
 
+
+
+
+
+    template<typename T>
     int64_t buscaBinaria(const std::vector<T> &vector, T &ele, const int64_t tam)
     {
         if(tam <= 0)

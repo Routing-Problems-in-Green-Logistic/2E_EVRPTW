@@ -109,6 +109,8 @@ public:
 
     int getEvRouteSizeMax() const {return evRouteSizeMax;}
 
+    std::vector<int>* getEstacoes(const int clienteI, const int clienteJ);
+
 //private:
     ublas::matrix<double> matDist;
 

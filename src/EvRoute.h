@@ -128,6 +128,7 @@ public:
     double getCurrentTime();
     bool alteraTempoSaida(double novoTempoSaida, const Instance &instance);
 
+    void copiaCliente(const EvRoute &outro);
 
 
     EvNo & operator [](int pos)
