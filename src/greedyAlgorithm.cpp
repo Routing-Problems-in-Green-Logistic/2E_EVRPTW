@@ -14,7 +14,7 @@ using namespace NameViabRotaEv;
 using namespace boost::numeric;
 
 // Roteamento dos veiculos eletricos
-bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, const Instance& instance, const float alpha)
+bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, Instance& instance, const float alpha)
 {
 
     std::vector<int> visitedClients(1 + instance.getNSats() + instance.getN_RechargingS() + instance.getNClients());
@@ -648,7 +648,7 @@ bool GreedyAlgNS::existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendi
     return false;
 }
 
-void GreedyAlgNS::greedy(Solution &sol, const Instance &Inst, const float alpha, const float beta)
+void GreedyAlgNS::greedy(Solution &sol, Instance &Inst, const float alpha, const float beta)
 {
     //if(secondEchelonGreedy(sol, Inst, alpha))
     if(secondEchelonGreedy(sol, Inst, alpha))
@@ -668,7 +668,7 @@ void GreedyAlgNS::greedy(Solution &sol, const Instance &Inst, const float alpha,
 
 
 
-bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux)
+bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux)
 {
     double demand = instance.getDemand(node);
     double bestIncremento = candidatoEv.incremento;
@@ -742,7 +742,7 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, const Instance &instance
         if(distanceAux < bestIncremento)
         {
 
-            double custo = testaRota(evRouteAux, evRouteAux.routeSize, instance, false, tempoSaidaSat);
+            double custo = testaRota(evRouteAux, evRouteAux.routeSize, instance, false, tempoSaidaSat, 0);
 
             if(custo > 0.0)
             {
@@ -839,7 +839,7 @@ bool GreedyAlgNS::insert(EvRoute &evRoute, CandidatoEV &insertion, const Instanc
     }
 
 
-    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaidaSat);
+    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaidaSat, 0);
     evRoute.demanda += insertion.demand;
     sol.distancia += evRoute.distancia;
 

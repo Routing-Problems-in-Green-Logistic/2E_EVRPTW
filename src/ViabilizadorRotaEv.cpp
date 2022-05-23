@@ -39,7 +39,7 @@ using namespace NS_Auxiliary;
  *
  */
 
-bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, const Instance &instance, const bool best, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, const double custoInserMax,
+bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const bool best, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, double custoInserMax,
                                      const bool construtivo, const double tempoSaidaSat)
 {
 
@@ -89,41 +89,88 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, const Instance &instance,
         return false;
 
     // verifica se a rota atende as janelas de tempo
-    if(testaRotaTempo(evRouteSta, evRouteSta.routeSize, instance, true, tempoSaidaSat) <= 0.0)
+    if(testaRotaTempo(evRouteSta, evRouteSta.routeSize, instance, true, tempoSaidaSat, 0) <= 0.0)
         return false;
 
 
     // Encontra uma posicao inicial e final tal que ate inicio eh viavel e do final ate o fim da rota eh viavel (pode nao ser possivel)
+    // posInv possui a posicao em que a primeira inviabilidade ocorreu
     int inicio  = 0;
-    int fim     = evRoute.routeSize-1;
+    int fim     = evRoute.routeSize-2;          // = ultimo cliente antes do satelite
+    int posInv  = -1;
 
     for(int i=1; i < evRouteSta.routeSize; ++i)
     {
         if(evRouteSta[i].bateriaRestante < -TOLERANCIA_BATERIA)
+        {
+            posInv = i;
             break;
+        }
 
 
         if(instance.isRechargingStation(evRouteSta[i].cliente))
-        {
-            for(int j=i; j < evRouteSta.routeSize; ++j)
-            {
-                if(evRouteSta[j].bateriaRestante < -TOLERANCIA_BATERIA)
-                {
+            inicio = i;
 
-                }
-            }
-        }
     }
 
-    // Percorre a rota inserindo em cada arco (i,j) a estacao mais proxima
-    for(int i=0; (i+1) < evRouteSta.routeSize; ++i)
+    if(construtivo)
     {
-
+        for(int i=evRouteSta.routeSize-1; i >= 0; --i)
+        {
+            if(instance.isRechargingStation(evRouteSta[i].cliente))
+                fim = i;
+        }
     }
 
     insercaoEstacao.distanciaRota = DOUBLE_MAX;
     insercaoEstacao.estacao = -1;
     insercaoEstacao.pos = -1;
+
+    // Percorre a rota inserindo em cada arco (i,j) a estacao mais proxima
+    // Criterio: viabilidade e (depois custo)
+    for(int i=inicio; i < posInv ; ++i)
+    {
+
+        const auto  *const vet = instance.getEstacoes(evRouteSta[i].cliente, evRouteSta[i+1].cliente);
+
+        for(int est=0; est < NUM_EST_POR_ARC && est < vet->size(); ++est)
+        {
+            if(evRoute.getUtilizacaoRecarga((*vet)[est]) + 1 <= instance.numUtilEstacao)
+            {
+                const int estacao = (*vet)[est];
+
+                const double distInser = -instance.getDistance(evRouteSta[i].cliente, evRouteSta[i+1].cliente) + instance.getDistance(evRouteSta[i].cliente, estacao)+
+                                          instance.getDistance(estacao, evRouteSta[i+1].cliente);
+
+                if(distInser < custoInserMax)
+                {
+                    shiftVectorClienteDir(evRouteSta.route, i+1, 1, evRouteSta.routeSize);
+                    evRouteSta.routeSize += 1;
+
+                    evRouteSta[i+1].cliente = estacao;
+
+                    const double dist = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, i);
+                    if(dist > 0 && (dist-evRoute.distancia) < custoInserMax)
+                    {
+                        insercaoEstacao.pos = i;
+                        insercaoEstacao.estacao = estacao;
+                        insercaoEstacao.distanciaRota = dist;
+
+                        if(!best)
+                            return true;
+
+                        custoInserMax = dist - evRoute.distancia;
+
+                        shiftVectorClienteEsq(evRouteSta.route, i+1, evRouteSta.routeSize);
+                        evRouteSta.routeSize -= 1;
+
+                    }
+                }
+            }
+        }
+
+    }
+
 
 
 
@@ -142,15 +189,32 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, const Instance &instance,
 
 }
 
-// Verifica se a rota atende a janela de tempo
-double NameViabRotaEv::testaRotaTempo(EvRoute &evRoute, const int tamRoute, const Instance &instance, const bool escrita, const double tempoSaidaSat)
+/* ***********************************************************************************
+ * Verifica se a rota atende a somente a janela de tempo, desconsiderando a bateria
+ * Se @posIni > 0, entao, considera-se que a rota esta correta ate @posIni
+ * *********************************************************************************** */
+double NameViabRotaEv::testaRotaTempo(EvRoute &evRoute, const int tamRoute, const Instance &instance, const bool escrita, const double tempoSaidaSat, const int posIni)
 {
 
     double bateriaRestante = instance.getEvBattery(evRoute.idRota);
     double distanciaRota = 0.0;
-    double tempo = tempoSaidaSat;
+    double tempo = 0.0;
 
-    for(int i=0; i < (tamRoute-1); ++i)
+    if(posIni == 0)
+        tempo = tempoSaidaSat;
+    else
+    {
+
+        for(int i=0; (i+1) <= posIni; ++i)
+        {
+            distanciaRota += instance.getDistance(evRoute[i].cliente, evRoute[i+1].cliente);
+        }
+
+        tempo = evRoute[posIni].tempoSaida;
+        bateriaRestante = evRoute[posIni].bateriaRestante;
+    }
+
+    for(int i=posIni; i < (tamRoute-1); ++i)
     {
         double dist = instance.getDistance(evRoute[i].cliente, evRoute[i+1].cliente);
         bateriaRestante -= instance.getEvTaxaConsumo(evRoute.idRota)*dist;
@@ -208,11 +272,35 @@ double NameViabRotaEv::testaRotaTempo(EvRoute &evRoute, const int tamRoute, cons
 
 
 
-double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Instance &instance, const bool escrita, const double tempoSaidaSat)
+/* ***********************************************************************************
+ * Verifica se a rota atende as restricoes de bateria e tempo
+ * Se @posIni > 0, entao, considera-se que a rota esta correta ate @posIni
+ * *********************************************************************************** */
+double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Instance &instance, const bool escrita, const double tempoSaidaSat, const int posIni)
 {
 
-    double bateriaRestante = instance.getEvBattery(evRoute.idRota);
+    double bateriaRestante = 0.0;
     double distanciaRota = 0.0;
+    double tempo = 0.0;
+
+    if(posIni > 0)
+    {
+
+        for(int i=0; (i+1) <= posIni; ++i)
+        {
+            distanciaRota += instance.getDistance(evRoute[i].cliente, evRoute[i+1].cliente);
+        }
+
+        tempo = evRoute[posIni].tempoSaida;
+        bateriaRestante = evRoute[posIni].bateriaRestante;
+    }
+    else
+    {
+
+        bateriaRestante = instance.getEvBattery(evRoute.idRota);
+        distanciaRota = 0.0;
+        tempo = tempoSaidaSat;
+    }
 
     if(escrita)
     {
@@ -220,7 +308,6 @@ double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Ins
         evRoute[0].bateriaRestante = instance.getEvBattery(evRoute.idRota);
     }
 
-    double tempo = tempoSaidaSat;
 
     for(int i=0; i < (tamRoute-1); ++i)
     {

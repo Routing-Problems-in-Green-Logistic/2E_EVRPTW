@@ -73,6 +73,15 @@ namespace NS_Auxiliary
     }
 
     template<typename T>
+    void shiftVectorClienteEsq(std::vector<T> &vector, const int pos, const int sizeVector)
+    {
+
+        for(int i=pos; (i+1) < sizeVector; ++i)
+            vector[i].cliente = vector[i+1].cliente;
+
+    }
+
+    template<typename T>
     void copiaVector(std::vector<T> &vector, std::vector<T> &vectorDest, const int n)
     {
         if(n > vector.size() || n > vectorDest.size())

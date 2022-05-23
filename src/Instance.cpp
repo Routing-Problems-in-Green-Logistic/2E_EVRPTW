@@ -286,7 +286,7 @@ Instance::Instance(const std::string &str)
             std::sort(vetEstMaisProx.begin(), vetEstMaisProx.end());
             auto *vetInt = new std::vector<int>;
             vetInt->reserve(NUM_EST_POR_ARC);
-            cout<<i<<" "<<j<<" estacoes mais prox: ";
+            //cout<<i<<" "<<j<<" estacoes mais prox: ";
 
             for(int est=0; est < NUM_EST_POR_ARC; ++est)
             {
@@ -294,7 +294,7 @@ Instance::Instance(const std::string &str)
                     break;
 
                 (*vetInt)[est] = vetEstMaisProx[est].est;
-                cout<<vetEstMaisProx[est].est<<", "<<vetEstMaisProx[est].dist<<"\t";
+                //cout<<vetEstMaisProx[est].est<<", "<<vetEstMaisProx[est].dist<<"\t";
             }
 
             matEstacao(i,j) = vetInt;

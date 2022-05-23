@@ -68,15 +68,15 @@ namespace GreedyAlgNS
     };
 
 
-    bool secondEchelonGreedy(Solution& Sol, const Instance& instance, float alpha);
+    bool secondEchelonGreedy(Solution& Sol, Instance& instance, float alpha);
     void firstEchelonGreedy(Solution &Sol, const Instance &Inst, const float beta);
-    void greedy(Solution &Sol, const Instance &Inst, const float alpha, const float beta);
+    void greedy(Solution &Sol, Instance &Inst, const float alpha, const float beta);
     bool visitAllClientes(std::vector<int> &visitedClients, const Instance &instance);
     bool existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendida);
     float palpiteTempoFinalPrimeiroNivel(const Instance& inst);
     bool insereEstacao(int rotaId, int satId);
 
-    bool canInsert(EvRoute &evRoute, int node, const Instance &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux);
+    bool canInsert(EvRoute &evRoute, int node, Instance &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux);
     bool canInsertSemBateria(EvRoute &evRoute, int node, const Instance &Instance, CandidatoEV &insertion);
     bool insert(EvRoute &evRoute, CandidatoEV & insertion, const Instance &instance, const double tempoSaidaSat, Solution &sol);
     bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instance &instance, bool modficaSatelite);
