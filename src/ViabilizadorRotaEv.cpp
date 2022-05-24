@@ -70,8 +70,15 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const
 
     double aux = 0.0;
 
+/*    PRINT_DEBUG("", "");
+    evRoute.print(instance, true);*/
+
+
+
     static EvRoute evRouteSta(-1, -1, evRoute.routeSizeMax, instance);
     evRouteSta.copiaCliente(evRoute);
+
+    //evRouteSta.print(instance, true);
 
     bool existeEstacao = false;
 
@@ -115,12 +122,14 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const
 
     if(construtivo)
     {
-        for(int i=evRouteSta.routeSize-1; i >= 0; --i)
+        for(int i=evRouteSta.routeSize-1; i >= 0 && i > posInv; --i)
         {
             if(instance.isRechargingStation(evRouteSta[i].cliente))
                 fim = i;
         }
     }
+
+    //cout<<"inicio: "<<inicio<<"\nposInv: "<<posInv<<"\nfim: "<<fim<<"\n";
 
     insercaoEstacao.distanciaRota = DOUBLE_MAX;
     insercaoEstacao.estacao = -1;
@@ -133,10 +142,19 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const
 
         const auto  *const vet = instance.getEstacoes(evRouteSta[i].cliente, evRouteSta[i+1].cliente);
 
+        if(vet == nullptr)
+        {
+            cout<<"i: "<<evRouteSta[i].cliente<<"; j: "<<evRouteSta[i+1].cliente<<"\n\n";
+            PRINT_DEBUG("", "vetor NULL");
+            throw "NULL";
+        }
+
         for(int est=0; est < NUM_EST_POR_ARC && est < vet->size(); ++est)
         {
             if(evRoute.getUtilizacaoRecarga((*vet)[est]) + 1 <= instance.numUtilEstacao)
             {
+
+
                 const int estacao = (*vet)[est];
 
                 const double distInser = -instance.getDistance(evRouteSta[i].cliente, evRouteSta[i+1].cliente) + instance.getDistance(evRouteSta[i].cliente, estacao)+
@@ -149,9 +167,22 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const
 
                     evRouteSta[i+1].cliente = estacao;
 
-                    const double dist = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, i);
+                    /*
+                    string str;
+                    evRouteSta.print(str, instance, true);
+                    cout<<"\tTestando rota: "<<str<<"\n";
+                    */
+
+                    const double dist = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, 0);
+
+
+                    shiftVectorClienteEsq(evRouteSta.route, i+1, evRouteSta.routeSize);
+                    evRouteSta.routeSize -= 1;
+
                     if(dist > 0 && (dist-evRoute.distancia) < custoInserMax)
                     {
+                        //cout<<"insercao estacao\n\n";
+
                         insercaoEstacao.pos = i;
                         insercaoEstacao.estacao = estacao;
                         insercaoEstacao.distanciaRota = dist;
@@ -160,12 +191,12 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const
                             return true;
 
                         custoInserMax = dist - evRoute.distancia;
-
-                        shiftVectorClienteEsq(evRouteSta.route, i+1, evRouteSta.routeSize);
-                        evRouteSta.routeSize -= 1;
+                        break;
 
                     }
+
                 }
+
             }
         }
 
@@ -253,8 +284,20 @@ double NameViabRotaEv::testaRotaTempo(EvRoute &evRoute, const int tamRoute, cons
         if(instance.isRechargingStation(evRoute[i+1].cliente))
         {
             tempo += (instance.getEvBattery(evRoute.idRota) - bateriaRestante) *  instance.vectVeiculo[evRoute.idRota].taxaRecarga;
+
+            if(escrita)
+            {
+                if(bateriaRestante < -TOLERANCIA_BATERIA)
+                    evRoute[i + 1].bateriaRestante = bateriaRestante;
+                else
+                    evRoute[i + 1].bateriaRestante = instance.getEvBattery(evRoute.idRota);
+            }
+
             bateriaRestante = instance.getEvBattery(evRoute.idRota);
         }
+        else if(escrita)
+            evRoute[i+1].bateriaRestante = bateriaRestante;
+
 
 
         if(escrita)
@@ -302,7 +345,7 @@ double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Ins
         tempo = tempoSaidaSat;
     }
 
-    if(escrita)
+    if(escrita && posIni==0)
     {
         evRoute[0].tempoSaida = tempoSaidaSat;
         evRoute[0].bateriaRestante = instance.getEvBattery(evRoute.idRota);

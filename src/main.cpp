@@ -128,12 +128,17 @@ int main(int argc, char* argv[])
         }
 
 
+        //instance.print();
+
+
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> tempoAux = end - start;
         tempo = tempoAux.count();
 
         cout<<"\nINST \tDISTANCIA_MEDIA \tBEST \tNUM \tTEMPO\n";
         cout<<nomeInst<<";\t"<<val/num<<";\t"<<best<<";\t"<<num<<";\t"<<tempo<<"\n";
+
+        cout<<"semente: "<<semente<<"\n\n";
 
 
 #if TEMPO_FUNC_VIABILIZA_ROTA_EV

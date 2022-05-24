@@ -264,7 +264,7 @@ Instance::Instance(const std::string &str)
 
     for(int i=getFirstRechargingSIndex(); i <= getEndClientIndex(); ++i)
     {
-        for(int j=getFirstRechargingSIndex(); j < i; ++j)
+        for(int j=getFirstSatIndex(); j < i; ++j)
         {
             int prox = 0;
             for(int est=getFirstRechargingSIndex(); est <= getEndRechargingSIndex(); ++est)
@@ -293,9 +293,10 @@ Instance::Instance(const std::string &str)
                 if(vetEstMaisProx[est].est == -1)
                     break;
 
-                (*vetInt)[est] = vetEstMaisProx[est].est;
+                vetInt->push_back(vetEstMaisProx[est].est);
                 //cout<<vetEstMaisProx[est].est<<", "<<vetEstMaisProx[est].dist<<"\t";
             }
+            //cout<<"\n";
 
             matEstacao(i,j) = vetInt;
 
@@ -307,9 +308,9 @@ Instance::Instance(const std::string &str)
 Instance::~Instance()
 {
 
-    for(int i=getFirstRechargingSIndex(); i <= getEndClientIndex(); ++i)
+    for(int i=0; i <= getEndClientIndex(); ++i)
     {
-        for(int j = getFirstRechargingSIndex(); j < i; ++j)
+        for(int j = 0; j < i; ++j)
             delete matEstacao(i,j);
     }
 }
