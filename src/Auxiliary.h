@@ -25,7 +25,7 @@ using namespace std;
 #define DOUBLE_MAX              DBL_MAX
 #define DOUBLE_MIN              DBL_MIN
 
-#define NUM_EST_POR_ARC         2
+#define NUM_MAX_EST_POR_ARC   3
 
 #define TRUE  1
 #define FALSE 0

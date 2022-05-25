@@ -109,7 +109,7 @@ public:
 
     int getEvRouteSizeMax() const {return evRouteSizeMax;}
 
-    std::vector<int>* getEstacoes(const int clienteI, const int clienteJ);
+    int* getEstacoes(const int clienteI, const int clienteJ);
 
 //private:
     ublas::matrix<double> matDist;
@@ -123,7 +123,9 @@ public:
 
     int evRouteSizeMax = -1;
 
-    ublas::triangular_matrix<std::vector<int>*, ublas::lower> matEstacao; // matriz eh triangular inferior: i >= j
+    ublas::triangular_matrix<int*, ublas::lower> matEstacao; // matriz eh triangular inferior: i >= j
+
+    int numEstacoesPorArco=-1;
 };
 
 #endif

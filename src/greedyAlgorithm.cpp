@@ -742,7 +742,7 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
         if(distanceAux < bestIncremento)
         {
 
-            double custo = testaRota(evRouteAux, evRouteAux.routeSize, instance, false, tempoSaidaSat, 0);
+            const double custo = testaRota(evRouteAux, evRouteAux.routeSize, instance, false, tempoSaidaSat, 0);
 
             if(custo > 0.0)
             {
@@ -752,7 +752,7 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
                 viavel = true;
 
             }
-            else if(viabilizaRotaEv(evRouteAux, instance, true, insercaoEstacao, DOUBLE_MAX, true, tempoSaidaSat))
+            else if(viabilizaRotaEv(evRouteAux, instance, true, insercaoEstacao, (bestIncremento-distanceAux), true, tempoSaidaSat))
             {
 
                 double insertionCost = insercaoEstacao.distanciaRota - distanciaRota;

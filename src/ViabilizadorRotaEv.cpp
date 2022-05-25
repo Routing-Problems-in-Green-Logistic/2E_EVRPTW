@@ -9,6 +9,8 @@
 using namespace NameViabRotaEv;
 using namespace NS_Auxiliary;
 
+static int num_G = 0;
+
 #if TEMPO_FUNC_VIABILIZA_ROTA_EV
     double NameViabRotaEv::global_tempo = 0.0;
 #endif
@@ -38,6 +40,7 @@ using namespace NS_Auxiliary;
  * Custo de insercao da estacao tem que ser menor que 6
  *
  */
+
 
 bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const bool best, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, double custoInserMax,
                                      const bool construtivo, const double tempoSaidaSat)
@@ -73,7 +76,9 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const
 /*    PRINT_DEBUG("", "");
     evRoute.print(instance, true);*/
 
-
+/*    num_G += 1;
+    PRINT_DEBUG("", "");
+    cout<<"num: "<<num_G<<"\n\n";*/
 
     static EvRoute evRouteSta(-1, -1, evRoute.routeSizeMax, instance);
     evRouteSta.copiaCliente(evRoute);
@@ -98,6 +103,14 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const
     // verifica se a rota atende as janelas de tempo
     if(testaRotaTempo(evRouteSta, evRouteSta.routeSize, instance, true, tempoSaidaSat, 0) <= 0.0)
         return false;
+
+/*    PRINT_DEBUG("", "");
+    string str;
+    evRouteSta.print(str, instance, false);
+    cout<<"evRouteSta: "<<str<<"\n";
+    str = "";
+    evRoute.print(str, instance, false);
+    cout<<"evRoute: "<<str<<"\n\n";*/
 
 
     // Encontra uma posicao inicial e final tal que ate inicio eh viavel e do final ate o fim da rota eh viavel (pode nao ser possivel)
@@ -149,60 +162,89 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const
             throw "NULL";
         }
 
-        for(int est=0; est < NUM_EST_POR_ARC && est < vet->size(); ++est)
+        for(int est=0; est < instance.numEstacoesPorArco; ++est)
         {
-            if(evRoute.getUtilizacaoRecarga((*vet)[est]) + 1 <= instance.numUtilEstacao)
+            if(vet[est] != -1)
             {
-
-
-                const int estacao = (*vet)[est];
-
-                const double distInser = -instance.getDistance(evRouteSta[i].cliente, evRouteSta[i+1].cliente) + instance.getDistance(evRouteSta[i].cliente, estacao)+
-                                          instance.getDistance(estacao, evRouteSta[i+1].cliente);
-
-                if(distInser < custoInserMax)
+                if(evRoute.getUtilizacaoRecarga(vet[est]) + 1 <= instance.numUtilEstacao)
                 {
-                    shiftVectorClienteDir(evRouteSta.route, i+1, 1, evRouteSta.routeSize);
-                    evRouteSta.routeSize += 1;
-
-                    evRouteSta[i+1].cliente = estacao;
-
-                    /*
-                    string str;
-                    evRouteSta.print(str, instance, true);
-                    cout<<"\tTestando rota: "<<str<<"\n";
-                    */
-
-                    const double dist = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, 0);
 
 
-                    shiftVectorClienteEsq(evRouteSta.route, i+1, evRouteSta.routeSize);
-                    evRouteSta.routeSize -= 1;
+                    const int estacao = vet[est];
+                    const double distInser = -instance.getDistance(evRouteSta[i].cliente, evRouteSta[i + 1].cliente) +
+                                             instance.getDistance(evRouteSta[i].cliente, estacao) +
+                                             instance.getDistance(estacao, evRouteSta[i + 1].cliente);
 
-                    if(dist > 0 && (dist-evRoute.distancia) < custoInserMax)
+                    if(distInser < custoInserMax)
                     {
-                        //cout<<"insercao estacao\n\n";
+                        shiftVectorClienteDir(evRouteSta.route, i + 1, 1, evRouteSta.routeSize);
+                        evRouteSta.routeSize += 1;
 
-                        insercaoEstacao.pos = i;
-                        insercaoEstacao.estacao = estacao;
-                        insercaoEstacao.distanciaRota = dist;
+                        evRouteSta[i + 1].cliente = estacao;
 
-                        if(!best)
-                            return true;
+                        /*
+                        string str;
+                        evRouteSta.print(str, instance, true);
+                        cout<<"\tTestando rota: "<<str<<"\n";
+                        */
 
-                        custoInserMax = dist - evRoute.distancia;
-                        break;
+                        //const double dist  = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, 0);
+                        const double dist = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, i);
+
+
+/*                    auto negativo = [](double dist){return dist<0;};
+
+                    if(negativo(dist) && !negativo(distI) || !negativo(dist) && negativo(distI))
+                    {
+                        PRINT_DEBUG("", "");
+                        cout<<"dist: "<<dist<<"\ndistI: "<<distI<<"\n\n";
+
+                        cout<<"evRouteSta: "<<evRouteSta.route[i]<<"\nevRoute: "<<evRoute.route[i]<<"\n\n";
+
+
+
+                        throw "ERRO";
+                    }
+                    else
+                    {
+                        if(abs(dist-distI) > 1e-3)
+                        {
+
+                            PRINT_DEBUG("", "");
+                            cout<<"dist: "<<dist<<"\ndistI: "<<distI<<"\n\n";
+                            throw "ERRO";
+                        }
+                    }
+*/
+
+                        shiftVectorClienteEsq(evRouteSta.route, i + 1, evRouteSta.routeSize);
+                        evRouteSta.routeSize -= 1;
+
+                        if(dist > 0 && (dist - evRoute.distancia) < custoInserMax)
+                        {
+                            //cout<<"insercao estacao\n\n";
+
+                            insercaoEstacao.pos = i;
+                            insercaoEstacao.estacao = estacao;
+                            insercaoEstacao.distanciaRota = dist;
+
+                            if(!best)
+                                return true;
+
+                            custoInserMax = dist - evRoute.distancia;
+                            break;
+
+                        }
 
                     }
 
                 }
-
             }
+            else
+                break;
         }
 
     }
-
-
 
 
 #if TEMPO_FUNC_VIABILIZA_ROTA_EV
@@ -336,6 +378,7 @@ double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Ins
 
         tempo = evRoute[posIni].tempoSaida;
         bateriaRestante = evRoute[posIni].bateriaRestante;
+
     }
     else
     {
@@ -352,7 +395,7 @@ double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Ins
     }
 
 
-    for(int i=0; i < (tamRoute-1); ++i)
+    for(int i=posIni; i < (tamRoute-1); ++i)
     {
         double dist = instance.getDistance(evRoute[i].cliente, evRoute[i+1].cliente);
         bateriaRestante -= instance.getEvTaxaConsumo(evRoute.idRota)*dist;
