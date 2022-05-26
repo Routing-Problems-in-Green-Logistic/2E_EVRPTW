@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
         const string nomeInst = getNomeInstancia(file);
 
         cout << "INSTANCIA: \t" << nomeInst << "\n";
-        cout<<"SEMENTE: \t"<<semente<<"\n";
+        cout<<"SEMENTE: \t"<<semente<<"\n\n";
         double val = 0.0;
         double tempo = 0.0;
         double best = DOUBLE_MAX;
@@ -135,10 +135,8 @@ int main(int argc, char* argv[])
         std::chrono::duration<double> tempoAux = end - start;
         tempo = tempoAux.count();
 
-        cout<<"\nINST \tDISTANCIA_MEDIA \tBEST \tNUM \tTEMPO\n";
-        cout<<nomeInst<<";\t"<<val/num<<";\t"<<best<<";\t"<<num<<";\t"<<tempo<<"\n";
-
-        cout<<"semente: "<<semente<<"\n\n";
+        //cout<<"\nINST \tDISTANCIA_MEDIA \tBEST \tNUM \tTEMPO\n";
+        //cout<<nomeInst<<";\t"<<val/num<<";\t"<<best<<";\t"<<num<<";\t"<<tempo<<"\n";
 
 
 #if TEMPO_FUNC_VIABILIZA_ROTA_EV
