@@ -129,7 +129,7 @@ public:
     bool alteraTempoSaida(double novoTempoSaida, const Instance &instance);
 
     void copiaCliente(const EvRoute &outro);
-
+    void copia(EvRoute &evRoute);
 
     EvNo & operator [](int pos)
     {

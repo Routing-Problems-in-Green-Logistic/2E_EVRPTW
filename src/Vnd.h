@@ -1,4 +1,4 @@
-#include "Solution.h"
+#include "Solucao.h"
 #include "Instance.h"
 
 #ifndef INC_2E_EVRP_VND_H
@@ -17,7 +17,7 @@
 
 namespace NS_vnd
 {
-    void rvnd(Solution &solution, const Instance &instance);
+    void rvnd(Solucao &solution, const Instance &instance);
 }
 
 #endif //INC_2E_EVRP_VND_H

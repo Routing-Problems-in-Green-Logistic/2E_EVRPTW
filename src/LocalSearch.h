@@ -7,7 +7,7 @@
 
 #include <cfloat>
 #include "EvRoute.h"
-#include "Solution.h"
+#include "Solucao.h"
 #include "Auxiliary.h"
 #include "greedyAlgorithm.h"
 #include "ViabilizadorRotaEv.h"
@@ -67,11 +67,11 @@ namespace NS_LocalSearch {
     };
 
 
-    bool intraRouteSwap(Solution& Sol, float& improvement);
-    bool intraSatelliteSwap(Solution& Sol, int SatId, const Instance& Inst, float& improvement);
-    bool interSatelliteSwap(Solution&, const Instance& Inst, float& improvement);
-    bool mvShifitIntraRota(Solution &solution, const Instance &instance);
-    bool mvShiftInterRotasIntraSatellite(Solution &solution, const Instance &instance);
+    bool intraRouteSwap(Solucao& Sol, float& improvement);
+    bool intraSatelliteSwap(Solucao& Sol, int SatId, const Instance& Inst, float& improvement);
+    bool interSatelliteSwap(Solucao&, const Instance& Inst, float& improvement);
+    bool mvShifitIntraRota(Solucao &solution, const Instance &instance);
+    bool mvShiftInterRotasIntraSatellite(Solucao &solution, const Instance &instance);
 
 
 
@@ -79,10 +79,10 @@ namespace NS_LocalSearch {
     void achaEstacoesEmComun(const std::vector<PosicaoEstacao> &vectorRota0Estacoes, const std::vector<PosicaoEstacao> &vectorRota1Estacoes, std::vector<PosRota0Rota1Estacao> &vectorEsracoesEmComun);
 
 
-    bool mvCrossIntraSatellite(Solution &solution, const Instance &instance);
+    bool mvCrossIntraSatellite(Solucao &solution, const Instance &instance);
     void crossAux(const pair<int, int> satIdPair, const pair<int, int> routeIdPair,  EvRoute *evRoute0, EvRoute *evRoute1, LocalSearch &localSearchBest, const Instance &instance);
 
-    void swapMov(Solution& Sol, const LocalSearch2& mov, const Instance& Inst);
+    void swapMov(Solucao& Sol, const LocalSearch2& mov, const Instance& Inst);
     void shifitInterRotasMvDuasRotas(const pair<int, int> satIdPair, const pair<int, int> routeIdPair,
                                      const EvRoute &evRoute0, const EvRoute &evRoute1, LocalSearch &localSearchBest,
                                      const Instance &instance);

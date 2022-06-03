@@ -27,8 +27,8 @@ void NameTeste::testeMovimentos(string &saida, const Instance &instance, long se
 
         auto start = std::chrono::high_resolution_clock::now();
 
-            Solution copia(instance);
-            greedy(copia, instance, 0.4, 0.4);
+            Solucao copia(instance);
+            construtivo(copia, instance, 0.4, 0.4);
 
             string erro;
             if(copia.viavel)

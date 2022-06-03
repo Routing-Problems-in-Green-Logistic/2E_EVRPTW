@@ -30,8 +30,8 @@ namespace NameViabRotaEv
                          double custoInserMax, const bool construtivo,
                          const double tempoSaidaSat);
 
-    double testaRota(EvRoute &evRoute, const int tamRoute, const Instance &instance,
-                     const bool escrita, const double tempoSaidaSat, const int posIni=0);
+    double testaRota(EvRoute &evRoute, const int tamRoute, const Instance &instance, const bool escrita,
+                     const double tempoSaidaSat, const int posIni, string *rotaBtDebug);
 
     double testaRotaTempo(EvRoute &evRoute, const int tamRoute,
                           const Instance &instance, const bool escrita,

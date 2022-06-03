@@ -9,7 +9,7 @@ using namespace NS_LocalSearch;
 
 /*
 
-void NS_vnd::rvnd(Solution &solution, const Instance &instance)
+void NS_vnd::rvnd(Solucao &solution, const Instance &instance)
 {
 
     int vetMV[NUM_MAX];

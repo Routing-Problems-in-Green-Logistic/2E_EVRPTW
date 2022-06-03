@@ -25,12 +25,14 @@ public:
     void print(std::string &str);
     bool checkDistence(const Instance &instance, double *dist, std::string &str);
 
+    void copia(Route &route);
+
     std::vector<RouteNo> rota;
     int routeSize = 2;
     int routeSizeMax = -1;
 
-    float totalDemand = 0.0;
-    float totalDistence = 0.0;
+    double totalDemand = 0.0;
+    double totalDistence = 0.0;
 
     // Armazena a demanda levada pelo veiculo de cada satellite.
     // Possui uma entrada para cada satellite da instancia + deposito!

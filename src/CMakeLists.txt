@@ -32,7 +32,7 @@ set(SOURCES main.cpp
             ViabilizadorRotaEv.h
             Teste.cpp
             Teste.h
-            Solution.cpp
+        Solucao
             EvRoute.cpp
         greedyAlgorithm.cpp
             greedyAlgorithm.h
@@ -42,7 +42,7 @@ set(SOURCES main.cpp
             Constants.cpp
 
 
-        )
+        Grasp.cpp Grasp.h)
 add_executable(run ${SOURCES})
 
 #target_link_libraries(use_boost ${Boost_LIBRARIES})

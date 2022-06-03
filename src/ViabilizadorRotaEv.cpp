@@ -102,7 +102,10 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const
 
     // verifica se a rota atende as janelas de tempo
     if(testaRotaTempo(evRouteSta, evRouteSta.routeSize, instance, true, tempoSaidaSat, 0) <= 0.0)
+    {
+        //cout<<"Rota eh invalida pela janela de tempo\n\n";
         return false;
+    }
 
 /*    PRINT_DEBUG("", "");
     string str;
@@ -188,8 +191,14 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const
                         cout<<"\tTestando rota: "<<str<<"\n";
                         */
 
-                        //const double dist  = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, 0);
-                        const double dist = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, i);
+                        string strRotaBt;
+
+                        const double distTemp  = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, 0, &strRotaBt);
+                        const double dist = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, i, nullptr);
+
+                        string str;
+                        evRouteSta.print(str, instance, true);
+                        //cout<<"Testando Viabilidade rota: "<<str<<"\nDist: "<<dist<<"  "<<distTemp<<"\nRota Bateria: "<<strRotaBt<<"\n\n";
 
 
 /*                    auto negativo = [](double dist){return dist<0;};
@@ -361,7 +370,8 @@ double NameViabRotaEv::testaRotaTempo(EvRoute &evRoute, const int tamRoute, cons
  * Verifica se a rota atende as restricoes de bateria e tempo
  * Se @posIni > 0, entao, considera-se que a rota esta correta ate @posIni
  * *********************************************************************************** */
-double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Instance &instance, const bool escrita, const double tempoSaidaSat, const int posIni)
+double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Instance &instance, const bool escrita, const double tempoSaidaSat,
+                                 const int posIni, string *rotaBtDebug)
 {
 
     double bateriaRestante = 0.0;
@@ -394,11 +404,14 @@ double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Ins
         evRoute[0].bateriaRestante = instance.getEvBattery(evRoute.idRota);
     }
 
+    if(rotaBtDebug)
+        (*rotaBtDebug) = to_string(evRoute[posIni].cliente) + "("+ to_string(bateriaRestante)+") ";
 
     for(int i=posIni; i < (tamRoute-1); ++i)
     {
         double dist = instance.getDistance(evRoute[i].cliente, evRoute[i+1].cliente);
         bateriaRestante -= instance.getEvTaxaConsumo(evRoute.idRota)*dist;
+
         distanciaRota += dist;
         tempo += dist;
         const ClienteInst &clienteInstProx = instance.vectCliente[evRoute[i+1].cliente];
@@ -407,6 +420,9 @@ double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Ins
         if(tempo < clienteInstProx.inicioJanelaTempo)
             tempo = clienteInstProx.inicioJanelaTempo;
 
+
+        if(rotaBtDebug)
+            (*rotaBtDebug) = to_string(evRoute[i+1].cliente) + "("+ to_string(bateriaRestante)+", "+ to_string(tempo) +") ";
 
         if(!((tempo <= clienteInstProx.fimJanelaTempo) || (abs(tempo-clienteInstProx.fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO)))
         {

@@ -91,3 +91,25 @@ bool Route::checkDistence(const Instance &instance, double *dist, string &str)
         return true;
 
 }
+
+void Route::copia(Route &route)
+{
+    if(route.routeSize <= 2)
+    {
+        routeSize = 2;
+        rota[1].satellite = rota[0].satellite;
+
+    }
+    else
+    {
+      routeSize = route.routeSize;
+      totalDistence = route.totalDistence;
+      totalDemand = route.totalDemand;
+
+      for(int i=0; i < routeSize; ++i)
+          rota[i] = route.rota[i];
+
+      for(int i=0; i < satelliteDemand.size(); ++i)
+          satelliteDemand[i] = route.satelliteDemand[i];
+    }
+}

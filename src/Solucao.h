@@ -1,14 +1,14 @@
-#ifndef INC_2E_EVRP_SOLUTION_H
-#define INC_2E_EVRP_SOLUTION_H
+#ifndef INC_2E_EVRP_SOLUCAO_H
+#define INC_2E_EVRP_SOLUCAO_H
 #include <vector>
 #include "Satelite.h"
 
-class Solution
+class Solucao
 {
 public:
-    Solution(const Instance& Inst);
-    Solution(const Solution &solution);
-    void copia(const Solution &solution);
+    Solucao(const Instance& Inst);
+    Solucao(const Solucao &solution);
+    void copia(Solucao &solution);
 
     int getNSatelites() const;
     int findSatellite(int id) const;
@@ -39,4 +39,4 @@ public:
     double distancia = 0.0;
 
 };
-#endif //INC_2E_EVRP_SOLUTION_H
+#endif //INC_2E_EVRP_SOLUCAO_H

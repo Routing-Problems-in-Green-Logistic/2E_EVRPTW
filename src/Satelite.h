@@ -47,6 +47,7 @@ public:
     void print(std::string &str, const Instance &instance);
     void print(const Instance &instance);
 
+    void copia(Satelite &satelite);
 
     std::vector<EvRoute> vetEvRoute;
 

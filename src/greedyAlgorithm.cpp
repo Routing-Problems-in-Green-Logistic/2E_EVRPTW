@@ -13,8 +13,12 @@ using namespace NS_LocalSearch;
 using namespace NameViabRotaEv;
 using namespace boost::numeric;
 
+/*
+ * print linha 753
+ */
+
 // Roteamento dos veiculos eletricos
-bool GreedyAlgNS::secondEchelonGreedy(Solution& sol, Instance& instance, const float alpha)
+bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const float alpha)
 {
 
     std::vector<int> visitedClients(1 + instance.getNSats() + instance.getN_RechargingS() + instance.getNClients());
@@ -339,7 +343,7 @@ bool GreedyAlgNS::visitAllClientes(std::vector<int> &visitedClients, const Insta
 }
 
 
-void GreedyAlgNS::firstEchelonGreedy(Solution &sol, const Instance &Inst, const float beta)
+void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, const Instance &Inst, const float beta)
 {
 
     // Cria o vetor com a demanda de cada satellite
@@ -648,18 +652,18 @@ bool GreedyAlgNS::existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendi
     return false;
 }
 
-void GreedyAlgNS::greedy(Solution &sol, Instance &Inst, const float alpha, const float beta)
+void GreedyAlgNS::construtivo(Solucao &Sol, Instance &Inst, const float alpha, const float beta)
 {
     //if(secondEchelonGreedy(sol, Inst, alpha))
-    if(secondEchelonGreedy(sol, Inst, alpha))
+    if(secondEchelonGreedy(Sol, Inst, alpha))
     {
-        firstEchelonGreedy(sol, Inst, beta);
+        firstEchelonGreedy(Sol, Inst, beta);
 
 
         //sol.print(Inst);
 
-        if(sol.viavel)
-            sol.atualizaVetSatTempoChegMax(Inst);
+        if(Sol.viavel)
+            Sol.atualizaVetSatTempoChegMax(Inst);
 
 
     }
@@ -742,11 +746,15 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
         if(distanceAux < bestIncremento)
         {
 
-            const double custo = testaRota(evRouteAux, evRouteAux.routeSize, instance, false, tempoSaidaSat, 0);
+            const double custo = testaRota(evRouteAux, evRouteAux.routeSize, instance, false, tempoSaidaSat, 0, nullptr);
+            string str;
+            evRouteAux.print(str, instance, true);
+
+           //cout<<"Rota: "<<str<<"\n\n*******************\n\n";
 
             if(custo > 0.0)
             {
-
+                //cout<<"Custo: "<<custo<<"\n";
                 bestIncremento = distanceAux;
                 candidatoEv = CandidatoEV(pos, node, distanceAux, demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, {});
                 viavel = true;
@@ -795,7 +803,7 @@ std::vector<double> GreedyAlgNS::calculaTempoSaidaInicialSat(const Instance &ins
 
 }
 
-bool GreedyAlgNS::insert(EvRoute &evRoute, CandidatoEV &insertion, const Instance &instance, const double tempoSaidaSat, Solution &sol)
+bool GreedyAlgNS::insert(EvRoute &evRoute, CandidatoEV &insertion, const Instance &instance, const double tempoSaidaSat, Solucao &sol)
 {
 
     const int pos = insertion.pos;
@@ -839,7 +847,7 @@ bool GreedyAlgNS::insert(EvRoute &evRoute, CandidatoEV &insertion, const Instanc
     }
 
 
-    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaidaSat, 0);
+    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaidaSat, 0, nullptr);
     evRoute.demanda += insertion.demand;
     sol.distancia += evRoute.distancia;
 

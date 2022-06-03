@@ -108,3 +108,18 @@ void Satelite::print(const Instance &instance)
 
     std::cout<<"\n\n";
 }
+
+void Satelite::copia(Satelite &satelite)
+{
+    for(int i=0; i < tamVetEvRoute; ++i)
+    {
+        if(satelite.vetEvRoute[i].routeSize > 2)
+        {
+            vetEvRoute[i].copia(satelite.vetEvRoute[i]);
+        }
+    }
+
+    sateliteId = satelite.sateliteId;
+    demanda = satelite.demanda;
+    distancia = satelite.distancia;
+}

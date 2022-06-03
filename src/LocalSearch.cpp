@@ -52,7 +52,7 @@ bool isViableSwap(EvRoute& Ev0, EvRoute& Ev1, int c0, int c1, const Instance& In
     }
 
 }
-bool NS_LocalSearch::interSatelliteSwap(Solution &Sol, const Instance &Inst, float &improvement) {
+bool NS_LocalSearch::interSatelliteSwap(Solucao &Sol, const Instance &Inst, float &improvement) {
     LocalSearch2 bestLs;
     LocalSearch2 currentLs;
     for (int s0 = 0; s0 < Sol.getNSatelites(); s0++) {
@@ -120,7 +120,7 @@ bool NS_LocalSearch::interSatelliteSwap(Solution &Sol, const Instance &Inst, flo
     }
     return false;
 }
-void NS_LocalSearch::swapMov(Solution& Sol, const LocalSearch2& mov, const Instance& Inst){
+void NS_LocalSearch::swapMov(Solucao& Sol, const LocalSearch2& mov, const Instance& Inst){
     int indexSat0, indexSat1;
     int indexRoute0, indexRoute1;
     int c0, c1;
@@ -204,7 +204,7 @@ void NS_LocalSearch::LocalSearch::print(string &str)
 }
 
 
-bool NS_LocalSearch::mvShifitIntraRota(Solution &solution, const Instance &instance)
+bool NS_LocalSearch::mvShifitIntraRota(Solucao &solution, const Instance &instance)
 {
 
     LocalSearch localSearchBest;
@@ -443,7 +443,7 @@ bool NS_LocalSearch::mvShifitIntraRota(Solution &solution, const Instance &insta
 
 }
 
-bool NS_LocalSearch::mvShiftInterRotasIntraSatellite(Solution &solution, const Instance &instance)
+bool NS_LocalSearch::mvShiftInterRotasIntraSatellite(Solucao &solution, const Instance &instance)
 {
 
     LocalSearch localSearchBest;
@@ -757,7 +757,7 @@ void NS_LocalSearch::shifitInterRotasMvDuasRotas(const pair<int, int> satIdPair,
  * @return              Retorna se conseguiu realizar o movimento
  // * /
 
-bool NS_LocalSearch::mvCrossIntraSatellite(Solution &solution, const Instance &instance)
+bool NS_LocalSearch::mvCrossIntraSatellite(Solucao &solution, const Instance &instance)
 {
 
 

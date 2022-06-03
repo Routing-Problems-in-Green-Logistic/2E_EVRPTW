@@ -1,7 +1,7 @@
 #ifndef INC_2E_EVRP_GREEDYALGORITHM_H
 #define INC_2E_EVRP_GREEDYALGORITHM_H
 
-#include "Solution.h"
+#include "Solucao.h"
 #include "ViabilizadorRotaEv.h"
 #include <list>
 #include <vector>
@@ -68,9 +68,9 @@ namespace GreedyAlgNS
     };
 
 
-    bool secondEchelonGreedy(Solution& Sol, Instance& instance, float alpha);
-    void firstEchelonGreedy(Solution &Sol, const Instance &Inst, const float beta);
-    void greedy(Solution &Sol, Instance &Inst, const float alpha, const float beta);
+    bool secondEchelonGreedy(Solucao& Sol, Instance& instance, float alpha);
+    void firstEchelonGreedy(Solucao &Sol, const Instance &Inst, const float beta);
+    void construtivo(Solucao &Sol, Instance &Inst, const float alpha, const float beta);
     bool visitAllClientes(std::vector<int> &visitedClients, const Instance &instance);
     bool existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendida);
     float palpiteTempoFinalPrimeiroNivel(const Instance& inst);
@@ -78,7 +78,7 @@ namespace GreedyAlgNS
 
     bool canInsert(EvRoute &evRoute, int node, Instance &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux);
     bool canInsertSemBateria(EvRoute &evRoute, int node, const Instance &Instance, CandidatoEV &insertion);
-    bool insert(EvRoute &evRoute, CandidatoEV & insertion, const Instance &instance, const double tempoSaidaSat, Solution &sol);
+    bool insert(EvRoute &evRoute, CandidatoEV & insertion, const Instance &instance, const double tempoSaidaSat, Solucao &sol);
     bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instance &instance, bool modficaSatelite);
 
     std::vector<double> calculaTempoSaidaInicialSat(const Instance &instance);

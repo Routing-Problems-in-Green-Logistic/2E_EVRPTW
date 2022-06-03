@@ -336,18 +336,28 @@ void Instance::print() const
 
     cout<<"\n\n";
 
-    cout<<"SATELITE ID \t TW INICIO \t TW FIM\n\n";
+    cout<<"SATELITE ID \t TW INICIO \t TW FIM \t COORD X \t COORD Y\n\n";
     for(int i=getFirstSatIndex(); i <= getEndSatIndex(); ++i)
     {
         const ClienteInst &clienteInst = vectCliente[i];
-        cout<<"\t"<<i<< " \t " <<clienteInst.inicioJanelaTempo<<" \t\t "<<clienteInst.fimJanelaTempo<<"\n";
+        cout<<"\t"<<i<< " \t " <<clienteInst.inicioJanelaTempo<<" \t\t "<<clienteInst.fimJanelaTempo<<" \t\t "<<clienteInst.coordX<<" \t\t "<<clienteInst.coordY<<"\n";
     }
 
-    cout<<"\nCLIENTE ID \t TW INICIO \t TW FIM\n\n";
+    cout<<"\nCLIENTE ID \t TW INICIO \t TW FIM \t TEMPO SERV \t COORD X \t COORD Y\n\n";
     for(int i=getFirstClientIndex(); i <= getEndClientIndex(); ++i)
     {
         const ClienteInst &clienteInst = vectCliente[i];
-        cout<< "\t"<< i << " \t " <<clienteInst.inicioJanelaTempo<<" \t\t "<<clienteInst.fimJanelaTempo<<"\n";
+        cout<< "\t"<< i << " \t " <<clienteInst.inicioJanelaTempo<<" \t\t "<<clienteInst.fimJanelaTempo<<" \t\t "<<clienteInst.tempoServico<<
+        " \t\t "<<clienteInst.coordX<<" \t\t "<<clienteInst.coordY<<"\n";
+    }
+
+    cout<<"\nESTACAO ID \t COORD X \t COORD Y\n\n";
+
+    for(int i=getFirstRechargingSIndex(); i <= getEndRechargingSIndex(); ++i)
+    {
+        const ClienteInst &clienteInst = vectCliente[i];
+
+        cout<<"\t"<<i<<" \t "<<clienteInst.coordX<<" \t\t "<<clienteInst.coordY<<"\n";
     }
 
     cout<<"\n\n";

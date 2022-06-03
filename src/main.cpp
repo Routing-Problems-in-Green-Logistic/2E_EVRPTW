@@ -1,11 +1,7 @@
-/*
- *  ./run ../instancias/2e-vrp-tw/Customer_15/C101_C15x.txt 1652188790
- *  ERRO NA DISTANCIA DA SOLUCAO, DIST: 1109.149810; CALCULADO: 1968.299619; TOLERANCIA_DIST_SOLUCAO: 0.01
- */
 
 #include <iostream>
 #include "Instance.h"
-#include "Solution.h"
+#include "Solucao.h"
 #include <fstream>
 #include <sstream>
 #include <math.h>
@@ -21,18 +17,21 @@
 #include <iomanip>
 #include <boost/format.hpp>
 #include "Teste.h"
+#include "Grasp.h"
 
 using namespace std;
 using namespace GreedyAlgNS;
 using namespace NS_vnd;
 using namespace NameTeste;
+using namespace NameS_Grasp;
 
 void routine(char** filenames, int nFileNames);
 float distance(std::pair<float, float> p1, std::pair<float,float> p2);
 Instance* getInstanceFromFile(std::string &fileName);
-void saveSolutionToFile(const Solution& Sol, const std::string& fileName="solution.txt");
+void saveSolutionToFile(const Solucao& Sol, const std::string& fileName="solution.txt");
 string getNomeInstancia(string str);
-
+void escreveInstancia(const Instance &instance, string file);
+void escreveSolucao(Solucao &solution, Instance &instance, string file);
 
 #define NUM_EXEC 400
 
@@ -77,66 +76,39 @@ int main(int argc, char* argv[])
     {
 
         std::string file(argv[1]);
+
         const string nomeInst = getNomeInstancia(file);
+        string arquivo = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/instanciasMod/" + nomeInst + ".txt";
+        string arquivoSol = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/solucao/" + nomeInst + ".txt";
+
 
         cout << "INSTANCIA: \t" << nomeInst << "\n";
         cout<<"SEMENTE: \t"<<semente<<"\n\n";
-        double val = 0.0;
         double tempo = 0.0;
-        double best = DOUBLE_MAX;
-        int num = 0;
         Instance instance(file);
+        const float alpha = 0.5;
+        const float beta  = 0.5;
+
+        //escreveInstancia(instance, arquivo);
 
         auto start = std::chrono::high_resolution_clock::now();
-        string erro;
 
-        //instance.print();
-
-        for(int i=0; i < NUM_EXEC; ++i)
-        {
-            //cout<<"i: "<<i<<"\n";
-
-            Solution sol(instance);
-            greedy(sol, instance, 0.5, 0.5);
-
-            if(sol.viavel)
-            {
-                erro = "";
-
-/*                if(!sol.checkSolution(erro, instance))
-                {
-
-                    cout<<"\n\nSOLUCAO:\n\n";
-                    sol.print(instance);
-
-                    cout << erro<< "\n****************************************************************************************\n\n";
-                    break;
-
-                }
-                else*/
-                {
-
-                    num += 1;
-                    val += sol.distancia;
-
-                    if(sol.distancia < best)
-                        best = sol.distancia;
-                }
-            }
-
-
-        }
-
-
-        //instance.print();
+            Estatisticas estat;
+            Solucao *solBest = grasp(instance, NUM_EXEC, alpha, beta, estat);
 
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> tempoAux = end - start;
         tempo = tempoAux.count();
 
-        //cout<<"\nINST \tDISTANCIA_MEDIA \tBEST \tNUM \tTEMPO\n";
-        //cout<<nomeInst<<";\t"<<val/num<<";\t"<<best<<";\t"<<num<<";\t"<<tempo<<"\n";
+        cout<<"\nINST \t\tDISTANCIA_MEDIA \tBEST \t\tNUM \tTEMPO\n";
+        cout<<nomeInst<<";\t"<<estat.media()<<";\t\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
+
+
+        //escreveSolucao(solBest, instance, arquivoSol);
+        return 0;
+
+        //instance.print();
 
 
 #if TEMPO_FUNC_VIABILIZA_ROTA_EV
@@ -145,8 +117,10 @@ int main(int argc, char* argv[])
 
         std::ofstream outfile;
         outfile.open("resultado.csv", std::ios_base::app);
-        outfile<<nomeInst<<";\t"<<val/num<<";\t"<<best<<";\t"<<num<<";\t"<<tempo<<"\n";
+        outfile<<nomeInst<<";\t"<<estat.media()<<";\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
         outfile.close();
+
+        delete solBest;
 
     }
     catch(std::exception &e)
@@ -202,7 +176,7 @@ int main(int argc, char* argv[])
     Instance *instance = getInstanceFromFile(file);
     try
     {
-        Solution bestB(*instance);
+        Solucao bestB(*instance);
         float globalBest = FLOAT_MAX;
 
         float tempo = 0.0;
@@ -231,7 +205,7 @@ int main(int argc, char* argv[])
 
                 //cout<<"i: "<<i<<"\n";
 
-                Solution solution(*instance);
+                Solucao solution(*instance);
                 greedy(solution, *instance, 0.4, 0.4);
                 if (solution.viavel)
                 {
@@ -414,6 +388,99 @@ int main(int argc, char* argv[])
 
 #endif
 
+void escreveSolucao(Solucao &solution, Instance &instance, string file)
+{
+
+
+    std::ofstream outfile;
+    outfile.open(file, std::ios_base::out);
+
+    if(outfile.is_open())
+    {
+
+        for(int s=instance.getFirstSatIndex(); s <= instance.getEndSatIndex(); ++s)
+        {
+
+            for(int e=0; e < solution.satelites[s].vetEvRoute.size(); ++e)
+            {
+                EvRoute &evRoute = solution.satelites[s].vetEvRoute[e];
+
+                if(evRoute.routeSize > 2)
+                {
+                    string rota;
+
+                    for(int i=0; i < evRoute.routeSize; ++i)
+                    {   cout<<evRoute[i].cliente<<": "<<evRoute[i].tempoSaida<<"  "<<evRoute[i].tempoSaida<<"\n";
+                        rota += to_string(evRoute[i].cliente) + " ";
+                    }
+
+                    outfile<<rota<<"\n";
+
+
+                }
+            }
+        }
+
+        for(int i = 0; i < solution.primeiroNivel.size(); ++i)
+        {
+            Route &veic = solution.primeiroNivel[i];
+            string rota;
+
+            if(veic.routeSize > 2)
+            {
+                for(int t=0; t < veic.routeSize; ++t)
+                    rota += to_string(veic.rota[t].satellite) + " ";
+
+                outfile<<rota<<"\n";
+            }
+
+        }
+
+        outfile.close();
+
+    }
+    else
+    {
+        cout<<"Nao foi possivel abrir o arquivo: "<<file<<"\n";
+        throw "ERRO FILE";
+    }
+}
+
+void escreveInstancia(const Instance &instance, string file)
+{
+    std::ofstream outfile;
+    outfile.open(file, std::ios_base::out);
+
+    if(outfile.is_open())
+    {
+        /*  Code:
+         *  D	depot
+         *  S	satellites
+         *  C	customers
+         *  F	recharging stations
+         */
+
+        // Code     x       y       demanda
+
+        outfile<<"D "<<instance.vectCliente[0].coordX<<" "<<instance.vectCliente[0].coordY<<" 0\n";
+
+        for(int s=instance.getFirstSatIndex(); s <= instance.getEndSatIndex(); ++s)
+            outfile<<"S "<<instance.vectCliente[s].coordX<<" "<<instance.vectCliente[s].coordY<<" 0\n";
+
+
+        for(int f=instance.getFirstRechargingSIndex(); f <= instance.getEndRechargingSIndex(); ++f)
+            outfile<<"F "<<instance.vectCliente[f].coordX<<" "<<instance.vectCliente[f].coordY<<" 0\n";
+
+
+        for(int c=instance.getFirstClientIndex(); c <= instance.getEndClientIndex(); ++c)
+            outfile<<"C "<<instance.vectCliente[c].coordX<<" "<<instance.vectCliente[c].coordY<<" "<<instance.vectCliente[c].demanda<<"\n";
+
+        outfile.close();
+
+    }
+
+}
+
 void routine(char** filenames, int nFileNames)
 {
 
@@ -488,7 +555,7 @@ Instance* getInstanceFromFile(std::string &fileName){
     return Inst;
 }
 
-void saveSolutionToFile(const Solution& Sol, const std::string& fileName){
+void saveSolutionToFile(const Solucao& Sol, const std::string& fileName){
     std::ofstream file(fileName);
     if(!file.is_open()){
         cout << "failed to open file" << endl;
