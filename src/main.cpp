@@ -33,7 +33,7 @@ string getNomeInstancia(string str);
 void escreveInstancia(const Instance &instance, string file);
 void escreveSolucao(Solucao &solution, Instance &instance, string file);
 
-#define NUM_EXEC 400
+#define NUM_EXEC 1
 
 #define MAIN_METODO     0
 #define MAIN_DIST       1
@@ -86,25 +86,26 @@ int main(int argc, char* argv[])
         cout<<"SEMENTE: \t"<<semente<<"\n\n";
         double tempo = 0.0;
         Instance instance(file);
-        const float alpha = 0.5;
+        const float alpha = 0.0;
         const float beta  = 0.5;
 
         //escreveInstancia(instance, arquivo);
 
         auto start = std::chrono::high_resolution_clock::now();
 
-            Estatisticas estat;
-            Solucao *solBest = grasp(instance, NUM_EXEC, alpha, beta, estat);
-
+/*            Estatisticas estat;
+            Solucao *solBest = grasp(instance, NUM_EXEC, alpha, beta, estat);*/
+        Solucao sol(instance);
+        construtivo(sol, instance, alpha, beta);
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> tempoAux = end - start;
         tempo = tempoAux.count();
 
         cout<<"\nINST \t\tDISTANCIA_MEDIA \tBEST \t\tNUM \tTEMPO\n";
-        cout<<nomeInst<<";\t"<<estat.media()<<";\t\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
-
-
+        //cout<<nomeInst<<";\t"<<estat.media()<<";\t\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
+        cout<<"viavel: "<<sol.viavel<<"\n";
+        escreveSolucao(sol, instance, arquivoSol);
         //escreveSolucao(solBest, instance, arquivoSol);
         return 0;
 
@@ -115,12 +116,12 @@ int main(int argc, char* argv[])
         cout<<"\nTEMPO TOTAL FUNC VIABILIZA ROTA EV: "<<NameViabRotaEv::global_tempo<<"  "<<100.0*(NameViabRotaEv::global_tempo/tempo)<<" % DO TEMPO TOTAL\n";
 #endif
 
-        std::ofstream outfile;
-        outfile.open("resultado.csv", std::ios_base::app);
-        outfile<<nomeInst<<";\t"<<estat.media()<<";\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
-        outfile.close();
+        //std::ofstream outfile;
+        //outfile.open("resultado.csv", std::ios_base::app);
+        //outfile<<nomeInst<<";\t"<<estat.media()<<";\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
+        //outfile.close();
 
-        delete solBest;
+        //delete solBest;
 
     }
     catch(std::exception &e)

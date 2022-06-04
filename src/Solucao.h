@@ -6,20 +6,20 @@
 class Solucao
 {
 public:
-    Solucao(const Instance& Inst);
+    Solucao(Instance& Inst);
     Solucao(const Solucao &solution);
     void copia(Solucao &solution);
 
     int getNSatelites() const;
     int findSatellite(int id) const;
     Satelite* getSatelite(int index);
-    bool checkSolution(std::string &erro, const Instance &inst);
+    bool checkSolution(std::string &erro, Instance &inst);
     void print(std::string &str,  const Instance &instance);
     void print(const Instance& Inst);
     double calcCost(const Instance&);
     float getDistanciaTotal();
 
-    void atualizaVetSatTempoChegMax(const Instance &instance);
+    void atualizaVetSatTempoChegMax( Instance &instance);
 
     // Possui numSat + 1 !!
     std::vector<Satelite> satelites;

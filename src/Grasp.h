@@ -25,6 +25,14 @@ namespace NameS_Grasp
         double media(){return distAcum/numSol;}
     };
 
+    struct EstDist
+    {
+        int estacao;
+        double distancia;
+
+        bool operator < (const EstDist &outro) const{return distancia < outro.distancia;}
+    };
+
     Solucao* grasp(Instance &instance, const int numIte, const float alfa, const float beta, Estatisticas &estat);
 
     void inicializaSol(Solucao &sol, Instance &instance);

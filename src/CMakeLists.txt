@@ -32,7 +32,7 @@ set(SOURCES main.cpp
             ViabilizadorRotaEv.h
             Teste.cpp
             Teste.h
-        Solucao
+        Solucao.cpp
             EvRoute.cpp
         greedyAlgorithm.cpp
             greedyAlgorithm.h

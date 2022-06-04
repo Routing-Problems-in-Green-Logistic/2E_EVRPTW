@@ -3,7 +3,7 @@
 
 
 
-Solucao::Solucao(const Instance &Inst)
+Solucao::Solucao(Instance &Inst)
 {
     satelites.reserve(Inst.getNSats()+1);
 
@@ -26,7 +26,7 @@ Solucao::Solucao(const Instance &Inst)
 
 }
 
-void Solucao::atualizaVetSatTempoChegMax(const Instance &instance)
+void Solucao::atualizaVetSatTempoChegMax(Instance &instance)
 {
 
     // Inicializa vetor
@@ -60,7 +60,7 @@ Satelite* Solucao::getSatelite(int index) {
     return &satelites.at(index);
 }
 
-bool Solucao::checkSolution(std::string &erro, const Instance &inst)
+bool Solucao::checkSolution(std::string &erro, Instance &inst)
 {
     double distanciaAux = 0.0;
 
