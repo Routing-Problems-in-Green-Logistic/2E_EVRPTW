@@ -16,11 +16,12 @@
 using namespace GreedyAlgNS;
 using namespace NameS_Grasp;
 
-/*
+
 Solucao* NameS_Grasp::grasp(Instance &instance, const int numIte, const float alfa, const float beta, Estatisticas &estat)
 {
     Solucao *solBest = new Solucao(instance);
-    solBest->distancia = DOUBLE_MAX;
+    solBest->distancia = DOUBLE_MIN;
+    solBest->viavel = false;
 
     estat.numSol = 0.0;
     estat.numIte = numIte;
@@ -35,14 +36,13 @@ Solucao* NameS_Grasp::grasp(Instance &instance, const int numIte, const float al
 
         if(estat.numSol == 0 && i == 110)
         {
-            gabi = true;
+            //gabi = true;
 
         }
 
-        if(gabi)
-
-
         construtivo(sol, instance, alfa, beta);
+        //cout<<"\n\n*****************************************************\n*****************************************************\n\n";
+        //sol.print(instance);
 
         if(sol.viavel)
         {
@@ -62,14 +62,36 @@ Solucao* NameS_Grasp::grasp(Instance &instance, const int numIte, const float al
                 estat.numSol += 1;
                 estat.distAcum += sol.distancia;
 
-                if(sol.distancia < solBest->distancia)
+                if(sol.distancia < solBest->distancia || !solBest->viavel)
                 {
+                    cout<<"Atualizacao best\n\n";
+
+
+                    cout<<"sol:\n";
+                    sol.print(instance);
+                    cout<<"1º rota sol: "<<sol.satelites[1].vetEvRoute[0].routeSize<<"\n";
+
                     solBest->copia(sol);
+
+                    cout<<"best: \n";
+                    solBest->print(instance);
+                    cout<<"1º rota solBest: "<<solBest->satelites[1].vetEvRoute[0].routeSize<<"\n";
+
+                    cout<<"**********************************\n";
+
                 }
+
             }
+        }
+        else if(!solBest->viavel && !sol.viavel)
+        {
+
+            solBest->copia(sol);
+
         }
 
     }
+
 
     return solBest;
 
@@ -113,9 +135,9 @@ void NameS_Grasp::inicializaSol(Solucao &sol, Instance &instance)
 
             }
             p += 1;
-        }while(p != pos);
+        }
+        while(p != pos);
     }
 
 
 }
-*/

@@ -302,6 +302,8 @@ Instance::Instance(const std::string &str)
         matEstacao(i,i)= nullptr;
     }
 
+    penalizacaoDistEv = calculaPenalizacaoDistEv();
+
 }
 
 Instance::~Instance()
@@ -381,5 +383,17 @@ int* Instance::getEstacoes(const int clienteI, const int clienteJ)
         return matEstacao(clienteI, clienteJ);
 }
 
-// 1 11 9 12 4 15
-//
+double Instance::calculaPenalizacaoDistEv()
+{
+
+    double dist = 0.0;
+
+    for(int sat=getFirstSatIndex(); sat <= getEndSatIndex(); ++sat)
+    {
+        for(int j=getFirstClientIndex(); j <= getEndClientIndex(); ++j)
+            dist += 2.0* getDistance(sat, j);
+
+    }
+
+    return dist*1.12;
+}

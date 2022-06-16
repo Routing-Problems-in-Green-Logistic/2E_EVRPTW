@@ -8,6 +8,7 @@
 #include <vector>
 #include <iostream>
 #include <cfloat>
+#include <limits>
 
 using namespace std;
 
@@ -38,6 +39,7 @@ using namespace std;
 
 #define PRINT_DEBUG(inicio, texto) cout<<inicio<<"DEBUG: "<<texto<<"  FILE: "<<__PRETTYFILE__<<"  FUNC: "<<__PRETTY_FUNCTION__<<"  LINHA: "<<__LINE__<<"\n";
 
+extern const double DOUBLE_INF;
 
 namespace NS_Auxiliary
 {

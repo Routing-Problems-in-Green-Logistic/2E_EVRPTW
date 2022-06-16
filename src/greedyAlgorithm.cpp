@@ -92,14 +92,13 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
         {
 
 
+
             listaCandidatos.push_back(candidatoEv);
             CandidatoEV *candPtr = &listaCandidatos.back();
 
 
             matCandidato[candPtr->satId](transformaIdEv(candPtr->routeId), transformaIdCliente(candPtr->clientId)) = candPtr;
             vetCandPtr[transformaIdCliente(candPtr->clientId)] = candPtr;
-
-
 
         }
         else
@@ -140,10 +139,17 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
         int randIndex = rand_u32()%(int(alpha * listaCandidatos.size() + 1));
         listaCandidatos.sort();
 
+
+/*        for(auto &it:listaCandidatos)
+            cout<<it.clientId<<" "<<it.incremento<<" "<<it.incrP<<"\n";
+
+        cout<<"\n\n***************************\n\n";*/
+
         auto topItem = std::next(listaCandidatos.begin(), randIndex);
         CandidatoEV *candEvPtr = &(*topItem);
 
         visitedClients[topItem->clientId] = 1;
+        //cout<<"Add "<<topItem->clientId<<"\n";
 
         Satelite *satelite = sol.getSatelite(topItem->satId);
         satelite->demanda += topItem->demand;
@@ -214,7 +220,8 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
                         *candidatoEvPtrAux = candidatoEv;
                         matCandidato[candidatoEv.satId](transformaIdEv(candidatoEv.routeId),
                                                         transformaIdCliente(candidatoEv.clientId)) = candidatoEvPtrAux;
-                    } else
+                    }
+                    else
                     {
                         //cout<<"nao encontrou rota viavel para o cliente: "<<clientId<<"\n\n";
 
@@ -657,6 +664,7 @@ void GreedyAlgNS::construtivo(Solucao &Sol, Instance &Inst, const float alpha, c
     //if(secondEchelonGreedy(sol, Inst, alpha))
     if(secondEchelonGreedy(Sol, Inst, alpha))
     {
+
         firstEchelonGreedy(Sol, Inst, beta);
 
 
@@ -668,6 +676,8 @@ void GreedyAlgNS::construtivo(Solucao &Sol, Instance &Inst, const float alpha, c
 
     }
 
+    //Sol.print(Inst);
+
 }
 
 
@@ -675,7 +685,7 @@ void GreedyAlgNS::construtivo(Solucao &Sol, Instance &Inst, const float alpha, c
 bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux)
 {
     double demand = instance.getDemand(node);
-    double bestIncremento = candidatoEv.incremento;
+    double bestIncremento = candidatoEv.incrP;
     bool viavel = false;
 
     //cout<<"func: canInsert\n";
@@ -757,6 +767,18 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
                 //cout<<"Custo: "<<custo<<"\n";
                 bestIncremento = distanceAux;
                 candidatoEv = CandidatoEV(pos, node, distanceAux, demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, {});
+
+                if(evRoute.routeSize == 2)
+                {
+                    candidatoEv.atualizaPenalidade(instance.penalizacaoDistEv);
+                    bestIncremento += instance.penalizacaoDistEv;
+                }
+                else
+                {
+                    candidatoEv.penalidade = 0.0;
+                    candidatoEv.atualizaPenalidade();
+                }
+
                 viavel = true;
 
             }
@@ -764,10 +786,21 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
             {
 
                 double insertionCost = insercaoEstacao.distanciaRota - distanciaRota;
+                if(evRoute.routeSize == 2)
+                    insertionCost += instance.penalizacaoDistEv;
+
                 if(insertionCost < bestIncremento)
                 {
                     bestIncremento = insertionCost;
-                    candidatoEv = CandidatoEV(pos, node, insertionCost, demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, insercaoEstacao);
+                    candidatoEv = CandidatoEV(pos, node, (insercaoEstacao.distanciaRota - distanciaRota), demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, insercaoEstacao);
+
+                    if(evRoute.routeSize == 2)
+                        candidatoEv.atualizaPenalidade(instance.penalizacaoDistEv);
+                    else
+                    {
+                        candidatoEv.atualizaPenalidade(0.0);
+                    }
+
                     viavel = true;
                 }
             }
@@ -778,7 +811,15 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
     }
     //PRINT_DEBUG("", "<<viavel: "<<viavel);
 
-
+    if(viavel)
+    {
+        if(evRoute.routeSize == 2)
+        {
+            candidatoEv.atualizaPenalidade(instance.penalizacaoDistEv);
+        }
+        else
+            candidatoEv.atualizaPenalidade(0.0);
+    }
 
     return viavel;
 

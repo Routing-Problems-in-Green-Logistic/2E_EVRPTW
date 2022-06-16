@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include "Instance.h"
 #include "Solucao.h"
@@ -33,7 +32,7 @@ string getNomeInstancia(string str);
 void escreveInstancia(const Instance &instance, string file);
 void escreveSolucao(Solucao &solution, Instance &instance, string file);
 
-#define NUM_EXEC 1
+#define NUM_EXEC 400
 
 #define MAIN_METODO     0
 #define MAIN_DIST       1
@@ -86,27 +85,28 @@ int main(int argc, char* argv[])
         cout<<"SEMENTE: \t"<<semente<<"\n\n";
         double tempo = 0.0;
         Instance instance(file);
-        const float alpha = 0.0;
+        const float alpha = 0.5;
         const float beta  = 0.5;
 
         //escreveInstancia(instance, arquivo);
 
         auto start = std::chrono::high_resolution_clock::now();
 
-/*            Estatisticas estat;
-            Solucao *solBest = grasp(instance, NUM_EXEC, alpha, beta, estat);*/
-        Solucao sol(instance);
-        construtivo(sol, instance, alpha, beta);
+            Estatisticas estat;
+            Solucao *solBest = grasp(instance, NUM_EXEC, alpha, beta, estat);
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> tempoAux = end - start;
         tempo = tempoAux.count();
 
         cout<<"\nINST \t\tDISTANCIA_MEDIA \tBEST \t\tNUM \tTEMPO\n";
-        //cout<<nomeInst<<";\t"<<estat.media()<<";\t\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
-        cout<<"viavel: "<<sol.viavel<<"\n";
-        escreveSolucao(sol, instance, arquivoSol);
-        //escreveSolucao(solBest, instance, arquivoSol);
+        cout<<nomeInst<<";\t"<<estat.media()<<";\t\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
+        cout<<"viavel: "<<solBest->viavel<<"\n";
+        escreveSolucao(*solBest, instance, arquivoSol);
+        cout<<"\nDist Penalizacao: "<<instance.penalizacaoDistEv<<"\n";
+
+        delete solBest;
+
         return 0;
 
         //instance.print();
@@ -392,6 +392,7 @@ int main(int argc, char* argv[])
 void escreveSolucao(Solucao &solution, Instance &instance, string file)
 {
 
+    solution.print(instance);
 
     std::ofstream outfile;
     outfile.open(file, std::ios_base::out);
@@ -419,6 +420,8 @@ void escreveSolucao(Solucao &solution, Instance &instance, string file)
 
 
                 }
+                else
+                    cout<<"Rota "<<e<<" eh vazia\n";
             }
         }
 

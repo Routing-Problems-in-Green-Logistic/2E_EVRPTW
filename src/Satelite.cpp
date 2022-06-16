@@ -117,6 +117,7 @@ void Satelite::copia(Satelite &satelite)
         {
             vetEvRoute[i].copia(satelite.vetEvRoute[i]);
         }
+
     }
 
     sateliteId = satelite.sateliteId;

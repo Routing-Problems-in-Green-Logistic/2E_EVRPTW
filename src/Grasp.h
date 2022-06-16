@@ -22,7 +22,7 @@ namespace NameS_Grasp
         double distAcum = 0.0;
         string erro;
 
-        double media(){return distAcum/numSol;}
+        double media(){return distAcum/double(numSol);}
     };
 
     struct EstDist

@@ -3,3 +3,5 @@
 //
 
 #include "Auxiliary.h"
+
+const double DOUBLE_INF = std::numeric_limits<double>::infinity();

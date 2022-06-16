@@ -37,7 +37,21 @@ namespace GreedyAlgNS
         int routeId         = -1;
         int satId           = -1;
         double incremento   = DOUBLE_MAX;
+        double incrP        = DOUBLE_MAX;
         double demand       = 0.0;
+        double penalidade   = 0.0;
+
+        void atualizaPenalidade()
+        {
+            incrP = incremento + penalidade;
+        }
+
+        void atualizaPenalidade(double p)
+        {
+            penalidade = p;
+            incrP = p + incremento;
+        }
+
         NameViabRotaEv::InsercaoEstacao insercaoEstacao;
 
         CandidatoEV(int pos, int clientId, double cost, float demand, double batteryCost, int routeId, int satId, int rsPos,
@@ -57,8 +71,10 @@ namespace GreedyAlgNS
         CandidatoEV() = default;
         CandidatoEV(const CandidatoEV &outro)=default;
 
-        bool operator< (const CandidatoEV& that) const {
-            return (this->incremento < that.incremento);
+        bool operator < (const CandidatoEV& that) const
+        {
+            //return (incremento + penalidade) < (that.incremento + that.penalidade);
+            return incrP < that.incrP;
         }
 
         bool operator == (const CandidatoEV &that) const {

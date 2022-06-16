@@ -111,6 +111,9 @@ public:
 
     int *getEstacoes(const int clienteI, const int clienteJ);
 
+    double calculaPenalizacaoDistEv(void);
+
+
 //private:
     ublas::matrix<double> matDist;
 
@@ -126,6 +129,7 @@ public:
     ublas::triangular_matrix<int*, ublas::lower> matEstacao; // matriz eh triangular inferior: i >= j
 
     int numEstacoesPorArco=-1;
+    double penalizacaoDistEv = 0.0;
 };
 
 #endif

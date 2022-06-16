@@ -318,7 +318,9 @@ void Solucao::copia(Solucao &solution)
     distancia = solution.distancia;
     viavel = solution.viavel;
 
-    for(int s=0; s < solution.getNSatelites(); ++s)
+    cout<<"1º rota solCopia: "<<solution.satelites[1].vetEvRoute[0].routeSize<<"\n";
+
+    for(int s=0; s <= solution.getNSatelites(); ++s)
         satelites[s].copia(solution.satelites[s]);
 
 
