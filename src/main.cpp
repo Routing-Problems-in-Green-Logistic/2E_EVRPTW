@@ -81,19 +81,20 @@ int main(int argc, char* argv[])
         string arquivoSol = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/solucao/" + nomeInst + ".txt";
 
 
-        cout << "INSTANCIA: \t" << nomeInst << "\n";
-        cout<<"SEMENTE: \t"<<semente<<"\n\n";
+        cout << "INSTANCIA: " << nomeInst << "\t";
+        cout<<"SEMENTE: "<<semente<<"\n\n";
         double tempo = 0.0;
         Instance instance(file);
-        const float alpha = 0.5;
-        const float beta  = 0.5;
+
+        const std::vector<float> vetAlfa{0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.6, 0.7, 0.9};
 
         //escreveInstancia(instance, arquivo);
+        //instance.print();
 
         auto start = std::chrono::high_resolution_clock::now();
 
             Estatisticas estat;
-            Solucao *solBest = grasp(instance, NUM_EXEC, alpha, beta, estat);
+            Solucao *solBest = grasp(instance, NUM_EXEC, vetAlfa, 100, estat);
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> tempoAux = end - start;
@@ -102,8 +103,14 @@ int main(int argc, char* argv[])
         cout<<"\nINST \t\tDISTANCIA_MEDIA \tBEST \t\tNUM \tTEMPO\n";
         cout<<nomeInst<<";\t"<<estat.media()<<";\t\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
         cout<<"viavel: "<<solBest->viavel<<"\n";
+
         escreveSolucao(*solBest, instance, arquivoSol);
-        cout<<"\nDist Penalizacao: "<<instance.penalizacaoDistEv<<"\n";
+
+
+        std::ofstream outfile;
+        outfile.open("resultado.csv", std::ios_base::app);
+        outfile<<nomeInst<<";\t"<<estat.media()<<";\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
+        outfile.close();
 
         delete solBest;
 
@@ -116,12 +123,6 @@ int main(int argc, char* argv[])
         cout<<"\nTEMPO TOTAL FUNC VIABILIZA ROTA EV: "<<NameViabRotaEv::global_tempo<<"  "<<100.0*(NameViabRotaEv::global_tempo/tempo)<<" % DO TEMPO TOTAL\n";
 #endif
 
-        //std::ofstream outfile;
-        //outfile.open("resultado.csv", std::ios_base::app);
-        //outfile<<nomeInst<<";\t"<<estat.media()<<";\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
-        //outfile.close();
-
-        //delete solBest;
 
     }
     catch(std::exception &e)
@@ -392,7 +393,7 @@ int main(int argc, char* argv[])
 void escreveSolucao(Solucao &solution, Instance &instance, string file)
 {
 
-    solution.print(instance);
+    //solution.print(instance);
 
     std::ofstream outfile;
     outfile.open(file, std::ios_base::out);
@@ -412,7 +413,7 @@ void escreveSolucao(Solucao &solution, Instance &instance, string file)
                     string rota;
 
                     for(int i=0; i < evRoute.routeSize; ++i)
-                    {   cout<<evRoute[i].cliente<<": "<<evRoute[i].tempoSaida<<"  "<<evRoute[i].tempoSaida<<"\n";
+                    {
                         rota += to_string(evRoute[i].cliente) + " ";
                     }
 
@@ -420,8 +421,6 @@ void escreveSolucao(Solucao &solution, Instance &instance, string file)
 
 
                 }
-                else
-                    cout<<"Rota "<<e<<" eh vazia\n";
             }
         }
 

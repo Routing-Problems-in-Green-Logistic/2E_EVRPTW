@@ -33,8 +33,9 @@ namespace NameS_Grasp
         bool operator < (const EstDist &outro) const{return distancia < outro.distancia;}
     };
 
-    Solucao* grasp(Instance &instance, const int numIte, const float alfa, const float beta, Estatisticas &estat);
-
+    Solucao *grasp(Instance &instance, const int numIte, const std::vector<float> &vetAlfa, const int numAtuaProb,
+                   Estatisticas &estat);
+    double getPenalidade(Solucao &sol, Instance &instancia);
     void inicializaSol(Solucao &sol, Instance &instance);
 
 }

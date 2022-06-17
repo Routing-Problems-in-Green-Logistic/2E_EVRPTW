@@ -149,11 +149,12 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
         CandidatoEV *candEvPtr = &(*topItem);
 
         visitedClients[topItem->clientId] = 1;
+        sol.vetClientesAtend[topItem->clientId] = 1;
+
         //cout<<"Add "<<topItem->clientId<<"\n";
 
         Satelite *satelite = sol.getSatelite(topItem->satId);
         satelite->demanda += topItem->demand;
-
 
 
         EvRoute &evRoute = satelite->getRoute(transformaIdEv(topItem->routeId));

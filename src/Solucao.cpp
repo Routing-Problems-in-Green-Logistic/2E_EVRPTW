@@ -23,6 +23,20 @@ Solucao::Solucao(Instance &Inst)
     for(int i = 0; i < Inst.getNSats()+1; i++)
         satTempoChegMax.emplace_back(-1.0);
 
+    //vetClientesAtend.reserve(1+Inst.getNSats()+Inst.getN_RechargingS()+Inst.getNClients());
+    vetClientesAtend = std::vector<int8_t>(1+Inst.getNSats()+Inst.getN_RechargingS()+Inst.getNClients());
+
+    // Clientes
+    std::fill((vetClientesAtend.begin()+Inst.getFirstClientIndex()), vetClientesAtend.end(), 0);
+
+    // Satelites
+    std::fill((vetClientesAtend.begin()+1), (vetClientesAtend.begin()+Inst.getEndSatIndex()+1), 0);
+
+    // Dep
+    vetClientesAtend[0] = -1;
+
+    // Estacoes
+    std::fill((vetClientesAtend.begin()+Inst.getFirstRechargingSIndex()), (vetClientesAtend.begin()+Inst.getEndRechargingSIndex()+1), -1);
 
 }
 
@@ -318,7 +332,6 @@ void Solucao::copia(Solucao &solution)
     distancia = solution.distancia;
     viavel = solution.viavel;
 
-    cout<<"1º rota solCopia: "<<solution.satelites[1].vetEvRoute[0].routeSize<<"\n";
 
     for(int s=0; s <= solution.getNSatelites(); ++s)
         satelites[s].copia(solution.satelites[s]);

@@ -61,6 +61,7 @@ void EvRoute::copia(EvRoute &evRoute)
     idRota = evRoute.idRota;
     demanda = evRoute.demanda;
     numEstRecarga = evRoute.numEstRecarga;
+    distancia = evRoute.distancia;
 
     for(int i=0; i < routeSize; ++i)
         route[i] = evRoute.route[i];
@@ -68,7 +69,6 @@ void EvRoute::copia(EvRoute &evRoute)
     for(int i=0; i < numEstRecarga; ++i)
         vetRecarga[i] = evRoute.vetRecarga[i];
 
-    cout<<routeSize<<"  "<<evRoute.routeSize<<"\n";
 }
 
 int EvRoute::size() const{

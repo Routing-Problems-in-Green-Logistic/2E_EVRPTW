@@ -23,20 +23,18 @@ public:
 
     // Possui numSat + 1 !!
     std::vector<Satelite> satelites;
+
     // Guarda o ultimo tempo de chegada do veiculo do 1° nivel
     std::vector<double> satTempoChegMax;
     int numTrucks;
     int numEvs;
-
     bool viavel = true;
-
     std::vector<Route> primeiroNivel;
-
     bool mvShiftIntraRota = false;
     bool mvShiftInterRotas = false;
     bool mvCross = false;
-
     double distancia = 0.0;
+    std::vector<int8_t> vetClientesAtend;
 
 };
 #endif //INC_2E_EVRP_SOLUCAO_H

@@ -302,15 +302,13 @@ Instance::Instance(const std::string &str)
         matEstacao(i,i)= nullptr;
     }
 
-    penalizacaoDistEv = calculaPenalizacaoDistEv();
+    penalizacaoDistEv   = calculaPenalizacaoDistEv();
+    penalizacaoDistComb = calculaPenalizacaoDistComb();
 
 }
 
 Instance::~Instance()
 {
-
-
-
 
     for(int i=getFirstRechargingSIndex(); i <= getEndClientIndex(); ++i)
     {
@@ -371,8 +369,6 @@ void Instance::print() const
         cout<<"\tSAT ID: "<<i<<"\t"<<getDistance(dep, i);
 
     cout<<"\n\n";
-
-
 }
 
 int* Instance::getEstacoes(const int clienteI, const int clienteJ)
@@ -392,8 +388,21 @@ double Instance::calculaPenalizacaoDistEv()
     {
         for(int j=getFirstClientIndex(); j <= getEndClientIndex(); ++j)
             dist += 2.0* getDistance(sat, j);
-
     }
 
     return dist*1.12;
+}
+
+double Instance::calculaPenalizacaoDistComb()
+{
+
+    double dist = 0.0;
+    int dep = getDepotIndex();
+
+    for(int sat=getFirstSatIndex(); sat <= getEndSatIndex(); ++sat)
+    {
+        dist += 2.0* getDistance(dep, sat);
+    }
+
+    return dist*1.2;
 }

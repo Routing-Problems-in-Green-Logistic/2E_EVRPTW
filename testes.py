@@ -121,16 +121,13 @@ for instancia in instancias:
     #print(instancia)
     
     for i in range(numExecucoes):
-    
-        
-        time.sleep(1)
-            
-        strExecutavel = 'cmake-build-debug/run ' + instancia #+ ' ' + nomeCompletos + '/' + instanciaNome + '_' + str(i) + '.txt '  + nomeParciais + '/' + instanciaNome + '.txt ' + str(0)
-        os.system(strExecutavel)
-       # ramdom.write(str(semente))
-       # ramdom.write('\n')
-        
-    
+
+      time.sleep(1)
+      strExecutavel = 'cmake-build-debug/run ' + str(instancia)
+      os.system(strExecutavel)
+       	#ramdom.write(str(semente))
+       	#ramdom.write('\n')
+
     '''
     nomeArq = nomeParciais + '/' + instanciaNome + '.txt'
     
@@ -311,7 +308,7 @@ for i in grupos:
         arquivo.close()
         
 
-        
+       
         if tam > 0.0:
             poluicao /= tam
             veiculosUsados /=tam
@@ -334,8 +331,7 @@ for i in grupos:
         bestCpu = 0.0
         tam = 0.0
         
-        for aux in arquivo:
-            
+        for aux in arquivo:            
             linha = aux.split(' ')
             
             if float(linha[1]) <=  0.0:

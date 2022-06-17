@@ -141,7 +141,7 @@ namespace NS_Auxiliary
         for(int i=0; i < tam; ++i)
             str += to_string(vector[i]) + " ";
 
-        return str;
+        return std::move(str);
     }
 
 

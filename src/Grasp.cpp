@@ -17,7 +17,7 @@ using namespace GreedyAlgNS;
 using namespace NameS_Grasp;
 
 
-Solucao* NameS_Grasp::grasp(Instance &instance, const int numIte, const float alfa, const float beta, Estatisticas &estat)
+Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::vector<float> &vetAlfa, const int numAtuaProb, Estatisticas &estat)
 {
     Solucao *solBest = new Solucao(instance);
     solBest->distancia = DOUBLE_MIN;
@@ -27,22 +27,83 @@ Solucao* NameS_Grasp::grasp(Instance &instance, const int numIte, const float al
     estat.numIte = numIte;
     estat.distAcum = 0.0;
     estat.erro = "";
-    bool gabi = false;
+
+    const int tamAlfa = vetAlfa.size();
+
+    // Solucao para inicializar reativo
+    Solucao gul(instance);
+    construtivo(gul, instance, 0.0, 0.0);
+    const double gulCusto = getPenalidade(gul, instance);
+    double custoBest = gulCusto;
+
+    //Vetores para o reativo
+    std::vector<double> vetorProbabilidade(tamAlfa);
+    std::fill(vetorProbabilidade.begin(), vetorProbabilidade.begin()+tamAlfa, 1.0/float(tamAlfa));
+
+    std::vector<int>    vetorFrequencia(tamAlfa);
+    std::fill(vetorFrequencia.begin(), vetorFrequencia.begin()+tamAlfa, 1);
+
+    std::vector<double> solucaoAcumulada(tamAlfa);
+    std::fill(solucaoAcumulada.begin(), solucaoAcumulada.begin()+tamAlfa, gulCusto);
+
+    std::vector<double> vetorMedia(tamAlfa);
+    std::fill(vetorMedia.begin(), vetorMedia.begin()+tamAlfa, 0.0);
+
+    std::vector<double> proporcao(tamAlfa);
+    std::fill(proporcao.begin(), proporcao.begin()+tamAlfa, 0.0);
+
+    auto atualizaProb = [&]()
+    {
+        double somaProporcoes = 0.0;
+
+        //Calcular média
+
+        for(int i = 0; i < tamAlfa; ++i)
+            vetorMedia[i] = solucaoAcumulada[i]/double(vetorFrequencia[i]);
+
+        //Calcula proporção.
+        for(int i = 0; i < tamAlfa; ++i)
+        {
+            proporcao[i] = custoBest/vetorMedia[i];
+            somaProporcoes += proporcao[i];
+        }
+
+        //Calcula probabilidade
+        for(int i = 0; i< tamAlfa; ++i)
+            vetorProbabilidade[i] = 100.0*(proporcao[i]/somaProporcoes);
+
+    };
+
+    double somaProb = 0.0;
+    int posAlfa = 0;
+    int valAleatorio = 0;
+
+    float alfa = 0;
 
     for(int i=0; i < numIte; ++i)
     {
         Solucao sol(instance);
 
+        somaProb = 0.0;
+        posAlfa = 0;
 
-        if(estat.numSol == 0 && i == 110)
+        valAleatorio = rand_u32() % 100;
+
+        for(int j=0;somaProb < valAleatorio; ++j)
         {
-            //gabi = true;
 
+            if(j >= tamAlfa)
+            {
+                break;
+            }
+
+            somaProb+= (vetorProbabilidade[j]);
+            posAlfa = j;
         }
 
-        construtivo(sol, instance, alfa, beta);
-        //cout<<"\n\n*****************************************************\n*****************************************************\n\n";
-        //sol.print(instance);
+        alfa = vetAlfa[posAlfa];
+        vetorFrequencia[posAlfa] += 1;
+        construtivo(sol, instance, alfa, alfa);
 
         if(sol.viavel)
         {
@@ -64,39 +125,70 @@ Solucao* NameS_Grasp::grasp(Instance &instance, const int numIte, const float al
 
                 if(sol.distancia < solBest->distancia || !solBest->viavel)
                 {
-                    cout<<"Atualizacao best\n\n";
-
-
-                    cout<<"sol:\n";
-                    sol.print(instance);
-                    cout<<"1º rota sol: "<<sol.satelites[1].vetEvRoute[0].routeSize<<"\n";
-
                     solBest->copia(sol);
-
-                    cout<<"best: \n";
-                    solBest->print(instance);
-                    cout<<"1º rota solBest: "<<solBest->satelites[1].vetEvRoute[0].routeSize<<"\n";
-
-                    cout<<"**********************************\n";
+                    custoBest = solBest->distancia;
+                    //solBest->print(instance);
 
                 }
 
             }
+
+            solucaoAcumulada[posAlfa] += sol.distancia;
+
         }
         else if(!solBest->viavel && !sol.viavel)
         {
 
             solBest->copia(sol);
 
+            double aux = getPenalidade(sol, instance);
+            if(aux < custoBest)
+                custoBest = aux;
+
         }
+
+        if(!sol.viavel)
+            solucaoAcumulada[posAlfa] += getPenalidade(sol, instance);
+
+        if(i>0 && (i%numAtuaProb)==0)
+            atualizaProb();
+
 
     }
 
+    if(solBest->viavel)
+    {
+        estat.erro = "";
+        if(!solBest->checkSolution(estat.erro, instance))
+        {
+            cout<<"\n\nSOLUCAO:\n\n";
+            solBest->print(instance);
 
+            cout << estat.erro<< "\n****************************************************************************************\n\n";
+            delete solBest;
+            return nullptr;
+        }
+    }
     return solBest;
 
 }
 
+double NameS_Grasp::getPenalidade(Solucao &sol, Instance &instancia)
+{
+    static double penalidade = 1.2*instancia.penalizacaoDistEv;// + instancia.penalizacaoDistComb;
+
+    if(sol.viavel)
+        return sol.distancia;
+
+    int num = 0;
+    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+    {
+        if(sol.vetClientesAtend[i] == 0)
+            num += 1;
+    }
+
+    return sol.distancia + num*penalidade;
+}
 
 void NameS_Grasp::inicializaSol(Solucao &sol, Instance &instance)
 {

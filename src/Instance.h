@@ -111,7 +111,8 @@ public:
 
     int *getEstacoes(const int clienteI, const int clienteJ);
 
-    double calculaPenalizacaoDistEv(void);
+    double calculaPenalizacaoDistEv();
+    double calculaPenalizacaoDistComb();
 
 
 //private:
@@ -130,6 +131,7 @@ public:
 
     int numEstacoesPorArco=-1;
     double penalizacaoDistEv = 0.0;
+    double penalizacaoDistComb = 0.0;
 };
 
 #endif

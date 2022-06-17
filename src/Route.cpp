@@ -73,9 +73,9 @@ bool Route::checkDistence(const Instance &instance, double *dist, string &str)
 
         if((i+1) != (routeSize-1))
         {
-            if(satelliteDemand[i+1] == 0.0 || satelliteDemand[i+1] < TOLERANCIA_DEMANDA)
+            if(satelliteDemand[rota[i+1].satellite] == 0.0 || satelliteDemand[rota[i+1].satellite] < TOLERANCIA_DEMANDA)
             {
-                str += "SATELITE "+ to_string(rota[i+1].satellite) + "EH VISITADO LEVANDO 0 DE DEMANDA\n";
+                str += "SATELITE "+ to_string(rota[i+1].satellite) + "EH VISITADO LEVANDO "+ to_string(satelliteDemand[rota[i+1].satellite])+  " DE DEMANDA\n";
                 return false;
             }
         }
