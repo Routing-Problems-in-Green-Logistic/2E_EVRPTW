@@ -16,6 +16,7 @@
 using namespace GreedyAlgNS;
 using namespace NameS_Grasp;
 
+const float fator = 0.1;
 
 Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::vector<float> &vetAlfa, const int numAtuaProb, Estatisticas &estat)
 {
@@ -33,12 +34,12 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
     // Solucao para inicializar reativo
     Solucao gul(instance);
     construtivo(gul, instance, 0.0, 0.0);
-    const double gulCusto = getPenalidade(gul, instance);
+    const double gulCusto = getDistMaisPenalidade(gul, instance);
     double custoBest = gulCusto;
 
     //Vetores para o reativo
     std::vector<double> vetorProbabilidade(tamAlfa);
-    std::fill(vetorProbabilidade.begin(), vetorProbabilidade.begin()+tamAlfa, 1.0/float(tamAlfa));
+    std::fill(vetorProbabilidade.begin(), vetorProbabilidade.begin()+tamAlfa, 100.0/float(tamAlfa));
 
     std::vector<int>    vetorFrequencia(tamAlfa);
     std::fill(vetorFrequencia.begin(), vetorFrequencia.begin()+tamAlfa, 1);
@@ -51,6 +52,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
 
     std::vector<double> proporcao(tamAlfa);
     std::fill(proporcao.begin(), proporcao.begin()+tamAlfa, 0.0);
+
+
 
     auto atualizaProb = [&]()
     {
@@ -71,6 +74,17 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
         //Calcula probabilidade
         for(int i = 0; i< tamAlfa; ++i)
             vetorProbabilidade[i] = 100.0*(proporcao[i]/somaProporcoes);
+
+        //cout<<"vet prob: \n";
+        //string vet = NS_Auxiliary::printVector(vetorProbabilidade, int64_t(vetorProbabilidade.size()));
+
+        //cout<<vet<<"\n";
+
+        double sum = 0.0;
+        for(int i=0; i < tamAlfa; ++i)
+            sum += vetorProbabilidade[i];
+
+        //cout<<"sum: "<<sum<<"\n\n";
 
     };
 
@@ -101,6 +115,9 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
             posAlfa = j;
         }
 
+
+
+
         alfa = vetAlfa[posAlfa];
         vetorFrequencia[posAlfa] += 1;
         construtivo(sol, instance, alfa, alfa);
@@ -108,7 +125,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
         if(sol.viavel)
         {
 
-            if(!sol.checkSolution(estat.erro, instance))
+/*            if(!sol.checkSolution(estat.erro, instance))
             {
                 cout<<"\n\nSOLUCAO:\n\n";
                 sol.print(instance);
@@ -117,7 +134,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
                 delete solBest;
                 return nullptr;
             }
-            else
+            else*/
             {
 
                 estat.numSol += 1;
@@ -128,6 +145,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
                     solBest->copia(sol);
                     custoBest = solBest->distancia;
                     //solBest->print(instance);
+                    //cout<<"i: "<<i<<"\n";
 
                 }
 
@@ -141,14 +159,14 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
 
             solBest->copia(sol);
 
-            double aux = getPenalidade(sol, instance);
+            double aux = sol.distancia + getPenalidade(sol, instance, fator) ;
             if(aux < custoBest)
                 custoBest = aux;
 
         }
 
         if(!sol.viavel)
-            solucaoAcumulada[posAlfa] += getPenalidade(sol, instance);
+            solucaoAcumulada[posAlfa] += sol.distancia + getPenalidade(sol, instance, fator);
 
         if(i>0 && (i%numAtuaProb)==0)
             atualizaProb();
@@ -173,7 +191,25 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
 
 }
 
-double NameS_Grasp::getPenalidade(Solucao &sol, Instance &instancia)
+double NameS_Grasp::getPenalidade(Solucao &sol, Instance &instancia, float f)
+{
+    static double penalidade = 1.2*instancia.penalizacaoDistEv;
+
+
+    if(sol.viavel)
+        return 0.0;
+
+    int num = 0;
+    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+    {
+        if(sol.vetClientesAtend[i] == 0)
+            num += 1;
+    }
+
+    return f*num*penalidade;
+}
+
+double NameS_Grasp::getDistMaisPenalidade(Solucao &sol, Instance &instancia)
 {
     static double penalidade = 1.2*instancia.penalizacaoDistEv;// + instancia.penalizacaoDistComb;
 

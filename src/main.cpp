@@ -86,8 +86,9 @@ int main(int argc, char* argv[])
         double tempo = 0.0;
         Instance instance(file);
 
-        const std::vector<float> vetAlfa{0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.6, 0.7, 0.9};
-
+        //const std::vector<float> vetAlfa{0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.6, 0.7, 0.9};
+        const std::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.9};
+        //const std::vector<float> vetAlfa{0.0};
         //escreveInstancia(instance, arquivo);
         //instance.print();
 
@@ -100,16 +101,24 @@ int main(int argc, char* argv[])
         std::chrono::duration<double> tempoAux = end - start;
         tempo = tempoAux.count();
 
-        cout<<"\nINST \t\tDISTANCIA_MEDIA \tBEST \t\tNUM \tTEMPO\n";
-        cout<<nomeInst<<";\t"<<estat.media()<<";\t\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
-        cout<<"viavel: "<<solBest->viavel<<"\n";
+/*        cout<<"\nINST \t\tDISTANCIA_MEDIA \tBEST \t\tNUM \tTEMPO\n";
+        if(solBest->viavel)
+            cout<<nomeInst<<";\t"<<estat.media()<<";\t\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
+        else
+            cout<<nomeInst<<";\t*; \t\t\t*; \t\t"<<estat.numSol<<";\t"<<tempo<<"\n";
+
+        cout<<"viavel: "<<solBest->viavel<<"\n";*/
 
         escreveSolucao(*solBest, instance, arquivoSol);
 
 
         std::ofstream outfile;
         outfile.open("resultado.csv", std::ios_base::app);
-        outfile<<nomeInst<<";\t"<<estat.media()<<";\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
+        if(solBest->viavel)
+            outfile<<nomeInst<<";\t"<<estat.media()<<";\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
+        else
+            outfile<<nomeInst<<";\t*;\t*;\t"<<estat.numSol<<";\t"<<tempo<<"\n";
+
         outfile.close();
 
         delete solBest;

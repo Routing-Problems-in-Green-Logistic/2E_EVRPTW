@@ -15,62 +15,50 @@
 using namespace GreedyAlgNS;
 
 
-#define MOV_SHIFIT      0
-#define MOV_SWAP        1
+#define MOV_SHIFIT_INTRA      0
+#define MOV_SWAP_INTRA        1
+
 #define MOV_2_OPT       2
 #define MOV_CROSS       3
 
 
-namespace NS_LocalSearch {
-/*
-    class LocalSearch {
+namespace NS_LocalSearch
+{
+
+    class NoLocalS
+    {
+        int idSat       = -1;
+        int idEvRota    = -1;
+        int pos         = -1;
+        int cliente     = -1;
+        NameViabRotaEv::InsercaoEstacao estacao;
+    };
+
+    class LocalSearch
+    {
 
     public:
 
-        LocalSearch() : inser1(0, 0, 0, 0, 0, 0, 0, 0, 0, {})
-        {}
+        bool rotaUnica  = true;
+        NoLocalS noLocal0;
+        NoLocalS noLocal1;
+        int8_t mov       = -1;
+        double incrementoDistancia = DOUBLE_MAX;
 
-        bool satellites2 = false;
-        int idSat0       = -1;
-        int idSat1       = -1;
-
-        bool interRoutes = false;
-        int mov          = -1;
-        float incrementoDistancia = FLOAT_MAX;
-
-        // Shifit: insert0 -> insert1
-        CandidatoEV inser0;
-        NameViabRotaEv::InsercaoEstacao insercaoEstacaoRota0;
-
-        CandidatoEV inser1;
-        NameViabRotaEv::InsercaoEstacao insercaoEstacaoRota1;
-
-
+        LocalSearch(){}
         void print(string &str);
         void print() const;
     };
 
-    class LocalSearch2 {
-    public:
-        bool satellites2    = false;
-        int idSat0          = -1;
-        int idSat1          = -1;
-        bool interRoutes    = false;
-        int mov             = -1;
-        // Shifit: insert0 -> insert1
-        int idRoute0 = -1;
-        int idRoute1 = -1;
-        int pos0 = -1;
-        int pos1 = -1;
-        float incrementoDistancia = FLOAT_MAX;
-        // TODO: add Recharge Station changes for each route;
-    };
-
 
     bool intraRouteSwap(Solucao& Sol, float& improvement);
+    bool mvShifitIntraRota(Solucao &solution, const Instance &instance);
+
+    void getMov(int movId, string &mov);
+
+    /*
     bool intraSatelliteSwap(Solucao& Sol, int SatId, const Instance& Inst, float& improvement);
     bool interSatelliteSwap(Solucao&, const Instance& Inst, float& improvement);
-    bool mvShifitIntraRota(Solucao &solution, const Instance &instance);
     bool mvShiftInterRotasIntraSatellite(Solucao &solution, const Instance &instance);
 
 
@@ -87,8 +75,6 @@ namespace NS_LocalSearch {
                                      const EvRoute &evRoute0, const EvRoute &evRoute1, LocalSearch &localSearchBest,
                                      const Instance &instance);
 
-    void getMov(int movId, string &mov);
-
     int buscaEstacao(const std::vector<PosRota0Rota1Estacao> &vector, const int estacao);
     int buscaEstacao(const std::vector<PosicaoEstacao> &vector, const int estacao);
 
@@ -102,23 +88,9 @@ namespace NS_LocalSearch {
 
     float calculaCargaEv(const EvRoute &rota, const Instance &instance);
 
-    */
+     */
+
 }
 
 
 #endif //INC_2E_EVRP_LOCALSEARCH_H
-
-/*
- * Movimentos:
- *
- * Entre satellites, intra e inter rotas
- * -Swap        <- Samuel
- * -Shift       <- Igor
- *
- * intra rota
- * -2 opt       <- Samuel
- *
- * Entre satellites, 'inter rotas'
- * -cross       <- Igor
- *
- */

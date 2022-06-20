@@ -105,7 +105,7 @@ void Satelite::print(const Instance &instance)
         evRoute.print(instance, false);
         std::cout<<"\n";
     }
-
+    cout<<"Demanda: "<<demanda;
     std::cout<<"\n\n";
 }
 
@@ -113,10 +113,8 @@ void Satelite::copia(Satelite &satelite)
 {
     for(int i=0; i < tamVetEvRoute; ++i)
     {
-        if(satelite.vetEvRoute[i].routeSize > 2)
-        {
-            vetEvRoute[i].copia(satelite.vetEvRoute[i]);
-        }
+
+        vetEvRoute[i].copia(satelite.vetEvRoute[i]);
 
     }
 

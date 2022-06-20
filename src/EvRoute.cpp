@@ -95,7 +95,7 @@ void EvRoute::print(const Instance &instance, const bool somenteNo) const
             cout<<route[i].cliente<<" ";
     }
 
-    std::cout <<"\nDistance: "<<distancia<<"\n\n";
+    std::cout <<"\nDistancia: "<<distancia<<"; Demanda: "<<demanda<<"\n\n";
 
 }
 

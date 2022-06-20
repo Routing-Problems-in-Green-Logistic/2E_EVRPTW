@@ -35,7 +35,8 @@ namespace NameS_Grasp
 
     Solucao *grasp(Instance &instance, const int numIte, const std::vector<float> &vetAlfa, const int numAtuaProb,
                    Estatisticas &estat);
-    double getPenalidade(Solucao &sol, Instance &instancia);
+    double getDistMaisPenalidade(Solucao &sol, Instance &instancia);
+    double getPenalidade(Solucao &sol, Instance &instancia, float f);
     void inicializaSol(Solucao &sol, Instance &instance);
 
 }
