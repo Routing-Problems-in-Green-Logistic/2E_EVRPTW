@@ -1,7 +1,3 @@
-//
-// Created by igor on 19/11/2021.
-// 351; 352
-
 #ifndef INC_2E_EVRP_LOCALSEARCH_H
 #define INC_2E_EVRP_LOCALSEARCH_H
 
@@ -17,9 +13,12 @@ using namespace GreedyAlgNS;
 
 #define MOV_SHIFIT_INTRA      0
 #define MOV_SWAP_INTRA        1
+#define MOV_2_OPT             2
+#define MOV_CROSS             3
 
-#define MOV_2_OPT       2
-#define MOV_CROSS       3
+#define SELECAO_BEST          0
+#define SELECAO_PRIMEIRO      1
+#define SELECAO_ALEATORIO     2
 
 
 namespace NS_LocalSearch
@@ -27,6 +26,7 @@ namespace NS_LocalSearch
 
     class NoLocalS
     {
+    public:
         int idSat       = -1;
         int idEvRota    = -1;
         int pos         = -1;
@@ -52,7 +52,7 @@ namespace NS_LocalSearch
 
 
     bool intraRouteSwap(Solucao& Sol, float& improvement);
-    bool mvShifitIntraRota(Solucao &solution, const Instance &instance);
+    bool mvEvShifitIntraRota(Solucao &solution, Instance &instance, EvRoute &evRouteAux, const int selecao);
 
     void getMov(int movId, string &mov);
 

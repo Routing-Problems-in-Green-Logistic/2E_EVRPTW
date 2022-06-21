@@ -18,21 +18,25 @@ void NS_LocalSearch::getMov(const int movId, string &mov)
 {
     switch(movId)
     {
-        case MOV_SHIFIT:
-            mov = "MOV_SHIFIT";
+        case MOV_SHIFIT_INTRA:
+            mov = "MOV_SHIFIT_INTRA";
+            break;
 
-        case MOV_SWAP:
-            mov = "MOV_SWAP";
+        case MOV_SWAP_INTRA:
+            mov = "MOV_SWAP_INTRA";
+            break;
 
         case MOV_2_OPT:
             mov = "MOV_2_OPT";
+            break;
 
         case MOV_CROSS:
             mov = "MOV_CROSS";
+            break;
 
         default:
             mov = "MOV";
-
+            break;
     }
 }
 
@@ -45,12 +49,12 @@ void NS_LocalSearch::LocalSearch::print() const
 
     cout<<"LOCAL SEARCH:\n";
     cout<<"\nMOV: "<<movStr;
-    cout<<"INTER ROUTES: "<<(interRoutes?"TRUE":"FALSE");
-    cout<<"\nidSat0: "<<idSat0;
+    cout<<"\nidSat0: "<<noLocal0.idSat;
+    cout<<"\nidEvRota: "<<noLocal0.idEvRota;
 
     cout<<"\n\ninser0:";
-    cout<<"\n\tpos: "<<inser0.pos;
-    cout<<"\n\tclientId: "<<inser0.clientId;
+    cout<<"\n\tpos: "<<noLocal0.pos;
+    cout<<"\n\tclientId: "<<noLocal0.cliente;
 
     cout<<"\nINCR. DIST.: "<<incrementoDistancia;
 
@@ -62,9 +66,97 @@ void NS_LocalSearch::LocalSearch::print(string &str)
 
 
 }
-// bool intraRouteSwap(Solucao& Sol, float& improvement);
 
 
+
+bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, EvRoute &evRouteAux, const int selecao)
+{
+
+    std::list<LocalSearch> listLocalSearch;
+
+    for(int satId = 0; satId < instance.getNSats(); ++satId)
+    {
+
+        Satelite *satelite = &solution.satelites[satId];
+
+        // Percorre todas as rotas do satellite
+        for(int routeId = 0; routeId < satelite->getNRoutes(); ++routeId)
+        {
+
+            // Necessario???
+            EvRoute &evRoute = satelite->vetEvRoute[routeId];
+
+
+            if(evRoute.routeSize <= 2)
+                continue;
+
+            evRouteAux.copia(evRoute);
+
+            // Percorre todos os clientes da rota
+            // Cliente na possicao i fara o shift
+            for(int i = 1; i < (evRoute.routeSize-1); ++i)
+            {
+
+                const int clienteShift = evRoute.route[i].cliente;
+
+                if(!instance.isRechargingStation(clienteShift))
+                {
+
+                    // Calcula o incremento de retirar os arcos (i-1, i), (i, i+1) e adicionar (i-1, i+1)
+                    const double incDistTemp =
+                            -instance.getDistance(evRoute.route[i-1].cliente, evRoute.route[i].cliente) +
+                            -instance.getDistance(evRoute.route[i].cliente, evRoute.route[i+1].cliente) +
+                            instance.getDistance(evRoute.route[i-1].cliente, evRoute.route[i+1].cliente);
+
+                    // pos + 1 é a nova possicao para o cliente
+                    for(int pos = 0; pos < (evRoute.routeSize-1); ++pos)
+                    {
+                        if(i != pos)
+                        {
+                            // Shift a partir de pos+1
+
+                            // Caso especial, shifit eh igual a swap
+                            if((pos + 1 == i) || (pos - 1 == i))
+                            {
+
+                                continue;
+                            }
+
+                            // Verifica se a nova rota eh menor que a rota original
+                            //
+
+                            double incDist = -instance.getDistance(evRoute[pos].cliente, evRoute[pos+2].cliente) +
+                                    + instance.getDistance(evRoute[pos].cliente, clienteShift) +
+                                    + instance.getDistance(clienteShift, evRoute[pos+2].cliente);
+
+                            incDist += incDistTemp;
+
+                            // Verifica se a nova rota atualiza a rota original
+                            if(incDist < -INCREM_DIST)
+                            {
+
+                                if(selecao == SELECAO_BEST && !listLocalSearch.empty())
+                                {
+                                    const LocalSearch &localSearch = listLocalSearch.front();
+
+                                    if(incDist >= localSearch.incrementoDistancia)
+                                        continue;
+                                }
+
+
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+
+/*
 bool NS_LocalSearch::mvShifitIntraRota(Solucao &solution, const Instance &instance)
 {
 
@@ -77,7 +169,7 @@ bool NS_LocalSearch::mvShifitIntraRota(Solucao &solution, const Instance &instan
         //PRINT_DEBUG("", "ANTES DE PEGAR SATELLITE");
 
 
-        Satelite *satelite = solution.satelites[satId];
+        Satelite *satelite = &solution.satelites[satId];
 
         //PRINT_DEBUG("", "DEPOIS DE PEGAR SATELLITE");
 
@@ -303,7 +395,7 @@ bool NS_LocalSearch::mvShifitIntraRota(Solucao &solution, const Instance &instan
         return false;
 
 }
-
+*/
 
 /*
 bool isViableSwap(EvRoute& Ev0, EvRoute& Ev1, int c0, int c1, const Instance& Inst, LocalSearch2& localSearch){

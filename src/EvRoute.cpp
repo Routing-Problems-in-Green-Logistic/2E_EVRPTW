@@ -55,8 +55,9 @@ EvRoute::EvRoute(const int _satellite, const int _idRota, const int RouteSizeMax
 
 }
 
-void EvRoute::copia(EvRoute &evRoute)
+void EvRoute::copia(const EvRoute &evRoute)
 {
+    satelite = evRoute.satelite;
     routeSize = evRoute.routeSize;
     idRota = evRoute.idRota;
     demanda = evRoute.demanda;
