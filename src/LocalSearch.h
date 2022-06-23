@@ -39,13 +39,13 @@ namespace NS_LocalSearch
 
     public:
 
-        bool rotaUnica  = true;
+        bool rotaUnica              = true;
         NoLocalS noLocal0;
         NoLocalS noLocal1;
-        int8_t mov       = -1;
-        double incrementoDistancia = DOUBLE_MAX;
+        int8_t mov                  = -1;
+        double incrementoDistancia  = DOUBLE_MAX;
 
-        LocalSearch(){}
+        LocalSearch()= default;
         void print(string &str);
         void print() const;
     };
@@ -53,7 +53,7 @@ namespace NS_LocalSearch
 
     bool intraRouteSwap(Solucao& Sol, float& improvement);
     bool mvEvShifitIntraRota(Solucao &solution, Instance &instance, EvRoute &evRouteAux, const int selecao);
-
+    int setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRouteAux, const int i, const int pos);
     void getMov(int movId, string &mov);
 
     /*

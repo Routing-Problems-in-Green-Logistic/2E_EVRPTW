@@ -130,6 +130,7 @@ public:
 
     void copiaCliente(const EvRoute &outro);
     void copia(const EvRoute &evRoute);
+    void copiaParametros(const EvRoute &outro);
 
     EvNo & operator [](int pos)
     {

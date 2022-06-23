@@ -1,7 +1,3 @@
-//
-// Created by igor on 19/11/2021.
-//
-
 #include "LocalSearch.h"
 #include "Auxiliary.h"
 #include "mersenne-twister.h"
@@ -61,13 +57,18 @@ void NS_LocalSearch::LocalSearch::print() const
 }
 
 
-void NS_LocalSearch::LocalSearch::print(string &str)
-{
 
 
-}
 
-
+/**
+ * A funcao realiza ...
+ *
+ * @param solution
+ * @param instance
+ * @param evRouteAux
+ * @param selecao
+ * @return
+ */
 
 bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, EvRoute &evRouteAux, const int selecao)
 {
@@ -83,14 +84,13 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
         for(int routeId = 0; routeId < satelite->getNRoutes(); ++routeId)
         {
 
-            // Necessario???
             EvRoute &evRoute = satelite->vetEvRoute[routeId];
 
 
             if(evRoute.routeSize <= 2)
                 continue;
 
-            evRouteAux.copia(evRoute);
+            evRouteAux.copiaParametros(evRoute);
 
             // Percorre todos os clientes da rota
             // Cliente na possicao i fara o shift
@@ -123,7 +123,6 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
                             }
 
                             // Verifica se a nova rota eh menor que a rota original
-                            //
 
                             double incDist = -instance.getDistance(evRoute[pos].cliente, evRoute[pos+2].cliente) +
                                     + instance.getDistance(evRoute[pos].cliente, clienteShift) +
@@ -143,6 +142,19 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
                                         continue;
                                 }
 
+                                // Escreve a nova rota
+                                const int min = setRotaMvEvShifitIntraRota(evRoute, evRouteAux, i, pos);
+
+                                if(min < 0)
+                                {
+                                    PRINT_DEBUG("", "RESULTADO DA FUNC. setRotaMvEvShifitIntraRota EH -1. ");
+                                    cout<<"i: "<<i<<"; pos: "<<pos<<"\n\nevRoute: \n\n";
+                                    evRoute.print(instance, true);
+
+                                    throw "ERRO";
+                                }
+
+                                // Verifica viabilidade da nova rota
 
 
                             }
@@ -152,6 +164,50 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
             }
         }
     }
+
+}
+
+/**
+ *
+ * @param evRoute     rota original
+ * @param evRouteAux  rota nova
+ * @param i           possicao do cliente que sofrera o shifit
+ * @param pos         pos+1 eh a nova possicao do cliente
+ * @return            i < pos ? i:pos, ou -1 em caso de erro
+ */
+int NS_LocalSearch::setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRouteAux, const int i, const int pos)
+{
+
+    const int cliente = evRoute[i].cliente;
+
+    int j_evRoute     = 0;
+    int j_evRouteAux  = 0;
+    int min = (i < (pos+1)) ? i:(pos+1);
+
+    while((j_evRoute < evRoute.routeSize) && (j_evRouteAux < evRoute.routeSize))
+    {
+
+        if(j_evRoute == i)
+        {
+            j_evRoute += 1;
+        }
+        else if(j_evRoute == pos+1)
+        {
+            evRouteAux[j_evRouteAux].cliente = cliente;
+            j_evRouteAux += 1;
+        }
+
+        if(j_evRoute >= evRoute.routeSize || j_evRouteAux >= evRoute.routeSize)
+            return -1;
+
+        if(j_evRoute >= min)
+            evRouteAux[j_evRouteAux].cliente = evRoute[j_evRoute].cliente;
+        else
+            evRouteAux[j_evRouteAux] = evRoute[j_evRoute];
+    }
+
+    evRouteAux.routeSize = evRoute.routeSize;
+    return min;
 
 }
 

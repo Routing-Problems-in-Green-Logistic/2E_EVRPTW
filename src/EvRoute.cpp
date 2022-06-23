@@ -72,6 +72,25 @@ void EvRoute::copia(const EvRoute &evRoute)
 
 }
 
+
+void EvRoute::copiaParametros(const EvRoute &evRoute)
+{
+    satelite = evRoute.satelite;
+
+    satelite = evRoute.satelite;
+    routeSize = evRoute.routeSize;
+    idRota = evRoute.idRota;
+    demanda = evRoute.demanda;
+    numEstRecarga = evRoute.numEstRecarga;
+    distancia = evRoute.distancia;
+
+
+    for(int i=0; i < numEstRecarga; ++i)
+        vetRecarga[i] = evRoute.vetRecarga[i];
+
+}
+
+
 int EvRoute::size() const{
     return routeSize;
 }
