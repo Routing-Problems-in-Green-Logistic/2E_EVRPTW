@@ -3,6 +3,7 @@
 #include <fstream>
 #include <boost/format.hpp>
 #include "Auxiliary.h"
+#include "greedyAlgorithm.h"
 
 using namespace std;
 
@@ -304,6 +305,7 @@ Instance::Instance(const std::string &str)
 
     penalizacaoDistEv   = calculaPenalizacaoDistEv();
     penalizacaoDistComb = calculaPenalizacaoDistComb();
+    vetTempoSaida = std::move(GreedyAlgNS::calculaTempoSaidaInicialSat(*this));
 
 }
 

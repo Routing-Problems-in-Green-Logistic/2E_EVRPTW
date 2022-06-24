@@ -18,7 +18,8 @@ using namespace std;
 #define TOLERANCIA_TEMPO        1e-4
 #define TOLERANCIA_JANELA_TEMPO 1e-4
 #define TOLERANCIA_DEMANDA      1E-5
-#define INCREM_DIST             1E-4
+#define INCREM_DIST             1E-2
+#define TOLERANCIA_DIF_ROTAS    1E-2
 
 #define FLOAT_MAX               FLT_MAX
 #define FLOAT_MIN               FLT_MIN
@@ -26,7 +27,7 @@ using namespace std;
 #define DOUBLE_MAX              DBL_MAX
 #define DOUBLE_MIN              DBL_MIN
 
-#define NUM_MAX_EST_POR_ARC   3
+#define NUM_MAX_EST_POR_ARC     3
 
 #define TRUE  1
 #define FALSE 0
@@ -92,11 +93,6 @@ namespace NS_Auxiliary
         for(int i=0; i < n; ++i)
             vectorDest[i] = vector[i];
     }
-
-
-
-
-
 
     template<typename T>
     int64_t buscaBinaria(const std::vector<T> &vector, T &ele, const int64_t tam)

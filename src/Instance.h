@@ -132,6 +132,8 @@ public:
     int numEstacoesPorArco=-1;
     double penalizacaoDistEv = 0.0;
     double penalizacaoDistComb = 0.0;
+    std::vector<double> vetTempoSaida;
+    bool bestInsViabRotaEv = false;
 };
 
 #endif

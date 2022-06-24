@@ -17,7 +17,6 @@ Satelite::Satelite(const Instance& instance, const int _satId)
         vetEvRoute.emplace_back(_satId, instance.getFirstEvIndex()+i, max, instance);
     }
 
-
     vetTempoSaidaEvRoute.reserve(instance.getN_Evs());
 
     for(int i=0; i < instance.getN_Evs(); ++i)

@@ -347,24 +347,66 @@ int main(int argc, char* argv[])
 
     if(argc != 2)
     {
-        std::cerr<<"FORMATO: ./a.out file.txt\n";
+        std::cerr<<"FORMATO: ./a.out inst.txt\n";
         return -1;
     }
     string file(argv[1]);
-    Instance *instance = getInstanceFromFile(file);
+    string strInst = getNomeInstancia(file);
+    cout<<"INSTANCIA: "<<strInst<<"\n\n";
+
+    Instance instance(file);
+    EvRoute evRoute(1, instance.getFirstEvIndex(), instance.getEvRouteSizeMax(), instance);
 
     int num0, num1;
-
+    char c;
     do
     {
 
+        int i = 1;
+        cin>>num0;
+        evRoute[0].cliente = num0;
+
+        do
+        {
+
+            cin >> num0;
+            evRoute[i].cliente = num0;
+            //cout<<"i: "<<i<<"; num: "<<num0<<"\n";
+            i += 1;
+            //cout<<instance.isSatelite(num0)<<"\n";
+
+        } while(!instance.isSatelite(num0));
+
+        evRoute.satelite = num0;
+        evRoute.routeSize = i;
+        evRoute[0].tempoSaida = instance.vetTempoSaida[num0];
+        //evRoute.print(instance, true);
+
+        double dist = NameViabRotaEv::testaRota(evRoute, i, instance, true, evRoute[0].tempoSaida, 0, nullptr);
+
+        cout<<"Dist: "<<dist<<"\n\n";
+        cout<<"cont(s/n): ";
+        cin>>c;
+
+        if(c == 'n')
+            break;
+
+    } while(c == 's');
+
+    cout<<"Arcos(s/n): ";
+    cin>>c;
+
+    while(c == 's')
+    {
+
         cin>>num0>>num1;
+        cout<<"Dist: "<<instance.getDistance(num0, num1);
 
-        if(num0 != -1 && num1!=-1)
-            cout<<"Distancia ("<<num0<<", "<<num1<<"): "<<instance->getDistance(num0, num1)<<"\n";
+        cout<<"\nArcos(s/n): ";
+        cin>>c;
 
+    }
 
-    }while(num0!=-1 && num1!=-1);
 }
 
 #endif

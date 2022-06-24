@@ -10,11 +10,13 @@
 #include "greedyAlgorithm.h"
 #include "Auxiliary.h"
 #include "mersenne-twister.h"
+#include "LocalSearch.h"
 
 #define NUM_EST_INI 3
 
 using namespace GreedyAlgNS;
 using namespace NameS_Grasp;
+using namespace NS_LocalSearch;
 
 const float fator = 0.1;
 
@@ -23,6 +25,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
     Solucao *solBest = new Solucao(instance);
     solBest->distancia = DOUBLE_MIN;
     solBest->viavel = false;
+    EvRoute evRoute(1, instance.getFirstEvIndex(), instance.getEvRouteSizeMax(), instance);
 
     estat.numSol = 0.0;
     estat.numIte = numIte;
@@ -125,6 +128,9 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
         if(sol.viavel)
         {
 
+            mvEvShifitIntraRota(sol, instance, evRoute, SELECAO_PRIMEIRO);
+            PRINT_DEBUG("", "");
+            throw("FIM");
 /*            if(!sol.checkSolution(estat.erro, instance))
             {
                 cout<<"\n\nSOLUCAO:\n\n";
