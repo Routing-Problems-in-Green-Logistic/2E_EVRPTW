@@ -30,7 +30,7 @@ namespace NS_LocalSearch
         int idSat       = -1;
         int idEvRota    = -1;
         int pos         = -1;
-        int cliente     = -1;
+        int i           = -1;
         NameViabRotaEv::InsercaoEstacao estacao;
     };
 
@@ -55,6 +55,7 @@ namespace NS_LocalSearch
     bool mvEvShifitIntraRota(Solucao &solution, Instance &instance, EvRoute &evRouteAux, const int selecao);
     int setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRouteAux, const int i, const int pos);
     void getMov(int movId, string &mov);
+    void insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, Instance &instance);
 
     /*
     bool intraSatelliteSwap(Solucao& Sol, int SatId, const Instance& Inst, float& improvement);

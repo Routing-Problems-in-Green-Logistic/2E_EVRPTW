@@ -193,7 +193,7 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const
 
                         string strRotaBt;
 
-                        const double distTemp  = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, 0, &strRotaBt);
+                        //const double distTemp  = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, 0, &strRotaBt);
                         const double dist = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, i, nullptr);
 
                         string str;

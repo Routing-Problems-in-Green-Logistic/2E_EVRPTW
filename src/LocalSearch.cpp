@@ -50,7 +50,7 @@ void NS_LocalSearch::LocalSearch::print() const
 
     cout<<"\n\ninser0:";
     cout<<"\n\tpos: "<<noLocal0.pos;
-    cout<<"\n\tclientId: "<<noLocal0.cliente;
+    cout<<"\n\tclientId: "<<noLocal0.i;
 
     cout<<"\nINCR. DIST.: "<<incrementoDistancia;
 
@@ -85,7 +85,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
         // Percorre todas as rotas do satellite
         for(int routeId = 0; routeId < satelite->getNRoutes(); ++routeId)
         {
-            cout<<"roouteId: "<<routeId<<"\n\n";
+            cout<<"routeId: "<<routeId<<"\n\n";
             EvRoute &evRoute = satelite->vetEvRoute[routeId];
 
             string str;
@@ -118,13 +118,15 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
                     // pos + 1 é a nova possicao para o cliente
                     for(int pos = 0; pos < (evRoute.routeSize-1); ++pos)
                     {
+
+                        insercaoEstacao = InsercaoEstacao();
                         cout<<"pos: "<<pos<<"\n";
                         if(i != pos)
                         {
                             // Shift a partir de pos+1
 
                             // Caso especial, shifit eh igual a swap
-                            if((pos + 1 == i) || (pos - 1 == i))
+                            if(abs(i-pos) == 1)
                             {
 
                                 continue;
@@ -141,11 +143,14 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
 
                             // Verifica se a nova rota eh menor que a rota original
 
-                            double incDist = -instance.getDistance(evRoute[pos].cliente, evRoute[pos+2].cliente) +
+                            double incDist = -instance.getDistance(evRoute[pos].cliente, evRoute[pos+1].cliente) +
                                     + instance.getDistance(evRoute[pos].cliente, clienteShift) +
-                                    + instance.getDistance(clienteShift, evRoute[pos+2].cliente);
+                                    + instance.getDistance(clienteShift, evRoute[pos+1].cliente);
 
                             incDist += incDistTemp;
+
+                            if((i+1) == pos)
+                                incDist += instance.getDistance(evRoute[i].cliente, evRoute[pos].cliente);
 
                             // Verifica se a nova rota atualiza a rota original
                             if(incDist <= -INCREM_DIST)
@@ -180,7 +185,9 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
                                                     false, instance.vetTempoSaida[satId]);
 
                                     if(!viavel)
+                                    {   cout<<"Inviavel\n";
                                         continue;
+                                    }
 
                                     distNovaRota = insercaoEstacao.distanciaRota;
                                 }
@@ -221,10 +228,49 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
                                         throw "ERRO";
                                     }
 
-                                    cout<<"\t\tATUALIZACAO\n";
+                                    cout<<"\t\tATUALIZACAO, INC: "<<dif<<"\n";
+
+                                    if(SELECAO_PRIMEIRO)
+                                    {
+
+                                        solution.distancia -= evRoute.distancia;
+                                        solution.distancia += distNovaRota;
+
+                                        satelite->distancia -= evRoute.distancia;
+                                        satelite->distancia += distNovaRota;
+
+                                        if(insercaoEstacao.pos != -1)
+                                        {
+                                            insereEstacaoRota(evRouteAux, insercaoEstacao, instance);
+                                            evRoute.copia(evRouteAux);
+                                            evRoute.vetRecarga[insercaoEstacao.estacao-instance.getFirstRechargingSIndex()].utilizado += 1;
+
+
+
+                                            return true;
+                                        }
+                                        else
+                                        {
+                                            evRoute.copia(evRouteAux);
+                                        }
+
+                                        evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, instance.vetTempoSaida[satId], 0, nullptr);
+                                        if(evRoute.distancia < 0)
+                                        {
+                                            PRINT_DEBUG("", "ERRO FUNC testaRota");
+                                            throw "ERRO";
+                                        }
+                                        return true;
+
+
+                                    }
 
                                 }
                                 else
+                                {
+                                    cout<<"Viavel, > rota orig\n";
+                                }
+/*                                else
                                 {
 
                                     string strRota;
@@ -235,7 +281,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
 
                                     PRINT_DEBUG("", "ERRO NOVA ROTA EH MAIOR. ROTA ORIGINAL "<<(evRoute.distancia)<<"; NOVA ROTA: "<<distNovaRota<<"\nROTA ORIGINAL: "<<strRota<<"\nNOVA ROTA: "<<strRotaNova<<"\ni: "<<i<<"; pos: "<<pos);
                                     throw "ERRO";
-                                }
+                                }*/
 
 
                             }
@@ -245,6 +291,8 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
             }
         }
     }
+
+    return false;
 
 }
 
@@ -297,6 +345,27 @@ int NS_LocalSearch::setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRout
 
 }
 
+void NS_LocalSearch::insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, Instance &instance)
+{
+    if(insercaoEstacao.pos == -1)
+
+        return;
+
+    shiftVectorClienteDir(evRoute.route, insercaoEstacao.pos+1, 1, evRoute.routeSize);
+    evRoute[insercaoEstacao.pos+1].cliente = insercaoEstacao.estacao;
+    evRoute.routeSize += 1;
+    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, instance.vetTempoSaida[evRoute.satelite], 0, nullptr);
+
+    if(evRoute.distancia < 0.0)
+    {
+        string str;
+        evRoute.print(str, instance, true);
+
+        PRINT_DEBUG("\t", "ERRO, ROTA DEVERIA SER VIAVEL: "<<str);
+        throw "ERRO";
+    }
+
+}
 
 /*
 bool NS_LocalSearch::mvShifitIntraRota(Solucao &solution, const Instance &instance)

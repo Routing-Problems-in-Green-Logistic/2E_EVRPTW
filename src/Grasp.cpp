@@ -128,9 +128,27 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
         if(sol.viavel)
         {
 
-            mvEvShifitIntraRota(sol, instance, evRoute, SELECAO_PRIMEIRO);
+            if(mvEvShifitIntraRota(sol, instance, evRoute, SELECAO_PRIMEIRO))
+            {
+                cout<<"ATUALIZACAO MV\n\n";
+                string erro;
+                if(!sol.checkSolution(erro, instance))
+                {
+
+                    cout<<"\n\nSOLUCAO:\n\n";
+                    sol.print(instance);
+
+                    cout <<erro<< "\n****************************************************************************************\n\n";
+                    delete solBest;
+                    throw "ERRO";
+                }
+
+            }
+/*            cout<<"\n\nSOLUCAO: \n";
+            sol.print(instance);
+
             PRINT_DEBUG("", "");
-            throw("FIM");
+            throw("FIM");*/
 /*            if(!sol.checkSolution(estat.erro, instance))
             {
                 cout<<"\n\nSOLUCAO:\n\n";
