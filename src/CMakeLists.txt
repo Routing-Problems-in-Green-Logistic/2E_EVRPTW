@@ -42,7 +42,7 @@ set(SOURCES main.cpp
             Constants.cpp
 
 
-        Grasp.cpp Grasp.h)
+        Grasp.cpp Grasp.h PreProcessamento.cpp PreProcessamento.h Heap.h)
 add_executable(run ${SOURCES})
 
 #target_link_libraries(use_boost ${Boost_LIBRARIES})
