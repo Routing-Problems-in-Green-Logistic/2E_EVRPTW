@@ -90,6 +90,22 @@ namespace N_PreProcessamento
                   std::vector<DijkstraNo> &minHeap, std::vector<PreDecessorNo> &preDecessor,
                   const std::vector<bool> &excluidos, bool clienteCliente,
                   std::vector<int> &vetIndiceMinHeap);
+
+
+
+    int getPaiMinHeap(int pos)
+    {
+        // par
+        if((pos%2) == 0)
+            return (pos-2)/2;
+        else
+            return (pos-1)/2;
+    }
+
+
+    void shifitUpMinHeap(std::vector<DijkstraNo> &minHeap, int pos, std::vector<int> &vetIndice);
+    void shifitDownMinHeap(std::vector<DijkstraNo> &minHeap, int tam, int pos, std::vector<int> &vetIndice);
+
 }
 
 #endif //INC_2E_EVRP_PREPROCESSAMENTO_H

@@ -164,13 +164,14 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
         }
     }
 
+    // Extrai o topo da heap
+    DijkstraNo dijkNoTopo = minHeap[0];
 
-    while(tamMinHeap != 0)
+    while(dijkNoTopo.dist < DOUBLE_INF)
     {
-        // Extrai o topo da heap
-        DijkstraNo dijkNoTopo = minHeap[0];
+
         minHeap[0].dist = DOUBLE_INF;
-        id = shifitDownMinHeap(minHeap, tamMinHeap, 0);
+        shifitDownMinHeap(minHeap, tamMinHeap, 0, vetIndiceMinHeap);
 
         if(id != (tamMinHeap-1))
         {
@@ -220,6 +221,87 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
             }
         }
 
+        dijkNoTopo = minHeap[0];
     }
+
+}
+
+
+void N_PreProcessamento::shifitUpMinHeap(std::vector<DijkstraNo> &minHeap, int pos, std::vector<int> &vetIndice)
+{
+
+    int pai = getPaiMinHeap(pos);
+    while(minHeap[pos] < minHeap[pai])
+    {
+        // swap pos com pai
+        DijkstraNo temp = minHeap[pos];
+        minHeap[pos] = minHeap[pai];
+        minHeap[pai] = temp;
+
+        pos = pai;
+        if(pos == 0)
+            break;
+
+        pai = getPaiMinHeap(pos);
+
+    }
+
+
+}
+
+
+void N_PreProcessamento::shifitDownMinHeap(std::vector<DijkstraNo> &minHeap, int tam, int pos, std::vector<int> &vetIndice)
+{
+
+    int filhoDir = 2*pos+1;
+    int filhoEsq = 2*pos+2;
+
+    while(filhoDir < pos)
+    {
+        if(minHeap[pos] > minHeap[filhoDir])
+        {
+            DijkstraNo temp = minHeap[pos];
+            minHeap[pos] = minHeap[filhoDir];
+            minHeap[filhoDir] = temp;
+            vetIndice[minHeap[pos].clienteId] = pos;
+
+            pos = filhoDir;
+        }
+        else if(filhoEsq < pos)
+        {
+            if(minHeap[pos] > minHeap[filhoEsq])
+            {
+
+                DijkstraNo temp = minHeap[pos];
+                minHeap[pos] = minHeap[filhoEsq];
+                minHeap[filhoEsq] = temp;
+                vetIndice[minHeap[pos].clienteId] = pos;
+
+                pos = filhoEsq;
+            }
+        }
+
+
+        filhoDir = 2*pos+1;
+        filhoEsq = 2*pos+2;
+
+        if(!(filhoDir < tam))
+            break;
+    }
+
+    if((!(minHeap[filhoDir] < minHeap[pos])) && (filhoEsq < tam))
+    {
+        if (minHeap[pos] > minHeap[filhoEsq])
+        {
+
+            DijkstraNo temp = minHeap[pos];
+            minHeap[pos] = minHeap[filhoEsq];
+            minHeap[filhoEsq] = temp;
+
+            pos = filhoEsq;
+        }
+    }
+
+    vetIndice[minHeap[pos].clienteId] = pos;
 
 }
