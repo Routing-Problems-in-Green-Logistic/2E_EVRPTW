@@ -17,12 +17,14 @@
 #include <boost/format.hpp>
 #include "Teste.h"
 #include "Grasp.h"
+#include "PreProcessamento.h"
 
 using namespace std;
 using namespace GreedyAlgNS;
 using namespace NS_vnd;
 using namespace NameTeste;
 using namespace NameS_Grasp;
+using namespace N_PreProcessamento;
 
 void routine(char** filenames, int nFileNames);
 float distance(std::pair<float, float> p1, std::pair<float,float> p2);
@@ -85,7 +87,21 @@ int main(int argc, char* argv[])
         cout<<"SEMENTE: "<<semente<<"\n\n";
         double tempo = 0.0;
         Instance instance(file);
-        instance.print();
+        //instance.print();
+
+        // *******************************************************************************************************************************
+
+        {
+
+            ShortestPathSatCli shortestPathSatCli(instance);
+            dijkstraSatCli(instance, shortestPathSatCli);
+
+            return 0;
+
+        }
+
+        // *******************************************************************************************************************************
+
 
         //const std::vector<float> vetAlfa{0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.6, 0.7, 0.9};
         const std::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.9};

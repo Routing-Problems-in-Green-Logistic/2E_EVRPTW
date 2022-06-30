@@ -28,8 +28,8 @@ namespace N_PreProcessamento
         std::vector<int> caminhoIda;
         std::vector<int> caminhoVolta;
 
-        double distIda   = 0.0;
-        double distVolta = 0.0;
+        double distIda   = DOUBLE_INF;
+        double distVolta = DOUBLE_INF;
 
         ShortestPathNo()=default;
         ShortestPathNo(int sat, int cli){satId=sat; clienteId=cli;}
@@ -37,12 +37,16 @@ namespace N_PreProcessamento
 
     class ShortestPathSatCli
     {
-    public:
 
-        std::vector<ShortestPathNo> vetShortestPath;
+    private:
+
         int fistCliente = -1;
         int numClientes = -1;
         int numEstacoes = -1;
+
+    public:
+
+        std::vector<ShortestPathNo> vetShortestPath;
 
         explicit ShortestPathSatCli(Instance &instancia);
         ShortestPathNo& getShortestPath(int cliente);
@@ -80,9 +84,10 @@ namespace N_PreProcessamento
 
         int preDecessor = -1;
         double bateria  = 0.0;
+        double dist     = 0.0;
 
         PreDecessorNo()=default;
-        PreDecessorNo(int pre, double b){preDecessor=pre; bateria=b;}
+        PreDecessorNo(int pre, double b, double d){preDecessor=pre; bateria=b; dist=d;}
     };
 
     void dijkstraSatCli(Instance &instancia, ShortestPathSatCli &shortestPathSatCli);
@@ -92,19 +97,9 @@ namespace N_PreProcessamento
                   std::vector<int> &vetIndiceMinHeap);
 
 
-
-    int getPaiMinHeap(int pos)
-    {
-        // par
-        if((pos%2) == 0)
-            return (pos-2)/2;
-        else
-            return (pos-1)/2;
-    }
-
-
-    void shifitUpMinHeap(std::vector<DijkstraNo> &minHeap, int pos, std::vector<int> &vetIndice);
-    void shifitDownMinHeap(std::vector<DijkstraNo> &minHeap, int tam, int pos, std::vector<int> &vetIndice);
+    int getPaiMinHeap(int pos);
+    int shifitUpMinHeap(std::vector<DijkstraNo> &minHeap, int pos, std::vector<int> &vetIndice);
+    int shifitDownMinHeap(std::vector<DijkstraNo> &minHeap, int tam, int pos, std::vector<int> &vetIndice);
 
 }
 
