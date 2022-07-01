@@ -135,9 +135,20 @@ namespace NS_Auxiliary
     {
         string str;
         for(int i=0; i < tam; ++i)
-            str += to_string(vector[i]) + " ";
+            str += to_string(static_cast<double>(vector[i])) + " ";
 
         return std::move(str);
+    }
+
+
+    template<typename T>
+    void printVectorCout(const std::vector<T> &vector, const int64_t tam)
+    {
+
+        for(int i=0; i < tam; ++i)
+            cout<<vector[i]<<"  ";
+
+        cout<<"\n";
     }
 
 

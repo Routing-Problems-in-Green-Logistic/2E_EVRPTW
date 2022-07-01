@@ -75,6 +75,12 @@ namespace N_PreProcessamento
             return dist > outro.dist;
         }
 
+        friend ostream& operator<<(ostream& os, const DijkstraNo &dijkstraNo)
+        {
+            os<<dijkstraNo.clienteId<<":"<<dijkstraNo.dist;
+            return os;
+        }
+
     };
 
 

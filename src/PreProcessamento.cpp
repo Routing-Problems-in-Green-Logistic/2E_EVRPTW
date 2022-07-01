@@ -86,8 +86,10 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
             posMinHeap += 1;
         }
 
+        NS_Auxiliary::printVectorCout(minHeap, int64_t(posMinHeap));
+
         // Encontra o menor caminho viavel de sat ate todos os clientes passando pelas estacoes de recarga
-        dijkstra(instancia, sat, 0, 0, minHeap, preDecessor, excluidos, false, vetIndiceMinHeap);
+        dijkstra(instancia, sat, instancia.getFirstEvIndex(), 0, minHeap, preDecessor, excluidos, false, vetIndiceMinHeap);
 
         // Recupera a rota
         for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
@@ -157,12 +159,17 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
                                   const std::vector<bool> &excluidos, const bool clienteCliente, std::vector<int> &vetIndiceMinHeap)
 {
 
+    cout<<"Cliente sorce: "<<clienteSorce<<"\n";
+
     const bool sorceSat = instancia.isSatelite(clienteSorce);
 
     if(instancia.isRechargingStation(clienteSorce) || instancia.isSatelite(clienteSorce))
     {
         bateria = instancia.vectVeiculo[veicId].capacidadeBateria;
+        cout<<"veicId: "<<veicId<<"\n";
     }
+
+    cout<<"BATERIA: "<<bateria<<"\n";
 
     // Verifica se clienteSorce esta em minHeap
 
@@ -175,10 +182,14 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
         minHeap[id].bateria = bateria;
     }
 
+    NS_Auxiliary::printVectorCout(minHeap, minHeap.size());
+
     if(id != 0)
     {
         // move para cima clienteSorce
         id = shifitUpMinHeap(minHeap, id, vetIndiceMinHeap);
+
+        NS_Auxiliary::printVectorCout(minHeap, minHeap.size());
 
         // clienteSorce deve ser o elemento de maior prioridade
         if(id != 0)
@@ -198,6 +209,7 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
         {
             if(vetIndiceMinHeap[i] != -1)
             {
+                cout<<"EXCLUIDO: "<<i<<"\n";
                 id = vetIndiceMinHeap[i];
 
                 minHeap[id].dist = DOUBLE_INF;
@@ -209,7 +221,7 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
                     throw "ERRO";
                 }
 
-                tamMinHeap -= 1;
+                //tamMinHeap -= 1;
             }
 
 
@@ -219,17 +231,19 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
     // Extrai o topo da heap
     DijkstraNo dijkNoTopo = minHeap[0];
 
-    while(dijkNoTopo.dist < DOUBLE_INF)
+    while(dijkNoTopo.dist < DOUBLE_INF && vetIndiceMinHeap[dijkNoTopo.clienteId] != -1)
     {
 
+        cout<<"No: "<<minHeap[0].clienteId<<" FECHADO\n";
+        cout<<"BAT: "<<minHeap[0].bateria<<"; DIST: "<<minHeap[0].dist<<"\n\n";
+
         minHeap[0].dist = DOUBLE_INF;
+        vetIndiceMinHeap[dijkNoTopo.clienteId] = -1;
         shifitDownMinHeap(minHeap, tamMinHeap, 0, vetIndiceMinHeap);
 
-        if(id != (tamMinHeap-1))
-        {
-            cout<<"RESULTADO ("<<id<<") shifitDownMinHeap EH DIFERENTE DE "<<tamMinHeap-1<<"\n";
-            throw "ERRO";
-        }
+        cout<<"APOS HEAP DOWN 0:\n";
+        NS_Auxiliary::printVectorCout(minHeap, minHeap.size());
+
 
         if(dijkNoTopo.dist >= DOUBLE_INF)
         {
@@ -259,8 +273,12 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
                     double dist = instancia.getDistance(dijkNoTopo.clienteId, i) + dijkNoTopo.dist;
                     double bat  = dijkNoTopo.bateria - dist;
 
+                    cout<<"NO: "<<i<<" DIST: "<<dist<<"; BAT: "<<bat<<"\n";
+
                     if(bat >= -TOLERANCIA_BATERIA && dist < minHeap[id].dist)
                     {
+                        cout<<"ATUALIZACAO NO: "<<i<<"\n";
+
                         // Atualiza minHeap
                         minHeap[id].dist = dist;
                         if(instancia.isRechargingStation(i))
@@ -280,6 +298,8 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
             }
         }
 
+        cout<<"FIM ITERACAO\n\n";
+        NS_Auxiliary::printVectorCout(minHeap, minHeap.size());
         dijkNoTopo = minHeap[0];
     }
 
@@ -330,9 +350,19 @@ int N_PreProcessamento::shifitDownMinHeap(std::vector<DijkstraNo> &minHeap, int 
     {
         if(minHeap[pos] > minHeap[filhoDir])
         {
+            int min = filhoDir;
+
+            if(filhoEsq < pos)
+            {
+                if(minHeap[pos] > minHeap[filhoEsq] && minHeap[filhoEsq] < minHeap[filhoDir])
+                {
+                    min = filhoEsq;
+                }
+            }
+
             DijkstraNo temp = minHeap[pos];
-            minHeap[pos] = minHeap[filhoDir];
-            minHeap[filhoDir] = temp;
+            minHeap[pos] = minHeap[min];
+            minHeap[min] = temp;
             vetIndice[minHeap[pos].clienteId] = pos;
 
             pos = filhoDir;

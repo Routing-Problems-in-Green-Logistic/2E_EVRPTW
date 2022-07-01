@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
         cout<<"SEMENTE: "<<semente<<"\n\n";
         double tempo = 0.0;
         Instance instance(file);
-        //instance.print();
+        instance.print();
 
         // *******************************************************************************************************************************
 
