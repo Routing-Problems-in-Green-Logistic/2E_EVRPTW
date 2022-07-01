@@ -238,9 +238,11 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
     while(tamMinHeap > 0)
     {
 
+        cout<<"\n\n**************************************************************\n\n";
+
         dijkNoTopo = minHeap[0];
 
-        cout<<"No: "<<minHeap[0].clienteId<<" FECHADO\n";
+        cout<<"No: "<<minHeap[0].clienteId<<" FECHADO  "<<dijkNoTopo.clienteId<<"\n";
         cout<<"BAT: "<<minHeap[0].bateria<<"; DIST: "<<minHeap[0].dist<<"\n\n";
 
         removeTopo(minHeap, &tamMinHeap, vetIndiceMinHeap);
@@ -291,7 +293,7 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
 
                     // Verifica viabilidade de bateria e distancia
                     double dist = instancia.getDistance(dijkNoTopo.clienteId, i) + dijkNoTopo.dist;
-                    double bat  = dijkNoTopo.bateria - dist;
+                    double bat  = dijkNoTopo.bateria - instancia.getDistance(dijkNoTopo.clienteId, i);
 
                     cout<<"\tNO: "<<i<<" DIST: "<<dist<<"; BAT: "<<bat<<"\n";
 
@@ -345,6 +347,9 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
 
         if(!(dijkNoTopo.dist < DOUBLE_INF))
             break;
+
+
+
 
     }
 
