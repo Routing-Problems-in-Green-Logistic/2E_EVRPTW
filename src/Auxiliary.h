@@ -152,6 +152,18 @@ namespace NS_Auxiliary
     }
 
 
+    template<typename T>
+    string printVectorStr(const std::vector<T> &vector, const int64_t tam)
+    {
+        string str;
+
+        for(int i=0; i < tam; ++i)
+            str += to_string(vector[i])+" ";
+
+        return std::move(str);
+    }
+
+
 
 
 }

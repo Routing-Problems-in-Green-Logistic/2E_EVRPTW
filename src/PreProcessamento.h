@@ -63,6 +63,7 @@ namespace N_PreProcessamento
 
         DijkstraNo()=default;
         explicit DijkstraNo(int cliente){clienteId=cliente;}
+        DijkstraNo(int c, double d, double b){clienteId=c; dist=d; bateria=b;}
 
         bool operator < (const DijkstraNo &outro) const
         {
@@ -100,12 +101,13 @@ namespace N_PreProcessamento
     void dijkstra(Instance &instancia, int clienteSorce, int veicId, double bateria,
                   std::vector<DijkstraNo> &minHeap, std::vector<PreDecessorNo> &preDecessor,
                   const std::vector<bool> &excluidos, bool clienteCliente,
-                  std::vector<int> &vetIndiceMinHeap);
+                  std::vector<int> &vetIndiceMinHeap, std::vector<int8_t> &vetFechados);
 
 
     int getPaiMinHeap(int pos);
     int shifitUpMinHeap(std::vector<DijkstraNo> &minHeap, int pos, std::vector<int> &vetIndice);
     int shifitDownMinHeap(std::vector<DijkstraNo> &minHeap, int tam, int pos, std::vector<int> &vetIndice);
+    void removeTopo(std::vector<DijkstraNo> &minHeap, int *tam, std::vector<int> &vetIndice);
 
 }
 
