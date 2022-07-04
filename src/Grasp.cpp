@@ -128,7 +128,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
         if(sol.viavel)
         {
 
-            if(mvEvShifitIntraRota(sol, instance, evRoute, SELECAO_PRIMEIRO))
+/*            if(mvEvShifitIntraRota(sol, instance, evRoute, SELECAO_PRIMEIRO))
             {
                 cout<<"ATUALIZACAO MV\n\n";
                 string erro;
@@ -143,7 +143,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
                     throw "ERRO";
                 }
 
-            }
+            }*/
 /*            cout<<"\n\nSOLUCAO: \n";
             sol.print(instance);
 

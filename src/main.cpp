@@ -79,8 +79,8 @@ int main(int argc, char* argv[])
         std::string file(argv[1]);
 
         const string nomeInst = getNomeInstancia(file);
-        string arquivo = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/instanciasMod/" + nomeInst + ".txt";
-        string arquivoSol = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/solucao/" + nomeInst + ".txt";
+        string arquivo = "/home/igor/Documentos/Projetos/2E_EVRPTW/utils/instanciasMod/" + nomeInst + ".txt";
+        string arquivoSol = "/home/igor/Documentos/Projetos/2E_EVRPTW/utils/solucao/" + nomeInst + ".txt";
 
 
         cout << "INSTANCIA: " << nomeInst << "\t";
@@ -88,20 +88,6 @@ int main(int argc, char* argv[])
         double tempo = 0.0;
         Instance instance(file);
         instance.print();
-
-        // *******************************************************************************************************************************
-
-        {
-
-            ShortestPathSatCli shortestPathSatCli(instance);
-            dijkstraSatCli(instance, shortestPathSatCli);
-
-
-
-        }
-
-        // *******************************************************************************************************************************
-
 
         //const std::vector<float> vetAlfa{0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.6, 0.7, 0.9};
         const std::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.9};
