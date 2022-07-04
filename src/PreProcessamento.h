@@ -29,7 +29,12 @@ namespace N_PreProcessamento
         std::vector<int> caminhoVolta;
 
         double distIda   = DOUBLE_INF;
+        double batIda    = 0.0;
+
         double distVolta = DOUBLE_INF;
+        double batVolta  = 0.0;
+
+        double distIdaVolta = DOUBLE_INF;
 
         ShortestPathNo()=default;
         ShortestPathNo(int sat, int cli){satId=sat; clienteId=cli;}

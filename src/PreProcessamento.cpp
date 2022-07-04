@@ -42,7 +42,9 @@ ShortestPathNo &ShortestPathSatCli::getShortestPath(int cliente)
 void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli &shortestPathSatCli)
 {
 
-    std::vector<PreDecessorNo> preDecessor(instancia.numNos, PreDecessorNo());
+    std::vector<PreDecessorNo> preDecessorIda(instancia.numNos, PreDecessorNo());
+    std::vector<PreDecessorNo> preDecessorVolta(instancia.numNos, PreDecessorNo());
+
     std::vector<bool> excluidos(instancia.numNos, false);
 
     // Exclui deposito e satelites
@@ -60,7 +62,9 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
 
         if(sat != instancia.getFirstSatIndex())
         {
-            std::fill(preDecessor.begin(), preDecessor.end(), PreDecessorNo());
+            std::fill(preDecessorIda.begin(), preDecessorIda.end(), PreDecessorNo());
+            std::fill(preDecessorVolta.begin(), preDecessorVolta.end(), PreDecessorNo());
+
             std::fill(vetIndiceMinHeap.begin(), vetIndiceMinHeap.end(), -1);
             //std::fill(excluidos.begin(), excluidos.end(), false);
         }
@@ -68,84 +72,119 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
         // Inicialmente possui estacao de recarga e clientes
         std::vector<DijkstraNo> minHeap(instancia.getN_RechargingS()+instancia.numClients);
 
-
-        /*
-        // Inicializa o campo clienteId do vet minHeap
-        int posMinHeap = 0;
-
-        for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
-        {
-            minHeap[posMinHeap].clienteId = i;
-            vetIndiceMinHeap[i] = posMinHeap;
-
-            posMinHeap += 1;
-        }
-
-        for(int i=instancia.getFirstRechargingSIndex(); i <= instancia.getEndRechargingSIndex(); ++i)
-        {
-            minHeap[posMinHeap].clienteId = i;
-            vetIndiceMinHeap[i] = posMinHeap;
-
-            posMinHeap += 1;
-        }
-        */
-
         //NS_Auxiliary::printVectorCout(minHeap, int64_t(posMinHeap));
 
         // Encontra o menor caminho viavel de sat ate todos os clientes passando pelas estacoes de recarga
-        dijkstra(instancia, sat, instancia.getFirstEvIndex(), 0, minHeap, preDecessor, excluidos, false, vetIndiceMinHeap, vetFechados);
+        dijkstra(instancia, sat, instancia.getFirstEvIndex(), 0, minHeap, preDecessorIda, excluidos, false, vetIndiceMinHeap, vetFechados);
 
-        // Recupera a rota
+        std::fill(excluidos.begin()+instancia.getFirstClientIndex(), excluidos.begin()+instancia.getEndClientIndex()+1, true);
+
+        // Percorre os clientes para encontrar a menor rota viavel de cliente ate satelite, utilizando a bateria
         for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
         {
-            if(preDecessor[i].preDecessor != -1)
+            if(preDecessorIda[i].preDecessor != -1)
             {
-                ShortestPathNo &caminho = shortestPathSatCli.getShortestPath(i);
-                if(preDecessor[i].dist < caminho.distIda)
+                excluidos[i] = false;
+                preDecessorVolta[sat].preDecessor = -1;
+
+                cout<<"Dijkstra volta cliente: "<<i<<"\n\n";
+                dijkstra(instancia, i, instancia.getFirstEvIndex(), preDecessorIda[i].bateria, minHeap, preDecessorVolta, excluidos, false, vetIndiceMinHeap, vetFechados);
+
+                if(preDecessorVolta[sat].preDecessor != -1)
                 {
-                    // Escreve a rota INVERTIDA
-                    std::vector<int> rota;
-                    rota.reserve(10);
+                    ShortestPathNo &caminho = shortestPathSatCli.getShortestPath(i);
+                    double dist = preDecessorIda[i].dist + preDecessorVolta[sat].dist;
 
-                    int indice = i;
-
-                    while(preDecessor[indice].preDecessor != -1)
+                    if(dist < caminho.distIdaVolta)
                     {
-                        rota.push_back(indice);
-                        indice = preDecessor[indice].preDecessor;
+                        auto recuperaRota = [&](bool ida)
+                        {
+                            std::vector<int> rota;
+                            rota.reserve(10);
 
-                        if(indice == -1)
-                            break;
+                            int indice;
+
+                            if(ida)
+                                indice = i;
+                            else
+                                indice = sat;
+
+                            vector<PreDecessorNo> *vetPreDecessor;
+                            if(ida)
+                                vetPreDecessor = &preDecessorIda;
+                            else
+                                vetPreDecessor = &preDecessorVolta;
+
+                            while((*vetPreDecessor)[indice].preDecessor != -1)
+                            {
+                                rota.push_back(indice);
+                                indice = (*vetPreDecessor)[indice].preDecessor;
+
+                                if(indice == -1)
+                                    break;
+                            }
+
+                            if(indice != -1)
+                                rota.push_back(indice);
+
+                            if(ida)
+                            {
+                                caminho.caminhoIda = std::move(rota);
+                                caminho.distIda = preDecessorIda[i].dist;
+                            }
+                            else
+                            {
+                                caminho.caminhoVolta = std::move(rota);
+                                caminho.distVolta = preDecessorVolta[sat].dist;
+                                caminho.distIdaVolta = caminho.distIda+caminho.distVolta;
+                            }
+                        };
+
+                        recuperaRota(true);
+                        recuperaRota(false);
+
+
                     }
 
-                    if(indice != -1)
-                        rota.push_back(indice);
-
-                    caminho.caminhoIda = std::move(rota);
-                    caminho.distIda    = preDecessor[i].dist;
-                    cout<<"Rota: "<<i<<" Dist: "<<caminho.distIda<<"\n";
 
                 }
+
+                excluidos[i] = true;
             }
         }
-
-
 
         excluidos[sat] = true;
 
     }
 
-    cout<<"\n\n";
+    cout<<"\n\nROTAS:\n\n";
+
+
 
     for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
     {
         ShortestPathNo &caminho = shortestPathSatCli.getShortestPath(i);
 
+        cout<<i<<" : "<<caminho.distIda<<"\n\n";
+
         if(caminho.distIda < DOUBLE_INF)
         {
             std::reverse(caminho.caminhoIda.begin(), caminho.caminhoIda.end());
             string rotaStr = NS_Auxiliary::printVectorStr(caminho.caminhoIda, caminho.caminhoIda.size());
-            cout<<"Rota cliente "<<i<<": "<<rotaStr<<"\n";
+            //string rotaVolta = NS_Auxiliary::printVectorStr(caminho.caminhoVolta, caminho.caminhoVolta.size());
+
+            cout<<"Rota Ida cliente "<<i<<"Dist: "<<caminho.distIda<<":\n\t"<<rotaStr<<"\n\n";
+
+        }
+
+
+        if(caminho.distVolta < DOUBLE_INF)
+        {
+            std::reverse(caminho.caminhoVolta.begin(), caminho.caminhoVolta.end());
+//            string rotaStr = NS_Auxiliary::printVectorStr(caminho.caminhoIda, caminho.caminhoIda.size());
+            string rotaVolta = NS_Auxiliary::printVectorStr(caminho.caminhoVolta, caminho.caminhoVolta.size());
+
+            cout<<"Rota Volta cliente "<<i<<"Dist: "<<caminho.distVolta<<"\n\t"<<rotaVolta<<"\n\n";
         }
     }
 
@@ -253,7 +292,7 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
 
 
         if(dijkNoTopo.dist >= DOUBLE_INF)
-        {
+        {   cout<<"return\n";
             return;
         }
 
@@ -262,7 +301,7 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
         vetFechados[dijkNoTopo.clienteId] = 1;
 
         // Verrifica se o no eh cliente
-        if(instancia.isClient(dijkNoTopo.clienteId) && !clienteCliente)
+        if(instancia.isClient(dijkNoTopo.clienteId) && !clienteCliente && dijkNoTopo.clienteId != clienteSorce)
         {   cout<<"no "<<dijkNoTopo.clienteId<<" eh cliente\n";
             continue;
         }
@@ -286,7 +325,7 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
 
                 cout<<"1° if\n";
 
-                if(!noTopoCliente || (noTopoCliente && clienteCliente && instancia.isClient(i)))
+                if(!noTopoCliente || (noTopoCliente && clienteCliente && instancia.isClient(i)) || (noTopoCliente && !instancia.isClient(i)))
                 {
 
                     id = vetIndiceMinHeap[i];
