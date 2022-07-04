@@ -113,10 +113,7 @@ public:
     int size() const;
     float getDemand() const {return demanda;};
 
-    EvRoute(const EvRoute &evRoute):firstRechargingSIndex(evRoute.firstRechargingSIndex)
-    {
-        throw "ERRO!!";
-    }
+    EvRoute(const EvRoute &evRoute);
 
     EvRoute(int satelite, int idRota, int RouteSizeMax, const Instance &instance);
 

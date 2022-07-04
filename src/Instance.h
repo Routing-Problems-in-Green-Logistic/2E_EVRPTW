@@ -1,3 +1,4 @@
+
 #ifndef INSTANCE_H
 #define INSTANCE_H
 
@@ -6,6 +7,8 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/triangular.hpp>
 #include "Auxiliary.h"
+#include "common.h"
+//#include "PreProcessamento.h"
 
 using namespace boost::numeric;
 
@@ -134,6 +137,9 @@ public:
     double penalizacaoDistComb = 0.0;
     std::vector<double> vetTempoSaida;
     bool bestInsViabRotaEv = false;
+
+    ShortestPathSatCli *shortestPath;
+
 };
 
 #endif

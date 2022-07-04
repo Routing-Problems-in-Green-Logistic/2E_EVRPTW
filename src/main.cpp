@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
             ShortestPathSatCli shortestPathSatCli(instance);
             dijkstraSatCli(instance, shortestPathSatCli);
 
-            return 0;
+
 
         }
 
@@ -111,8 +111,14 @@ int main(int argc, char* argv[])
 
         auto start = std::chrono::high_resolution_clock::now();
 
+
+            ShortestPathSatCli shortestPathSatCli(instance);
+            dijkstraSatCli(instance, shortestPathSatCli);
+            instance.shortestPath = &shortestPathSatCli;
+
             Estatisticas estat;
             Solucao *solBest = grasp(instance, NUM_EXEC, vetAlfa, 100, estat);
+
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> tempoAux = end - start;

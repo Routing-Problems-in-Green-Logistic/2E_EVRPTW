@@ -11,8 +11,11 @@
 
 #include <iostream>
 #include <vector>
-#include "Instance.h"
+#pragma once
+//#include "Instance.h"
+#include "common.h"
 #include "Auxiliary.h"
+#include "EvRoute.h"
 
 namespace N_PreProcessamento
 {
@@ -40,7 +43,7 @@ namespace N_PreProcessamento
         ShortestPathNo(int sat, int cli){satId=sat; clienteId=cli;}
     };
 
-    class ShortestPathSatCli
+/*    class ShortestPathSatCli
     {
 
     private:
@@ -52,11 +55,16 @@ namespace N_PreProcessamento
     public:
 
         std::vector<ShortestPathNo> vetShortestPath;
+        std::vector<EvRoute> vetEvRoute;
+
 
         explicit ShortestPathSatCli(Instance &instancia);
-        ShortestPathNo& getShortestPath(int cliente);
+        ShortestPathSatCli()=default;
 
-    };
+        ShortestPathNo& getShortestPath(int cliente);
+        EvRoute& getEvRoute(int cliente);
+
+    };*/
 
     class DijkstraNo
     {
@@ -115,5 +123,29 @@ namespace N_PreProcessamento
     void removeTopo(std::vector<DijkstraNo> &minHeap, int *tam, std::vector<int> &vetIndice);
 
 }
+
+
+class ShortestPathSatCli
+{
+
+private:
+
+    int fistCliente = -1;
+    int numClientes = -1;
+    int numEstacoes = -1;
+
+public:
+
+    std::vector<N_PreProcessamento::ShortestPathNo> vetShortestPath;
+    std::vector<EvRoute> vetEvRoute;
+
+
+    explicit ShortestPathSatCli(Instance &instancia);
+    ShortestPathSatCli()=default;
+
+    N_PreProcessamento::ShortestPathNo& getShortestPath(int cliente);
+    EvRoute& getEvRoute(int cliente);
+
+};
 
 #endif //INC_2E_EVRP_PREPROCESSAMENTO_H

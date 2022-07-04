@@ -12,11 +12,13 @@
 
 #include "PreProcessamento.h"
 #include "Heap.h"
+#include "ViabilizadorRotaEv.h"
 
 using namespace N_PreProcessamento;
 using namespace N_heap;
+using namespace NameViabRotaEv;
 
-N_PreProcessamento::ShortestPathSatCli::ShortestPathSatCli(Instance &instancia)
+ShortestPathSatCli::ShortestPathSatCli(Instance &instancia)
 {
     fistCliente = instancia.getFirstClientIndex();
     numClientes = instancia.getNClients();
@@ -159,13 +161,14 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
 
     cout<<"\n\nROTAS:\n\n";
 
-
+    shortestPathSatCli.vetEvRoute = vector<EvRoute>(instancia.getNClients(), EvRoute(instancia.getFirstSatIndex(), instancia.getFirstEvIndex(), instancia.getEvRouteSizeMax(), instancia));
 
     for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
     {
         ShortestPathNo &caminho = shortestPathSatCli.getShortestPath(i);
+        EvRoute &evRoute = shortestPathSatCli.getEvRoute(i);
 
-        cout<<i<<" : "<<caminho.distIda<<"\n\n";
+        cout<<i<<" : "<<caminho.distIdaVolta<<"\n\n";
 
         if(caminho.distIda < DOUBLE_INF)
         {
@@ -173,7 +176,7 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
             string rotaStr = NS_Auxiliary::printVectorStr(caminho.caminhoIda, caminho.caminhoIda.size());
             //string rotaVolta = NS_Auxiliary::printVectorStr(caminho.caminhoVolta, caminho.caminhoVolta.size());
 
-            cout<<"Rota Ida cliente "<<i<<"Dist: "<<caminho.distIda<<":\n\t"<<rotaStr<<"\n\n";
+            cout<<"\tRota Ida cliente "<<i<<"Dist: "<<caminho.distIda<<":\n\t"<<rotaStr<<"\n\n";
 
         }
 
@@ -184,8 +187,38 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
 //            string rotaStr = NS_Auxiliary::printVectorStr(caminho.caminhoIda, caminho.caminhoIda.size());
             string rotaVolta = NS_Auxiliary::printVectorStr(caminho.caminhoVolta, caminho.caminhoVolta.size());
 
-            cout<<"Rota Volta cliente "<<i<<"Dist: "<<caminho.distVolta<<"\n\t"<<rotaVolta<<"\n\n";
+            cout<<"\tRota Volta cliente "<<i<<"Dist: "<<caminho.distVolta<<"\n\t"<<rotaVolta<<"\n\n";
         }
+
+        if(caminho.distIdaVolta < DOUBLE_INF)
+        {
+            evRoute.satelite = caminho.satId;
+
+            for(int t=0; t < caminho.caminhoIda.size(); ++t)
+            {
+                evRoute.route[t].cliente = caminho.caminhoIda[t];
+            }
+
+            evRoute.routeSize = caminho.caminhoIda.size();
+
+            for(int t=1; t < caminho.caminhoVolta.size(); ++t)
+            {
+                evRoute.route[(caminho.caminhoIda.size()+t-1)].cliente = caminho.caminhoVolta[t];
+                evRoute.routeSize += 1;
+            }
+
+            cout<<"\tRota Completa: ";
+            int sat = evRoute[0].cliente;
+
+            bool r = testaRota(evRoute, evRoute.routeSize, instancia, true, instancia.vetTempoSaida[sat], 0, nullptr);
+            cout<<"Resultado: "<<r<<"\n\t";
+            NS_Auxiliary::printVectorCout(evRoute.route, evRoute.routeSize);
+
+
+
+        }
+
+        cout<<"\n";
     }
 
 }
@@ -388,10 +421,12 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
             break;
 
 
-
-
     }
+}
 
+EvRoute& ShortestPathSatCli::getEvRoute(int cliente)
+{
+    return vetEvRoute[cliente-fistCliente];
 }
 
 int N_PreProcessamento::getPaiMinHeap(int pos)

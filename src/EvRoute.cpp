@@ -46,13 +46,48 @@ EvRoute::EvRoute(const int _satellite, const int _idRota, const int RouteSizeMax
     for(int i=0; i < instance.getN_RechargingS(); ++i)
     {
         vetRecarga.emplace_back((i+firstRechargingSIndex), 0);
-        //vetRecarga[i].recargaId = (i+firstRechargingSIndex);
-        //avetRecarga[i].utilizado = 0;
     }
 
     numEstRecarga = instance.getN_RechargingS();
     numMaxUtilizacao = instance.numUtilEstacao;
 
+}
+
+EvRoute::EvRoute(const EvRoute &evRoute):firstRechargingSIndex(evRoute.firstRechargingSIndex)
+{
+    routeSizeMax = evRoute.routeSizeMax;
+    route.reserve(routeSizeMax);
+
+    if(idRota != -1)
+    {
+        route.emplace_back(satelite, evRoute.route[0].bateriaRestante, -1.0, -1.0);
+        route.emplace_back(satelite, evRoute.route[0].bateriaRestante, -1.0, -1.0);
+    }
+    else
+    {
+
+        route.emplace_back(satelite, 0, -1.0, -1.0);
+        route.emplace_back(satelite, 0, -1.0, -1.0);
+    }
+
+
+    for(int i=2; i < routeSizeMax; ++i)
+    {
+        route.emplace_back();
+    }
+
+
+    vetRecarga.reserve(evRoute.vetRecarga.size());
+
+    for(int i=0; i < evRoute.vetRecarga.size(); ++i)
+    {
+        vetRecarga.emplace_back((i+firstRechargingSIndex), 0);
+    }
+
+    //numEstRecarga = instance.getN_RechargingS();
+    numMaxUtilizacao = evRoute.numMaxUtilizacao;
+
+    copia(evRoute);
 }
 
 void EvRoute::copia(const EvRoute &evRoute)
