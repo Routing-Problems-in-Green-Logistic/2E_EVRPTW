@@ -72,11 +72,12 @@ int main(int argc, char* argv[])
     }
 
     seed(semente);
+    std::string file(argv[1]);
+    Instance instance(file);
 
     try
     {
 
-        std::string file(argv[1]);
 
         const string nomeInst = getNomeInstancia(file);
         string arquivo = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/instanciasMod/" + nomeInst + ".txt";
@@ -85,7 +86,6 @@ int main(int argc, char* argv[])
         cout << "INSTANCIA: " << nomeInst << "\t";
         cout<<"SEMENTE: "<<semente<<"\n\n";
         double tempo = 0.0;
-        Instance instance(file);
         instance.print();
 
         //const std::vector<float> vetAlfa{0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.6, 0.7, 0.9};
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
         if(num == 0)
             num = 1;
 
-        Parametros parametros(NUM_EXEC, 150, vetAlfa, 100, num);
+        Parametros parametros(NUM_EXEC, 50, vetAlfa, 100, num);
 
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -156,6 +156,9 @@ int main(int argc, char* argv[])
     }
     catch(std::exception &e)
     {
+
+        instance.print();
+
         cout<<"EXCEPTION:\n";
         cout<<e.what()<<"\n";
 
@@ -163,6 +166,8 @@ int main(int argc, char* argv[])
     }
     catch(char const* exception)
     {
+        instance.print();
+
         cout<<"EXCEPTION:\n"<<exception<<"\n\n";
         cout<<"SEMENTE: \t"<<semente<<"\n";
 

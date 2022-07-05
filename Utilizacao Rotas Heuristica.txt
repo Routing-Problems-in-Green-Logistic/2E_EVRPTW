@@ -11,10 +11,31 @@ Quat:cliente
 
 10:6 5:5 5:2 1:1 0:0 0:0 0:0
 
-Para cada cliente:
-
-Insere rota cliente SE: ((rand() % 100) >= 100 - (100.(N_vezes/Total))
-
-
-
 Probabilidade encontrada nas primeiras k iteracoes
+
+**********************************************************************
+INICIO
+
+
+	i = 0
+	t = -1
+
+	SE prob(1°) == 0:
+		i = iteracaoGrasp % numClientesProb100()
+		t = i
+
+	ENQUANTO i < numClientes:
+
+
+		Insere rota cliente(vet[i]) SE: ((rand() % 100) >= 100 - (100.	(N_vezes(i)/Total))
+	
+			i += 1
+	
+		SE t == i:
+			break
+		
+		i = i % numClientes
+
+FIM
+
+

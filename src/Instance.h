@@ -58,6 +58,7 @@ struct EstMaisProx
 class Instance{
 public:
     Instance(const std::string &file);
+    Instance()=default;
     ~Instance();
     double getDemand(int node) const; // the const means that the method promises not to alter any members of the class.
     double getDistance(int n1, int n2) const;
