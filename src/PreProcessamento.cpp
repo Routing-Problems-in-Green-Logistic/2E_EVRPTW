@@ -99,6 +99,8 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
 
                     if(dist < caminho.distIdaVolta)
                     {
+                        caminho.satId = sat;
+
                         auto recuperaRota = [&](bool ida)
                         {
                             std::vector<int> rota;
@@ -193,6 +195,8 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
         if(caminho.distIdaVolta < DOUBLE_INF)
         {
             evRoute.satelite = caminho.satId;
+            evRoute.demanda  = instancia.vectCliente[i].demanda;
+            evRoute.distancia = caminho.distIdaVolta;
 
             for(int t=0; t < caminho.caminhoIda.size(); ++t)
             {

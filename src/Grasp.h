@@ -87,7 +87,7 @@ namespace NameS_Grasp
     void inicializaSol(Solucao &sol, Instance &instance);
 
     // Adiciona uma rota da forma: sat ... EST ... CLIENTE ... EST ... sat
-    bool addRotaCliente(Solucao &sol, Instance &instancia, const EvRoute &evRoute, const int cliente);
+    void addRotaCliente(Solucao &sol, Instance &instancia, const EvRoute &evRoute, const int cliente);
 
 }
 

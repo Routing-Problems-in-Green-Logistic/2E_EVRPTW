@@ -13,7 +13,7 @@ Quat:cliente
 
 Para cada cliente:
 
-Insere rota cliente SE: ((rand() % 100) >= 100.(N_vezes/Total)
+Insere rota cliente SE: ((rand() % 100) >= 100 - (100.(N_vezes/Total))
 
 
 
