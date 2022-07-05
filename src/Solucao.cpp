@@ -38,6 +38,8 @@ Solucao::Solucao(Instance &Inst)
     // Estacoes
     std::fill((vetClientesAtend.begin()+Inst.getFirstRechargingSIndex()), (vetClientesAtend.begin()+Inst.getEndRechargingSIndex()+1), -1);
 
+    inicializaVetClientesAtend(Inst);
+
 }
 
 void Solucao::atualizaVetSatTempoChegMax(Instance &instance)
@@ -341,4 +343,16 @@ void Solucao::copia(Solucao &solution)
         primeiroNivel[i].copia(solution.primeiroNivel[i]);
 
 
+}
+
+void Solucao::inicializaVetClientesAtend(Instance &instance)
+{
+
+    vetClientesAtend = std::vector<int8_t>(1 + instance.getNSats() + instance.getN_RechargingS() + instance.getNClients());
+
+    for(int i = 0; i < instance.getFirstClientIndex(); ++i)
+        vetClientesAtend[i] = -1;
+
+    for(int i = instance.getFirstClientIndex(); i < vetClientesAtend.size(); ++i)
+        vetClientesAtend[i] = 0;
 }

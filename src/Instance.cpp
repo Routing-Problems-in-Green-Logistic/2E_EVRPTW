@@ -408,3 +408,4 @@ double Instance::calculaPenalizacaoDistComb()
 
     return dist*1.2;
 }
+

@@ -21,13 +21,23 @@ using namespace boost::numeric;
 bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const float alpha)
 {
 
-    std::vector<int> visitedClients(1 + instance.getNSats() + instance.getN_RechargingS() + instance.getNClients());
+    std::vector<int8_t> visitedClients;
 
-    for(int i=0; i < instance.getFirstClientIndex(); ++i)
-        visitedClients[i] = -1;
+/*    if(!sol.solInicializada)
+    {
+        visitedClients = std::vector<int8_t>(1 + instance.getNSats() + instance.getN_RechargingS() + instance.getNClients());
 
-    for(int i= instance.getFirstClientIndex(); i < visitedClients.size(); ++i)
-        visitedClients[i] = 0;
+        for(int i = 0; i < instance.getFirstClientIndex(); ++i)
+            visitedClients[i] = -1;
+
+        for(int i = instance.getFirstClientIndex(); i < visitedClients.size(); ++i)
+            visitedClients[i] = 0;
+
+    }
+    else*/
+    {
+        visitedClients = sol.vetClientesAtend;
+    }
 
 
     const int FistIdClient  = instance.getFirstClientIndex();
@@ -317,13 +327,14 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
 
     sol.viavel = visitAllClientes(visitedClients, instance);
+    sol.vetClientesAtend = visitedClients;
 
     return sol.viavel;
 }
 
 // run ../instancias/2e-vrp-tw/Customer_5/C101_C5x.txt 1652454289
 
-bool GreedyAlgNS::visitAllClientes(std::vector<int> &visitedClients, const Instance &instance)
+bool GreedyAlgNS::visitAllClientes(std::vector<int8_t> &visitedClients, const Instance &instance)
 {
 
     auto itClient = visitedClients.begin() + instance.getFirstClientIndex();

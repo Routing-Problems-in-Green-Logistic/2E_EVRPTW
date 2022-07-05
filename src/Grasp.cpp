@@ -11,6 +11,7 @@
 #include "Auxiliary.h"
 #include "mersenne-twister.h"
 #include "LocalSearch.h"
+#include "PreProcessamento.h"
 
 #define NUM_EST_INI 3
 
@@ -20,7 +21,7 @@ using namespace NS_LocalSearch;
 
 const float fator = 0.1;
 
-Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::vector<float> &vetAlfa, const int numAtuaProb, Estatisticas &estat)
+Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatisticas &estat)
 {
     Solucao *solBest = new Solucao(instance);
     solBest->distancia = DOUBLE_MIN;
@@ -28,11 +29,11 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
     EvRoute evRoute(1, instance.getFirstEvIndex(), instance.getEvRouteSizeMax(), instance);
 
     estat.numSol = 0.0;
-    estat.numIte = numIte;
+    estat.numIte = parametros.numIteGrasp;
     estat.distAcum = 0.0;
     estat.erro = "";
 
-    const int tamAlfa = vetAlfa.size();
+    const int tamAlfa = parametros.vetAlfa.size();
 
     // Solucao para inicializar reativo
     Solucao gul(instance);
@@ -55,7 +56,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
 
     std::vector<double> proporcao(tamAlfa);
     std::fill(proporcao.begin(), proporcao.begin()+tamAlfa, 0.0);
-
 
 
     auto atualizaProb = [&]()
@@ -91,15 +91,61 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
 
     };
 
+    auto convIndClienteVet = [&](int pos)
+    {
+        return pos-instance.getFirstClientIndex();
+    };
+
+    // Guarda o numero de vezes que o cliente i NAO a parece na solucao
+    std::vector<QuantCliente> vetQuantCliente(instance.getNClients());
+
+    for(int i=instance.getFirstClientIndex(); i <= instance.getEndClientIndex(); ++i)
+        vetQuantCliente[convIndClienteVet(i)].cliente = i;
+
+
     double somaProb = 0.0;
     int posAlfa = 0;
     int valAleatorio = 0;
-
     float alfa = 0;
 
-    for(int i=0; i < numIte; ++i)
+    for(int i=0; i < parametros.numIteGrasp; ++i)
     {
         Solucao sol(instance);
+
+        if(i == parametros.iteracoesCalProb)
+        {
+            std::sort(vetQuantCliente.begin(), vetQuantCliente.end());
+
+            for(int t=0; t < instance.getNClients(); ++t)
+            {
+                vetQuantCliente[t].calculaProb(i);
+            }
+
+            cout<<"vetQuantCliente: ";
+            NS_Auxiliary::printVectorCout(vetQuantCliente, vetQuantCliente.size());
+        }
+
+        if(i >= parametros.iteracoesCalProb)
+        {
+            int clientesAdd = 0;
+
+            for(int t=0; t < instance.getNClients(); ++t)
+            {
+                if(vetQuantCliente[t].prob == 0)
+                    break;
+
+                if((rand_u32()%100) >= vetQuantCliente[t].prob)
+                {
+                    cout<<"ADD rota com cliente "<<vetQuantCliente[t].cliente<<"\n";
+                    clientesAdd += 1;
+                }
+
+                if(clientesAdd >= parametros.numMaxClie)
+                    break;
+            }
+
+            cout<<"\n\n";
+        }
 
         somaProb = 0.0;
         posAlfa = 0;
@@ -119,11 +165,20 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
         }
 
 
-
-
-        alfa = vetAlfa[posAlfa];
+        alfa = parametros.vetAlfa[posAlfa];
         vetorFrequencia[posAlfa] += 1;
         construtivo(sol, instance, alfa, alfa);
+
+        if(!sol.viavel && i < parametros.iteracoesCalProb)
+        {
+            for(int t=instance.getFirstClientIndex(); t <= instance.getEndClientIndex(); ++t)
+            {
+                if(sol.vetClientesAtend[t] == 0)
+                    vetQuantCliente[convIndClienteVet(t)].add1Quant();
+            }
+
+        }
+
 
         if(sol.viavel)
         {
@@ -186,13 +241,12 @@ Solucao * NameS_Grasp::grasp(Instance &instance, const int numIte, const std::ve
             double aux = sol.distancia + getPenalidade(sol, instance, fator) ;
             if(aux < custoBest)
                 custoBest = aux;
-
         }
 
         if(!sol.viavel)
             solucaoAcumulada[posAlfa] += sol.distancia + getPenalidade(sol, instance, fator);
 
-        if(i>0 && (i%numAtuaProb)==0)
+        if(i>0 && (i%parametros.numAtualProbReativo)==0)
             atualizaProb();
 
 
@@ -290,6 +344,30 @@ void NameS_Grasp::inicializaSol(Solucao &sol, Instance &instance)
         }
         while(p != pos);
     }
+
+
+}
+
+bool NameS_Grasp::addRotaCliente(Solucao &sol, Instance &instancia, const EvRoute &evRoute, const int cliente)
+{
+
+    int sat = evRoute.satelite;
+    sol.satelites[sat].demanda += instancia.vectCliente[cliente].demanda;
+    int next = sol.satelites[sat].tamVetEvRoute;
+    sol.satelites[sat].vetEvRoute[next].copia(instancia.shortestPath->getEvRoute(cliente));
+
+    // Atualiza distacia e demanda
+    double dist = sol.satelites[sat].vetEvRoute[next].distancia;
+    sol.satelites[sat].distancia += dist;
+    sol.distancia += dist;
+    sol.satelites[sat].demanda   += instancia.vectCliente[cliente].demanda;
+
+    //
+
+    sol.satelites[sat].tamVetEvRoute += 1;
+    sol.vetClientesAtend[cliente] = 1;
+
+
 
 
 }

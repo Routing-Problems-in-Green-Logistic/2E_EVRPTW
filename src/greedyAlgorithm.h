@@ -87,7 +87,7 @@ namespace GreedyAlgNS
     bool secondEchelonGreedy(Solucao& Sol, Instance& instance, float alpha);
     void firstEchelonGreedy(Solucao &Sol, const Instance &Inst, const float beta);
     void construtivo(Solucao &Sol, Instance &Inst, const float alpha, const float beta);
-    bool visitAllClientes(std::vector<int> &visitedClients, const Instance &instance);
+    bool visitAllClientes(std::vector<int8_t> &visitedClients, const Instance &instance);
     bool existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendida);
     float palpiteTempoFinalPrimeiroNivel(const Instance& inst);
     bool insereEstacao(int rotaId, int satId);

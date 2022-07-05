@@ -79,9 +79,8 @@ int main(int argc, char* argv[])
         std::string file(argv[1]);
 
         const string nomeInst = getNomeInstancia(file);
-        string arquivo = "/home/igor/Documentos/Projetos/2E_EVRPTW/utils/instanciasMod/" + nomeInst + ".txt";
-        string arquivoSol = "/home/igor/Documentos/Projetos/2E_EVRPTW/utils/solucao/" + nomeInst + ".txt";
-
+        string arquivo = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/instanciasMod/" + nomeInst + ".txt";
+        string arquivoSol = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/solucao/" + nomeInst + ".txt";
 
         cout << "INSTANCIA: " << nomeInst << "\t";
         cout<<"SEMENTE: "<<semente<<"\n\n";
@@ -95,6 +94,12 @@ int main(int argc, char* argv[])
         //escreveInstancia(instance, arquivo);
         //instance.print();
 
+        int num = instance.getN_Evs()/2;
+        if(num == 0)
+            num = 1;
+
+        Parametros parametros(NUM_EXEC, 150, vetAlfa, 100, num);
+
         auto start = std::chrono::high_resolution_clock::now();
 
 
@@ -103,7 +108,7 @@ int main(int argc, char* argv[])
             instance.shortestPath = &shortestPathSatCli;
 
             Estatisticas estat;
-            Solucao *solBest = grasp(instance, NUM_EXEC, vetAlfa, 100, estat);
+            Solucao *solBest = grasp(instance, parametros, estat);
 
 
         auto end = std::chrono::high_resolution_clock::now();
@@ -120,13 +125,19 @@ int main(int argc, char* argv[])
 
         escreveSolucao(*solBest, instance, arquivoSol);
 
-
         std::ofstream outfile;
         outfile.open("resultado.csv", std::ios_base::app);
         if(solBest->viavel)
-            outfile<<nomeInst<<";\t"<<estat.media()<<";\t"<<solBest->distancia<<";\t"<<estat.numSol<<";\t"<<tempo<<"\n";
+        {
+            outfile << nomeInst << ";\t" << estat.media() << ";\t" << solBest->distancia << ";\t" << estat.numSol<< ";\t" << tempo << "\n";
+            cout<< nomeInst << ";\t" << estat.media() << ";\t" << solBest->distancia << ";\t" << estat.numSol<< ";\t" << tempo << "\n";
+
+        }
         else
-            outfile<<nomeInst<<";\t*;\t*;\t"<<estat.numSol<<";\t"<<tempo<<"\n";
+        {
+            outfile << nomeInst << ";\t*;\t*;\t" << estat.numSol << ";\t" << tempo << "\n";
+            cout << nomeInst << ";\t*;\t*;\t" << estat.numSol << ";\t" << tempo << "\n";
+        }
 
         outfile.close();
 

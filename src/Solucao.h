@@ -18,8 +18,8 @@ public:
     void print(const Instance& Inst);
     double calcCost(const Instance&);
     float getDistanciaTotal();
-
     void atualizaVetSatTempoChegMax( Instance &instance);
+    void inicializaVetClientesAtend(Instance &instance);
 
     // Possui numSat + 1 !!
     std::vector<Satelite> satelites;
@@ -35,6 +35,8 @@ public:
     bool mvCross = false;
     double distancia = 0.0;
     std::vector<int8_t> vetClientesAtend;
+
+    bool solInicializada = false;
 
 };
 #endif //INC_2E_EVRP_SOLUCAO_H
