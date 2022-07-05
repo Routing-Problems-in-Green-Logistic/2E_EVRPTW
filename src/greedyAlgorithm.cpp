@@ -785,13 +785,14 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
         {
 
             const double custo = testaRota(evRouteAux, evRouteAux.routeSize, instance, false, tempoSaidaSat, 0, nullptr);
-            string str;
-            evRouteAux.print(str, instance, true);
-
-           //cout<<"Rota: "<<str<<"\n\n*******************\n\n";
 
             if(custo > 0.0)
             {
+
+                string str;
+                evRouteAux.print(str, instance, true);
+                cout<<"HEURISTICA. ROTA: "<<str<<"\n\n*******************\n\n";
+
                 //cout<<"Custo: "<<custo<<"\n";
                 bestIncremento = distanceAux;
                 candidatoEv = CandidatoEV(pos, node, distanceAux, demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, {});
