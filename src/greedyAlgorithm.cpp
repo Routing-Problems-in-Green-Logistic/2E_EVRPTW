@@ -122,14 +122,14 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
     }
 
-    for(int i=0; i < visitedClients.size(); ++i)
+/*    for(int i=0; i < visitedClients.size(); ++i)
         cout<<i<<"\t ";
 
     cout<<"\n";
 
     for(auto it:visitedClients)
         cout<<int(it)<<"\t";
-    cout<<"\n\n\n";
+    cout<<"\n\n\n";*/
 
 
 

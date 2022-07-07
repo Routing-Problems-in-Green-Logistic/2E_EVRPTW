@@ -117,7 +117,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
     {
         Solucao sol(instance);
 
-        if((i == parametros.iteracoesCalProb)) //&& (i%parametros.iteracoesCalProb)==0)
+        if(i == parametros.iteracoesCalProb) //&& (i%parametros.iteracoesCalProb)==0)
         {
             std::sort(vetQuantCliente.begin(), vetQuantCliente.end());
 
@@ -134,7 +134,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                 }
                 else if(vetQuantCliente[t].prob >= 90 && evRouteAux.routeSize > 2)
                 {
-                    vetQuantCliente[t].prob = 90;
+                    //vetQuantCliente[t].prob = 90;
                     //addRotaClienteProbIgual += 1;
 
                 }
@@ -142,22 +142,22 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                     vetQuantCliente[t].prob = 100;
             }
 
-            cout<<"IGUAL: "<<addRotaClienteProbIgual<<"\n";
+            //cout<<"IGUAL: "<<addRotaClienteProbIgual<<"\n";
 
-            cout<<"vetQuantCliente: ";
+            //cout<<"vetQuantCliente: ";
             NS_Auxiliary::printVectorCout(vetQuantCliente, vetQuantCliente.size());
 
             if(addRotaClienteProbIgual >= 2)
             {
                 parametros.numMaxClie = instance.getN_Evs();
-                cout<<"num max clie: "<<parametros.numMaxClie<<"\n";
+                //cout<<"num max clie: "<<parametros.numMaxClie<<"\n";
             }
 
-            cout<<"\n\n";
+            //cout<<"\n\n";
 
         }
 
-        if(i >= parametros.iteracoesCalProb)
+        if(i >= parametros.iteracoesCalProb && parametros.iteracoesCalProb > 0)
         {
             int clientesAdd = 0;
 
@@ -165,66 +165,69 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
             bool igual = false;
             int next = 0;
 
-            if(addRotaClienteProbIgual > 0)
+/*            if(addRotaClienteProbIgual > 0)
             {
                 igual = true;
                 next = i % addRotaClienteProbIgual;
                 //cout<<"next: "<<next<<"\n";
 
-            }
+            }*/
 
             int t=0;
 
             if(igual)
                 t = next;
 
-            while(t < instance.getNClients())
+            if(vetQuantCliente[0].prob != 100)
             {
 
-
-                if(vetQuantCliente[t].prob != 100)
+                while(t < instance.getNClients())
                 {
 
-                    if((rand_u32() % 100) >= vetQuantCliente[t].prob)
+
+                    if(vetQuantCliente[t].prob != 100)
                     {
 
-                        int cliente = vetQuantCliente[t].cliente;
-                        clienteAdd = cliente;
-                        EvRoute &evRouteSP = instance.shortestPath->getEvRoute(cliente);
-                        auto shortestPath = (instance.shortestPath->getShortestPath(cliente));
-
-                        //cout << "DISTANCIA EV ROUTE SHORTEST PATH: : " << evRouteSP.distancia << "\n\n";
-
-                        if(shortestPath.distIdaVolta < DOUBLE_INF)
+                        if((rand_u32() % 100) >= vetQuantCliente[t].prob)
                         {
 
-                            // NOVO
-                            //vetQuantCliente[t].quant -= 1;
+                            int cliente = vetQuantCliente[t].cliente;
+                            clienteAdd = cliente;
+                            EvRoute &evRouteSP = instance.shortestPath->getEvRoute(cliente);
+                            auto shortestPath = (instance.shortestPath->getShortestPath(cliente));
 
-                            addRotaCliente(sol, instance, evRouteSP, cliente);
+                            //cout << "DISTANCIA EV ROUTE SHORTEST PATH: : " << evRouteSP.distancia << "\n\n";
 
-                            string str;
-                            evRouteSP.print(str, instance, true);
-                            //cout << "ROTA: " << str << "\n";
-                            //cout << "ADD rota com cliente " << vetQuantCliente[t].cliente << "\n\n";
-                            clientesAdd += 1;
+                            if(shortestPath.distIdaVolta < DOUBLE_INF)
+                            {
+
+                                // NOVO
+                                //vetQuantCliente[t].quant -= 1;
+
+                                addRotaCliente(sol, instance, evRouteSP, cliente);
+
+                                //string str;
+                                //evRouteSP.print(str, instance, true);
+                                //cout << "ROTA: " << str << "\n";
+                                //cout << "ADD rota com cliente " << vetQuantCliente[t].cliente << "\n\n";
+                                clientesAdd += 1;
+                            }
+
+                            add = true;
                         }
-                        else
-                            cout << "Cliente: " << vetQuantCliente[t].cliente << ": INF\n";
 
-                        add = true;
+                        if(clientesAdd >= parametros.numMaxClie)
+                            break;
                     }
 
-                    if(clientesAdd >= parametros.numMaxClie)
+                    t += 1;
+
+                    if(igual && t == next)
                         break;
+                    else
+                        t = t % instance.getNClients();
                 }
 
-                t += 1;
-
-                if(igual && t == next)
-                    break;
-                else
-                    t = t % instance.getNClients();
             }
 
             if(add)
@@ -258,20 +261,21 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
         vetorFrequencia[posAlfa] += 1;
         construtivo(sol, instance, alfa, alfa);
 
-        if(!sol.viavel)// && i < parametros.iteracoesCalProb)
+        if(!sol.viavel && parametros.iteracoesCalProb > 0)// && i < parametros.iteracoesCalProb)
         {
+            int quantCliInv = 0;
             for(int t=instance.getFirstClientIndex(); t <= instance.getEndClientIndex(); ++t)
             {
                 if(sol.vetClientesAtend[t] == 0)
                 {
 
+                    quantCliInv += 1;
+                    //cout<<"\tCLI: "<<t<<"\n";
                     const EvRoute &evRouteAux = instance.shortestPath->getEvRoute(t);
                     if(evRouteAux.routeSize > 2)
                     {
                         vetQuantCliente[convIndClienteVet(t)].add1Quant();
                     }
-                    else
-                        cout<<"<=2 \n";
 
                 }
             }
@@ -281,14 +285,14 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
         if(sol.viavel)
         {
-            cout<<"VIAVEL\n";
+            //cout<<"VIAVEL\n";
             string erro;
 
             if(!sol.checkSolution(erro, instance))
             {
 
                 cout<<"\n\nSOLUCAO:\n\n";
-                sol.print(instance);
+                //sol.print(instance);
 
                 cout <<erro<< "\n****************************************************************************************\n\n";
                 //delete solBest;

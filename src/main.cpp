@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
         if(num == 0)
             num = 1;
 
-        Parametros parametros(NUM_EXEC, 50, vetAlfa, 100, num);
+        Parametros parametros(NUM_EXEC, 110, vetAlfa, 100, num);
 
         auto start = std::chrono::high_resolution_clock::now();
 

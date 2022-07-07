@@ -209,6 +209,9 @@ Instance::Instance(const std::string &str)
         file>>x>>y>>dem>>temp>>temp>>tw_i>>tw_f>>serv;
         getline(file, lixo);
 
+        if(!isClient(i))
+            tw_f = DOUBLE_INF;
+
         vectCliente.push_back({x, y, dem, tw_i, tw_f, serv});
 
     }

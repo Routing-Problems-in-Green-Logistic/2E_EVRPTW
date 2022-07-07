@@ -44,11 +44,7 @@ namespace NameS_Grasp
 
         QuantCliente()=default;
         QuantCliente(int cliente_, int quant_){cliente=cliente_; quant=quant_;}
-        void add1Quant()
-        {
-            quant += 1;
-            cout<<"quant + 1\n";
-        }
+        void add1Quant(){quant += 1;}
         void calculaProb(int total){prob = 100-int(100.0*(quant/float(total)));}
 
         bool operator < (const QuantCliente &outro) const {return quant > outro.quant;}
