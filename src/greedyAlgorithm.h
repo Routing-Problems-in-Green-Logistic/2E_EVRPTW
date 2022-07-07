@@ -54,7 +54,7 @@ namespace GreedyAlgNS
 
         NameViabRotaEv::InsercaoEstacao insercaoEstacao;
 
-        CandidatoEV(int pos, int clientId, double cost, float demand, double batteryCost, int routeId, int satId, int rsPos,
+        CandidatoEV(int pos, int clientId, double cost, double demand, double batteryCost, int routeId, int satId, int rsPos,
                     int rsId, NameViabRotaEv::InsercaoEstacao insercaoEstacao_)
         {
             this->pos = pos;

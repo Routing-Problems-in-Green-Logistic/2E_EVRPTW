@@ -115,6 +115,8 @@ public:
 
     int *getEstacoes(const int clienteI, const int clienteJ);
 
+    bool verificaJanelaTempo(double tempoCheg, int cliente) const;
+
     double calculaPenalizacaoDistEv();
     double calculaPenalizacaoDistComb();
 

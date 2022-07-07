@@ -107,6 +107,7 @@ int main(int argc, char* argv[])
             dijkstraSatCli(instance, shortestPathSatCli);
             instance.shortestPath = &shortestPathSatCli;
 
+
             Estatisticas estat;
             Solucao *solBest = grasp(instance, parametros, estat);
 

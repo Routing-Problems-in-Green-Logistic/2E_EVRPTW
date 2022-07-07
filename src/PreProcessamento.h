@@ -70,13 +70,33 @@ namespace N_PreProcessamento
     {
     public:
 
-        int clienteId   = -1;
-        double dist     = DOUBLE_INF;
-        double bateria  = 0.0;
+        int clienteId       = -1;
+        double dist         = DOUBLE_INF;
+        double bateria      = 0.0;
+        double tempoChegada = 0.0;
+        double tempoSaida   = 0.0;
 
         DijkstraNo()=default;
         explicit DijkstraNo(int cliente){clienteId=cliente;}
-        DijkstraNo(int c, double d, double b){clienteId=c; dist=d; bateria=b;}
+
+        DijkstraNo(const int cliente_, const double dist_, const double bat_, const double tempoC, const double tempoS)
+        {
+            clienteId       = cliente_;
+            dist            = dist_;
+            bateria         = bat_;
+            tempoChegada    = tempoC;
+            tempoSaida      = tempoS;
+        }
+
+        void set(const int cliente_, const double dist_, const double bat_, const double tempoC, const double tempoS)
+        {
+
+            clienteId       = cliente_;
+            dist            = dist_;
+            bateria         = bat_;
+            tempoChegada    = tempoC;
+            tempoSaida      = tempoS;
+        }
 
         bool operator < (const DijkstraNo &outro) const
         {
@@ -102,19 +122,20 @@ namespace N_PreProcessamento
     {
     public:
 
-        int preDecessor = -1;
-        double bateria  = 0.0;
-        double dist     = 0.0;
+        int preDecessor     = -1;
+        double bateria      = 0.0;
+        double dist         = 0.0;
+        double tempoSaida   = 0.0;
 
         PreDecessorNo()=default;
         PreDecessorNo(int pre, double b, double d){preDecessor=pre; bateria=b; dist=d;}
     };
 
     void dijkstraSatCli(Instance &instancia, ShortestPathSatCli &shortestPathSatCli);
-    void dijkstra(Instance &instancia, int clienteSorce, int veicId, double bateria,
+    void dijkstra(Instance &instancia, const int clienteSorce, const int veicId, double bateria,
                   std::vector<DijkstraNo> &minHeap, std::vector<PreDecessorNo> &preDecessor,
-                  const std::vector<bool> &excluidos, bool clienteCliente,
-                  std::vector<int> &vetIndiceMinHeap, std::vector<int8_t> &vetFechados);
+                  const std::vector<bool> &excluidos, const bool clienteCliente, std::vector<int> &vetIndiceMinHeap,
+                  std::vector<int8_t> &vetFechados, const double tempoSaida);
 
 
     int getPaiMinHeap(int pos);

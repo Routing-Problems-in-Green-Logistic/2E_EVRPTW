@@ -21,9 +21,9 @@ using namespace boost::numeric;
 bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const float alpha)
 {
 
-    cout<<"**********************************************CONSTRUTIVO*****************************************\n\n";
+    //cout<<"**********************************************CONSTRUTIVO*****************************************\n\n";
 
-    std::vector<int8_t> visitedClients;
+    std::vector<int8_t> &visitedClients = sol.vetClientesAtend;
 
 /*    if(!sol.solInicializada)
     {
@@ -37,10 +37,6 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
     }
     else*/
-    {
-        visitedClients = sol.vetClientesAtend;
-    }
-
 
     const int FistIdClient  = instance.getFirstClientIndex();
     const int LastIdClient  = FistIdClient + instance.getNClients()-1;
@@ -82,18 +78,21 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
             for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); ++satId)
             {
 
+                //cout<<"TEMPO SAIDA SAT("<<satId<<"): "<<vetTempoSaida[satId]<<"\n\n";
+
                 Satelite *sat = sol.getSatelite(satId);
                 for(int routeId = 0; routeId < instance.getN_Evs(); ++routeId)
                 {
                     EvRoute &route = sat->getRoute(routeId);
                     CandidatoEV candidatoEvAux(candidatoEv);
                     candidatoEvAux.satId = satId;
+                    candidatoEvAux.routeId = routeId;
 
                     canInsert(route, clientId, instance, candidatoEvAux, satId, vetTempoSaida[satId], evRouteAux);
 
                     if(candidatoEv.pos != -1 && candidatoEvAux.pos != -1)
                     {
-                        if(candidatoEvAux.incremento < candidatoEv.incremento)
+                        if(candidatoEvAux < candidatoEv)
                             candidatoEv = candidatoEvAux;
                     }
                     else if(candidatoEvAux != -1)
@@ -107,6 +106,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
             if(candidatoEv.pos != -1)
             {
+                //cout<<"CLIENTE("<<clientId<<") BEST VEIC: "<<candidatoEv.routeId<<"\n";
 
                 listaCandidatos.push_back(candidatoEv);
                 CandidatoEV *candPtr = &listaCandidatos.back();
@@ -129,7 +129,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
     for(auto it:visitedClients)
         cout<<int(it)<<"\t";
-    cout<<"\n";
+    cout<<"\n\n\n";
 
 
 
@@ -171,7 +171,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
         cout<<"\n\n***************************\n\n";*/
 
         auto topItem = std::next(listaCandidatos.begin(), randIndex);
-        cout<<"\tADD CLIENTE "<<topItem->clientId<<"  A SOLUCAO\n";
+        //cout<<"\tADD CLIENTE "<<topItem->clientId<<"  A SOLUCAO\n";
         CandidatoEV *candEvPtr = &(*topItem);
 
         visitedClients[topItem->clientId] = 1;
@@ -343,7 +343,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
 
     sol.viavel = visitAllClientes(visitedClients, instance);
-    sol.vetClientesAtend = visitedClients;
+    //sol.vetClientesAtend = visitedClients;
 
     return sol.viavel;
 }
@@ -704,6 +704,8 @@ void GreedyAlgNS::construtivo(Solucao &Sol, Instance &Inst, const float alpha, c
 
     }
 
+    //cout<<"*****************************\\FIM CONSTRUTIVO*****************************\n\n";
+
     //Sol.print(Inst);
 
 }
@@ -753,10 +755,6 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
             distanciaRota += instance.getDistance(evRoute[i].cliente, evRoute[i + 1].cliente);
     }
 
-/*    cout<<"\tnode: "<<node<<"\n";
-    cout<<"ROTA: ";
-    evRoute.print(instance, false);
-    cout<<"\n";*/
 
     /* *****************************************************JANELA DE TEMPO******************************************************
      * **************************************************************************************************************************
@@ -789,14 +787,13 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
             if(custo > 0.0)
             {
 
-                string str;
-                evRouteAux.print(str, instance, true);
-                cout<<"HEURISTICA. ROTA: "<<str<<"\n\n*******************\n\n";
+                //string str;
+                //evRouteAux.print(str, instance, true);
 
-                //cout<<"Custo: "<<custo<<"\n";
                 bestIncremento = distanceAux;
                 candidatoEv = CandidatoEV(pos, node, distanceAux, demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, {});
 
+                // Se evRoute eh uma nova rota, eh adicionado uma penalidade para cria-la
                 if(evRoute.routeSize == 2)
                 {
                     candidatoEv.atualizaPenalidade(instance.penalizacaoDistEv);
@@ -820,9 +817,15 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
 
                 if(insertionCost < bestIncremento)
                 {
+
+                    //string str;
+                    //evRouteAux.print(str, instance, true);
+
+
                     bestIncremento = insertionCost;
                     candidatoEv = CandidatoEV(pos, node, (insercaoEstacao.distanciaRota - distanciaRota), demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, insercaoEstacao);
 
+                    // Se evRoute eh uma nova rota, eh adicionado uma penalidade para cria-la
                     if(evRoute.routeSize == 2)
                         candidatoEv.atualizaPenalidade(instance.penalizacaoDistEv);
                     else
@@ -875,6 +878,8 @@ std::vector<double> GreedyAlgNS::calculaTempoSaidaInicialSat(const Instance &ins
 
 bool GreedyAlgNS::insert(EvRoute &evRoute, CandidatoEV &insertion, const Instance &instance, const double tempoSaidaSat, Solucao &sol)
 {
+    //cout<<"EV ROUTE ID: "<<evRoute.idRota<<"\n";
+    //evRoute.print(instance, true);
 
     const int pos = insertion.pos;
     const int node = insertion.clientId;
@@ -931,11 +936,14 @@ bool GreedyAlgNS::insert(EvRoute &evRoute, CandidatoEV &insertion, const Instanc
 
         PRINT_DEBUG("", "ERRO NA FUNCAO GreedyAlgNS::insert, BATERIA DA ROTA EH INVIAVEL: "<<rotaStr<<"\n\n");
         cout<<"FUNCAO TESTA ROTA RETORNOU DISTANCIA NEGATIVA, ROTA: ";
-        evRoute.print(instance, false);
+        //evRoute.print(instance, false);
         sol.viavel = false;
 
         evRoute.print(instance, true);
         cout<<" EH INVALIDA\nFILE: "<<__FILE__<<"\nLINHA: "<<__LINE__<<"\n\n";
+
+        sol.print(instance);
+
         throw "ERRO";
     }
 

@@ -416,10 +416,11 @@ double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Ins
         tempo += dist;
         const ClienteInst &clienteInstProx = instance.vectCliente[evRoute[i+1].cliente];
 
-
         if(tempo < clienteInstProx.inicioJanelaTempo)
+        {
             tempo = clienteInstProx.inicioJanelaTempo;
 
+        }
 
         if(rotaBtDebug)
             (*rotaBtDebug) = to_string(evRoute[i+1].cliente) + "("+ to_string(bateriaRestante)+", "+ to_string(tempo) +") ";
@@ -445,7 +446,12 @@ double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Ins
 
 
         if(escrita)
-            evRoute[i+1].tempoCheg  = tempo;
+        {
+/*            cout<<"\tTEMPO CHEGADA("<<evRoute[i+1].cliente<<"): "<<tempo<<"; DIST("<<evRoute[i].cliente<<"-"<<evRoute[i+1].cliente<<"): "<<dist<<" \n";
+            cout<<"\tTEMPO SAIDA("<<evRoute[i].cliente<<"): "<<evRoute[i].tempoSaida<<"\n";*/
+            evRoute[i + 1].tempoCheg = tempo;
+
+        }
 
         tempo += clienteInstProx.tempoServico;
 

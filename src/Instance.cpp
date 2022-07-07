@@ -211,7 +211,6 @@ Instance::Instance(const std::string &str)
 
         vectCliente.push_back({x, y, dem, tw_i, tw_f, serv});
 
-
     }
 
     // Cria matriz de distancia
@@ -353,13 +352,13 @@ void Instance::print() const
         " \t\t "<<clienteInst.coordX<<" \t\t "<<clienteInst.coordY<<"\n";
     }
 
-    cout<<"\nESTACAO ID \t COORD X \t COORD Y\n\n";
+    cout<<"\nESTACAO ID \t COORD X \t COORD Y \t TW INICIO \t TW FIM \n\n";
 
     for(int i=getFirstRechargingSIndex(); i <= getEndRechargingSIndex(); ++i)
     {
         const ClienteInst &clienteInst = vectCliente[i];
 
-        cout<<"\t"<<i<<" \t "<<clienteInst.coordX<<" \t\t "<<clienteInst.coordY<<"\n";
+        cout<<"\t"<<i<<" \t "<<clienteInst.coordX<<" \t\t "<<clienteInst.coordY<<" \t\t "<<clienteInst.inicioJanelaTempo<<" \t\t "<<clienteInst.fimJanelaTempo<<"\n";
     }
 
     cout<<"\n\n";
@@ -409,3 +408,9 @@ double Instance::calculaPenalizacaoDistComb()
     return dist*1.2;
 }
 
+// true se tempoCheg <= fim janela de tempo, false caso contrario
+bool Instance::verificaJanelaTempo(double tempoCheg, int cliente) const
+{
+    cout<<"\t\tFIM JANELA TEMPO("<<cliente<<"): "<<vectCliente[cliente].fimJanelaTempo<<"\n";
+    return ((tempoCheg <= vectCliente[cliente].fimJanelaTempo) || (abs(tempoCheg - vectCliente[cliente].fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO));
+}
