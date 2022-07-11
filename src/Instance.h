@@ -57,7 +57,7 @@ struct EstMaisProx
 
 class Instance{
 public:
-    Instance(const std::string &file);
+    Instance(const std::string &file, const std::string &nome_);
     Instance()=default;
     ~Instance();
     double getDemand(int node) const; // the const means that the method promises not to alter any members of the class.
@@ -142,6 +142,8 @@ public:
     bool bestInsViabRotaEv = false;
 
     ShortestPathSatCli *shortestPath;
+
+    string nome;
 
 };
 

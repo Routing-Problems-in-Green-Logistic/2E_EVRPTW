@@ -12,6 +12,7 @@
 #include "mersenne-twister.h"
 #include "LocalSearch.h"
 #include "PreProcessamento.h"
+#include <fstream>
 
 #define NUM_EST_INI 3
 
@@ -98,6 +99,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
     // Guarda o numero de vezes que o cliente i NAO a parece na solucao
     std::vector<QuantCliente> vetQuantCliente(instance.getNClients());
+    std::vector<QuantCliente> vetQuantProb0;
 
     for(int i=instance.getFirstClientIndex(); i <= instance.getEndClientIndex(); ++i)
         vetQuantCliente[convIndClienteVet(i)].cliente = i;
@@ -119,7 +121,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
         if(i == parametros.iteracoesCalProb) //&& (i%parametros.iteracoesCalProb)==0)
         {
-            std::sort(vetQuantCliente.begin(), vetQuantCliente.end());
+            cout<<"num iteracoes: "<<parametros.iteracoesCalProb<<"\n";
 
             for(int t=0; t < instance.getNClients(); ++t)
             {
@@ -134,13 +136,18 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                 }
                 else if(vetQuantCliente[t].prob >= 90 && evRouteAux.routeSize > 2)
                 {
-                    //vetQuantCliente[t].prob = 90;
-                    //addRotaClienteProbIgual += 1;
-
+                    vetQuantCliente[t].prob = 90;
                 }
                 else if(evRouteAux.routeSize <= 2)
                     vetQuantCliente[t].prob = 100;
             }
+
+
+            std::sort(vetQuantCliente.begin(), vetQuantCliente.end());
+
+
+
+            std::sort(vetQuantCliente.begin(), vetQuantCliente.end());
 
             //cout<<"IGUAL: "<<addRotaClienteProbIgual<<"\n";
 
@@ -150,10 +157,33 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
             if(addRotaClienteProbIgual >= 2)
             {
                 parametros.numMaxClie = instance.getN_Evs();
-                //cout<<"num max clie: "<<parametros.numMaxClie<<"\n";
+
+                vetQuantProb0 = std::vector<QuantCliente>(addRotaClienteProbIgual);
+                std::copy(vetQuantCliente.begin(), vetQuantCliente.begin()+addRotaClienteProbIgual, vetQuantProb0.begin());
+                vetQuantCliente.erase(vetQuantCliente.begin(), vetQuantCliente.begin()+addRotaClienteProbIgual);
+
+                cout<<"vetQuantCliente: ";
+                NS_Auxiliary::printVectorCout(vetQuantCliente, vetQuantCliente.size());
+
+
+                cout<<"vetQuantProb0: ";
+                NS_Auxiliary::printVectorCout(vetQuantProb0, vetQuantProb0.size());
+
+
+/*                std::ofstream outfile;
+                outfile.open("probIgual.txt", std::ios_base::app);
+
+                if(outfile.is_open())
+                {
+                    outfile<<instance.nome<<"\n";
+                    outfile.close();
+                }*/
+
+
             }
 
             //cout<<"\n\n";
+
 
         }
 

@@ -47,7 +47,13 @@ namespace NameS_Grasp
         void add1Quant(){quant += 1;}
         void calculaProb(int total){prob = 100-int(100.0*(quant/float(total)));}
 
-        bool operator < (const QuantCliente &outro) const {return quant > outro.quant;}
+        bool operator < (const QuantCliente &outro) const
+        {
+            if(prob != outro.prob)
+                return prob < outro.prob;
+            else
+                return quant > outro.quant;
+        }
 
 
         friend std::ostream& operator <<(std::ostream &os, const QuantCliente &quantCliente)

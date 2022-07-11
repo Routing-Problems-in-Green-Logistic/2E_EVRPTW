@@ -15,6 +15,7 @@
 #include <chrono>
 #include <iomanip>
 #include <boost/format.hpp>
+#include <filesystem>
 #include "Teste.h"
 #include "Grasp.h"
 #include "PreProcessamento.h"
@@ -73,18 +74,23 @@ int main(int argc, char* argv[])
 
     seed(semente);
     std::string file(argv[1]);
-    Instance instance(file);
+    const string nomeInst = getNomeInstancia(file);
+
+    Instance instance(file, nomeInst);
 
     try
     {
 
 
-        const string nomeInst = getNomeInstancia(file);
+
         string arquivo = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/instanciasMod/" + nomeInst + ".txt";
         string arquivoSol = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/solucao/" + nomeInst + ".txt";
+        std::time_t result = std::time(nullptr);
+        auto data = std::asctime(std::localtime(&result));
 
         cout << "INSTANCIA: " << nomeInst << "\t";
-        cout<<"SEMENTE: "<<semente<<"\n\n";
+        cout<<"SEMENTE: "<<semente<<"\t"<<data<<"\n\n";
+
         double tempo = 0.0;
         instance.print();
 
@@ -126,12 +132,34 @@ int main(int argc, char* argv[])
 
         escreveSolucao(*solBest, instance, arquivoSol);
 
+        bool exists = std::filesystem::exists("resultado.csv");
         std::ofstream outfile;
         outfile.open("resultado.csv", std::ios_base::app);
+        if(!exists)
+        {
+            string dataStr;
+            string temp(data);
+
+            for(auto ch:temp)
+            {
+                if(ch != '\n')
+                    dataStr +=  ch;
+
+            }
+
+
+            outfile<<dataStr<<";\t;\t;\t;\t\n";
+            outfile<<"nomeInst;\tmedia; \t\t best; \t\tnumSol;\ttempo\n";
+        }
+
         if(solBest->viavel)
         {
-            outfile << nomeInst << ";\t" << estat.media() << ";\t" << solBest->distancia << ";\t" << estat.numSol<< ";\t" << tempo << "\n";
-            cout<< nomeInst << ";\t" << estat.media() << ";\t" << solBest->distancia << ";\t" << estat.numSol<< ";\t" << tempo << "\n";
+
+            string saida = str(boost::format("%.2f; \t%.2f;\t\t%d;\t%.2f") % float(estat.media()) % float(solBest->distancia) % estat.numSol % float(tempo));
+            //string saida = str(boost::format("%.2f") % float(estat.media()));
+            //outfile << nomeInst << ";\t" << estat.media() << ";\t " << solBest->distancia << ";\t" << estat.numSol<< ";\t" << tempo << "\n";
+            outfile << nomeInst << ";\t" <<saida<<"\n";
+            cout<< nomeInst << ";\t" <<saida<<"\n";
 
         }
         else

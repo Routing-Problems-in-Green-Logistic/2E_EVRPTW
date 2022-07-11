@@ -16,6 +16,12 @@
 - [ ] Modificar viabilizador de rota  2h
 - [ ] Testes 1h
 
+***
+
+# 11/07 Seg
+- [ ]  MV Shifit
+
+
 
 ***
 
@@ -23,9 +29,9 @@
 
 - [ ] Peseudo códigos 
 	- [ ] Construtívo
-	- [ ] viabilizador de rota
+	- [x] viabilizador de rota
 	- [ ] Gera rotas iniciais (somente cliente ou cliente cliente)
-	- [ ] Atualiza prob. add rota inicial
+	- [x] Atualiza prob. add rota inicial
 
 - [ ] Comentar código 
 

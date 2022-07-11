@@ -154,8 +154,9 @@ int Instance::getNNodes() const {
 }
 
 
-Instance::Instance(const std::string &str)
+Instance::Instance(const std::string &str, const std::string &nome_)
 {
+    nome = nome_;
 
     std::ifstream file;
     file.open(str);
@@ -326,7 +327,7 @@ Instance::~Instance()
 
 void Instance::print() const
 {
-    cout<<"INSTANCIA:\n";
+    cout<<"INSTANCIA "<<nome<<":\n";
     cout<<"\tnum satelites: "<<numSats<<"\n";
     cout<<"\tnum estacoes de recarga: "<<numRechargingS<<"\n";
     cout<<"\tnum clientes: "<<numClients<<"\n";
