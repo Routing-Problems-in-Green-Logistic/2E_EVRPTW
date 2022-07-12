@@ -245,8 +245,6 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
                                             evRoute.copia(evRouteAux);
                                             evRoute.vetRecarga[insercaoEstacao.estacao-instance.getFirstRechargingSIndex()].utilizado += 1;
 
-
-
                                             return true;
                                         }
                                         else
@@ -261,8 +259,6 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
                                             throw "ERRO";
                                         }
                                         return true;
-
-
                                     }
 
                                 }

@@ -25,6 +25,14 @@
 
 ***
 
+# 12/07 Ter
+- [ ]  MV Shifit
+
+
+***
+
+***
+
 # Outros
 
 - [ ] Peseudo códigos 
@@ -33,8 +41,9 @@
 	- [ ] Gera rotas iniciais (somente cliente ou cliente cliente)
 	- [x] Atualiza prob. add rota inicial
 
+- [ ] Tamanho da minHeap deveria ser constante !!
+- [ ] Reduzir bateria quando não encontra rota
 - [ ] Comentar código 
-
 
 
 

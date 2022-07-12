@@ -415,6 +415,6 @@ double Instance::calculaPenalizacaoDistComb()
 // true se tempoCheg <= fim janela de tempo, false caso contrario
 bool Instance::verificaJanelaTempo(double tempoCheg, int cliente) const
 {
-    cout<<"\t\tFIM JANELA TEMPO("<<cliente<<"): "<<vectCliente[cliente].fimJanelaTempo<<"\n";
+//    cout<<"\t\tFIM JANELA TEMPO("<<cliente<<"): "<<vectCliente[cliente].fimJanelaTempo<<"\n";
     return ((tempoCheg <= vectCliente[cliente].fimJanelaTempo) || (abs(tempoCheg - vectCliente[cliente].fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO));
 }

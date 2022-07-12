@@ -24,6 +24,7 @@ const float fator = 0.1;
 
 Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatisticas &estat)
 {
+
     Solucao *solBest = new Solucao(instance);
     solBest->distancia = DOUBLE_MIN;
     solBest->viavel = false;
@@ -114,14 +115,13 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
     int clienteAdd = -1;
 
 
-
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
         Solucao sol(instance);
 
         if(i == parametros.iteracoesCalProb) //&& (i%parametros.iteracoesCalProb)==0)
         {
-            cout<<"num iteracoes: "<<parametros.iteracoesCalProb<<"\n";
+            //cout<<"num iteracoes: "<<parametros.iteracoesCalProb<<"\n";
 
             for(int t=0; t < instance.getNClients(); ++t)
             {
@@ -152,7 +152,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
             //cout<<"IGUAL: "<<addRotaClienteProbIgual<<"\n";
 
             //cout<<"vetQuantCliente: ";
-            NS_Auxiliary::printVectorCout(vetQuantCliente, vetQuantCliente.size());
+            //NS_Auxiliary::printVectorCout(vetQuantCliente, vetQuantCliente.size());
 
             if(addRotaClienteProbIgual >= 2)
             {
@@ -162,12 +162,12 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                 std::copy(vetQuantCliente.begin(), vetQuantCliente.begin()+addRotaClienteProbIgual, vetQuantProb0.begin());
                 vetQuantCliente.erase(vetQuantCliente.begin(), vetQuantCliente.begin()+addRotaClienteProbIgual);
 
-                cout<<"vetQuantCliente: ";
-                NS_Auxiliary::printVectorCout(vetQuantCliente, vetQuantCliente.size());
+                //cout<<"vetQuantCliente: ";
+                //NS_Auxiliary::printVectorCout(vetQuantCliente, vetQuantCliente.size());
 
 
-                cout<<"vetQuantProb0: ";
-                NS_Auxiliary::printVectorCout(vetQuantProb0, vetQuantProb0.size());
+                //cout<<"vetQuantProb0: ";
+                //NS_Auxiliary::printVectorCout(vetQuantProb0, vetQuantProb0.size());
 
 
 /*                std::ofstream outfile;
@@ -186,6 +186,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
 
         }
+
+        Solucao solTemp(instance);
 
         if(i >= parametros.iteracoesCalProb && parametros.iteracoesCalProb > 0)
         {
@@ -213,7 +215,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
                 while(t < instance.getNClients())
                 {
-
 
                     if(vetQuantCliente[t].prob != 100)
                     {
@@ -251,11 +252,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                     }
 
                     t += 1;
-
-                    if(igual && t == next)
-                        break;
-                    else
-                        t = t % instance.getNClients();
                 }
 
             }
@@ -289,6 +285,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
         alfa = parametros.vetAlfa[posAlfa];
         vetorFrequencia[posAlfa] += 1;
+
+        solTemp.copia(sol);
         construtivo(sol, instance, alfa, alfa);
 
         if(!sol.viavel && parametros.iteracoesCalProb > 0)// && i < parametros.iteracoesCalProb)
@@ -317,22 +315,27 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
         {
             //cout<<"VIAVEL\n";
             string erro;
+            bool mv = false;
+
 
             if(!sol.checkSolution(erro, instance))
             {
 
-                cout<<"\n\nSOLUCAO:\n\n";
-                //sol.print(instance);
+                cout << "\n\nSOLUCAO:\n\n";
+                sol.print(instance);
 
-                cout <<erro<< "\n****************************************************************************************\n\n";
-                //delete solBest;
-                //throw "ERRO";
-            }
-            else
+                cout<<"############################################################################################\n\n";
+                cout<<"SOLUCAO INICIAL:\n\n";
+                solTemp.print(instance);
+
+
+
+                cout << erro
+                     << "\n****************************************************************************************\n\n";
+                delete solBest;
+                throw "ERRO";
+            } else
             {
-
-                estat.numSol += 1;
-                estat.distAcum += sol.distancia;
 
                 if(sol.distancia < solBest->distancia || !solBest->viavel)
                 {
@@ -343,9 +346,52 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
                 }
 
-                solucaoAcumulada[posAlfa] += sol.distancia;
 
             }
+
+            double valOrig = sol.distancia;
+
+
+            while(mvEvShifitIntraRota(sol, instance, evRoute, SELECAO_PRIMEIRO))
+            {
+                mv = true;
+                if(!sol.checkSolution(erro, instance))
+                {
+                    cout << "MV SHIFIT\n";
+
+                    cout << "\n\nSOLUCAO:\n\n";
+                    sol.print(instance);
+
+                    cout << erro
+                         << "\n****************************************************************************************\n\n";
+                    delete solBest;
+                    throw "ERRO";
+                }
+                else
+                {
+
+                    if(sol.distancia < solBest->distancia || !solBest->viavel)
+                    {
+                        solBest->copia(sol);
+                        custoBest = solBest->distancia;
+                        //solBest->print(instance);
+                        //cout<<"i: "<<i<<"\n";
+
+                    }
+
+                }
+            }
+
+            if(sol.viavel)
+            {
+
+                estat.numSol += 1;
+                estat.distAcum += sol.distancia;
+            }
+
+
+            if(mv)
+                cout<<"\tMV VIAVEL: Incr: "<<sol.distancia-valOrig<<"\n\n";
 
         }
         else if(!solBest->viavel && !sol.viavel)

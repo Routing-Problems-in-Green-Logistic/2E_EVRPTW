@@ -72,11 +72,11 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
         }
 
         // Inicialmente possui estacao de recarga e clientes
-        std::vector<DijkstraNo> minHeap(instancia.getN_RechargingS()+instancia.numClients);
+        std::vector<DijkstraNo> minHeap(instancia.getN_RechargingS()+instancia.numClients+2);
 
         //NS_Auxiliary::printVectorCout(minHeap, int64_t(posMinHeap));
 
-        cout<<"TEMPO SAIDA SAT("<<sat<<"): "<<instancia.vetTempoSaida[sat]<<"\n\n";
+        //cout<<"TEMPO SAIDA SAT("<<sat<<"): "<<instancia.vetTempoSaida[sat]<<"\n\n";
 
         // Encontra o menor caminho viavel de sat ate todos os clientes passando pelas estacoes de recarga
         dijkstra(instancia, sat, instancia.getFirstEvIndex(), 0, minHeap, preDecessorIda, excluidos, false,
@@ -92,7 +92,7 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
                 excluidos[i] = false;
                 preDecessorVolta[sat].preDecessor = -1;
 
-                cout<<"Dijkstra volta cliente: "<<i<<"\n\n";
+                //cout<<"Dijkstra volta cliente: "<<i<<"\n\n";
                 dijkstra(instancia, i, instancia.getFirstEvIndex(), preDecessorIda[i].bateria, minHeap,
                          preDecessorVolta, excluidos, false, vetIndiceMinHeap, vetFechados, preDecessorIda[i].tempoSaida);
 
@@ -151,10 +151,7 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
                         recuperaRota(true);
                         recuperaRota(false);
 
-
                     }
-
-
                 }
 
                 excluidos[i] = true;
@@ -162,10 +159,11 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
         }
 
         excluidos[sat] = true;
+        minHeap.erase(minHeap.begin(), minHeap.end());
 
     }
 
-    cout<<"\n\nROTAS:\n\n";
+    //cout<<"\n\nROTAS:\n\n";
 
     shortestPathSatCli.vetEvRoute = vector<EvRoute>(instancia.getNClients(), EvRoute(instancia.getFirstSatIndex(), instancia.getFirstEvIndex(), instancia.getEvRouteSizeMax(), instancia));
 
@@ -174,15 +172,16 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
         ShortestPathNo &caminho = shortestPathSatCli.getShortestPath(i);
         EvRoute &evRoute = shortestPathSatCli.getEvRoute(i);
 
-        cout<<i<<" : "<<caminho.distIdaVolta<<"\n\n";
+        //cout<<i<<" : "<<caminho.distIdaVolta<<"\n\n";
 
         if(caminho.distIda < DOUBLE_INF)
         {
             std::reverse(caminho.caminhoIda.begin(), caminho.caminhoIda.end());
-            string rotaStr = NS_Auxiliary::printVectorStr(caminho.caminhoIda, caminho.caminhoIda.size());
-            //string rotaVolta = NS_Auxiliary::printVectorStr(caminho.caminhoVolta, caminho.caminhoVolta.size());
 
+            /*
+            string rotaStr = NS_Auxiliary::printVectorStr(caminho.caminhoIda, caminho.caminhoIda.size());
             cout<<"\tRota Ida cliente "<<i<<"Dist: "<<caminho.distIda<<":\n\t"<<rotaStr<<"\n\n";
+             */
 
         }
 
@@ -190,15 +189,16 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
         if(caminho.distVolta < DOUBLE_INF)
         {
             std::reverse(caminho.caminhoVolta.begin(), caminho.caminhoVolta.end());
-//            string rotaStr = NS_Auxiliary::printVectorStr(caminho.caminhoIda, caminho.caminhoIda.size());
-            string rotaVolta = NS_Auxiliary::printVectorStr(caminho.caminhoVolta, caminho.caminhoVolta.size());
 
+            /*
+            string rotaVolta = NS_Auxiliary::printVectorStr(caminho.caminhoVolta, caminho.caminhoVolta.size());
             cout<<"\tRota Volta cliente "<<i<<"Dist: "<<caminho.distVolta<<"\n\t"<<rotaVolta<<"\n\n";
+             */
         }
 
         if(caminho.distIdaVolta < DOUBLE_INF)
         {
-            cout<<"IDA VOLTA\n";
+            //cout<<"IDA VOLTA\n";
 
             evRoute.satelite = caminho.satId;
             evRoute.demanda  = instancia.vectCliente[i].demanda;
@@ -217,10 +217,10 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
                 evRoute.routeSize += 1;
             }
 
-            cout<<"\tRota Completa: ";
+            //cout<<"\tRota Completa: ";
             int sat = evRoute[0].cliente;
             evRoute[0].tempoSaida = instancia.vetTempoSaida[sat];
-            NS_Auxiliary::printVectorCout(evRoute.route, evRoute.routeSize);
+            //NS_Auxiliary::printVectorCout(evRoute.route, evRoute.routeSize);
 
             double r = testaRota(evRoute, evRoute.routeSize, instancia, true, instancia.vetTempoSaida[sat], 0, nullptr);
 
@@ -235,12 +235,12 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
                 throw "ERRO";
             }
 
-            cout<<"Resultado: "<<(r > 0.0)<<"\n\n";
+            //cout<<"Resultado: "<<(r > 0.0)<<"\n\n";
             //NS_Auxiliary::printVectorCout(evRoute.route, evRoute.routeSize);
 
         }
 
-        cout<<"\n";
+        //cout<<"\n";
     }
 
 }
@@ -267,17 +267,17 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
 
     std::fill(vetFechados.begin(), vetFechados.end(), -1);
 
-    cout<<"Cliente sorce: "<<clienteSorce<<"\n";
+    //cout<<"Cliente sorce: "<<clienteSorce<<"\n";
 
     const bool sorceSat = instancia.isSatelite(clienteSorce);
 
     if(instancia.isRechargingStation(clienteSorce) || instancia.isSatelite(clienteSorce))
     {
         bateria = instancia.vectVeiculo[veicId].capacidadeBateria;
-        cout<<"veicId: "<<veicId<<"\n";
+        //cout<<"veicId: "<<veicId<<"\n";
     }
 
-    cout<<"BATERIA: "<<bateria<<"\n";
+    //cout<<"BATERIA: "<<bateria<<"\n";
 
     // Verifica se clienteSorce esta em minHeap
 
@@ -285,16 +285,12 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
     if(id == -1)
     {
         minHeap.emplace_back(clienteSorce);
-        //minHeap[0] = DijkstraNo(clienteSorce, 0.0, bateria, -1.0, tempoSaida);
         minHeap[0].set(clienteSorce, 0.0, bateria, -1.0, tempoSaida);
-        cout<<"5HEAP: "<<minHeap[0].tempoSaida<<"\n\n";
+
         id = 0;
     }
 
-    cout<<"TEMPO SAIDA FUNC: "<<tempoSaida<<"\n";
-    cout<<"6HEAP: "<<minHeap[0].tempoSaida<<"\n\n";
-
-    NS_Auxiliary::printVectorCout(minHeap, 1);
+    //NS_Auxiliary::printVectorCout(minHeap, 1);
 
 /*    if(id != 0)
     {
@@ -341,23 +337,23 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
     while(tamMinHeap > 0)
     {
 
-        cout<<"\n\n**************************************************************\n\n";
+        //cout<<"\n\n**************************************************************\n\n";
 
         dijkNoTopo = minHeap[0];
 
-        cout<<"No: "<<minHeap[0].clienteId<<" FECHADO  "<<dijkNoTopo.clienteId<<"\n";
+/*        cout<<"No: "<<minHeap[0].clienteId<<" FECHADO  "<<dijkNoTopo.clienteId<<"\n";
         cout<<"BAT: "<<minHeap[0].bateria<<"; DIST: "<<minHeap[0].dist<<"\n";
-        cout<<"TEMPO SAIDA: "<<minHeap[0].tempoSaida<<"\n\n";
+        cout<<"TEMPO SAIDA: "<<minHeap[0].tempoSaida<<"\n\n";*/
 
         removeTopo(minHeap, &tamMinHeap, vetIndiceMinHeap);
 
-        cout<<"APOS REMOVER TOPO:\n";
+/*        cout<<"APOS REMOVER TOPO:\n";
         NS_Auxiliary::printVectorCout(minHeap, tamMinHeap);
-        NS_Auxiliary::printVectorCout(vetIndiceMinHeap, vetIndiceMinHeap.size());
+        NS_Auxiliary::printVectorCout(vetIndiceMinHeap, vetIndiceMinHeap.size());*/
 
 
         if(dijkNoTopo.dist >= DOUBLE_INF)
-        {   cout<<"return\n";
+        {   //cout<<"return\n";
             return;
         }
 
@@ -367,18 +363,18 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
 
         // Verrifica se o no eh cliente
         if(instancia.isClient(dijkNoTopo.clienteId) && !clienteCliente && dijkNoTopo.clienteId != clienteSorce)
-        {   cout<<"no "<<dijkNoTopo.clienteId<<" eh cliente\n";
+        {   //cout<<"no "<<dijkNoTopo.clienteId<<" eh cliente\n";
             continue;
         }
 
         const bool noTopoCliente = instancia.isClient(dijkNoTopo.clienteId);
 
-        cout<<"\n\n";
+        //cout<<"\n\n";
 
         // Atualiza os nos que sao alcancaveis por dijkNoTopo
         for(int i=0; i < instancia.numNos; ++i)
         {
-            cout<<"clie: "<<i<<": "<<!excluidos[i]<<" : "<<(vetFechados[i]!=1)<<"\n";
+            //cout<<"clie: "<<i<<": "<<!excluidos[i]<<" : "<<(vetFechados[i]!=1)<<"\n";
             if((!excluidos[i]) && vetFechados[i] != 1)
             {
 
@@ -388,11 +384,11 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
                  *      2° noTopoCliente  -> clienteCliente
                  */
 
-                cout<<"1° if\n";
+                //cout<<"1° if\n";
 
                 if(!noTopoCliente || (noTopoCliente && clienteCliente && instancia.isClient(i)) || (noTopoCliente && !instancia.isClient(i)))
                 {
-                    cout<<"\t2° if\n";
+                    //cout<<"\t2° if\n";
 
                     id = vetIndiceMinHeap[i];
 
@@ -411,12 +407,12 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
                     if(!cond)
                         cond = (dist < minHeap[id].dist);
 
-                    cout<<"TEMPO_C: "<<tempoC<<"\n";
-                    cout<<"\t("<<(bat >= -TOLERANCIA_BATERIA)<<"; "<<cond<<"; "<<(instancia.verificaJanelaTempo(tempoC, i))<<"\n";
+/*                    cout<<"TEMPO_C: "<<tempoC<<"\n";
+                    cout<<"\t("<<(bat >= -TOLERANCIA_BATERIA)<<"; "<<cond<<"; "<<(instancia.verificaJanelaTempo(tempoC, i))<<"\n";*/
 
                     if((bat >= -TOLERANCIA_BATERIA) && cond && instancia.verificaJanelaTempo(tempoC, i))
                     {
-                        cout<<"\t3° if\n";
+                        //cout<<"\t3° if\n";
 
                         // EXCLUIR
 
@@ -433,20 +429,9 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
                         // EXCLUIR FIM
 
 
-                        cout<<"\tNO: "<<i<<" DIST: "<<dist<<"; BAT: "<<bat<<"; TEMPO_C: "<<tempoC<<"\n";
+/*                        cout<<"\tNO: "<<i<<" DIST: "<<dist<<"; BAT: "<<bat<<"; TEMPO_C: "<<tempoC<<"\n";
+                        cout<<"\tATUALIZACAO NO: "<<i<<"\n\n";*/
 
-                        cout<<"\tATUALIZACAO NO: "<<i<<"\n\n";
-
-
-/*                        if(instancia.isRechargingStation(i))
-                        {
-                            tempoS  = tempoC + (instancia.vectVeiculo[veicId].capacidadeBateria-bat)*instancia.vectVeiculo[veicId].taxaRecarga;
-                            bat     = instancia.vectVeiculo[veicId].capacidadeBateria;
-                        }
-                        else
-                        {
-                            tempoS += tempoC + instancia.vectCliente[i].tempoServico;
-                        }*/
 
                         // Atualiza minHeap
 
@@ -479,9 +464,9 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
             }
         }
 
-        cout<<"\n\nFIM ITERACAO\n\n";
+/*        cout<<"\n\nFIM ITERACAO\n\n";
         NS_Auxiliary::printVectorCout(minHeap, tamMinHeap);
-        NS_Auxiliary::printVectorCout(vetIndiceMinHeap, vetIndiceMinHeap.size());
+        NS_Auxiliary::printVectorCout(vetIndiceMinHeap, vetIndiceMinHeap.size());*/
 
         dijkNoTopo = minHeap[0];
 

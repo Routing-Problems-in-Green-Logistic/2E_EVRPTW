@@ -92,13 +92,9 @@ int main(int argc, char* argv[])
         cout<<"SEMENTE: "<<semente<<"\t"<<data<<"\n\n";
 
         double tempo = 0.0;
-        instance.print();
-
-        //const std::vector<float> vetAlfa{0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.6, 0.7, 0.9};
-        const std::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.9};
-        //const std::vector<float> vetAlfa{0.0};
-        //escreveInstancia(instance, arquivo);
         //instance.print();
+
+        const std::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.9};
 
         int num = instance.getN_Evs()/2;
         if(num == 0)
@@ -108,11 +104,9 @@ int main(int argc, char* argv[])
 
         auto start = std::chrono::high_resolution_clock::now();
 
-
             ShortestPathSatCli shortestPathSatCli(instance);
             dijkstraSatCli(instance, shortestPathSatCli);
             instance.shortestPath = &shortestPathSatCli;
-
 
             Estatisticas estat;
             Solucao *solBest = grasp(instance, parametros, estat);
