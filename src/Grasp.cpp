@@ -369,6 +369,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                 }
                 else
                 {
+                    cout<<"MV SHIFIT ATUALIZACAO!!\n\n";
 
                     if(sol.distancia < solBest->distancia || !solBest->viavel)
                     {

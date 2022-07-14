@@ -1,3 +1,8 @@
+/*
+ * ./run ../instancias/2e-vrp-tw/Customer_5/C103_C5x.txt 1657747507
+
+ */
+
 #include "LocalSearch.h"
 #include "Auxiliary.h"
 #include "mersenne-twister.h"
@@ -91,6 +96,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
             string str;
             evRoute.print(str, instance, true);
 
+
             cout<<"ROTA: "<<str<<"\n";
 
 
@@ -121,17 +127,23 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
 
                         insercaoEstacao = InsercaoEstacao();
                         cout<<"pos: "<<pos<<"\n";
-                        if(i != pos)
+                        //if(i != pos)
                         {
+
+                            if((i==(pos+1)) || (pos==(evRoute.routeSize-2)))
+                                continue;
+
                             // Shift a partir de pos+1
 
                             // Caso especial, shifit eh igual a swap
-                            if(abs(i-pos) == 1)
+/*                            if(abs(i-pos) == 1)
                             {
 
                                 continue;
-                            }
+                            }*/
 
+                            // RETIRAR
+                            //INICIO
                             int r = setRotaMvEvShifitIntraRota(evRoute, evRouteAux, i, pos);
                             if(r != -1)
                             {
@@ -140,6 +152,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
 
                                 cout<<"\ti: "<<i<<"; pos: "<<pos<<" Nova rota: "<<str<<"\n";
                             }
+                            // FIM
 
                             // Verifica se a nova rota eh menor que a rota original
 
@@ -147,10 +160,17 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
                                     + instance.getDistance(evRoute[pos].cliente, clienteShift) +
                                     + instance.getDistance(clienteShift, evRoute[pos+1].cliente);
 
+                            if((i-pos)==2)
+                                incDist += instance.getDistance(clienteShift, evRoute[pos+1].cliente);
+
+                            else if(i == pos)
+                                incDist += instance.getDistance(evRoute[pos].cliente, evRoute[pos+2].cliente) +
+                                        + instance.getDistance(evRoute[pos+1].cliente, evRoute[pos].cliente);
+
                             incDist += incDistTemp;
 
-                            if((i+1) == pos)
-                                incDist += instance.getDistance(evRoute[i].cliente, evRoute[pos].cliente);
+                            //if((i+1) == pos)
+                              //  incDist += instance.getDistance(evRoute[i].cliente, evRoute[pos].cliente);
 
                             // Verifica se a nova rota atualiza a rota original
                             if(incDist <= -INCREM_DIST)
