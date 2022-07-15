@@ -144,7 +144,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
 
                             // RETIRAR
                             //INICIO
-                            int r = setRotaMvEvShifitIntraRota(evRoute, evRouteAux, i, pos);
+                            int r = setRotaMvEvShifitIntraRota(evRoute, evRouteAux, i, pos, instance);
                             if(r != -1)
                             {
                                 str = "";
@@ -185,7 +185,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
                                 }
 
                                 // Escreve a nova rota
-                                const int min = setRotaMvEvShifitIntraRota(evRoute, evRouteAux, i, pos);
+                                const int min = setRotaMvEvShifitIntraRota(evRoute, evRouteAux, i, pos, instance);
 
                                 if(min < 0)
                                 {
@@ -198,6 +198,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
 
                                 // Verifica viabilidade da nova rota
                                 double distNovaRota = testaRota(evRouteAux, evRouteAux.routeSize, instance, false, instance.vetTempoSaida[satId], min-1, nullptr);
+                                bool exit = false;
 
                                 if(distNovaRota < 0.0)
                                 {
@@ -226,7 +227,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
                                         evRouteAux.print(strRotaNova, instance, true);
 
                                         PRINT_DEBUG("", "ERRO CALCULO DA NOVA ROTA. CALC: "<<(evRoute.distancia+incDist)<<"; REAL: "<<distNovaRota<<"; DIF: "<<dif<<"\nROTA ORIGINAL: "<<strRota<<"\nNOVA ROTA: "<<strRotaNova<<"\ni: "<<i<<"; pos: "<<pos);
-                                        throw "ERRO";
+                                        //throw "ERRO";
 
                                     }
                                 }
@@ -234,6 +235,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
                                 if(distNovaRota < evRoute.distancia)
                                 {
                                     double dif = evRoute.distancia - distNovaRota;
+                                    bool contB = true;
 
                                     if(dif < INCREM_DIST)
                                     {
@@ -243,14 +245,15 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
 
                                         evRoute.print(strRota, instance, true);
                                         evRouteAux.print(strRotaNova, instance, true);
+                                        contB = false;
 
                                         PRINT_DEBUG("", "ERRO NOVA ROTA EH MAIOR. ROTA ORIGINAL "<<(evRoute.distancia)<<"; NOVA ROTA: "<<distNovaRota<<"\nROTA ORIGINAL: "<<strRota<<"\nNOVA ROTA: "<<strRotaNova<<"\ni: "<<i<<"; pos: "<<pos);
-                                        throw "ERRO";
+                                        //throw "ERRO";
                                     }
 
                                     cout<<"\t\tATUALIZACAO, INC: "<<dif<<"\n";
 
-                                    if(SELECAO_PRIMEIRO)
+                                    if(SELECAO_PRIMEIRO && contB)
                                     {
 
                                         solution.distancia -= evRoute.distancia;
@@ -320,8 +323,22 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
  * @param pos         pos+1 eh a nova possicao do cliente
  * @return            i < pos+1 ? i:pos+1, ou -1 em caso de erro
  */
-int NS_LocalSearch::setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRouteAux, const int i, const int pos)
+int NS_LocalSearch::setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRouteAux, int i, int pos, Instance &instancia)
 {
+
+    bool igual = false;
+    if(i == pos)
+    {
+        cout<<"i=pos= "<<pos<<"\n";
+
+
+        int novoI   = i+1;
+        int novaPos = pos-1;
+
+        i   = novoI;
+        pos = novaPos;
+    }
+
     cout<<"setRotaMvEvShifitIntraRota\n";
 
     const int cliente = evRoute[i].cliente;
@@ -357,6 +374,34 @@ int NS_LocalSearch::setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRout
     }
 
     evRouteAux.routeSize = evRoute.routeSize;
+    int routeSize = evRoute.routeSize;
+
+    for(int t=0; t < (routeSize-1); ++t)
+    {
+        if(evRouteAux[t].cliente == evRouteAux[t+1].cliente)
+        {
+            for(int p=t; p < routeSize; ++p)
+                evRouteAux[p].cliente = evRouteAux[p+1].cliente;
+
+            routeSize -= 1;
+            if((t+1) == min)
+                min = t;
+
+            igual = true;
+        }
+    }
+
+    evRouteAux.routeSize = routeSize;
+
+/*    if(igual)
+    {
+        string str;
+        evRouteAux.print(str, instancia, true);
+
+        cout<<"NOVA ROTA: "<<str<<"\n";
+        exit(-1);
+    }*/
+
     return min;
 
 }

@@ -20,6 +20,8 @@ public:
     float getDistanciaTotal();
     void atualizaVetSatTempoChegMax( Instance &instance);
     void inicializaVetClientesAtend(Instance &instance);
+    double getDist1Nivel();
+    double getDist2Nivel();
 
     // Possui numSat + 1 !!
     std::vector<Satelite> satelites;

@@ -78,6 +78,10 @@ int main(int argc, char* argv[])
 
     Instance instance(file, nomeInst);
 
+    //cout<<nomeInst<<" ; "<<instance.numRechargingS<<" ; "<<instance.numSats<<" ; "<<instance.numEv<<" ; "<<instance.numTruck<<"\n";
+
+    //instance.print();
+
     try
     {
 
@@ -142,14 +146,16 @@ int main(int argc, char* argv[])
             }
 
 
-            outfile<<dataStr<<";\t;\t;\t;\t\n";
-            outfile<<"nomeInst;\tmedia; \t\t best; \t\tnumSol;\ttempo\n";
+            outfile<<dataStr<<";\t;\t;\t;\t;\t;\n";
+            outfile<<"nomeInst;\tmedia; \t\t best; \t\tnumSol;\ttempo;\t1° nivel;\t2° nivel\n";
         }
 
         if(solBest->viavel)
         {
+            double dist1Nivel = solBest->getDist1Nivel();
+            double dist2Nivel = solBest->getDist2Nivel();
 
-            string saida = str(boost::format("%.2f; \t%.2f;\t\t%d;\t%.2f") % float(estat.media()) % float(solBest->distancia) % estat.numSol % float(tempo));
+            string saida = str(boost::format("%.2f; \t%.2f;\t\t%d;\t%.2f;\t%.2f;\t\t%.2f") % float(estat.media()) % float(solBest->distancia) % estat.numSol % float(tempo) % float(dist1Nivel/solBest->distancia) % float(dist2Nivel/solBest->distancia));
             //string saida = str(boost::format("%.2f") % float(estat.media()));
             //outfile << nomeInst << ";\t" << estat.media() << ";\t " << solBest->distancia << ";\t" << estat.numSol<< ";\t" << tempo << "\n";
             outfile << nomeInst << ";\t" <<saida<<"\n";

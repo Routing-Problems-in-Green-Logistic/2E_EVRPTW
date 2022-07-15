@@ -356,3 +356,32 @@ void Solucao::inicializaVetClientesAtend(Instance &instance)
     for(int i = instance.getFirstClientIndex(); i < vetClientesAtend.size(); ++i)
         vetClientesAtend[i] = 0;
 }
+
+double Solucao::getDist1Nivel()
+{
+    double dist = 0.0;
+
+
+    for(const auto& rota:primeiroNivel)
+    {
+        dist += rota.totalDistence;
+    }
+
+    return dist;
+
+
+
+}
+
+double Solucao::getDist2Nivel()
+{
+    double dist = 0.0;
+
+    for(auto &sat:satelites)
+    {
+        dist += sat.distancia;
+    }
+
+    return dist;
+
+}

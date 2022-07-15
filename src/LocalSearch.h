@@ -53,7 +53,7 @@ namespace NS_LocalSearch
 
     bool intraRouteSwap(Solucao& Sol, float& improvement);
     bool mvEvShifitIntraRota(Solucao &solution, Instance &instance, EvRoute &evRouteAux, const int selecao);
-    int setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRouteAux, const int i, const int pos);
+    int setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRouteAux, int i, int pos, Instance &instancia);
     void getMov(int movId, string &mov);
     void insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, Instance &instance);
 
