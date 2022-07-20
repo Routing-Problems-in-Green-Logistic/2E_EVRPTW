@@ -117,6 +117,10 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
+
+        if((i%10)==0)
+            cout<<"i: "<<i<<"\n";
+
         Solucao sol(instance);
 
         if(i == parametros.iteracoesCalProb) //&& (i%parametros.iteracoesCalProb)==0)
@@ -332,8 +336,9 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
                 cout << erro
                      << "\n****************************************************************************************\n\n";
-                delete solBest;
-                throw "ERRO";
+                mv = false;
+                //delete solBest;
+                //throw "ERRO";
             } else
             {
 
@@ -352,7 +357,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
             double valOrig = sol.distancia;
 
 
-            while(mvEvShifitIntraRota(sol, instance, evRoute, SELECAO_PRIMEIRO))
+/*            while(mvEvShifitIntraRota(sol, instance, evRoute, SELECAO_PRIMEIRO) && mv)
             {
                 mv = true;
                 if(!sol.checkSolution(erro, instance))
@@ -364,14 +369,17 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
                     cout << erro
                          << "\n****************************************************************************************\n\n";
-                    delete solBest;
-                    throw "ERRO";
+
+                    mv = false;
+
+                    //delete solBest;
+                    //throw "ERRO";
                 }
                 else
                 {
                     cout<<"MV SHIFIT ATUALIZACAO!!\n\n";
 
-                    if(sol.distancia < solBest->distancia || !solBest->viavel)
+                    if((sol.distancia < solBest->distancia || !solBest->viavel) && mv)
                     {
                         solBest->copia(sol);
                         custoBest = solBest->distancia;
@@ -381,7 +389,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                     }
 
                 }
-            }
+            }*/
 
             if(sol.viavel)
             {

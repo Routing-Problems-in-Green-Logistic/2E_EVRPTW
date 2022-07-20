@@ -348,11 +348,11 @@ void Instance::print() const
         cout<<"\t"<<i<< " \t " <<clienteInst.inicioJanelaTempo<<" \t\t "<<clienteInst.fimJanelaTempo<<" \t\t "<<clienteInst.coordX<<" \t\t "<<clienteInst.coordY<<"\n";
     }
 
-    cout<<"\nCLIENTE ID \t TW INICIO \t TW FIM \t TEMPO SERV \t COORD X \t COORD Y\n\n";
+    cout<<"\nCLIENTE ID \t TW INICIO \t TW FIM \t TEMPO SERV \t DEM \t COORD X \t COORD Y\n\n";
     for(int i=getFirstClientIndex(); i <= getEndClientIndex(); ++i)
     {
         const ClienteInst &clienteInst = vectCliente[i];
-        cout<< "\t"<< i << " \t " <<clienteInst.inicioJanelaTempo<<" \t\t "<<clienteInst.fimJanelaTempo<<" \t\t "<<clienteInst.tempoServico<<
+        cout<< "\t"<< i << " \t " <<clienteInst.inicioJanelaTempo<<" \t\t "<<clienteInst.fimJanelaTempo<<" \t\t "<<clienteInst.demanda<<" \t\t "<<clienteInst.tempoServico<<
         " \t\t "<<clienteInst.coordX<<" \t\t "<<clienteInst.coordY<<"\n";
     }
 

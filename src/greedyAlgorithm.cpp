@@ -525,6 +525,11 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, const Instance &Inst, const f
 
                 if(!verificaViabilidadeSatelite(tempoSaida, sol.satelites[satTemp], Inst, true))
                 {
+
+
+                    sol.viavel = false;
+                    break;
+
                     string satStr;
                     sol.satelites[satTemp].print(satStr, Inst);
 
@@ -650,9 +655,11 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
                     {
                         if(!tempoSaidaEv.evRoute->alteraTempoSaida(tempoChegada, instance))
                         {
+
                             PRINT_DEBUG("", "ERRO AO ALTERAR O TEMPO DE SAIDA DA ROTA EV DE ID: "
                                     << tempoSaidaEv.evRoute->idRota << " DO SATELITE: " << satelite.sateliteId
                                     << "\n\n");
+                            return false;
                             cout<<"\n\n***********************************************************************VERIFICA VIABILIDADE SAT FIM**************************************************************************************\n\n";
                             throw "ERRO";
                         }

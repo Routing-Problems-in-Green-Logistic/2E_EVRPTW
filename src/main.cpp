@@ -1,3 +1,17 @@
+/* ****************************************************************
+ * ****************************************************************
+ *
+ * NAO EXECUTAR MULTIPLAS INSTANCIAS NA MESMA EXECUCAO!!!
+ * Variaveis estaticas!!
+ *
+ * VERIFICAR ALTERACAO DE TEMPO DO VEIC A COMBUSTAO
+ * greedyAlgorithm Linha 653
+ *
+ * ****************************************************************
+ * ****************************************************************
+ */
+
+
 #include <iostream>
 #include "Instance.h"
 #include "Solucao.h"
@@ -82,6 +96,8 @@ int main(int argc, char* argv[])
 
     //instance.print();
 
+    //return 0;
+
     try
     {
 
@@ -105,6 +121,7 @@ int main(int argc, char* argv[])
             num = 1;
 
         Parametros parametros(NUM_EXEC, 110, vetAlfa, 100, num);
+          //Parametros parametros(100, 20, vetAlfa, 10, num);
 
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -170,16 +187,14 @@ int main(int argc, char* argv[])
 
         outfile.close();
 
-        delete solBest;
-
-        return 0;
-
-        //instance.print();
-
-
 #if TEMPO_FUNC_VIABILIZA_ROTA_EV
         cout<<"\nTEMPO TOTAL FUNC VIABILIZA ROTA EV: "<<NameViabRotaEv::global_tempo<<"  "<<100.0*(NameViabRotaEv::global_tempo/tempo)<<" % DO TEMPO TOTAL\n";
 #endif
+
+
+
+        delete solBest;
+        return 0;
 
 
     }
@@ -239,6 +254,9 @@ int main(int argc, char* argv[])
     cout<<"INSTANCIA: \t"<<nomeInst<<"\n";
 
     Instance *instance = getInstanceFromFile(file);
+
+
+
     try
     {
         Solucao bestB(*instance);
@@ -408,11 +426,21 @@ int main(int argc, char* argv[])
     string strInst = getNomeInstancia(file);
     cout<<"INSTANCIA: "<<strInst<<"\n\n";
 
-    Instance instance(file);
+    Instance instance(file, strInst);
     EvRoute evRoute(1, instance.getFirstEvIndex(), instance.getEvRouteSizeMax(), instance);
 
     int num0, num1;
     char c;
+    bool somenteNo = false;
+
+    cout<<"Somente NO(s/n): ";
+    cin>>c;
+
+    if(c == 's')
+        somenteNo = true;
+    else
+        somenteNo = false;
+
     do
     {
 
@@ -439,6 +467,10 @@ int main(int argc, char* argv[])
         double dist = NameViabRotaEv::testaRota(evRoute, i, instance, true, evRoute[0].tempoSaida, 0, nullptr);
 
         cout<<"Dist: "<<dist<<"\n\n";
+        string rotaStr;
+        evRoute.print(rotaStr, instance, somenteNo);
+        cout<<"Rota: "<<rotaStr<<"\n\n";
+
         cout<<"cont(s/n): ";
         cin>>c;
 

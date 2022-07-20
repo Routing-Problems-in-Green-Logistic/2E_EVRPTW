@@ -4,8 +4,9 @@
 
 ***
 
-# 14/07 Qui
-- [ ]  MV Shifit
+# 17/07 Dom
+- [ ]  MV swap
+- [x] Apresentação
 
 
 ***

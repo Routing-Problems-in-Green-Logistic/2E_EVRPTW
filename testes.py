@@ -74,7 +74,7 @@ Tabela com:
 
 lista = [(' ', 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
 
-tamanhoInst = [5, 10, 15]
+tamanhoInst = [5, 10, 15, 100]
 diretorioIni = 'instancias/2e-vrp-tw/'
 instancias = []
 

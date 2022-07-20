@@ -32,7 +32,7 @@ using namespace std;
 #define TRUE  1
 #define FALSE 0
 
-#define TEMPO_FUNC_VIABILIZA_ROTA_EV FALSE
+#define TEMPO_FUNC_VIABILIZA_ROTA_EV TRUE
 
 #include <string.h>
 
