@@ -135,7 +135,7 @@ namespace N_PreProcessamento
     void dijkstra(Instance &instancia, const int clienteSorce, const int veicId, double bateria,
                   std::vector<DijkstraNo> &minHeap, std::vector<PreDecessorNo> &preDecessor,
                   const std::vector<bool> &excluidos, const bool clienteCliente, std::vector<int> &vetIndiceMinHeap,
-                  std::vector<int8_t> &vetFechados, const double tempoSaida);
+                  std::vector<int8_t> &vetFechados, const double tempoSaida, const double minBtCli);
 
 
     int getPaiMinHeap(int pos);

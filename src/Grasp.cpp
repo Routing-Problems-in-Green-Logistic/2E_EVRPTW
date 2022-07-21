@@ -25,6 +25,8 @@ const float fator = 0.1;
 Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatisticas &estat)
 {
 
+    cout<<"numMaxClien: "<<parametros.numMaxClie<<"\n\n";
+
     Solucao *solBest = new Solucao(instance);
     solBest->distancia = DOUBLE_MIN;
     solBest->viavel = false;
@@ -118,7 +120,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
 
-        if((i%10)==0)
+        if((i%100)==0)
             cout<<"i: "<<i<<"\n";
 
         Solucao sol(instance);
@@ -153,10 +155,10 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
             std::sort(vetQuantCliente.begin(), vetQuantCliente.end());
 
-            //cout<<"IGUAL: "<<addRotaClienteProbIgual<<"\n";
+            cout<<"IGUAL: "<<addRotaClienteProbIgual<<"\n";
 
-            //cout<<"vetQuantCliente: ";
-            //NS_Auxiliary::printVectorCout(vetQuantCliente, vetQuantCliente.size());
+            cout<<"vetQuantCliente: ";
+            NS_Auxiliary::printVectorCout(vetQuantCliente, vetQuantCliente.size());
 
             if(addRotaClienteProbIgual >= 2)
             {
@@ -185,6 +187,17 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
 
             }
+
+            if(estat.numSol == 0)
+            {
+                parametros.numMaxClie += 1;
+                if(parametros.numMaxClie > instance.getN_Evs())
+                    parametros.numMaxClie -= 1;
+
+                cout<<"NOVO NUM MAX CLI: "<<parametros.numMaxClie<<"\n";
+            }
+
+            cout<<"numSol: "<<estat.numSol<<"\n";
 
             //cout<<"\n\n";
 
@@ -222,8 +235,10 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
                     if(vetQuantCliente[t].prob != 100)
                     {
+                        cout<<"t: "<<t<<"\n";
 
-                        if((rand_u32() % 100) >= vetQuantCliente[t].prob)
+                        int rand = rand_u32() % 100;
+                        if(rand >= vetQuantCliente[t].prob)
                         {
 
                             int cliente = vetQuantCliente[t].cliente;
@@ -244,11 +259,17 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                                 //string str;
                                 //evRouteSP.print(str, instance, true);
                                 //cout << "ROTA: " << str << "\n";
-                                //cout << "ADD rota com cliente " << vetQuantCliente[t].cliente << "\n\n";
+                                cout << "ADD rota com cliente " << vetQuantCliente[t].cliente << "\n\n";
                                 clientesAdd += 1;
                             }
+                            else
+                                cout<<"cliente: "<<cliente<<" ROTA INVALIDA\n";
 
                             add = true;
+                        }
+                        else
+                        {
+                            cout<<"Cliente: "<<vetQuantCliente[t].cliente<<": rand: "<<rand<<"; prob: "<<vetQuantCliente[t].prob<<"\n";
                         }
 
                         if(clientesAdd >= parametros.numMaxClie)
@@ -262,7 +283,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
             if(add)
             {
-                //cout << "\n\n";
+                cout << "\n\n";
             }
 
             //sol.print(instance);

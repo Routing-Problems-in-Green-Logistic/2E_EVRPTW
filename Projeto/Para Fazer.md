@@ -4,9 +4,10 @@
 
 ***
 
-# 17/07 Dom
-- [ ]  MV swap
-- [x] Apresentação
+# 17/07 Qui
+
+- [ ] Reduzir bateria quando não encontra rota
+- [ ] Pares (i, j)
 
 
 ***
@@ -22,7 +23,6 @@
 	- [x] Atualiza prob. add rota inicial
 
 - [ ] Tamanho da minHeap deveria ser constante !!
-- [ ] Reduzir bateria quando não encontra rota
 - [ ] Comentar código 
 
 

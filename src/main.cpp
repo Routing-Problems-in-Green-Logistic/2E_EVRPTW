@@ -17,8 +17,8 @@
 #include "Solucao.h"
 #include <fstream>
 #include <sstream>
-#include <math.h>
-#include <time.h>
+#include <cmath>
+#include <ctime>
 #include "greedyAlgorithm.h"
 #include "Auxiliary.h"
 #include "LocalSearch.h"
@@ -127,6 +127,10 @@ int main(int argc, char* argv[])
 
             ShortestPathSatCli shortestPathSatCli(instance);
             dijkstraSatCli(instance, shortestPathSatCli);
+
+            //PRINT_DEBUG("", "RETURN 0");
+            //return 0;
+
             instance.shortestPath = &shortestPathSatCli;
 
             Estatisticas estat;
