@@ -25,8 +25,6 @@ const float fator = 0.1;
 Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatisticas &estat)
 {
 
-    cout<<"numMaxClien: "<<parametros.numMaxClie<<"\n\n";
-
     Solucao *solBest = new Solucao(instance);
     solBest->distancia = DOUBLE_MIN;
     solBest->viavel = false;
@@ -67,7 +65,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
         double somaProporcoes = 0.0;
 
         //Calcular média
-
         for(int i = 0; i < tamAlfa; ++i)
             vetorMedia[i] = solucaoAcumulada[i]/double(vetorFrequencia[i]);
 
@@ -120,14 +117,10 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
 
-        if((i%100)==0)
-            cout<<"i: "<<i<<"\n";
-
         Solucao sol(instance);
 
         if(i == parametros.iteracoesCalProb) //&& (i%parametros.iteracoesCalProb)==0)
         {
-            //cout<<"num iteracoes: "<<parametros.iteracoesCalProb<<"\n";
 
             for(int t=0; t < instance.getNClients(); ++t)
             {
@@ -136,57 +129,20 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
                 vetQuantCliente[t].calculaProb(i);
                 if(vetQuantCliente[t].prob == 0 && evRouteAux.routeSize > 2)
-                {
-                    //vetQuantCliente[t].prob = 5;
                     addRotaClienteProbIgual += 1;
-                }
+
                 else if(vetQuantCliente[t].prob >= 90 && evRouteAux.routeSize > 2)
-                {
                     vetQuantCliente[t].prob = 90;
-                }
+
                 else if(evRouteAux.routeSize <= 2)
                     vetQuantCliente[t].prob = 100;
             }
 
-
             std::sort(vetQuantCliente.begin(), vetQuantCliente.end());
-
-
-
-            std::sort(vetQuantCliente.begin(), vetQuantCliente.end());
-
-            cout<<"IGUAL: "<<addRotaClienteProbIgual<<"\n";
-
-            cout<<"vetQuantCliente: ";
-            NS_Auxiliary::printVectorCout(vetQuantCliente, vetQuantCliente.size());
 
             if(addRotaClienteProbIgual >= 2)
-            {
                 parametros.numMaxClie = instance.getN_Evs();
 
-                vetQuantProb0 = std::vector<QuantCliente>(addRotaClienteProbIgual);
-                std::copy(vetQuantCliente.begin(), vetQuantCliente.begin()+addRotaClienteProbIgual, vetQuantProb0.begin());
-                vetQuantCliente.erase(vetQuantCliente.begin(), vetQuantCliente.begin()+addRotaClienteProbIgual);
-
-                //cout<<"vetQuantCliente: ";
-                //NS_Auxiliary::printVectorCout(vetQuantCliente, vetQuantCliente.size());
-
-
-                //cout<<"vetQuantProb0: ";
-                //NS_Auxiliary::printVectorCout(vetQuantProb0, vetQuantProb0.size());
-
-
-/*                std::ofstream outfile;
-                outfile.open("probIgual.txt", std::ios_base::app);
-
-                if(outfile.is_open())
-                {
-                    outfile<<instance.nome<<"\n";
-                    outfile.close();
-                }*/
-
-
-            }
 
             if(estat.numSol == 0)
             {
@@ -194,13 +150,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                 if(parametros.numMaxClie > instance.getN_Evs())
                     parametros.numMaxClie -= 1;
 
-                cout<<"NOVO NUM MAX CLI: "<<parametros.numMaxClie<<"\n";
             }
-
-            cout<<"numSol: "<<estat.numSol<<"\n";
-
-            //cout<<"\n\n";
-
 
         }
 
@@ -210,32 +160,20 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
         {
             int clientesAdd = 0;
 
-            bool add = false;
+            bool add   = false;
             bool igual = false;
-            int next = 0;
 
-/*            if(addRotaClienteProbIgual > 0)
-            {
-                igual = true;
-                next = i % addRotaClienteProbIgual;
-                //cout<<"next: "<<next<<"\n";
+            int t = rand_u32()%instance.getNClients();
+            const int inicio = t;
 
-            }*/
-
-            int t=0;
-
-            if(igual)
-                t = next;
 
             if(vetQuantCliente[0].prob != 100)
             {
 
-                while(t < instance.getNClients())
+                do
                 {
-
                     if(vetQuantCliente[t].prob != 100)
                     {
-                        cout<<"t: "<<t<<"\n";
 
                         int rand = rand_u32() % 100;
                         if(rand >= vetQuantCliente[t].prob)
@@ -246,47 +184,26 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                             EvRoute &evRouteSP = instance.shortestPath->getEvRoute(cliente);
                             auto shortestPath = (instance.shortestPath->getShortestPath(cliente));
 
-                            //cout << "DISTANCIA EV ROUTE SHORTEST PATH: : " << evRouteSP.distancia << "\n\n";
 
                             if(shortestPath.distIdaVolta < DOUBLE_INF)
                             {
 
-                                // NOVO
-                                //vetQuantCliente[t].quant -= 1;
-
                                 addRotaCliente(sol, instance, evRouteSP, cliente);
-
-                                //string str;
-                                //evRouteSP.print(str, instance, true);
-                                //cout << "ROTA: " << str << "\n";
-                                cout << "ADD rota com cliente " << vetQuantCliente[t].cliente << "\n\n";
                                 clientesAdd += 1;
                             }
-                            else
-                                cout<<"cliente: "<<cliente<<" ROTA INVALIDA\n";
 
                             add = true;
-                        }
-                        else
-                        {
-                            cout<<"Cliente: "<<vetQuantCliente[t].cliente<<": rand: "<<rand<<"; prob: "<<vetQuantCliente[t].prob<<"\n";
                         }
 
                         if(clientesAdd >= parametros.numMaxClie)
                             break;
                     }
 
-                    t += 1;
-                }
+                    t = (t+1) % instance.getNClients();
+
+                }while(t != inicio);
 
             }
-
-            if(add)
-            {
-                cout << "\n\n";
-            }
-
-            //sol.print(instance);
 
         }
 
@@ -378,7 +295,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
             double valOrig = sol.distancia;
 
 
-/*            while(mvEvShifitIntraRota(sol, instance, evRoute, SELECAO_PRIMEIRO) && mv)
+            while(mvEvShifitIntraRota(sol, instance, evRoute, SELECAO_PRIMEIRO) && mv)
             {
                 mv = true;
                 if(!sol.checkSolution(erro, instance))
@@ -393,8 +310,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
                     mv = false;
 
-                    //delete solBest;
-                    //throw "ERRO";
+                    delete solBest;
+                    throw "ERRO";
                 }
                 else
                 {
@@ -410,7 +327,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                     }
 
                 }
-            }*/
+            }
 
             if(sol.viavel)
             {

@@ -4,10 +4,11 @@
 
 ***
 
-# 17/07 Qui
+# 22/07 Sex
 
-- [ ] Reduzir bateria quando não encontra rota
 - [ ] Pares (i, j)
+
+
 
 
 ***

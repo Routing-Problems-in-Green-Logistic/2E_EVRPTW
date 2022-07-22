@@ -57,6 +57,7 @@ void escreveSolucao(Solucao &solution, Instance &instance, string file);
 #define MAIN_METODO_2   3
 
 #define MAIN MAIN_METODO_2
+#define PRINT_RESULT TRUE
 
 #if MAIN == MAIN_METODO_2
 
@@ -167,9 +168,18 @@ int main(int argc, char* argv[])
             }
 
 
-            outfile<<dataStr<<";\t;\t;\t;\t;\t;\n";
-            outfile<<"nomeInst;\tmedia; \t\t best; \t\tnumSol;\ttempo;\t1° nivel;\t2° nivel\n";
+            outfile<<dataStr<<";\t;\t;\t;\t;\t;\t;\n";
+            outfile<<"nomeInst;\tmedia; \t\t best; \t\tnumSol;\ttempo;\t1° nivel;\t2° nivel;\ttempoViab\n";
         }
+
+        string tempoPocStr;
+
+
+#if TEMPO_FUNC_VIABILIZA_ROTA_EV
+        double val = 100.0*(NameViabRotaEv::global_tempo/tempo);
+        //cout<<"\nTEMPO TOTAL FUNC VIABILIZA ROTA EV: "<<NameViabRotaEv::global_tempo<<"  "<<100.0*(NameViabRotaEv::global_tempo/tempo)<<" % DO TEMPO TOTAL\n";
+        tempoPocStr = to_string(int(val));
+#endif
 
         if(solBest->viavel)
         {
@@ -179,21 +189,24 @@ int main(int argc, char* argv[])
             string saida = str(boost::format("%.2f; \t%.2f;\t\t%d;\t%.2f;\t%.2f;\t\t%.2f") % float(estat.media()) % float(solBest->distancia) % estat.numSol % float(tempo) % float(dist1Nivel/solBest->distancia) % float(dist2Nivel/solBest->distancia));
             //string saida = str(boost::format("%.2f") % float(estat.media()));
             //outfile << nomeInst << ";\t" << estat.media() << ";\t " << solBest->distancia << ";\t" << estat.numSol<< ";\t" << tempo << "\n";
-            outfile << nomeInst << ";\t" <<saida<<"\n";
-            cout<< nomeInst << ";\t" <<saida<<"\n";
+            outfile << nomeInst << ";\t" <<saida<<";\t\t"<<tempoPocStr<<"\n";
+
+#if PRINT_RESULT
+            cout<< nomeInst << ";\t" <<saida<<";\t\t"<<tempoPocStr<<"\n";
+#endif
 
         }
         else
         {
-            outfile << nomeInst << ";\t*;\t*;\t" << estat.numSol << ";\t" << tempo << "\n";
+            outfile << nomeInst << ";\t*;\t*;\t" << estat.numSol << ";\t" << tempo<<"; \t; \t; \t\n";
+
+#if PRINT_RESULT
             cout << nomeInst << ";\t*;\t*;\t" << estat.numSol << ";\t" << tempo << "\n";
+#endif
+
         }
 
         outfile.close();
-
-#if TEMPO_FUNC_VIABILIZA_ROTA_EV
-        cout<<"\nTEMPO TOTAL FUNC VIABILIZA ROTA EV: "<<NameViabRotaEv::global_tempo<<"  "<<100.0*(NameViabRotaEv::global_tempo/tempo)<<" % DO TEMPO TOTAL\n";
-#endif
 
 
 

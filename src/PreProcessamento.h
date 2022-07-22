@@ -137,6 +137,7 @@ namespace N_PreProcessamento
                   const std::vector<bool> &excluidos, const bool clienteCliente, std::vector<int> &vetIndiceMinHeap,
                   std::vector<int8_t> &vetFechados, const double tempoSaida, const double minBtCli);
 
+    void calculaMinBtCliente(Instance &instance, std::vector<ublas::matrix<double>> &matMinBat);
 
     int getPaiMinHeap(int pos);
     int shifitUpMinHeap(std::vector<DijkstraNo> &minHeap, int pos, std::vector<int> &vetIndice);
