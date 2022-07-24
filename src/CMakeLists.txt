@@ -1,3 +1,8 @@
+set(CMAKE_CXX_STANDARD 20)
+cmake_minimum_required(VERSION 3.20)
+project(2E_EVRP)
+
+
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_FLAGS_RELEASE "-ggdb")
 set(CMAKE_BUILD_TYPE Debug)
@@ -33,17 +38,31 @@ set(SOURCES main.cpp
             Teste.cpp
             Teste.h
         Solucao.cpp
-            EvRoute.cpp
+        EvRoute.cpp
         greedyAlgorithm.cpp
-            greedyAlgorithm.h
-            mersenne-twister.h
-            mersenne-twister.cpp
-            Constants.h
-            Constants.cpp
+        greedyAlgorithm.h
+        mersenne-twister.h
+        mersenne-twister.cpp
+        Constants.h
+        Constants.cpp
+        Grasp.cpp
+        Grasp.h
+        PreProcessamento.cpp
+        PreProcessamento.h
+        Heap.h
+        common.h)
 
 
-        Grasp.cpp Grasp.h PreProcessamento.cpp PreProcessamento.h Heap.h common.h)
-add_executable(run ${SOURCES})
+
+add_executable(run)
+
+
+target_include_directories(run PUBLIC "ACO")
+
+
+add_subdirectory("ACO")
+
+target_sources(run PUBLIC ${SOURCES})
 
 #target_link_libraries(use_boost ${Boost_LIBRARIES})
 target_link_libraries(run LINK_PUBLIC ${Boost_LIBRARIES})

@@ -34,6 +34,8 @@
 #include "Grasp.h"
 #include "PreProcessamento.h"
 
+#include "Aco.h"
+
 using namespace std;
 using namespace GreedyAlgNS;
 using namespace NS_vnd;
@@ -61,9 +63,9 @@ void escreveSolucao(Solucao &solution, Instance &instance, string file);
 
 #if MAIN == MAIN_METODO_2
 
+
 int main(int argc, char* argv[])
 {
-
 
 
     if(argc != 2 && argc != 3)
