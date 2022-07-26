@@ -4,6 +4,8 @@
  * NAO EXECUTAR MULTIPLAS INSTANCIAS NA MESMA EXECUCAO!!!
  * Variaveis estaticas!!
  *
+ * Considerando dist(i,j) == dist(j,i) !!
+ *
  * VERIFICAR ALTERACAO DE TEMPO DO VEIC A COMBUSTAO
  * greedyAlgorithm Linha 653
  *
@@ -67,6 +69,8 @@ void escreveSolucao(Solucao &solution, Instance &instance, string file);
 int main(int argc, char* argv[])
 {
 
+    cout<<"sizeof AcoParametros: "<<sizeof(N_Aco::AcoParametros)<<"\n";
+    return 0;
 
     if(argc != 2 && argc != 3)
     {

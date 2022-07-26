@@ -23,7 +23,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D __FILENAME__='\"$(subst  ${CMAKE_SOUR
 #CXX_FLAGS+=-D__FILENAME__='\"$(subst $(SOURCE_PREFIX)/,,$(abspath $<))\"'"
 
 set(SOURCES main.cpp
-            Instance.cpp
             Satelite.cpp
             Satelite.h
         Auxiliary.cpp
@@ -57,10 +56,12 @@ set(SOURCES main.cpp
 add_executable(run)
 
 
-target_include_directories(run PUBLIC "ACO")
+#target_include_directories(run PUBLIC "ACO")
+#add_subdirectory("ACO")
 
 
-add_subdirectory("ACO")
+target_include_directories(run PUBLIC "INSTANCIA")
+add_subdirectory("INSTANCIA")
 
 target_sources(run PUBLIC ${SOURCES})
 
