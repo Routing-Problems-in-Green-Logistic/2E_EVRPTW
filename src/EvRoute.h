@@ -160,6 +160,6 @@ public:
 
     int numEstRecarga=-1;
     int numMaxUtilizacao=-1;
-    const int firstRechargingSIndex;
+    int firstRechargingSIndex;
 };
 #endif

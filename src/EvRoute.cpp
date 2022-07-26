@@ -98,6 +98,7 @@ void EvRoute::copia(const EvRoute &evRoute)
     demanda = evRoute.demanda;
     numEstRecarga = evRoute.numEstRecarga;
     distancia = evRoute.distancia;
+    firstRechargingSIndex = evRoute.firstRechargingSIndex;
 
     for(int i=0; i < routeSize; ++i)
         route[i] = evRoute.route[i];
@@ -118,6 +119,7 @@ void EvRoute::copiaParametros(const EvRoute &evRoute)
     demanda = evRoute.demanda;
     numEstRecarga = evRoute.numEstRecarga;
     distancia = evRoute.distancia;
+    firstRechargingSIndex = evRoute.firstRechargingSIndex;
 
 
     for(int i=0; i < numEstRecarga; ++i)
@@ -524,6 +526,7 @@ void EvRoute::copiaCliente(const EvRoute &outro)
     idRota    = outro.idRota;
     satelite  = outro.satelite;
     routeSize = outro.routeSize;
+    firstRechargingSIndex = outro.firstRechargingSIndex;
 
     for(int i=0; i < routeSize; ++i)
         route[i].cliente = outro.route[i].cliente;

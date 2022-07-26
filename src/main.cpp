@@ -44,6 +44,7 @@ using namespace NS_vnd;
 using namespace NameTeste;
 using namespace NameS_Grasp;
 using namespace N_PreProcessamento;
+using namespace N_Aco;
 
 void routine(char** filenames, int nFileNames);
 float distance(std::pair<float, float> p1, std::pair<float,float> p2);
@@ -70,6 +71,10 @@ int main(int argc, char* argv[])
 {
 
     cout<<"sizeof AcoParametros: "<<sizeof(N_Aco::AcoParametros)<<"\n";
+    AcoParametros   acoPar;
+    AcoEstatisticas acoEst;
+
+
     return 0;
 
     if(argc != 2 && argc != 3)
@@ -225,6 +230,7 @@ int main(int argc, char* argv[])
     {
 
         instance.print();
+		return 0;
 
         cout<<"EXCEPTION:\n";
         cout<<e.what()<<"\n";

@@ -18,46 +18,38 @@ using namespace boost::numeric;
 void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, const vector<int8_t> &clientes, const int sateliteId, Satelite &satBest)
 {
 
-    double dist  = 0.0;
-    int numArcos = 0;
+    Solucao solucao(instance);
+    bool construtivo = GreedyAlgNS::secondEchelonGreedy(solucao, instance, acoPar.alfaConst);
 
-    for(int i=0; i < instance.numNos; ++i)
+    if(!construtivo)
     {
-        if(instance.isClient(i) || i == sateliteId)
+        for (int i = 0; i < acoPar.numItMaxHeur; ++i)
         {
-            if(i != sateliteId)
-            {
-                dist += instance.getDistance(i, sateliteId);
-                dist += instance.getDistance(sateliteId, i);
+            solucao = Solucao(instance);
+            construtivo = GreedyAlgNS::secondEchelonGreedy(solucao, instance, acoPar.alfaConst);
 
-                numArcos += 1;
-            }
-
-            for(int j=instance.getFirstClientIndex(); j <= instance.getEndClientIndex(); ++j)
-            {
-                dist += 2.0*instance.getDistance(i, j);
-                numArcos += 2;
-            }
-
-
+            if(construtivo)
+                break;
         }
     }
 
-    Solucao solucao(instance);
-    bool construtivo = GreedyAlgNS::secondEchelonGreedy(solucao, instance, acoPar.alfaConst);
-    ublas::matrix<double> matFeromonio(instance.numNos, instance.numNos, instance.numNos/dist);
+    ublas::matrix<double> matFeromonio(instance.numNos, instance.numNos, 1.0/solucao.distancia);
+    Ant antBest(instance, sateliteId);
 
     for(int iteracoes = 0; iteracoes < acoPar.numIteracoes; ++iteracoes)
     {
 
         std::vector<Ant> vetAnt(acoPar.numAnts, Ant(instance, sateliteId));
     }
+
 }
 
 
 void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, Satelite &satelite)
 {
     double dist = getDistSat(satelite);
+
+
 }
 
 void N_Aco::evaporaFeromonio(ublas::matrix<double> &matFeromonio, const int iInic, const int iFim, const  int jInic, const int jFim)

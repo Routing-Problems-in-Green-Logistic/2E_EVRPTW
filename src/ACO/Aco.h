@@ -27,6 +27,7 @@ namespace N_Aco
         int numAnts             = 0;
         int8_t freqAtualAntBest = 25;
         int numIteracoes        = 400;
+        int numItMaxHeur        = 20;
 
         AcoParametros()
         {
@@ -52,6 +53,18 @@ namespace N_Aco
         Ant(Instance &instance, int satId): satelite(Satelite(instance, satId))
         {
             vetNosAtend = vector<int8_t>(instance.numNos, 0);
+        }
+
+        Ant(Ant &antOutra, Instance &instancia, int satId):satelite(instancia, satId)
+        {
+            satelite.copia(antOutra.satelite);
+            vetNosAtend = antOutra.vetNosAtend;
+        }
+
+        void copia(Ant &antOutra)
+        {
+            satelite.copia(antOutra.satelite);
+            vetNosAtend = antOutra.vetNosAtend;
         }
     };
 
