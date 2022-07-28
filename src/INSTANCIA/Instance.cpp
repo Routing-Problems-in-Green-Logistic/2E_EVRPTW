@@ -352,7 +352,7 @@ void Instance::print() const
     for(int i=getFirstClientIndex(); i <= getEndClientIndex(); ++i)
     {
         const ClienteInst &clienteInst = vectCliente[i];
-        cout<< "\t"<< i << " \t " <<clienteInst.inicioJanelaTempo<<" \t\t "<<clienteInst.fimJanelaTempo<<" \t\t "<<clienteInst.demanda<<" \t\t "<<clienteInst.tempoServico<<
+        cout<< "\t"<< i << " \t " <<clienteInst.inicioJanelaTempo<<" \t\t "<<clienteInst.fimJanelaTempo<<" \t\t "<<clienteInst.tempoServico<<" \t\t "<<clienteInst.demanda<<
         " \t\t "<<clienteInst.coordX<<" \t\t "<<clienteInst.coordY<<"\n";
     }
 

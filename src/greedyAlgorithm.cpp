@@ -13,9 +13,6 @@ using namespace NS_LocalSearch;
 using namespace NameViabRotaEv;
 using namespace boost::numeric;
 
-/*
- * print linha 753
- */
 
 // Roteamento dos veiculos eletricos
 bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const float alpha)
@@ -25,19 +22,6 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
     std::vector<int8_t> &visitedClients = sol.vetClientesAtend;
 
-/*    if(!sol.solInicializada)
-    {
-        visitedClients = std::vector<int8_t>(1 + instance.getNSats() + instance.getN_RechargingS() + instance.getNClients());
-
-        for(int i = 0; i < instance.getFirstClientIndex(); ++i)
-            visitedClients[i] = -1;
-
-        for(int i = instance.getFirstClientIndex(); i < visitedClients.size(); ++i)
-            visitedClients[i] = 0;
-
-    }
-    else*/
-
     const int FistIdClient  = instance.getFirstClientIndex();
     const int LastIdClient  = FistIdClient + instance.getNClients()-1;
     const auto ItEnd        = visitedClients.begin() + instance.getNSats() + instance.getNClients();
@@ -46,7 +30,8 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
     std::list<CandidatoEV> listaCandidatos;
     std::list<int> clientesSemCandidato;
-    static std::vector<ublas::matrix<CandidatoEV*>> matCandidato(1 + instance.getNSats());         //COLUNAS DA MATRIZ POSSUEM SOMENTE A QUANTIDADE DE CLIENTES!!
+    //COLUNAS DA MATRIZ POSSUEM SOMENTE A QUANTIDADE DE CLIENTES!!
+    static std::vector<ublas::matrix<CandidatoEV*>> matCandidato(1 + instance.getNSats());
     static bool primeiraChamada = true;
     std::vector<CandidatoEV*> vetCandPtr(instance.getNClients(), nullptr);
 
@@ -59,11 +44,6 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
     auto transformaIdEv       = [&](const int id){return (id-idPrimeiroEv);};
 
     std::fill(matCandidato.begin(), matCandidato.end(), ublas::zero_matrix<CandidatoEV*>(numLinhasMat, numColMat));
-
-/*    for(int satId = 1; satId < (1 + instance.getNSats()); ++satId)
-    {
-        matCandidato[satId] = ublas::zero_matrix<CandidatoEV*>(numLinhasMat, numColMat);
-    }*/
 
 
     // Cria um candidato para cada cliente e armazena em matCandidato
@@ -78,12 +58,16 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
             for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); ++satId)
             {
 
-                //cout<<"TEMPO SAIDA SAT("<<satId<<"): "<<vetTempoSaida[satId]<<"\n\n";
-
                 Satelite *sat = sol.getSatelite(satId);
+                bool rotaVazia = false;
                 for(int routeId = 0; routeId < instance.getN_Evs(); ++routeId)
                 {
                     EvRoute &route = sat->getRoute(routeId);
+                    if(route.routeSize <= 2 && !rotaVazia)
+                        rotaVazia = true;
+                    else if(route.routeSize <= 2 && rotaVazia)
+                        continue;
+
                     CandidatoEV candidatoEvAux(candidatoEv);
                     candidatoEvAux.satId = satId;
                     candidatoEvAux.routeId = routeId;
@@ -98,22 +82,16 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
                     else if(candidatoEvAux != -1)
                         candidatoEv = candidatoEvAux;
 
-                    if(!sol.solInicializada)
-                        break;
                 }
 
             }
 
             if(candidatoEv.pos != -1)
             {
-                //cout<<"CLIENTE("<<clientId<<") BEST VEIC: "<<candidatoEv.routeId<<"\n";
 
                 listaCandidatos.push_back(candidatoEv);
                 CandidatoEV *candPtr = &listaCandidatos.back();
-
-
-                matCandidato[candPtr->satId](transformaIdEv(candPtr->routeId),
-                                             transformaIdCliente(candPtr->clientId)) = candPtr;
+                matCandidato[candPtr->satId](transformaIdEv(candPtr->routeId), transformaIdCliente(candPtr->clientId)) = candPtr;
                 vetCandPtr[transformaIdCliente(candPtr->clientId)] = candPtr;
 
             } else
@@ -121,17 +99,6 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
         }
 
     }
-
-/*    for(int i=0; i < visitedClients.size(); ++i)
-        cout<<i<<"\t ";
-
-    cout<<"\n";
-
-    for(auto it:visitedClients)
-        cout<<int(it)<<"\t";
-    cout<<"\n\n\n";*/
-
-
 
     auto printMatCand = [&]()
     {
@@ -156,8 +123,6 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
     };
 
-
-
     while(!visitAllClientes(visitedClients, instance) && !listaCandidatos.empty())
     {
 
@@ -165,26 +130,18 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
         listaCandidatos.sort();
 
 
-/*        for(auto &it:listaCandidatos)
-            cout<<it.clientId<<" "<<it.incremento<<" "<<it.incrP<<"\n";
-
-        cout<<"\n\n***************************\n\n";*/
-
         auto topItem = std::next(listaCandidatos.begin(), randIndex);
-        //cout<<"\tADD CLIENTE "<<topItem->clientId<<"  A SOLUCAO\n";
         CandidatoEV *candEvPtr = &(*topItem);
 
         visitedClients[topItem->clientId] = 1;
         sol.vetClientesAtend[topItem->clientId] = 1;
 
-        //cout<<"Add "<<topItem->clientId<<"\n";
 
         Satelite *satelite = sol.getSatelite(topItem->satId);
         satelite->demanda += topItem->demand;
 
 
         EvRoute &evRoute = satelite->getRoute(transformaIdEv(topItem->routeId));
-        //cout<<"insereEstacao: "<<topItem->insercaoEstacao.pos<<"\n\n";
         bool resultadoTopItem = insert(evRoute, *topItem, instance, vetTempoSaida[topItem->satId], sol);
 
         if(!resultadoTopItem)
@@ -229,12 +186,16 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
                         bool routeEmpty = false;
 
-
                         for(int routeId = instance.getFirstEvIndex(); routeId <= instance.getEndEvIndex(); routeId++)
                         {
                             Satelite *satAux = sol.getSatelite(satId);
-
                             EvRoute &route = satAux->getRoute(transformaIdEv(routeId));
+
+                            if(route.routeSize <= 2 && !routeEmpty)
+                                routeEmpty = true;
+                            else if(route.routeSize <= 2 && routeEmpty)
+                                continue;
+
                             canInsert(route, clientId, instance, candidatoEv, satId, vetTempoSaida[satId], evRouteAux);
 
                         }
@@ -250,7 +211,6 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
                     }
                     else
                     {
-                        //cout<<"nao encontrou rota viavel para o cliente: "<<clientId<<"\n\n";
 
                         // Nao existe uma rota viavel para o cliente
                         listaCandidatos.remove(*candidatoEvPtrAux);
@@ -646,6 +606,9 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
                     if(diferenca < 0.0)
                         diferenca = 0.0;
 
+                    cout<<"\ttempo saida Ev: "<<tempoEv<<"; dif: "<<diferenca<<"; tempoCheg ~EV: "<<tempoChegada<<"\n";
+                    cout<<"\tCliente Menor Folga: "<<cliente<<"; tempo chegada orig.: "<<tempoSaidaEv.evRoute->route[indice].tempoCheg<<"\n\n";
+
                     if(!((tempoEv + diferenca) >= tempoChegada))
                     {
                         // Nao deve chegar aqui
@@ -655,11 +618,19 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
                     {
                         if(!tempoSaidaEv.evRoute->alteraTempoSaida(tempoChegada, instance))
                         {
+                            string str;
+                            tempoSaidaEv.evRoute->print(str, instance, false);
+                            int pos = tempoSaidaEv.evRoute->route[0].posMenorFolga;
+
+                            cout<<"\n\nCLIENTE COM MENOR FOLGA: "<<tempoSaidaEv.evRoute->route[pos].cliente<<"\n";
+                            cout<<"ROTA: "<<str<<"\n";
 
                             PRINT_DEBUG("", "ERRO AO ALTERAR O TEMPO DE SAIDA DA ROTA EV DE ID: "
                                     << tempoSaidaEv.evRoute->idRota << " DO SATELITE: " << satelite.sateliteId
                                     << "\n\n");
-                            return false;
+
+
+                            //return false;
                             cout<<"\n\n***********************************************************************VERIFICA VIABILIDADE SAT FIM**************************************************************************************\n\n";
                             throw "ERRO";
                         }

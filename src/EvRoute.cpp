@@ -1,4 +1,5 @@
 #include <cfloat>
+#include <boost/format.hpp>
 #include "EvRoute.h"
 #include "Auxiliary.h"
 #include "ViabilizadorRotaEv.h"
@@ -355,30 +356,34 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
     return true;
 }
 
-void EvRoute::print(std::string &str, const Instance &instance, const bool somenteNo) const
+void EvRoute::print(std::string &strRota, const Instance &instance, const bool somenteNo) const
 {
-    str += "idRota: "+ to_string(idRota)+";  ";
+    strRota += "!idRota: " + to_string(idRota) + ";  ";
     for(int i=0; i < routeSize; ++i)
     {
         if(!somenteNo)
         {
             if(instance.isRechargingStation(route[i].cliente))
-                str += "RS(" + to_string(route[i].cliente) + ";[";
+            {
+                //strRota += str(boost::format("RS(%.1f;[") % route[i].cliente);
+                strRota += "RS(" + to_string(route[i].cliente) + ";[";
+            }
             else
-                str += to_string(route[i].cliente) + "([";
+                strRota += to_string(route[i].cliente) + "([";
 
-            str += to_string(route[i].tempoCheg) + ";" + to_string(route[i].tempoSaida) + "] BT: " +to_string(route[i].bateriaRestante) + "\t";
+            //strRota += to_string(route[i].tempoCheg) + ";" + to_string(route[i].tempoSaida) + "] BT: " + to_string(route[i].bateriaRestante) + "\t";
+            strRota += str(boost::format("%.1f;%.1f] BT: %.1f)") % route[i].tempoCheg % route[i].tempoSaida % route[i].bateriaRestante) + "\t";
         }
         else
         {
             if(instance.isRechargingStation(route[i].cliente))
-                str += "RS(" + to_string(route[i].cliente) + ") ";
+                strRota += "RS(" + to_string(route[i].cliente) + ") ";
             else
-                str += to_string(route[i].cliente) + " ";
+                strRota += to_string(route[i].cliente) + " ";
         }
     }
 
-    str += "\nDistance: " + to_string(distancia) + "\n";
+    strRota += "\nDistance: " + to_string(distancia) + "\n";
 
 }
 
@@ -430,6 +435,8 @@ void EvRoute::atualizaParametrosRota(const Instance &instance)
 
 bool EvRoute::alteraTempoSaida(const double novoTempoSaida, const Instance &instance)
 {
+
+
     if(routeSize <= 2)
         return false;
 
@@ -445,6 +452,7 @@ bool EvRoute::alteraTempoSaida(const double novoTempoSaida, const Instance &inst
 
         if(!(route[i+1].bateriaRestante >= -TOLERANCIA_BATERIA))
         {
+            PRINT_DEBUG("", "BATERIA!");
             return false;
         }
 
@@ -452,6 +460,11 @@ bool EvRoute::alteraTempoSaida(const double novoTempoSaida, const Instance &inst
 
         if(!TESTE_JANELA_TEMPO(tempo, route[i+1].cliente, instance))
         {
+            cout<<"Tempo Saida: "<<novoTempoSaida<<"; i: "<<i<<"\n";
+            cout<<"Chegada: "<<tempo<<"; TW FIM: "<<instance.vectCliente[route[i+1].cliente].fimJanelaTempo<<"\n";
+            cout<<"No: "<<route[i+1].cliente<<"\n";
+
+            PRINT_DEBUG("", "JANELA DE TEMPO");
             return false;
         }
 
@@ -477,9 +490,11 @@ bool EvRoute::alteraTempoSaida(const double novoTempoSaida, const Instance &inst
         else
         {
             route[i+1].tempoSaida = route[i+1].tempoCheg + instance.vectCliente[route[i+1].cliente].tempoServico;
+            cout<<route[i+1].cliente<<": cheg: "<<route[i+1].tempoCheg<<"; saida: "<<route[i+1].tempoSaida<<"; tempoServ: "<<instance.vectCliente[route[i+1].cliente].tempoServico<<"\n\n";
         }
     }
 
+    atualizaParametrosRota(instance);
     return true;
 
 }

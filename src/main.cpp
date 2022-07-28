@@ -9,6 +9,8 @@
  * VERIFICAR ALTERACAO DE TEMPO DO VEIC A COMBUSTAO
  * greedyAlgorithm Linha 653
  *
+ * ./run ../../instancias/2e-vrp-tw/Customer_100/C102_21x.txt 1658934858
+ *
  * ****************************************************************
  * ****************************************************************
  */
@@ -62,20 +64,15 @@ void escreveSolucao(Solucao &solution, Instance &instance, string file);
 #define MAIN_METODO_2   3
 
 #define MAIN MAIN_METODO_2
+//#define MAIN MAIN_DIST
 #define PRINT_RESULT TRUE
 
+//#if MAIN == MAIN_METODO_2
 #if MAIN == MAIN_METODO_2
 
 
 int main(int argc, char* argv[])
 {
-
-    cout<<"sizeof AcoParametros: "<<sizeof(N_Aco::AcoParametros)<<"\n";
-    AcoParametros   acoPar;
-    AcoEstatisticas acoEst;
-
-
-    return 0;
 
     if(argc != 2 && argc != 3)
     {
@@ -113,8 +110,6 @@ int main(int argc, char* argv[])
     try
     {
 
-
-
         string arquivo = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/instanciasMod/" + nomeInst + ".txt";
         string arquivoSol = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/solucao/" + nomeInst + ".txt";
         std::time_t result = std::time(nullptr);
@@ -122,6 +117,9 @@ int main(int argc, char* argv[])
 
         cout << "INSTANCIA: " << nomeInst << "\t";
         cout<<"SEMENTE: "<<semente<<"\t"<<data<<"\n\n";
+
+/*        escreveInstancia(instance, arquivo);
+        return 0;*/
 
         double tempo = 0.0;
         //instance.print();
@@ -133,7 +131,6 @@ int main(int argc, char* argv[])
             num = 1;
 
         Parametros parametros(NUM_EXEC, 110, vetAlfa, 100, num);
-          //Parametros parametros(100, 20, vetAlfa, 10, num);
 
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -175,9 +172,7 @@ int main(int argc, char* argv[])
             {
                 if(ch != '\n')
                     dataStr +=  ch;
-
             }
-
 
             outfile<<dataStr<<";\t;\t;\t;\t;\t;\t;\n";
             outfile<<"nomeInst;\tmedia; \t\t best; \t\tnumSol;\ttempo;\t1° nivel;\t2° nivel;\ttempoViab\n";
@@ -189,7 +184,7 @@ int main(int argc, char* argv[])
 #if TEMPO_FUNC_VIABILIZA_ROTA_EV
         double val = 100.0*(NameViabRotaEv::global_tempo/tempo);
         //cout<<"\nTEMPO TOTAL FUNC VIABILIZA ROTA EV: "<<NameViabRotaEv::global_tempo<<"  "<<100.0*(NameViabRotaEv::global_tempo/tempo)<<" % DO TEMPO TOTAL\n";
-        tempoPocStr = to_string(int(val));
+        tempoPocStr = to_string(int(val)) + "%";
 #endif
 
         if(solBest->viavel)
@@ -470,8 +465,13 @@ int main(int argc, char* argv[])
     else
         somenteNo = false;
 
+    double saida = 0.0;
+
     do
     {
+
+        cout<<"saida: ";
+        cin>>saida;
 
         int i = 1;
         cin>>num0;
@@ -490,7 +490,11 @@ int main(int argc, char* argv[])
 
         evRoute.satelite = num0;
         evRoute.routeSize = i;
-        evRoute[0].tempoSaida = instance.vetTempoSaida[num0];
+        if(saida < 0.0)
+            evRoute[0].tempoSaida = instance.vetTempoSaida[num0];
+        else
+            evRoute[0].tempoSaida = saida;
+
         //evRoute.print(instance, true);
 
         double dist = NameViabRotaEv::testaRota(evRoute, i, instance, true, evRoute[0].tempoSaida, 0, nullptr);
@@ -499,6 +503,14 @@ int main(int argc, char* argv[])
         string rotaStr;
         evRoute.print(rotaStr, instance, somenteNo);
         cout<<"Rota: "<<rotaStr<<"\n\n";
+
+        for(int j=1; j < (evRoute.routeSize-1);  ++j)
+        {
+            int cliente = evRoute[j].cliente;
+            cout<<"\t"<<cliente<<": "<<(instance.vectCliente[cliente].fimJanelaTempo - evRoute[j].tempoCheg)<<"\n";
+        }
+
+        cout<<"\n*********************************************************\n\n";
 
         cout<<"cont(s/n): ";
         cin>>c;

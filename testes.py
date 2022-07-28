@@ -74,7 +74,7 @@ Tabela com:
 
 lista = [(' ', 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
 
-tamanhoInst = [5, 10, 15]
+tamanhoInst = [100]
 diretorioIni = 'instancias/2e-vrp-tw/'
 instancias = []
 
@@ -123,7 +123,7 @@ for instancia in instancias:
     for i in range(numExecucoes):
 
       time.sleep(1)
-      strExecutavel = 'cmake-build-debug/run ' + str(instancia)  + ' > /dev/null'
+      strExecutavel = 'src/cmake-build-debug//run ' + str(instancia) # + ' > /dev/null'
       os.system(strExecutavel)
        	#ramdom.write(str(semente))
        	#ramdom.write('\n')

@@ -23,7 +23,7 @@ def drawArrow(x1, x2, y1, y2, width, color, ls):
     plt.arrow(x1, y1, dx, dy, head_width=1.0, length_includes_head=True, edgecolor=None, color=color, zorder=1, label=dist, ls=ls, aa=True, alpha=0.8, overhang=0.5)
     return dist
 
-satColors = ['#2ff3e0', '#f8d210', '#fa26a0', '#f51720']
+satColors = ['#2ff3e0', '#f8d210', '#fa26a0', '#f51720', '#2ff3e0', '#2ff3e0', '#2ff3e0', '#2ff3e0', '#2ff3e0', '#2ff3e0']
 fig = plt.figure(dpi=800)
 ax = fig.gca()
 
@@ -40,6 +40,7 @@ remover = sys.argv[3:]
 remover = [int(x) for x in remover]
 
 
+print(remover)
 
 if not solutionPath or not instancePath:
     print("usage: plotSolution solution.txt instance.txt' \nE.g.: plotSolution solution.txt ./instancias/Set1/....1.txt")
@@ -68,18 +69,20 @@ for linha in file:
 
     rota = []
     split = linha.split()    
+    split = [int(i) for i in split]
 
-    next = True
+    next = False
 
     for i in split:
         if i in remover:    
-            next = False
-            break            
+            continue            
+        next = True
         rota.append(int(i))
+
     if next:
         routes.append(rota)
 
-#print(routes)
+print(routes)
 
 print('coord')
 
@@ -199,6 +202,6 @@ for route in routes:
         #print('color: ', str(color))
         print(route[i], ' ', route[i+1])
 
-        drawArrow(x[route[i]], x[route[i+1]], y[route[i]], y[route[i+1]], 0, color, '-')
+        #drawArrow(x[route[i]], x[route[i+1]], y[route[i]], y[route[i+1]], 0, color, '-')
 
 plt.savefig('solution__' + ''+ '.png')

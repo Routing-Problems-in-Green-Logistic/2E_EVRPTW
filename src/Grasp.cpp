@@ -140,8 +140,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
             std::sort(vetQuantCliente.begin(), vetQuantCliente.end());
 
-            if(addRotaClienteProbIgual >= 2)
-                parametros.numMaxClie = instance.getN_Evs();
+/*            if(addRotaClienteProbIgual >= 2)
+                parametros.numMaxClie = instance.getN_Evs();*/
 
 
             if(estat.numSol == 0)
