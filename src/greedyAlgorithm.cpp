@@ -152,9 +152,6 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
         matCandidato[topItem->satId](transformaIdEv(topItem->routeId), transformaIdCliente(topItem->clientId)) = nullptr;
 
-        //string strRota;
-        //evRoute.print(strRota, instance, false);
-
         // Corrigi a lista de candidatos
         // 1º Os candidatos que estao no mesmo satelite e na mesma rota precisao ser avaliados novamente
         // 2º Os clientes que nao possuem candidato so tem que ser avaliados na rota que houve mudanca
@@ -206,8 +203,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
                     {
                         // Encontrou uma rota viavel
                         *candidatoEvPtrAux = candidatoEv;
-                        matCandidato[candidatoEv.satId](transformaIdEv(candidatoEv.routeId),
-                                                        transformaIdCliente(candidatoEv.clientId)) = candidatoEvPtrAux;
+                        matCandidato[candidatoEv.satId](transformaIdEv(candidatoEv.routeId), transformaIdCliente(candidatoEv.clientId)) = candidatoEvPtrAux;
                     }
                     else
                     {
@@ -231,8 +227,6 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
                     {
                         CandidatoEV candCopia = *candidatoEvPtrAux;
 
-                        //matCandidato[candidatoEvPtrAux->satId](candidatoEvPtrAux->routeId, transformaIdCliente(candidatoEvPtrAux->clientId)) = nullptr;
-
                         const int satId = topItem->satId;
                         const int routeId = topItem->routeId;
 
@@ -241,11 +235,9 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
                         if(resultado)
                         {
-                            matCandidato[candCopia.satId](transformaIdEv(candCopia.routeId),
-                                                                   transformaIdCliente(candCopia.clientId)) = nullptr;
+                            matCandidato[candCopia.satId](transformaIdEv(candCopia.routeId), transformaIdCliente(candCopia.clientId)) = nullptr;
 
-                            matCandidato[satId](transformaIdEv(candidatoEvPtrAux->routeId),
-                                                transformaIdCliente(candidatoEvPtrAux->clientId)) = candidatoEvPtrAux;
+                            matCandidato[satId](transformaIdEv(candidatoEvPtrAux->routeId), transformaIdCliente(candidatoEvPtrAux->clientId)) = candidatoEvPtrAux;
                         }
 
                     }
@@ -303,8 +295,6 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
 
     sol.viavel = visitAllClientes(visitedClients, instance);
-    //sol.vetClientesAtend = visitedClients;
-
     return sol.viavel;
 }
 
@@ -329,9 +319,6 @@ bool GreedyAlgNS::visitAllClientes(std::vector<int8_t> &visitedClients, const In
         }
 
     }
-
-    //for(i=0; i < visitedClients.size(); ++i)
-     //   cout<<i<<": "<<visitedClients[i]<<"\n";
 
     return true;
 
@@ -606,8 +593,8 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
                     if(diferenca < 0.0)
                         diferenca = 0.0;
 
-                    cout<<"\ttempo saida Ev: "<<tempoEv<<"; dif: "<<diferenca<<"; tempoCheg ~EV: "<<tempoChegada<<"\n";
-                    cout<<"\tCliente Menor Folga: "<<cliente<<"; tempo chegada orig.: "<<tempoSaidaEv.evRoute->route[indice].tempoCheg<<"\n\n";
+                    //cout<<"\ttempo saida Ev: "<<tempoEv<<"; dif: "<<diferenca<<"; tempoCheg ~EV: "<<tempoChegada<<"\n";
+                    //cout<<"\tCliente Menor Folga: "<<cliente<<"; tempo chegada orig.: "<<tempoSaidaEv.evRoute->route[indice].tempoCheg<<"\n\n";
 
                     if(!((tempoEv + diferenca) >= tempoChegada))
                     {
@@ -869,15 +856,16 @@ bool GreedyAlgNS::insert(EvRoute &evRoute, CandidatoEV &insertion, const Instanc
         return false;
 
 
-    /*
-
-        checar se consegue com a capacidade atual
-        checar se consegue com a bateria atual (a bateria do veiculo antes da proxima recarga.
-        inserir
-        atualizar capacidade
-        atualizar bateria
-        atualizar custo
-
+    /* *********************************************************************************************
+     * *********************************************************************************************
+     *  checar se consegue com a capacidade atual
+     *  checar se consegue com a bateria atual (a bateria do veiculo antes da proxima recarga.
+     *  inserir
+     *  atualizar capacidade
+     *  atualizar bateria
+     *  atualizar custo
+     * *********************************************************************************************
+     * *********************************************************************************************
      */
 
     int k = pos;

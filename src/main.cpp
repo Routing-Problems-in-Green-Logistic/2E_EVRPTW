@@ -65,7 +65,7 @@ void escreveSolucao(Solucao &solution, Instance &instance, string file);
 
 #define MAIN MAIN_METODO_2
 //#define MAIN MAIN_DIST
-#define PRINT_RESULT TRUE
+#define PRINT_RESULT FALSE
 
 //#if MAIN == MAIN_METODO_2
 #if MAIN == MAIN_METODO_2
@@ -115,8 +115,27 @@ int main(int argc, char* argv[])
         std::time_t result = std::time(nullptr);
         auto data = std::asctime(std::localtime(&result));
 
-        cout << "INSTANCIA: " << nomeInst << "\t";
-        cout<<"SEMENTE: "<<semente<<"\t"<<data<<"\n\n";
+        string sementeStr;
+
+        sementeStr += "INSTANCIA: " + string(nomeInst) + "\t";
+        sementeStr += "SEMENTE: " + to_string(semente)  + "\t"+data;
+        cout<<sementeStr;
+
+        string arquivoInst = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/ultimaExec.txt";
+        ofstream escrita;
+        escrita.open(arquivoInst, ios::out);
+        if(escrita.is_open())
+        {
+            escrita<<sementeStr;
+            escrita.close();
+        }
+        else
+        {
+            cout<<"NAO FOI POSSIVEL ABRIR ARQUIVO: "<<arquivoInst<<"\n";
+            //int p;
+            //cin>>p;
+        }
+
 
 /*        escreveInstancia(instance, arquivo);
         return 0;*/

@@ -245,6 +245,10 @@ bool Solucao::checkSolution(std::string &erro, Instance &inst)
             erroB = true;
         }
     }
+
+    if(erroB)
+        PRINT_DEBUG("", "");
+
     return !erroB;
 
 }

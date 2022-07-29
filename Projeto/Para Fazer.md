@@ -28,3 +28,13 @@
 
 
 
+***
+***
+
+Comentários:
+
+EvRoute.cpp: 493
+greedyAlgorithm.cpp: 596
+
+INSTANCIA: C205_21x     SEMENTE: 1659108848
+INSTANCIA: RC104_21x    SEMENTE: 1659112182

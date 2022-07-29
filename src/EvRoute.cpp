@@ -490,7 +490,7 @@ bool EvRoute::alteraTempoSaida(const double novoTempoSaida, const Instance &inst
         else
         {
             route[i+1].tempoSaida = route[i+1].tempoCheg + instance.vectCliente[route[i+1].cliente].tempoServico;
-            cout<<route[i+1].cliente<<": cheg: "<<route[i+1].tempoCheg<<"; saida: "<<route[i+1].tempoSaida<<"; tempoServ: "<<instance.vectCliente[route[i+1].cliente].tempoServico<<"\n\n";
+            //cout<<route[i+1].cliente<<": cheg: "<<route[i+1].tempoCheg<<"; saida: "<<route[i+1].tempoSaida<<"; tempoServ: "<<instance.vectCliente[route[i+1].cliente].tempoServico<<"\n\n";
         }
     }
 
