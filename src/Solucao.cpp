@@ -1,3 +1,4 @@
+#include <boost/format.hpp>
 #include "Solucao.h"
 #include "Auxiliary.h"
 
@@ -52,13 +53,21 @@ void Solucao::atualizaVetSatTempoChegMax(Instance &instance)
     // Percorre as rotas do 1° nivel
     for(const Route &route:primeiroNivel)
     {
-        // Percorre as rotas do 2° nivel
-        for(const RouteNo &routeNo:route.rota)
+        if(route.routeSize > 2)
         {
-            if(routeNo.satellite != Instance::getDepotIndex())
+            // Percorre as rotas do 2° nivel
+            for(int i=1; i < (route.routeSize-1); ++i)
             {
-                if(routeNo.tempoChegada > satTempoChegMax[routeNo.satellite])
-                    satTempoChegMax[routeNo.satellite] = routeNo.tempoChegada;
+                const RouteNo &routeNo = route.rota[i];
+
+                if(routeNo.satellite != Instance::getDepotIndex())
+                {
+                    if(routeNo.tempoChegada > satTempoChegMax[routeNo.satellite])
+                    {
+                        satTempoChegMax[routeNo.satellite] = routeNo.tempoChegada;
+                        //cout << "Atual. sat: " << routeNo.satellite << "; tempoChegada: "
+                    }
+                }
             }
         }
     }
@@ -218,10 +227,10 @@ bool Solucao::checkSolution(std::string &erro, Instance &inst)
                     if(evRoute[0].tempoSaida < tempo)
                     {
                         string strRota;
-                        evRoute.print(strRota, inst, false);
+                        evRoute.print(strRota, inst, true);
                         erro += "ERRO SATELITE: " + to_string(sat) + " O TEMPO DE SAIDA DA ROTA: " + strRota +
                                 " EH MENOR DO QUE O TEMPO DE CHEGADA DA ULTIMA ROTA DO 1° NIVEL: " + to_string(tempo) +
-                                "\n";
+                                "\nsaida: "+to_string(evRoute[0].tempoSaida)+"; tempo max ~EV: "+ to_string(tempo);
                         erroB = true;
                         break;
                     }
@@ -253,24 +262,33 @@ bool Solucao::checkSolution(std::string &erro, Instance &inst)
 
 }
 
-void Solucao::print(std::string &str, const Instance &instance)
+void Solucao::print(std::string &saida, const Instance &instance)
 {
+    saida += "satTempoChegMax: ";
 
-    str += "2º NIVEL:\n";
+    for(int i=0; i < satTempoChegMax.size(); ++i)
+        saida += to_string(i) + "\t\t";
+
+    saida += "\n\t\t\t\t";
+
+    for(int i=0; i < satTempoChegMax.size(); ++i)
+        saida += str(boost::format("%.1f\t") % satTempoChegMax[i]);
+
+    saida += "\n\n2º NIVEL:\n";
 
     for(int sat = instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
     {
-        satelites[sat].print(str, instance);
+        satelites[sat].print(saida, instance);
     }
 
 
-    str += "1° NIVEL:\n";
+    saida += "1° NIVEL:\n";
     for(Route &route:primeiroNivel)
     {
-        route.print(str);
+        route.print(saida);
     }
 
-    str+="DISTANCIA TOTAL: "+ to_string(distancia)+"\n";
+    saida+= "DISTANCIA TOTAL: " + to_string(distancia) + "\n";
 
 }
 
@@ -345,6 +363,11 @@ void Solucao::copia(Solucao &solution)
 
     for(int i=0; i < primeiroNivel.size(); ++i)
         primeiroNivel[i].copia(solution.primeiroNivel[i]);
+
+    //satTempoChegMax = solution.satTempoChegMax;
+    satTempoChegMax = solution.satTempoChegMax;
+
+    //cout<<"Tempo de chegada 4º arg: "<<solution.satTempoChegMax[4]<<"; Tempo de chegada 4º copia: "<<satTempoChegMax[4]<<"\n\n";
 
 
 }

@@ -257,8 +257,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
         {
             //cout<<"VIAVEL\n";
             string erro;
-            bool mv = false;
-
+            bool mv = true;
 
             if(!sol.checkSolution(erro, instance))
             {
@@ -271,7 +270,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                 solTemp.print(instance);
 
 
-
                 cout << erro
                      << "\n****************************************************************************************\n\n";
                 mv = false;
@@ -282,22 +280,75 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
                 if(sol.distancia < solBest->distancia || !solBest->viavel)
                 {
+
+                    auto escreveSol = [](string &file, Solucao &solucao, Instance &instance)
+                    {
+
+                        ofstream fileStream;
+                        fileStream.open(file, ios::out);
+
+                        if(!fileStream.is_open())
+                        {
+                            cout<<"NAO FOI POSSIVEL ABRIR ARQUIVO: "<<file<<"\n\n";
+                            return;
+                        }
+
+                        string solStr;
+                        solucao.print(solStr, instance);
+                        fileStream<<solStr;
+                        fileStream.close();
+                    };
+
+
                     solBest->copia(sol);
+
+                    string fileBestAntes = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/solBestAntes.txt";
+                    escreveSol(fileBestAntes, *solBest, instance);
+
                     custoBest = solBest->distancia;
+                    estat.ultimaAtualizacaoBest = i;
                     //solBest->print(instance);
                     //cout<<"i: "<<i<<"\n";
+
+/*                    if(i == 17)
+                    {
+                        PRINT_DEBUG("", "ULTIMA ATUALIZACAO");
+                        cout<<"!ULTIMA ATUALILZACAO\n";
+
+                        cout<<"checkSolution: "<<sol.checkSolution(erro, instance)<<"\n";
+                        if(!erro.empty())
+                            cout<<"ERRO: "<<erro<<"\n";
+
+                        erro = "";
+
+                        cout<<"checkSolution best: "<<solBest->checkSolution(erro, instance)<<"\n";
+
+                        string file  = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/sol.txt";
+                        string file2 = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/solBest.txt";
+
+                        escreveSol(file, sol, instance);
+                        escreveSol(file2, *solBest, instance);
+
+                        if(!erro.empty())
+                            cout<<"ERRO: "<<erro<<"\n";
+
+                        throw "ULTIMA ATUALIZACAO";
+                    }*/
 
                 }
 
 
             }
 
-            double valOrig = sol.distancia;
 
+            double valOrig = sol.distancia;
 
             while(mvEvShifitIntraRota(sol, instance, evRoute, SELECAO_PRIMEIRO) && mv)
             {
                 mv = true;
+
+                //PRINT_DEBUG("\t", "checkSolution");
+
                 if(!sol.checkSolution(erro, instance))
                 {
                     cout << "MV SHIFIT\n";
@@ -309,9 +360,9 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                          << "\n****************************************************************************************\n\n";
 
                     mv = false;
-
-                    delete solBest;
-                    throw "ERRO";
+                    sol.viavel = false;
+                    //delete solBest;
+                    //throw "ERRO";
                 }
                 else
                 {
@@ -321,12 +372,16 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                     {
                         solBest->copia(sol);
                         custoBest = solBest->distancia;
+                        estat.ultimaAtualizacaoBest = i;
+
                         //solBest->print(instance);
                         //cout<<"i: "<<i<<"\n";
 
                     }
 
                 }
+
+                //PRINT_DEBUG("\t", "END");
             }
 
             if(sol.viavel)
@@ -337,8 +392,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
             }
 
 
-            if(mv)
-                cout<<"\tMV VIAVEL: Incr: "<<sol.distancia-valOrig<<"\n\n";
+            //if(mv)
+            //    cout<<"\tMV VIAVEL: Incr: "<<sol.distancia-valOrig<<"\n\n";
 
         }
         else if(!solBest->viavel && !sol.viavel)
@@ -379,15 +434,22 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
     if(solBest->viavel)
     {
         estat.erro = "";
+
+        //cout<<"ULTIMA ATUALIZACAO: "<<estat.ultimaAtualizacaoBest<<"\n\n";
+        //PRINT_DEBUG("\n\t", "checkSolution best");
+
         if(!solBest->checkSolution(estat.erro, instance))
         {
             cout<<"\n\nSOLUCAO:\n\n";
-            solBest->print(instance);
+            //solBest->print(instance);
 
             cout << estat.erro<< "\n****************************************************************************************\n\n";
             delete solBest;
             return nullptr;
         }
+
+
+        //PRINT_DEBUG("\t", "checkSolution end");
     }
     return solBest;
 

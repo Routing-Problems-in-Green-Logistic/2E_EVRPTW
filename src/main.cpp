@@ -56,7 +56,7 @@ string getNomeInstancia(string str);
 void escreveInstancia(const Instance &instance, string file);
 void escreveSolucao(Solucao &solution, Instance &instance, string file);
 
-#define NUM_EXEC 400
+#define NUM_EXEC 1000
 
 #define MAIN_METODO     0
 #define MAIN_DIST       1
@@ -149,9 +149,12 @@ int main(int argc, char* argv[])
         if(num == 0)
             num = 1;
 
-        Parametros parametros(NUM_EXEC, 110, vetAlfa, 100, num);
+        //Parametros parametros(NUM_EXEC, 110, vetAlfa, 100, num);
+        Parametros parametros(NUM_EXEC, 210, vetAlfa, 200, num);
 
         auto start = std::chrono::high_resolution_clock::now();
+
+
 
             ShortestPathSatCli shortestPathSatCli(instance);
             dijkstraSatCli(instance, shortestPathSatCli);
@@ -162,7 +165,9 @@ int main(int argc, char* argv[])
             instance.shortestPath = &shortestPathSatCli;
 
             Estatisticas estat;
-            Solucao *solBest = grasp(instance, parametros, estat);
+
+            Solucao *solBest = nullptr;
+            solBest = grasp(instance, parametros, estat);
 
 
         auto end = std::chrono::high_resolution_clock::now();
@@ -194,7 +199,7 @@ int main(int argc, char* argv[])
             }
 
             outfile<<dataStr<<";\t;\t;\t;\t;\t;\t;\n";
-            outfile<<"nomeInst;\tmedia; \t\t best; \t\tnumSol;\ttempo;\t1° nivel;\t2° nivel;\ttempoViab\n";
+            outfile<<"nomeInst;\tmedia; \t\tbest; \t\tnumSol;\ttempo;\t1° nivel;\t2° nivel;\tultimaA;\ttempoViab;\n";
         }
 
         string tempoPocStr;
@@ -211,13 +216,14 @@ int main(int argc, char* argv[])
             double dist1Nivel = solBest->getDist1Nivel();
             double dist2Nivel = solBest->getDist2Nivel();
 
-            string saida = str(boost::format("%.2f; \t%.2f;\t\t%d;\t%.2f;\t%.2f;\t\t%.2f") % float(estat.media()) % float(solBest->distancia) % estat.numSol % float(tempo) % float(dist1Nivel/solBest->distancia) % float(dist2Nivel/solBest->distancia));
+            string saida = str(boost::format("%.2f; \t%.2f;\t\t%d;\t%.2f;\t%.2f;\t\t%.2f;\t\t%d") % float(estat.media()) % float(solBest->distancia) % estat.numSol % float(tempo) % float(dist1Nivel/solBest->distancia) % float(dist2Nivel/solBest->distancia) % estat.ultimaAtualizacaoBest);
+            saida += "\t\t"+tempoPocStr;
             //string saida = str(boost::format("%.2f") % float(estat.media()));
             //outfile << nomeInst << ";\t" << estat.media() << ";\t " << solBest->distancia << ";\t" << estat.numSol<< ";\t" << tempo << "\n";
-            outfile << nomeInst << ";\t" <<saida<<";\t\t"<<tempoPocStr<<"\n";
+            outfile << nomeInst << ";\t" <<saida<<";\n";//\t\t"<<tempoPocStr<<"\n";
 
 #if PRINT_RESULT
-            cout<< nomeInst << ";\t" <<saida<<";\t\t"<<tempoPocStr<<"\n";
+            cout<<nomeInst << ";\t" <<saida<<";\t\t"<<tempoPocStr<<"\n";
 #endif
 
         }
@@ -243,8 +249,7 @@ int main(int argc, char* argv[])
     catch(std::exception &e)
     {
 
-        instance.print();
-		return 0;
+        //instance.print();
 
         cout<<"EXCEPTION:\n";
         cout<<e.what()<<"\n";
@@ -253,7 +258,7 @@ int main(int argc, char* argv[])
     }
     catch(char const* exception)
     {
-        instance.print();
+        //instance.print();
 
         cout<<"EXCEPTION:\n"<<exception<<"\n\n";
         cout<<"SEMENTE: \t"<<semente<<"\n";

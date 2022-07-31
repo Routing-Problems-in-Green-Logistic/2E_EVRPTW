@@ -325,7 +325,7 @@ bool GreedyAlgNS::visitAllClientes(std::vector<int8_t> &visitedClients, const In
 }
 
 
-void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, const Instance &Inst, const float beta)
+void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, Instance &instance, const float beta)
 {
 
     // Cria o vetor com a demanda de cada satellite
@@ -337,7 +337,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, const Instance &Inst, const f
     int satId = 1;
     demandaNaoAtendidaSat.push_back(0.0);
 
-    for(int sat=Inst.getFirstSatIndex(); sat <= Inst.getEndSatIndex(); ++sat)
+    for(int sat=instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
     {
         demandaNaoAtendidaSat.push_back(sol.satelites[sat].demanda);
     }
@@ -365,10 +365,10 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, const Instance &Inst, const f
                     Route &route = sol.primeiroNivel[rotaId];
 
                     // Verifica se veiculo esta 100% da capacidade
-                    if(route.totalDemand < Inst.getTruckCap(rotaId))
+                    if(route.totalDemand < instance.getTruckCap(rotaId))
                     {
                         // Calcula a capacidade restante do veiculo
-                        double capacidade = Inst.getTruckCap(rotaId) - route.totalDemand;
+                        double capacidade = instance.getTruckCap(rotaId) - route.totalDemand;
                         double demandaAtendida = capacidade;
 
                         if(demandaNaoAtendidaSat[i] < capacidade)
@@ -387,33 +387,33 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, const Instance &Inst, const f
                             const RouteNo &clientePP = route.rota[p+1];
 
                             // Calcula o incremento da distancia (Sempre positivo, desigualdade triangular)
-                            incrementoDist -= Inst.getDistance(clienteP.satellite, clientePP.satellite);
-                            incrementoDist = incrementoDist+ Inst.getDistance(clienteP.satellite, i) + Inst.getDistance(i, clientePP.satellite);
+                            incrementoDist -= instance.getDistance(clienteP.satellite, clientePP.satellite);
+                            incrementoDist = incrementoDist + instance.getDistance(clienteP.satellite, i) + instance.getDistance(i, clientePP.satellite);
 
                             if(incrementoDist < candidato.incrementoDistancia)
                             {
 
                                 // Calcula o tempo de chegada e verifica a janela de tempo
-                                const double tempoChegCand = clienteP.tempoChegada + Inst.getDistance(clienteP.satellite, i);
+                                const double tempoChegCand = clienteP.tempoChegada + instance.getDistance(clienteP.satellite, i);
 
                                 bool satViavel = true;
 
-                                if(verificaViabilidadeSatelite(tempoChegCand, satelite, Inst, false))
+                                if(verificaViabilidadeSatelite(tempoChegCand, satelite, instance, false))
                                 {
-                                    double tempoChegTemp = tempoChegCand + Inst.getDistance(i, clientePP.satellite);
+                                    double tempoChegTemp = tempoChegCand + instance.getDistance(i, clientePP.satellite);
 
                                     // Verificar viabilidade dos outros satelites
                                     for(int t=p+1; (t+1) < (route.routeSize); ++t)
                                     {
                                         Satelite &sateliteTemp = sol.satelites[route.rota[t].satellite];
 
-                                        if(!verificaViabilidadeSatelite(tempoChegTemp, sateliteTemp, Inst, false))
+                                        if(!verificaViabilidadeSatelite(tempoChegTemp, sateliteTemp, instance, false))
                                         {
                                             satViavel = false;
                                             break;
                                         }
 
-                                        tempoChegTemp += Inst.getDistance(route.rota[t].satellite, route.rota[t+1].satellite);
+                                        tempoChegTemp += instance.getDistance(route.rota[t].satellite, route.rota[t + 1].satellite);
 
                                     }
 
@@ -470,7 +470,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, const Instance &Inst, const f
             {
                 const int satTemp = route.rota[i].satellite;
 
-                if(!verificaViabilidadeSatelite(tempoSaida, sol.satelites[satTemp], Inst, true))
+                if(!verificaViabilidadeSatelite(tempoSaida, sol.satelites[satTemp], instance, true))
                 {
 
 
@@ -478,15 +478,15 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, const Instance &Inst, const f
                     break;
 
                     string satStr;
-                    sol.satelites[satTemp].print(satStr, Inst);
+                    sol.satelites[satTemp].print(satStr, instance);
 
 
-                    sol.print(Inst);
+                    sol.print(instance);
 
                     throw "ERRO!";
                 }
 
-                tempoSaida += Inst.getDistance(satTemp, route.rota[i+1].satellite);
+                tempoSaida += instance.getDistance(satTemp, route.rota[i + 1].satellite);
             }
 
             // Atualiza demanda, vetor de demanda e distancia
@@ -504,6 +504,9 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, const Instance &Inst, const f
             break;
         }
     }
+
+    if(sol.viavel)
+        sol.atualizaVetSatTempoChegMax(instance);
 
 
 }
@@ -579,7 +582,7 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
             {
                 if(tempoEv >= tempoChegada)
                 {
-                    return true;
+                    //return true;
 
                 } else
                 {
@@ -659,14 +662,6 @@ void GreedyAlgNS::construtivo(Solucao &Sol, Instance &Inst, const float alpha, c
     {
 
         firstEchelonGreedy(Sol, Inst, beta);
-
-
-        //sol.print(Inst);
-
-        if(Sol.viavel)
-            Sol.atualizaVetSatTempoChegMax(Inst);
-
-
     }
 
     //cout<<"*****************************\\FIM CONSTRUTIVO*****************************\n\n";

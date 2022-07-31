@@ -17,9 +17,10 @@ namespace NameS_Grasp
 
     struct Estatisticas
     {
-        int numIte = 0;
-        int numSol = 0;
-        double distAcum = 0.0;
+        int numIte                  = 0;
+        int numSol                  = 0;
+        double distAcum             = 0.0;
+        int ultimaAtualizacaoBest   = 0;
         string erro;
 
         double media(){return distAcum/double(numSol);}

@@ -14,7 +14,7 @@ public:
     int findSatellite(int id) const;
     Satelite* getSatelite(int index);
     bool checkSolution(std::string &erro, Instance &inst);
-    void print(std::string &str,  const Instance &instance);
+    void print(std::string &saida, const Instance &instance);
     void print(const Instance& Inst);
     double calcCost(const Instance&);
     float getDistanciaTotal();
