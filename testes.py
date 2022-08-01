@@ -123,7 +123,7 @@ for instancia in instancias:
     for i in range(numExecucoes):
 
       time.sleep(1)
-      strExecutavel = 'src/cmake-build-debug//run ' + str(instancia) # + ' > /dev/null'
+      strExecutavel = 'src/cmake-build-debug2//run ' + str(instancia) # + ' > /dev/null'
       os.system(strExecutavel)
        	#ramdom.write(str(semente))
        	#ramdom.write('\n')

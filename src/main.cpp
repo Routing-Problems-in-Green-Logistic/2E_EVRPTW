@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
     {
 
         string arquivo = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/instanciasMod/" + nomeInst + ".txt";
-        string arquivoSol = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/solucao/" + nomeInst + ".txt";
+        string arquivoSol = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/solucao/" + nomeInst + "_2.txt";
         std::time_t result = std::time(nullptr);
         auto data = std::asctime(std::localtime(&result));
 
@@ -143,14 +143,16 @@ int main(int argc, char* argv[])
         double tempo = 0.0;
         //instance.print();
 
-        const std::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.9};
+        //const std::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.9};
+        const std::vector<float> vetAlfa{0.1, 0.3, 0.5, 0.7, 0.9};
 
-        int num = instance.getN_Evs()/2;
+
+        int num = min(instance.getN_Evs()/2, 8);
         if(num == 0)
             num = 1;
 
         //Parametros parametros(NUM_EXEC, 110, vetAlfa, 100, num);
-        Parametros parametros(NUM_EXEC, 210, vetAlfa, 200, num);
+        Parametros parametros(NUM_EXEC, 410, vetAlfa, 400, num);
 
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -255,6 +257,7 @@ int main(int argc, char* argv[])
         cout<<e.what()<<"\n";
 
         cout<<"SEMENTE: \t"<<semente<<"\n";
+        return -1;
     }
     catch(char const* exception)
     {
@@ -262,6 +265,7 @@ int main(int argc, char* argv[])
 
         cout<<"EXCEPTION:\n"<<exception<<"\n\n";
         cout<<"SEMENTE: \t"<<semente<<"\n";
+        return -1;
 
 
     }
@@ -665,20 +669,21 @@ void escreveInstancia(const Instance &instance, string file)
          *  F	recharging stations
          */
 
-        // Code     x       y       demanda
+        // id   Code     x       y       demanda
 
-        outfile<<"D "<<instance.vectCliente[0].coordX<<" "<<instance.vectCliente[0].coordY<<" 0\n";
+        outfile<<"id code x y demanda\n";
+        outfile<<"0 D "<<instance.vectCliente[0].coordX<<" "<<instance.vectCliente[0].coordY<<" 0\n";
 
         for(int s=instance.getFirstSatIndex(); s <= instance.getEndSatIndex(); ++s)
-            outfile<<"S "<<instance.vectCliente[s].coordX<<" "<<instance.vectCliente[s].coordY<<" 0\n";
+            outfile<<s<<" S "<<instance.vectCliente[s].coordX<<" "<<instance.vectCliente[s].coordY<<" 0\n";
 
 
         for(int f=instance.getFirstRechargingSIndex(); f <= instance.getEndRechargingSIndex(); ++f)
-            outfile<<"F "<<instance.vectCliente[f].coordX<<" "<<instance.vectCliente[f].coordY<<" 0\n";
+            outfile<<f<<" F "<<instance.vectCliente[f].coordX<<" "<<instance.vectCliente[f].coordY<<" 0\n";
 
 
         for(int c=instance.getFirstClientIndex(); c <= instance.getEndClientIndex(); ++c)
-            outfile<<"C "<<instance.vectCliente[c].coordX<<" "<<instance.vectCliente[c].coordY<<" "<<instance.vectCliente[c].demanda<<"\n";
+            outfile<<c<<" C "<<instance.vectCliente[c].coordX<<" "<<instance.vectCliente[c].coordY<<" "<<instance.vectCliente[c].demanda<<"\n";
 
         outfile.close();
 

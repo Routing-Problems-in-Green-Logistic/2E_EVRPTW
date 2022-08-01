@@ -70,14 +70,14 @@ void NS_LocalSearch::LocalSearch::print() const
 /**
  * A funcao realiza ...
  *
- * @param solution
- * @param instance
+ * @param solucao
+ * @param instancia
  * @param evRouteAux
  * @param selecao
  * @return
  */
 
-bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, EvRoute &evRouteAux, const int selecao)
+bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux, const int selecao)
 {
 
     #if PRINT_MV_SHIFIT_INTRA
@@ -86,7 +86,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
     std::list<LocalSearch> listLocalSearch;
     InsercaoEstacao insercaoEstacao;
 
-    for(int satId = 1; satId <= instance.getNSats(); ++satId)
+    for(int satId = 1; satId <= instancia.getNSats(); ++satId)
     {
 
 
@@ -94,7 +94,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
             cout<<"satId: "<<satId<<"\n";
         #endif
 
-        Satelite *satelite = &solution.satelites[satId];
+        Satelite *satelite = &solucao.satelites[satId];
 
         // Percorre todas as rotas do satellite
         for(int routeId = 0; routeId < satelite->getNRoutes(); ++routeId)
@@ -126,14 +126,14 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
 
                 const int clienteShift = evRoute.route[i].cliente;
 
-                if(!instance.isRechargingStation(clienteShift))
+                if(!instancia.isRechargingStation(clienteShift))
                 {
 
                     // Calcula o incremento de retirar os arcos (i-1, i), (i, i+1) e adicionar (i-1, i+1)
                     const double incDistTemp =
-                            -instance.getDistance(evRoute.route[i-1].cliente, evRoute.route[i].cliente) +
-                            -instance.getDistance(evRoute.route[i].cliente, evRoute.route[i+1].cliente) +
-                            instance.getDistance(evRoute.route[i-1].cliente, evRoute.route[i+1].cliente);
+                            -instancia.getDistance(evRoute.route[i - 1].cliente, evRoute.route[i].cliente) +
+                            -instancia.getDistance(evRoute.route[i].cliente, evRoute.route[i + 1].cliente) +
+                            instancia.getDistance(evRoute.route[i - 1].cliente, evRoute.route[i + 1].cliente);
 
                     // pos + 1 é a nova possicao para o cliente
                     for(int pos = 0; pos < (evRoute.routeSize-1); ++pos)
@@ -179,16 +179,16 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
 
                             // Verifica se a nova rota eh menor que a rota original
 
-                            double incDist = -instance.getDistance(evRoute[pos].cliente, evRoute[pos+1].cliente) +
-                                    + instance.getDistance(evRoute[pos].cliente, clienteShift) +
-                                    + instance.getDistance(clienteShift, evRoute[pos+1].cliente);
+                            double incDist = -instancia.getDistance(evRoute[pos].cliente, evRoute[pos + 1].cliente) +
+                                             + instancia.getDistance(evRoute[pos].cliente, clienteShift) +
+                                             + instancia.getDistance(clienteShift, evRoute[pos + 1].cliente);
 
                             if((i-pos)==2)
-                                incDist += instance.getDistance(clienteShift, evRoute[pos+1].cliente);
+                                incDist += instancia.getDistance(clienteShift, evRoute[pos + 1].cliente);
 
                             else if(i == pos)
-                                incDist += instance.getDistance(evRoute[pos].cliente, evRoute[pos+2].cliente) +
-                                        + instance.getDistance(evRoute[pos+1].cliente, evRoute[pos].cliente);
+                                incDist += instancia.getDistance(evRoute[pos].cliente, evRoute[pos + 2].cliente) +
+                                           + instancia.getDistance(evRoute[pos + 1].cliente, evRoute[pos].cliente);
 
                             incDist += incDistTemp;
 
@@ -212,24 +212,24 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
                                 }
 
                                 // Escreve a nova rota
-                                const int min = setRotaMvEvShifitIntraRota(evRoute, evRouteAux, i, pos, instance);
+                                const int min = setRotaMvEvShifitIntraRota(evRoute, evRouteAux, i, pos, instancia);
 
                                 if(min < 0)
                                 {
                                     PRINT_DEBUG("", "RESULTADO DA FUNC. setRotaMvEvShifitIntraRota EH -1. ");
                                     cout<<"i: "<<i<<"; pos: "<<pos<<"\n\nevRoute: \n\n";
-                                    evRoute.print(instance, true);
+                                    evRoute.print(instancia, true);
                                     throw "ERRO";
                                 }
 
                                 // Verifica viabilidade da nova rota
-                                double distNovaRota = testaRota(evRouteAux, evRouteAux.routeSize, instance, false, instance.vetTempoSaida[satId], min-1, nullptr);
+                                double distNovaRota = testaRota(evRouteAux, evRouteAux.routeSize, instancia, false, solucao.satTempoChegMax[satId], min - 1, nullptr);
                                 bool exit = false;
 
                                 if(distNovaRota < 0.0)
                                 {
-                                    bool viavel = viabilizaRotaEv(evRouteAux, instance, instance.bestInsViabRotaEv, insercaoEstacao, (evRoute.distancia-INCREM_DIST),
-                                                    false, instance.vetTempoSaida[satId]);
+                                    bool viavel = viabilizaRotaEv(evRouteAux, instancia, instancia.bestInsViabRotaEv, insercaoEstacao, (evRoute.distancia - INCREM_DIST),
+                                                                  false, solucao.satTempoChegMax[satId]);
 
                                     if(!viavel)
                                     {
@@ -298,17 +298,17 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
                                     if(SELECAO_PRIMEIRO && contB)
                                     {
 
-                                        solution.distancia -= evRoute.distancia;
-                                        solution.distancia += distNovaRota;
+                                        solucao.distancia -= evRoute.distancia;
+                                        solucao.distancia += distNovaRota;
 
                                         satelite->distancia -= evRoute.distancia;
                                         satelite->distancia += distNovaRota;
 
                                         if(insercaoEstacao.pos != -1)
                                         {
-                                            insereEstacaoRota(evRouteAux, insercaoEstacao, instance);
+                                            insereEstacaoRota(evRouteAux, insercaoEstacao, instancia, solucao.satTempoChegMax[satId]);
                                             evRoute.copia(evRouteAux);
-                                            evRoute.vetRecarga[insercaoEstacao.estacao-instance.getFirstRechargingSIndex()].utilizado += 1;
+                                            evRoute.vetRecarga[insercaoEstacao.estacao - instancia.getFirstRechargingSIndex()].utilizado += 1;
 
                                             return true;
                                         }
@@ -317,7 +317,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solution, Instance &instance, 
                                             evRoute.copia(evRouteAux);
                                         }
 
-                                        evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, instance.vetTempoSaida[satId], 0, nullptr);
+                                        evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instancia, true, solucao.satTempoChegMax[satId], 0, nullptr);
                                         if(evRoute.distancia < 0)
                                         {
                                             PRINT_DEBUG("", "ERRO FUNC testaRota");
@@ -455,16 +455,15 @@ int NS_LocalSearch::setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRout
 
 }
 
-void NS_LocalSearch::insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, Instance &instance)
+void NS_LocalSearch::insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, Instance &instance, double tempoSaida)
 {
     if(insercaoEstacao.pos == -1)
-
         return;
 
     shiftVectorClienteDir(evRoute.route, insercaoEstacao.pos+1, 1, evRoute.routeSize);
     evRoute[insercaoEstacao.pos+1].cliente = insercaoEstacao.estacao;
     evRoute.routeSize += 1;
-    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, instance.vetTempoSaida[evRoute.satelite], 0, nullptr);
+    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaida, 0, nullptr);
 
     if(evRoute.distancia < 0.0)
     {

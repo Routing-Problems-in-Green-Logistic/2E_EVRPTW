@@ -4,11 +4,17 @@
 
 ***
 
-# 22/07 Sex
+# 01/08 Seg
 
-- [ ] Pares (i, j)
+- [ ] Verificar ordem de insercao heurística gulosa
+- [x] Desabilitar inserção de rotas: sat <estacao...> cliente <estacao...> sat
+- [x] Corrigir mv shifit
+- [ ] ACO
+- [ ] Tabela
 
+Erro movimento shifit: 
 
+	Tempo de saída no mv shifit deve ser de Solucao::satTempoChegMax e nao da instancia!. Provavelmente!
 
 
 ***
@@ -16,7 +22,7 @@
 ***
 
 # Outros
-
+- [ ] Testes com > 1 execução!
 - [ ] Peseudo códigos 
 	- [ ] Construtívo
 	- [x] viabilizador de rota
@@ -31,6 +37,6 @@
 ***
 ***
 
-Erro movimento shifit: 
+# Mudanças
 
-	Tempo de saída no mv shifit deve ser de Solucao::satTempoChegMax e nao da instancia!. Provavelmente!
+- Numéro de rotas fixas: min(numEvs, 5)

@@ -273,8 +273,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                 cout << erro
                      << "\n****************************************************************************************\n\n";
                 mv = false;
-                //delete solBest;
-                //throw "ERRO";
+                delete solBest;
+                throw "ERRO";
             } else
             {
 
@@ -361,12 +361,12 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
                     mv = false;
                     sol.viavel = false;
-                    //delete solBest;
-                    //throw "ERRO";
+                    delete solBest;
+                    throw "ERRO";
                 }
                 else
                 {
-                    cout<<"MV SHIFIT ATUALIZACAO!!\n\n";
+                    //cout<<"MV SHIFIT ATUALIZACAO!!\n\n";
 
                     if((sol.distancia < solBest->distancia || !solBest->viavel) && mv)
                     {
@@ -422,6 +422,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
         if(!sol.viavel)
             solucaoAcumulada[posAlfa] += sol.distancia + getPenalidade(sol, instance, fator);
+        else
+            solucaoAcumulada[posAlfa] += sol.distancia;
 
         if(i>0 && (i%parametros.numAtualProbReativo)==0)
             atualizaProb();
