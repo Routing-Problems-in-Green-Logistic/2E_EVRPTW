@@ -11,6 +11,7 @@
 #include "Instance.h"
 #include "../Solucao.h"
 #include <boost/numeric/ublas/matrix.hpp>
+#include <algorithm>
 
 
 namespace N_Aco
@@ -28,6 +29,7 @@ namespace N_Aco
         int8_t freqAtualAntBest = 25;
         int numIteracoes        = 400;
         int numItMaxHeur        = 20;
+        double feromonioInicial = 0.0;
 
         AcoParametros()
         {
@@ -49,10 +51,13 @@ namespace N_Aco
     public:
         Satelite satelite;                          // Guarda a solucao do satelite
         vector<int8_t> vetNosAtend;                 // Guarda os vertices que sao atendidos. tam = numNos
+        bool vazia = false;
+        bool viavel = false;
 
-        Ant(Instance &instance, int satId): satelite(Satelite(instance, satId))
+        Ant(Instance &instance, int satId, bool _vazia=false): satelite(Satelite(instance, satId))
         {
             vetNosAtend = vector<int8_t>(instance.numNos, 0);
+            vazia = _vazia;
         }
 
         Ant(Ant &antOutra, Instance &instancia, int satId):satelite(instancia, satId)
@@ -68,14 +73,36 @@ namespace N_Aco
         }
     };
 
-    void aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, const vector<int8_t> &clientes, int sateliteId, Satelite &satBest);
-    void atualizaFeromonio(ublas::matrix<double> &matFeromonio, Satelite &satelite);
-    void evaporaFeromonio(ublas::matrix<double> &matFeromonio, int iInic, int iFim, int jInic, int jFim);
+    class Proximo
+    {
+    public:
+        int cliente         = -1;
+        double ferom_x_dist = 0.0;  // Igual a: (feromonio ^ alfa) * ((1/dist)^beta)
 
-    inline double getDistSat(Satelite &satelite)
+        inline double atualiza(int _cliente, double dist, double ferom, const AcoParametros &acoParam)
+        {
+            ferom_x_dist = pow(ferom, acoParam.alfa) * pow(1.0/dist, acoParam.beta);
+            return ferom_x_dist;
+        }
+    };
+
+    void aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, const vector<int8_t> &clientes, int sateliteId, Satelite &satBest);
+    void atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &instancia, const AcoParametros &acoParam, const Ant &antBest, const double feromMin, const double feromMax);
+    void evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instance &instancia, const AcoParametros &acoParam, const double feromMin);
+
+    inline bool existeClienteNaoVisitado(Ant &ant, Instance &instancia)
+    {
+        return std::find((ant.vetNosAtend.begin()+instancia.getFirstClientIndex()), (ant.vetNosAtend.begin()+instancia.getEndClientIndex()+1), 0) != ant.vetNosAtend.end();
+    }
+
+    inline double getDistSat(const Satelite &satelite)
     {
         return satelite.distancia;
     }
+
+    bool clienteJValido(Instance &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat);
+
+
 }
 
 #endif //INC_2E_EVRP_ACO_H

@@ -40,3 +40,15 @@ Erro movimento shifit:
 # Mudanças
 
 - Numéro de rotas fixas: min(numEvs, 5)
+
+
+
+***
+***
+
+# ACO
+
+- Estando em um cliente i, quais arestas são válidas?
+	- cliente j não visitado (viável)
+	- estação de recarga j
+	- Viável: É possível ir do cliente até uma estação de recarga ou voltar para o depósito.
