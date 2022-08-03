@@ -30,12 +30,10 @@ def drawArrow(x1, x2, y1, y2, width, color, ls):
     else:
         dy *= (1 - 0.5/abs(dy))
 
-    plt.arrow(x1, y1, dx, dy, head_width=0.25, length_includes_head=True, edgecolor=None, color=color, zorder=1,  ls=ls, aa=True, alpha=0.8, overhang=0.5)
+    plt.arrow(x1, y1, dx, dy, head_width=1.5, length_includes_head=True, edgecolor=color, zorder=1,  ls=ls, aa=True, alpha=0.8, overhang=0.5)
     return dist
 
-#satColors = ['#2ff3e0', '#f8d210', '#fa26a0', '#f51720', '#2ff3e0', '#2ff3e0', '#2ff3e0', '#2ff3e0', '#2ff3e0', '#2ff3e0']
 satColors = ['#2ff3e0', '#f8d210', '#fa26a0', '#f51720', '#e1ad01', '#909090', '#ff7538', '#00a500', '#004953', '#aa6c39']
-
 fig = plt.figure(dpi=800)
 ax = fig.gca()
 
@@ -50,10 +48,11 @@ if len(sys.argv) < 4:
     print('Utilizacao:\npython3 plotSolution.py instancia.txt solucao.txt numSat <nos para excluir>')
     exit(-1)
 
-solutionPath = sys.argv[2]
+
 instancePath = sys.argv[1]
-remover = sys.argv[4:]
+solutionPath = sys.argv[2]
 numSat = int(sys.argv[3])
+remover = sys.argv[4:]
 remover = [int(x) for x in remover]
 removereRota = []
 
@@ -89,18 +88,24 @@ for linha in file:
     for i in split:
 
         if i in removereRota:
-
+            print("DEL ROTA: ", split, "; i: ", i)
             next = False
             break
 
         if i in remover:    
-            continue            
+            continue
+
+        if i > numSat:
+            next = False
+            break
+
         next = True
         removeNo[i] = 0
         rota.append(int(i))
 
     if next:
         routes.append(rota)
+        print("ADD Rota: ", rota)
 
 nodeId = coord.index.values
 
@@ -128,8 +133,7 @@ for i in range(len(nodeId)):
     if removeNo[i] == 1:
         continue
 
-    if nodeId[i] <= numSat:
-        plt.annotate(nodeId[i], (x[i], y[i]), color='r', zorder=10)
+    plt.annotate(nodeId[i], (x[i], y[i]), color='r', zorder=10)
     print(nodeId[i], ": ", x[i], " ", y[i])
 
     color = ''
@@ -156,20 +160,16 @@ for route in routes:
     print(route)
     if len(route) == 0:
        continue
-    if nodeType[route[0]] == 'S':
-        color = satColors[route[0]-1]
-    else:
-        color = satColors[3]
 
-    tipoRota = '-'
+    #if nodeType[route[0]] == 'S':
+    color = satColors[route[1]-1]
 
-    if route[1] <= numSat:
-        tipoRota = '-.'
 
-    print('tipo: ', tipoRota)
+    print('color: ', color)
+
     for i in range(0, len(route)-1):
         #print('color: ', str(color))
         print(route[i], ' ', route[i+1])
-        drawArrow(x[route[i]], x[route[i+1]], y[route[i]], y[route[i+1]], 0, color, tipoRota)
+        drawArrow(x[route[i]], x[route[i+1]], y[route[i]], y[route[i+1]], 0, color, '--')
 
 plt.savefig('solution__' + ''+ '.png')

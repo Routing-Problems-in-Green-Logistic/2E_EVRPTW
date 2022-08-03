@@ -54,7 +54,8 @@ Instance* getInstanceFromFile(std::string &fileName);
 void saveSolutionToFile(const Solucao& Sol, const std::string& fileName="solution.txt");
 string getNomeInstancia(string str);
 void escreveInstancia(const Instance &instance, string file);
-void escreveSolucao(Solucao &solution, Instance &instance, string file);
+void escreveSolucao(Solucao &solution, Instance &instance, string &file);
+void leSolucao(Solucao &solucao, Instance &instancia, string &file);
 
 #define NUM_EXEC 1000
 
@@ -62,15 +63,15 @@ void escreveSolucao(Solucao &solution, Instance &instance, string file);
 #define MAIN_DIST       1
 #define MAIN_TESTE      2
 #define MAIN_METODO_2   3
+#define MAIN_SOMA_CARGA 4
 
-#define MAIN MAIN_METODO_2
+#define MAIN MAIN_DIST
 //#define MAIN MAIN_DIST
-#define PRINT_RESULT FALSE
+#define PRINT_RESULT TRUE
 
 //#if MAIN == MAIN_METODO_2
+
 #if MAIN == MAIN_METODO_2
-
-
 int main(int argc, char* argv[])
 {
 
@@ -100,6 +101,9 @@ int main(int argc, char* argv[])
     const string nomeInst = getNomeInstancia(file);
 
     Instance instance(file, nomeInst);
+
+    cout<<"CAPACIDADE: "<<instance.getTruckCap(0)<<"\n";
+    return 0;
 
     //cout<<nomeInst<<" ; "<<instance.numRechargingS<<" ; "<<instance.numSats<<" ; "<<instance.numEv<<" ; "<<instance.numTruck<<"\n";
 
@@ -160,14 +164,9 @@ int main(int argc, char* argv[])
 
             ShortestPathSatCli shortestPathSatCli(instance);
             dijkstraSatCli(instance, shortestPathSatCli);
-
-            //PRINT_DEBUG("", "RETURN 0");
-            //return 0;
-
             instance.shortestPath = &shortestPathSatCli;
 
             Estatisticas estat;
-
             Solucao *solBest = nullptr;
             solBest = grasp(instance, parametros, estat);
 
@@ -228,6 +227,19 @@ int main(int argc, char* argv[])
             cout<<nomeInst << ";\t" <<saida<<";\t\t"<<tempoPocStr<<"\n";
 #endif
 
+            cout<<"\n\n";
+
+            for(Route &route:solBest->primeiroNivel)
+            {
+                if(route.routeSize > 2)
+                {
+                    for(int i=0; i < route.routeSize; ++i)
+                        cout<<route.rota[i].satellite<<"("<<route.satelliteDemand[route.rota[i].satellite]<<") ";
+
+                    cout<<"\n";
+                }
+            }
+
         }
         else
         {
@@ -278,6 +290,27 @@ int main(int argc, char* argv[])
 
 #endif
 
+#if MAIN == MAIN_SOMA_CARGA
+
+int main(int argc, char* argv[])
+{
+    if(argc > 3)
+    {
+        cout<<"Utilizacao: \n./run instancia.txt solucao.txt\n";
+        return 0;
+    }
+
+    std::string file(argv[1]);
+    const string nomeInst = getNomeInstancia(file);
+    Instance instance(file, nomeInst);
+
+    std::string solucaoFile(argv[2]);
+    Solucao solucao(instance);
+
+
+}
+
+#endif
 
 #if MAIN == MAIN_METODO
 int main(int argc, char* argv[])
@@ -480,62 +513,116 @@ int main(int argc, char* argv[])
 
     Instance instance(file, strInst);
     EvRoute evRoute(1, instance.getFirstEvIndex(), instance.getEvRouteSizeMax(), instance);
+    Route route(instance);
 
     int num0, num1;
     char c;
     bool somenteNo = false;
+    bool ev = false;
 
-    cout<<"Somente NO(s/n): ";
+    cout<<"EV(s/n): ";
     cin>>c;
-
     if(c == 's')
-        somenteNo = true;
-    else
-        somenteNo = false;
+        ev = true;
+
+
+    if(ev)
+    {
+        cout << "Somente NO(s/n): ";
+        cin >> c;
+
+        if(c == 's')
+            somenteNo = true;
+        else
+            somenteNo = false;
+    }
+
 
     double saida = 0.0;
 
     do
     {
 
-        cout<<"saida: ";
-        cin>>saida;
-
+        if(ev)
+        {
+            cout << "saida: ";
+            cin >> saida;
+        }
         int i = 1;
         cin>>num0;
-        evRoute[0].cliente = num0;
 
-        do
-        {
-
-            cin >> num0;
-            evRoute[i].cliente = num0;
-            //cout<<"i: "<<i<<"; num: "<<num0<<"\n";
-            i += 1;
-            //cout<<instance.isSatelite(num0)<<"\n";
-
-        } while(!instance.isSatelite(num0));
-
-        evRoute.satelite = num0;
-        evRoute.routeSize = i;
-        if(saida < 0.0)
-            evRoute[0].tempoSaida = instance.vetTempoSaida[num0];
+        if(ev)
+            evRoute[0].cliente = num0;
         else
-            evRoute[0].tempoSaida = saida;
+            route.rota[0].satellite = num0;
 
-        //evRoute.print(instance, true);
-
-        double dist = NameViabRotaEv::testaRota(evRoute, i, instance, true, evRoute[0].tempoSaida, 0, nullptr);
-
-        cout<<"Dist: "<<dist<<"\n\n";
-        string rotaStr;
-        evRoute.print(rotaStr, instance, somenteNo);
-        cout<<"Rota: "<<rotaStr<<"\n\n";
-
-        for(int j=1; j < (evRoute.routeSize-1);  ++j)
+        if(ev)
         {
-            int cliente = evRoute[j].cliente;
-            cout<<"\t"<<cliente<<": "<<(instance.vectCliente[cliente].fimJanelaTempo - evRoute[j].tempoCheg)<<"\n";
+            do
+            {
+
+                cin >> num0;
+                evRoute[i].cliente = num0;
+                //cout<<"i: "<<i<<"; num: "<<num0<<"\n";
+                i += 1;
+                //cout<<instance.isSatelite(num0)<<"\n";
+
+            } while(!instance.isSatelite(num0));
+
+            evRoute.satelite = num0;
+            evRoute.routeSize = i;
+            if(saida < 0.0)
+                evRoute[0].tempoSaida = instance.vetTempoSaida[num0];
+            else
+                evRoute[0].tempoSaida = saida;
+
+            //evRoute.print(instance, true);
+
+            double dist = NameViabRotaEv::testaRota(evRoute, i, instance, true, evRoute[0].tempoSaida, 0, nullptr);
+
+            cout << "Dist: " << dist << "\n\n";
+            string rotaStr;
+            evRoute.print(rotaStr, instance, somenteNo);
+            cout << "Rota: " << rotaStr << "\n\n";
+
+            for(int j = 1; j < (evRoute.routeSize - 1); ++j)
+            {
+                int cliente = evRoute[j].cliente;
+                cout << "\t" << cliente << ": " << (instance.vectCliente[cliente].fimJanelaTempo - evRoute[j].tempoCheg)
+                     << "\n";
+            }
+        }
+        else
+        {
+            do
+            {
+
+                cin >> num0;
+                route.rota[i].satellite = num0;
+                i += 1;
+
+            }while(!instance.isDepot(num0));
+
+            route.routeSize = i;
+
+            double dist = 0.0;
+
+            cout<<"\n";
+
+            for(int i=0; i < (route.routeSize-1); ++i)
+            {
+                dist += instance.getDistance(route.rota[i].satellite, route.rota[i+1].satellite);
+                cout<<"Tempo Chegada em "<<route.rota[i+1].satellite<<": "<<dist<<"\n";
+
+                if(!(instance.isDepot(route.rota[i].satellite) || instance.isSatelite(route.rota[i].satellite)))
+                {
+                    cout<<route.rota[i].satellite<<" eh cliente!\n";
+                    break;
+                }
+
+            }
+
+            cout<<"Dist: "<<dist<<"\n";
         }
 
         cout<<"\n*********************************************************\n\n";
@@ -596,7 +683,21 @@ int main(int argc, char* argv[])
 
 #endif
 
-void escreveSolucao(Solucao &solution, Instance &instance, string file)
+void leSolucao(Solucao &solucao, Instance &instancia, string &file)
+{
+    std::ifstream inFile;
+    inFile.open(file, std::ios_base::in);
+
+    if(!inFile.is_open())
+    {
+        cout<<"NAO FOI POSSIVEL ABRIR O ARQUIVO: "<<file<<"\n";
+        throw "ERRO";
+    }
+
+
+}
+
+void escreveSolucao(Solucao &solution, Instance &instance, string &file)
 {
 
     //solution.print(instance);

@@ -181,7 +181,6 @@ void N_Aco::evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<i
             matFeromonio(i, s) = max(matFeromonio(i, s)*ro_1, feromMin);
     }
 
-
 }
 
 

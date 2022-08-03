@@ -11,7 +11,7 @@
 #include "Instance.h"
 #include "../Solucao.h"
 #include <boost/numeric/ublas/matrix.hpp>
-#include <algorithm>
+#include <algorithm>
 
 
 namespace N_Aco
