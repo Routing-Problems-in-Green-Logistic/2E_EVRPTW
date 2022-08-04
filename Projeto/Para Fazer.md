@@ -29,8 +29,6 @@ Erro movimento shifit:
 	- [ ] Gera rotas iniciais (somente cliente ou cliente cliente)
 	- [x] Atualiza prob. add rota inicial
 
-- [ ] Tamanho da minHeap deveria ser constante !!
-- [ ] Comentar código 
 
 
 
@@ -48,7 +46,7 @@ Erro movimento shifit:
 
 # ACO
 
-- Estando em um cliente i, quais arestas são válidas?
+- Em um cliente i, quais arestas j são válidas?
 	- cliente j não visitado (viável)
 	- estação de recarga j
 	- Viável: É possível ir do cliente até uma estação de recarga ou voltar para o depósito.

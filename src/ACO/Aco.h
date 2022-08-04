@@ -86,9 +86,6 @@ namespace N_Aco
         }
     };
 
-    void aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, const vector<int8_t> &clientes, int sateliteId, Satelite &satBest);
-    void atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &instancia, const AcoParametros &acoParam, const Ant &antBest, const double feromMin, const double feromMax);
-    void evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instance &instancia, const AcoParametros &acoParam, const double feromMin);
 
     inline bool existeClienteNaoVisitado(Ant &ant, Instance &instancia)
     {
@@ -100,8 +97,11 @@ namespace N_Aco
         return satelite.distancia;
     }
 
+    void aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, const vector<int8_t> &clientes, int sateliteId, Satelite &satBest);
+    void atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &instancia, const AcoParametros &acoParam, const Ant &antBest, const double feromMin, const double feromMax);
+    void evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instance &instancia, const AcoParametros &acoParam, const double feromMin);
     bool clienteJValido(Instance &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat);
-
+    void atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance);
 
 }
 

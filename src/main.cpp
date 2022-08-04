@@ -65,7 +65,7 @@ void leSolucao(Solucao &solucao, Instance &instancia, string &file);
 #define MAIN_METODO_2   3
 #define MAIN_SOMA_CARGA 4
 
-#define MAIN MAIN_DIST
+#define MAIN MAIN_METODO_2
 //#define MAIN MAIN_DIST
 #define PRINT_RESULT TRUE
 
