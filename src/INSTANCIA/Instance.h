@@ -155,6 +155,7 @@ public:
     std::vector<double> vetTempoSaida;
     bool bestInsViabRotaEv = false;
 
+    // Guarda o menor caminho de cada cliente para todos os sat; tam: numSat+1
     ShortestPathSatCli *shortestPath;
 
     // Guarda a distancia ate o satelite de forma ordenada para cada cliete

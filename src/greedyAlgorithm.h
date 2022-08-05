@@ -84,10 +84,10 @@ namespace GreedyAlgNS
     };
 
 
-    bool secondEchelonGreedy(Solucao& Sol, Instance& instance, float alpha);
+    bool secondEchelonGreedy(Solucao &sol, Instance &instance, const float alpha, const int sat, const vector<int> &vetSatAtendCliente);
     void firstEchelonGreedy(Solucao &Sol, Instance &instance, const float beta);
-    void construtivo(Solucao &Sol, Instance &instancia, const float alpha, const float beta);
-    bool visitAllClientes(std::vector<int8_t> &visitedClients, const Instance &instance);
+    void construtivo(Solucao &Sol, Instance &instancia, const float alpha, const float beta,  const vector<int> &vetSatAtendCliente, vector<int> &satUtilizado);
+    bool visitAllClientes(std::vector<int8_t> &visitedClients, const Instance &instance, const vector<int> &vetSatAtendCliente, const int sat);
     bool existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendida);
     bool insereEstacao(int rotaId, int satId);
 
@@ -97,7 +97,7 @@ namespace GreedyAlgNS
     bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instance &instance, bool modficaSatelite);
 
     std::vector<double> calculaTempoSaidaInicialSat(const Instance &instance);
-
+    void setSatParaCliente(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado);
 
 
 }

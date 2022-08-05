@@ -21,19 +21,19 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
 {
 
     Solucao solucao(instance);
-    bool construtivo = GreedyAlgNS::secondEchelonGreedy(solucao, instance, acoPar.alfaConst);
+/*    bool construtivo = GreedyAlgNS::secondEchelonGreedy(solucao, instance, acoPar.alfaConst, 0);
 
     if(!construtivo)
     {
         for (int i = 0; i < acoPar.numItMaxHeur; ++i)
         {
             solucao = Solucao(instance);
-            construtivo = GreedyAlgNS::secondEchelonGreedy(solucao, instance, acoPar.alfaConst);
+            construtivo = GreedyAlgNS::secondEchelonGreedy(solucao, instance, acoPar.alfaConst, 0);
 
             if(construtivo)
                 break;
         }
-    }
+    }*/
 
     ublas::matrix<double> matFeromonio(instance.numNos, instance.numNos, acoPar.feromonioInicial);
     Ant antBest(instance, sateliteId, true);

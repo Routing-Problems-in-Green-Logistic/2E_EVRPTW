@@ -15,7 +15,7 @@ using namespace boost::numeric;
 
 
 // Roteamento dos veiculos eletricos
-bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const float alpha)
+bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const float alpha, const int satId, const vector<int> &vetSatAtendCliente)
 {
 
     //cout<<"**********************************************CONSTRUTIVO*****************************************\n\n";
@@ -45,17 +45,19 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
     std::fill(matCandidato.begin(), matCandidato.end(), ublas::zero_matrix<CandidatoEV*>(numLinhasMat, numColMat));
 
+//    int satId = sat;
 
     // Cria um candidato para cada cliente e armazena em matCandidato
     for(int clientId = FistIdClient; clientId <= LastIdClient; ++clientId)
     {
-        if(visitedClients[clientId] != 1)
+        if(visitedClients[clientId] != 1 && vetSatAtendCliente[clientId] == satId)
         {
 
             CandidatoEV candidatoEv;
             candidatoEv.clientId = clientId;
 
-            for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); ++satId)
+            //for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); ++satId)
+
             {
 
                 Satelite *sat = sol.getSatelite(satId);
@@ -123,7 +125,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
     };
 
-    while(!visitAllClientes(visitedClients, instance) && !listaCandidatos.empty())
+    while(!visitAllClientes(visitedClients, instance, vetSatAtendCliente, satId) && !listaCandidatos.empty())
     {
 
         int randIndex = rand_u32()%(int(alpha * listaCandidatos.size() + 1));
@@ -171,14 +173,14 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
 
                 CandidatoEV *candidatoEvPtrAux = matCandidato[sat->sateliteId](transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId));
 
-                if((!visitedClients[clientId]) && candidatoEvPtrAux && clientId != topItem->clientId)
+                if((!visitedClients[clientId]) && (vetSatAtendCliente[clientId] == satId) && candidatoEvPtrAux && clientId != topItem->clientId)
                 {
 
                     matCandidato[sat->sateliteId](transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId)) = nullptr;
                     CandidatoEV candidatoEv;
                     candidatoEv.clientId = clientId;
 
-                    for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); satId++)
+                    //for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); satId++)
                     {
 
                         bool routeEmpty = false;
@@ -236,7 +238,6 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
                         if(resultado)
                         {
                             matCandidato[candCopia.satId](transformaIdEv(candCopia.routeId), transformaIdCliente(candCopia.clientId)) = nullptr;
-
                             matCandidato[satId](transformaIdEv(candidatoEvPtrAux->routeId), transformaIdCliente(candidatoEvPtrAux->clientId)) = candidatoEvPtrAux;
                         }
 
@@ -245,7 +246,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
             }
         }
 
-        bool clientesAntendidos = visitAllClientes(visitedClients, instance);
+        bool clientesAntendidos = visitAllClientes(visitedClients, instance, vetSatAtendCliente, satId);
 
         if(!clientesAntendidos)
         {
@@ -294,13 +295,13 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao& sol, Instance& instance, const fl
     }
 
 
-    sol.viavel = visitAllClientes(visitedClients, instance);
+    sol.viavel = visitAllClientes(visitedClients, instance, vetSatAtendCliente, satId);
     return sol.viavel;
 }
 
 // run ../instancias/2e-vrp-tw/Customer_5/C101_C5x.txt 1652454289
 
-bool GreedyAlgNS::visitAllClientes(std::vector<int8_t> &visitedClients, const Instance &instance)
+bool GreedyAlgNS::visitAllClientes(std::vector<int8_t> &visitedClients, const Instance &instance, const vector<int> &vetSatAtendCliente, const int sat)
 {
 
     auto itClient = visitedClients.begin() + instance.getFirstClientIndex();
@@ -309,9 +310,9 @@ bool GreedyAlgNS::visitAllClientes(std::vector<int8_t> &visitedClients, const In
     for(; i < visitedClients.size(); ++i)
     {
 
-        if(visitedClients[i] == 0)
+        if(visitedClients[i] == 0 && vetSatAtendCliente[i] == sat)
             return false;
-        else if(visitedClients[i] != 1)
+        else if(visitedClients[i] != 1 && vetSatAtendCliente[i] == sat)
         {
             PRINT_DEBUG("\t\t", "indice "<<i<<"eh invalido para vetor visitedClients");
             throw "ERRO";
@@ -655,10 +656,12 @@ bool GreedyAlgNS::existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendi
     return false;
 }
 
-void GreedyAlgNS::construtivo(Solucao &Sol, Instance &instancia, const float alpha, const float beta)
+void GreedyAlgNS::setSatParaCliente(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado)
 {
+    std::fill(satUtilizado.begin()+1, satUtilizado.end(), 0);
+    std::fill(vetSatAtendCliente.begin()+1, vetSatAtendCliente.end(), -1);
 
-    vector<int> vetSatAtendCliente(instancia.numNos, -1);
+    satUtilizado[0] = -1;
 
     if(instancia.getNSats() > 1)
     {
@@ -669,26 +672,30 @@ void GreedyAlgNS::construtivo(Solucao &Sol, Instance &instancia, const float alp
 
             double soma = 0.0;
 
-            for(int sat = 0; sat < instancia.getNSats(); ++sat)
+/*            for(int sat = 0; sat < instancia.getNSats(); ++sat)
             {
                 double temp = 1.0 / (instancia.vetVetDistClienteSatelite[i])[sat].dist;
                 soma += temp;
                 vetProb[sat] = temp;
-            }
+            }*/
 
             int probAcum = 0;
-            int numAleat = rand_u32() % 101;
-            int sat;
+           // int numAleat = rand_u32() % 101;
+            int sat = rand_u32() % (max(int(instancia.numSats*0.1), 1));
 
-            for(sat = 0; sat < instancia.getNSats(); ++sat)
+/*            for(sat = 0; sat < instancia.getNSats(); ++sat)
             {
                 probAcum += int((vetProb[sat]/soma)*100);
 
                 if(probAcum >= numAleat)
                     break;
-            }
+            }*/
+
+            sat = sat %instancia.getNSats();
 
             vetSatAtendCliente[i] = (instancia.vetVetDistClienteSatelite[i])[sat].satelite;
+            satUtilizado[vetSatAtendCliente[i]] += 1;
+
             //cout<<"i: "<<i<<sat<<"\n";
         }
     }
@@ -701,20 +708,34 @@ void GreedyAlgNS::construtivo(Solucao &Sol, Instance &instancia, const float alp
         {
             vetSatAtendCliente[i] = sat;
         }
+
+        satUtilizado[1] = instancia.numClients;
     }
 
+}
 
-    for(int i = instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
-        cout<<i<<": "<<vetSatAtendCliente[i]<<"\n";
+void GreedyAlgNS::construtivo(Solucao &Sol, Instance &instancia, const float alpha, const float beta, const vector<int> &vetSatAtendCliente, vector<int> &satUtilizado)
+{
 
-    cout<<"\n";
-    exit(-1);
+    bool primeiroNivel = true;
 
-    if(secondEchelonGreedy(Sol, instancia, alpha))
+    for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+    {
+        if(satUtilizado[sat] >= 1)
+        {
+            primeiroNivel *= secondEchelonGreedy(Sol, instancia, alpha, sat, vetSatAtendCliente);
+
+        }
+
+    }
+
+    if(primeiroNivel)
     {
 
         firstEchelonGreedy(Sol, instancia, beta);
     }
+    else
+        Sol.viavel = false;
 
 }
 

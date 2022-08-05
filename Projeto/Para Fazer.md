@@ -38,6 +38,7 @@ Erro movimento shifit:
 # Mudanças
 
 - Numéro de rotas fixas: min(numEvs, 5)
+- Add rota sat ... cliente ... sat está deslidado. 05/08/22
 
 
 

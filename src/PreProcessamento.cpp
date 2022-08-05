@@ -23,6 +23,12 @@ using namespace NameViabRotaEv;
 
 ShortestPathSatCli::ShortestPathSatCli(Instance &instancia)
 {
+    start(instancia);
+}
+
+void ShortestPathSatCli::start(Instance &instancia)
+{
+
     fistCliente = instancia.getFirstClientIndex();
     numClientes = instancia.getNClients();
     numEstacoes = instancia.getN_RechargingS();
@@ -44,8 +50,14 @@ ShortestPathNo &ShortestPathSatCli::getShortestPath(int cliente)
 }
 
 
-void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli &shortestPathSatCli)
+void N_PreProcessamento::dijkstraSatCli(Instance &instancia)
 {
+    instancia.shortestPath = new ShortestPathSatCli[instancia.getNSats()+1];
+
+    for(int i=instancia.getFirstSatIndex(); i <= instancia.getEndSatIndex(); ++i)
+    {
+        instancia.shortestPath[i].start(instancia);
+    }
 
     std::vector<PreDecessorNo> preDecessorIda(instancia.numNos, PreDecessorNo());
     std::vector<PreDecessorNo> preDecessorVolta(instancia.numNos, PreDecessorNo());
@@ -144,7 +156,7 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
 
                 if(preDecessorVolta[sat].preDecessor != -1)
                 {
-                    ShortestPathNo &caminho = shortestPathSatCli.getShortestPath(i);
+                    ShortestPathNo &caminho = instancia.shortestPath[sat].getShortestPath(i);
                     double dist = preDecessorIda[i].dist + preDecessorVolta[sat].dist;
 
                     if(dist < caminho.distIdaVolta)
@@ -160,7 +172,7 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
                 {
                     if(preDecessorIda[i].preDecessor != -1)
                     {
-                        ShortestPathNo &caminho = shortestPathSatCli.getShortestPath(i);
+                        ShortestPathNo &caminho = instancia.shortestPath[sat].getShortestPath(i);
 
                         // Verifica se existe caminho de ida e volta
                         if(!(caminho.distIdaVolta < DOUBLE_INF))
@@ -182,71 +194,75 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia, ShortestPathSatCli 
 
     //cout<<"\n\nROTAS:\n\n";
 
-    shortestPathSatCli.vetEvRoute = vector<EvRoute>(instancia.getNClients(), EvRoute(instancia.getFirstSatIndex(), instancia.getFirstEvIndex(), instancia.getEvRouteSizeMax(), instancia));
-
-    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+    for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
     {
-        ShortestPathNo &caminho = shortestPathSatCli.getShortestPath(i);
-        EvRoute &evRoute = shortestPathSatCli.getEvRoute(i);
+        instancia.shortestPath[sat].vetEvRoute = vector<EvRoute>(instancia.getNClients(), EvRoute(instancia.getFirstSatIndex(), instancia.getFirstEvIndex(),
+                                                                                                  instancia.getEvRouteSizeMax(), instancia));
 
-        //cout<<i<<" : "<<caminho.distIdaVolta<<"\n\n";
-
-        if(caminho.distIda < DOUBLE_INF)
+        for(int i = instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
         {
-            std::reverse(caminho.caminhoIda.begin(), caminho.caminhoIda.end());
+            ShortestPathNo &caminho = instancia.shortestPath[sat].getShortestPath(i);
+            EvRoute &evRoute = instancia.shortestPath[sat].getEvRoute(i);
 
-            string rotaStr = NS_Auxiliary::printVectorStr(caminho.caminhoIda, caminho.caminhoIda.size());
+            //cout<<i<<" : "<<caminho.distIdaVolta<<"\n\n";
 
-            #if PRINT_DIJSTRA_CLIEN
+            if(caminho.distIda < DOUBLE_INF)
+            {
+                std::reverse(caminho.caminhoIda.begin(), caminho.caminhoIda.end());
+
+                string rotaStr = NS_Auxiliary::printVectorStr(caminho.caminhoIda, caminho.caminhoIda.size());
+
+#if PRINT_DIJSTRA_CLIEN
                 if(caminho.distIdaVolta >= DOUBLE_INF)
                     cout<<"\tRota Ida cliente "<<i<<" Dist: "<<caminho.distIda<<":\n\t"<<rotaStr<<"\n"<<"\tBT: "<<caminho.batIda<<"\n\n";
-            #endif
+#endif
 
-        }
-
-
-        if(caminho.distVolta < DOUBLE_INF)
-        {
-            std::reverse(caminho.caminhoVolta.begin(), caminho.caminhoVolta.end());
-        }
-
-        if(caminho.distIdaVolta < DOUBLE_INF)
-        {
-            evRoute.satelite = caminho.satId;
-            evRoute.demanda  = instancia.vectCliente[i].demanda;
-            evRoute.distancia = caminho.distIdaVolta;
-
-            for(int t=0; t < caminho.caminhoIda.size(); ++t)
-            {
-                evRoute.route[t].cliente = caminho.caminhoIda[t];
             }
 
-            evRoute.routeSize = caminho.caminhoIda.size();
 
-            for(int t=1; t < caminho.caminhoVolta.size(); ++t)
+            if(caminho.distVolta < DOUBLE_INF)
             {
-                evRoute.route[(caminho.caminhoIda.size()+t-1)].cliente = caminho.caminhoVolta[t];
-                evRoute.routeSize += 1;
+                std::reverse(caminho.caminhoVolta.begin(), caminho.caminhoVolta.end());
             }
 
-            #if PRINT_DIJSTRA_CLIEN
+            if(caminho.distIdaVolta < DOUBLE_INF)
+            {
+                evRoute.satelite = caminho.satId;
+                evRoute.demanda = instancia.vectCliente[i].demanda;
+                evRoute.distancia = caminho.distIdaVolta;
+
+                for(int t = 0; t < caminho.caminhoIda.size(); ++t)
+                {
+                    evRoute.route[t].cliente = caminho.caminhoIda[t];
+                }
+
+                evRoute.routeSize = caminho.caminhoIda.size();
+
+                for(int t = 1; t < caminho.caminhoVolta.size(); ++t)
+                {
+                    evRoute.route[(caminho.caminhoIda.size() + t - 1)].cliente = caminho.caminhoVolta[t];
+                    evRoute.routeSize += 1;
+                }
+
+#if PRINT_DIJSTRA_CLIEN
                 cout<<"\tRota Completa: ";
                 NS_Auxiliary::printVectorCout(evRoute.route, evRoute.routeSize);
-            #endif
+#endif
 
-            int sat = evRoute[0].cliente;
-            evRoute[0].tempoSaida = instancia.vetTempoSaida[sat];
-            double r = testaRota(evRoute, evRoute.routeSize, instancia, true, instancia.vetTempoSaida[sat], 0, nullptr);
+                evRoute[0].tempoSaida = instancia.vetTempoSaida[sat];
+                double r = testaRota(evRoute, evRoute.routeSize, instancia, true, instancia.vetTempoSaida[sat], 0,
+                                     nullptr);
 
-            if(r <= 0.0)
-            {
-                cout<<"ERRO, DIST NEGATIVA\n";
-                string str;
-                evRoute.print(str, instancia, false);
+                if(r <= 0.0)
+                {
+                    cout << "ERRO, DIST NEGATIVA\n";
+                    string str;
+                    evRoute.print(str, instancia, false);
 
-                cout<<"ROTA: "<<str<<"\n";
-                PRINT_DEBUG("", "");
-                throw "ERRO";
+                    cout << "ROTA: " << str << "\n";
+                    PRINT_DEBUG("", "");
+                    throw "ERRO";
+                }
             }
         }
     }

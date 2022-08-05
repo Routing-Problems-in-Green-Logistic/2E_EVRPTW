@@ -27,6 +27,12 @@ saida = saida[0]
 data = saida.decode("utf-8")
 print(data)
 
+data = data.replace(' ', '__')
+data = data.replace('/', '_')
+data = data.replace('\n', '')
+resultados = "resultados_"+data+".csv"
+
+
 '''
 nome ='mkdir ' + 'resultados_'  + data
 
@@ -74,7 +80,7 @@ Tabela com:
 
 lista = [(' ', 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
 
-tamanhoInst = [5, 10, 15, 100]
+tamanhoInst = [100]#[5, 10, 15]
 diretorioIni = 'instancias/2e-vrp-tw/'
 instancias = []
 
@@ -122,8 +128,8 @@ for instancia in instancias:
     
     for i in range(numExecucoes):
 
-      time.sleep(1)
-      strExecutavel = 'src/cmake-build-debug2//run ' + str(instancia) # + ' > /dev/null'
+      #time.sleep(1)
+      strExecutavel = 'src/cmake-build-debug//run ' + str(instancia) + ' ' +str(resultados) # + ' > /dev/null'
       os.system(strExecutavel)
        	#ramdom.write(str(semente))
        	#ramdom.write('\n')

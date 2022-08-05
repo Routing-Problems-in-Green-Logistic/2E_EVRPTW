@@ -154,7 +154,7 @@ for i in range(len(nodeId)):
 
 for route in routes:
     print(route)
-    if len(route) == 0:
+    if len(route) <= 1:
        continue
     if nodeType[route[0]] == 'S':
         color = satColors[route[0]-1]
@@ -163,6 +163,7 @@ for route in routes:
 
     tipoRota = '-'
 
+    print(route)
     if route[1] <= numSat:
         tipoRota = '-.'
 

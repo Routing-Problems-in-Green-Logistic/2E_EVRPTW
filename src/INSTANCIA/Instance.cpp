@@ -6,6 +6,7 @@
 #include <boost/format.hpp>
 #include "../Auxiliary.h"
 #include "../greedyAlgorithm.h"
+#include "../PreProcessamento.h"
 
 using namespace std;
 
@@ -343,6 +344,9 @@ Instance::~Instance()
             matEstacao(i,j) = nullptr;
         }
     }
+
+    if(shortestPath != nullptr)
+        delete []shortestPath;
 }
 
 void Instance::print() const

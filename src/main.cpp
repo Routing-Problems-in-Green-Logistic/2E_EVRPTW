@@ -67,7 +67,7 @@ void leSolucao(Solucao &solucao, Instance &instancia, string &file);
 
 #define MAIN MAIN_METODO_2
 //#define MAIN MAIN_DIST
-#define PRINT_RESULT TRUE
+#define PRINT_RESULT FALSE
 
 //#if MAIN == MAIN_METODO_2
 
@@ -82,19 +82,27 @@ int main(int argc, char* argv[])
     }
 
     uint32_t semente = 0;
-
+    string fileResultado = "resultado.csv";
 
     if(argc == 3)
     {
         semente = atoll(argv[2]);
+
         //cout<<"SEMENTE: \t"<<semente<<"\n";
     }
-    else
+
+
+
+    if(semente == 0)
     {
         //auto aux = std::chrono::high_resolution_clock::now();
         semente = duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
+        if(argc == 3)
+            fileResultado = string(argv[2]);
+
     }
+
 
     seed(semente);
     std::string file(argv[1]);
@@ -158,11 +166,7 @@ int main(int argc, char* argv[])
         auto start = std::chrono::high_resolution_clock::now();
 
 
-
-            ShortestPathSatCli shortestPathSatCli(instance);
-            dijkstraSatCli(instance, shortestPathSatCli);
-            instance.shortestPath = &shortestPathSatCli;
-
+            dijkstraSatCli(instance);
             Estatisticas estat;
             Solucao *solBest = nullptr;
             solBest = grasp(instance, parametros, estat);
@@ -182,9 +186,9 @@ int main(int argc, char* argv[])
 
         escreveSolucao(*solBest, instance, arquivoSol);
 
-        bool exists = std::filesystem::exists("resultado.csv");
+        bool exists = std::filesystem::exists(fileResultado);
         std::ofstream outfile;
-        outfile.open("resultado.csv", std::ios_base::app);
+        outfile.open(fileResultado, std::ios_base::app);
         if(!exists)
         {
             string dataStr;
@@ -221,7 +225,7 @@ int main(int argc, char* argv[])
             outfile << nomeInst << ";\t" <<saida<<";\n";//\t\t"<<tempoPocStr<<"\n";
 
 #if PRINT_RESULT
-            cout<<nomeInst << ";\t" <<saida<<";\t\t"<<tempoPocStr<<"\n";
+            cout<<nomeInst << ";\t" <<saida<<"\n";//<<";\t\t"<<tempoPocStr<<"\n";
 #endif
 
 /*            cout<<"\n\n";

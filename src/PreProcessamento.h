@@ -131,7 +131,7 @@ namespace N_PreProcessamento
         PreDecessorNo(int pre, double b, double d){preDecessor=pre; bateria=b; dist=d;}
     };
 
-    void dijkstraSatCli(Instance &instancia, ShortestPathSatCli &shortestPathSatCli);
+    void dijkstraSatCli(Instance &instancia);
     void dijkstra(Instance &instancia, const int clienteSorce, const int veicId, double bateria,
                   std::vector<DijkstraNo> &minHeap, std::vector<PreDecessorNo> &preDecessor,
                   const std::vector<bool> &excluidos, const bool clienteCliente, std::vector<int> &vetIndiceMinHeap,
@@ -164,6 +164,8 @@ public:
 
     explicit ShortestPathSatCli(Instance &instancia);
     ShortestPathSatCli()=default;
+
+    void start(Instance &instance);
 
     N_PreProcessamento::ShortestPathNo& getShortestPath(int cliente);
     EvRoute& getEvRoute(int cliente);
