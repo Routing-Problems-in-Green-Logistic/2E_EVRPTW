@@ -100,12 +100,12 @@ int Instance::getN_Trucks() const
     return numTruck;
 }
 
-double Instance::getDistance(int n1, int n2) const {
+inline double Instance::getDistance(int n1, int n2) const {
 
     return matDist(n1,n2);
 }
 
-int Instance::getFirstClientIndex() const {
+inline int Instance::getFirstClientIndex() const {
     return 1 + numSats + numRechargingS;
 
 }
@@ -309,6 +309,26 @@ Instance::Instance(const std::string &str, const std::string &nome_)
     penalizacaoDistEv   = calculaPenalizacaoDistEv();
     penalizacaoDistComb = calculaPenalizacaoDistComb();
     vetTempoSaida = std::move(GreedyAlgNS::calculaTempoSaidaInicialSat(*this));
+
+    vetVetDistClienteSatelite = vector<vector<DistSatelite>>(numNos);
+
+    for(int i=getFirstClientIndex(); i <= getEndClientIndex(); ++i)
+    {
+        vector<DistSatelite> &vetDistClienteSat = vetVetDistClienteSatelite[i];
+
+        vetDistClienteSat = vector<DistSatelite>(numSats+1);
+        vetDistClienteSat[numSats].satelite = 0;
+        vetDistClienteSat[numSats].dist     = DOUBLE_INF;
+
+        for(int s=getFirstSatIndex(); s <= getEndSatIndex(); ++s)
+        {
+            vetDistClienteSat[s-1].satelite = s;
+            vetDistClienteSat[s-1].dist = getDistance(s, i);
+        }
+
+        std::sort(vetDistClienteSat.begin(), vetDistClienteSat.end());
+    }
+
 
 }
 

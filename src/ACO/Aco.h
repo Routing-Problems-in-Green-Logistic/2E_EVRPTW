@@ -71,6 +71,18 @@ namespace N_Aco
             satelite.copia(antOutra.satelite);
             vetNosAtend = antOutra.vetNosAtend;
         }
+
+        bool operator < (const Ant &ant) const
+        {
+            if(viavel && (!ant.viavel || ant.vazia))
+                return true;
+
+
+            if((!viavel || vazia) && ant.viavel)
+                return false;
+
+            return satelite.distancia < ant.satelite.distancia;
+        }
     };
 
     class Proximo
@@ -101,7 +113,7 @@ namespace N_Aco
     void atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &instancia, const AcoParametros &acoParam, const Ant &antBest, const double feromMin, const double feromMax);
     void evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instance &instancia, const AcoParametros &acoParam, const double feromMin);
     bool clienteJValido(Instance &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat);
-    void atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance);
+    void atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance, Satelite &sat);
 
 }
 

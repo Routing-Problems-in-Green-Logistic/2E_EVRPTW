@@ -56,6 +56,19 @@ struct EstMaisProx
     }
 };
 
+// Guarda a distacia do cliente para um satelite
+struct DistSatelite
+{
+   int satelite = -1;
+   double dist  = 0.0;
+
+   bool operator < (const DistSatelite &outro) const
+   {
+       return dist < outro.dist;
+   }
+
+};
+
 class Instance{
 public:
     Instance(const std::string &file, const std::string &nome_);
@@ -143,6 +156,9 @@ public:
     bool bestInsViabRotaEv = false;
 
     ShortestPathSatCli *shortestPath;
+
+    // Guarda a distancia ate o satelite de forma ordenada para cada cliete
+    vector<vector<DistSatelite>> vetVetDistClienteSatelite;
 
     string nome;
 

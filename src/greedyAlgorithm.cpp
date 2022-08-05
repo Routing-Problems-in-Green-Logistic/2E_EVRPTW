@@ -655,18 +655,66 @@ bool GreedyAlgNS::existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendi
     return false;
 }
 
-void GreedyAlgNS::construtivo(Solucao &Sol, Instance &Inst, const float alpha, const float beta)
+void GreedyAlgNS::construtivo(Solucao &Sol, Instance &instancia, const float alpha, const float beta)
 {
-    //if(secondEchelonGreedy(sol, Inst, alpha))
-    if(secondEchelonGreedy(Sol, Inst, alpha))
+
+    vector<int> vetSatAtendCliente(instancia.numNos, -1);
+
+    if(instancia.getNSats() > 1)
+    {
+        vector<double> vetProb(instancia.getNSats() + 1);
+
+        for(int i = instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+        {
+
+            double soma = 0.0;
+
+            for(int sat = 0; sat < instancia.getNSats(); ++sat)
+            {
+                double temp = 1.0 / (instancia.vetVetDistClienteSatelite[i])[sat].dist;
+                soma += temp;
+                vetProb[sat] = temp;
+            }
+
+            int probAcum = 0;
+            int numAleat = rand_u32() % 101;
+            int sat;
+
+            for(sat = 0; sat < instancia.getNSats(); ++sat)
+            {
+                probAcum += int((vetProb[sat]/soma)*100);
+
+                if(probAcum >= numAleat)
+                    break;
+            }
+
+            vetSatAtendCliente[i] = (instancia.vetVetDistClienteSatelite[i])[sat].satelite;
+            //cout<<"i: "<<i<<sat<<"\n";
+        }
+    }
+    else
     {
 
-        firstEchelonGreedy(Sol, Inst, beta);
+        int sat = instancia.getFirstSatIndex();
+
+        for(int i = instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+        {
+            vetSatAtendCliente[i] = sat;
+        }
     }
 
-    //cout<<"*****************************\\FIM CONSTRUTIVO*****************************\n\n";
 
-    //Sol.print(Inst);
+    for(int i = instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+        cout<<i<<": "<<vetSatAtendCliente[i]<<"\n";
+
+    cout<<"\n";
+    exit(-1);
+
+    if(secondEchelonGreedy(Sol, instancia, alpha))
+    {
+
+        firstEchelonGreedy(Sol, instancia, beta);
+    }
 
 }
 

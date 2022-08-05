@@ -102,9 +102,6 @@ int main(int argc, char* argv[])
 
     Instance instance(file, nomeInst);
 
-    cout<<"CAPACIDADE: "<<instance.getTruckCap(0)<<"\n";
-    return 0;
-
     //cout<<nomeInst<<" ; "<<instance.numRechargingS<<" ; "<<instance.numSats<<" ; "<<instance.numEv<<" ; "<<instance.numTruck<<"\n";
 
     //instance.print();
@@ -227,7 +224,7 @@ int main(int argc, char* argv[])
             cout<<nomeInst << ";\t" <<saida<<";\t\t"<<tempoPocStr<<"\n";
 #endif
 
-            cout<<"\n\n";
+/*            cout<<"\n\n";
 
             for(Route &route:solBest->primeiroNivel)
             {
@@ -238,7 +235,7 @@ int main(int argc, char* argv[])
 
                     cout<<"\n";
                 }
-            }
+            }*/
 
         }
         else

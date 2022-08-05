@@ -136,7 +136,7 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
                            pos += 1;
 
                            // Atualiza evRoute
-                           atualizaClienteJ(evRoute, pos, vetProximo[proxClienteInd].cliente, instance);
+                           atualizaClienteJ(evRoute, pos, vetProximo[proxClienteInd].cliente, instance, ant.satelite);
 
 
                        }
@@ -156,12 +156,27 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
             }
 
             if(!existeClienteNaoVisitado(ant, instance))
+            {
                 ant.viavel = true;
+
+                if(ant.satelite.distancia < antBest.satelite.distancia)
+                    antBest.copia(ant);
+
+            }
+
         }
+
+        // Evapora e atualiza o feromonio com a melhor formiga
+        if(antBest.viavel)
+        {
+            double feromMax = 1.0/antBest.satelite.distancia;
+            atualizaFeromonio(matFeromonio, instance, acoPar, antBest, 0.1*feromMax, feromMax);
+        }
+
     }
 }
 
-void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance)
+void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance, Satelite &sat)
 {
 
     const double dist_i_j = instance.getDistance(evRoute[pos-1].cliente, clienteJ);
@@ -195,6 +210,9 @@ void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ
     evRoute[pos].bateriaRestante = bat;
     evRoute.distancia += dist_i_j;
     evRoute.demanda += instance.vectCliente[clienteJ].demanda;
+
+    sat.distancia += dist_i_j;
+    sat.demanda += instance.vectCliente[clienteJ].demanda;
 
 }
 
@@ -294,5 +312,3 @@ void N_Aco::evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<i
     }
 
 }
-
-
