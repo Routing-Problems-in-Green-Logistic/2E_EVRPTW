@@ -18,6 +18,9 @@ using namespace boost::numeric;
 bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const float alpha, const int satId, const vector<int> &vetSatAtendCliente)
 {
 
+    if(sol.numEv > sol.numEvMax)
+        return false;
+
     //cout<<"**********************************************CONSTRUTIVO*****************************************\n\n";
 
     std::vector<int8_t> &visitedClients = sol.vetClientesAtend;
@@ -68,6 +71,8 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
                     if(route.routeSize <= 2 && !rotaVazia)
                         rotaVazia = true;
                     else if(route.routeSize <= 2 && rotaVazia)
+                        continue;
+                    else if(route.routeSize <= 2 && sol.numEv >= sol.numEvMax)
                         continue;
 
                     CandidatoEV candidatoEvAux(candidatoEv);
@@ -172,8 +177,28 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
             {
 
                 CandidatoEV *candidatoEvPtrAux = matCandidato[sat->sateliteId](transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId));
+                bool numEVs_max = false;
 
-                if((!visitedClients[clientId]) && (vetSatAtendCliente[clientId] == satId) && candidatoEvPtrAux && clientId != topItem->clientId)
+                if(candidatoEvPtrAux == nullptr && sol.numEv >= sol.numEvMax)
+                {
+                    CandidatoEV *candidatoEvTemp = vetCandPtr[transformaIdCliente(clientId)];
+
+                    if(candidatoEvTemp != nullptr)
+                    {
+                        int evRouteId = candidatoEvTemp->routeId;
+                        EvRoute &evRoute1 = sol.satelites[satId].getRoute(evRouteId);
+
+                        if(evRoute1.routeSize <= 2)
+                        {
+                            matCandidato[satId](transformaIdEv(evRouteId), transformaIdCliente(clientId)) = nullptr;
+                            numEVs_max = true;
+                        }
+
+                    }
+                }
+
+                if(((!visitedClients[clientId]) && (vetSatAtendCliente[clientId] == satId) && candidatoEvPtrAux && clientId != topItem->clientId)
+                    || numEVs_max)
                 {
 
                     matCandidato[sat->sateliteId](transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId)) = nullptr;
@@ -193,6 +218,9 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
                             if(route.routeSize <= 2 && !routeEmpty)
                                 routeEmpty = true;
                             else if(route.routeSize <= 2 && routeEmpty)
+                                continue;
+
+                            if(route.routeSize <= 2 && sol.numEv >= sol.numEvMax)
                                 continue;
 
                             canInsert(route, clientId, instance, candidatoEv, satId, vetTempoSaida[satId], evRouteAux);
@@ -931,6 +959,17 @@ bool GreedyAlgNS::insert(EvRoute &evRoute, CandidatoEV &insertion, const Instanc
      * *********************************************************************************************
      * *********************************************************************************************
      */
+
+    if(evRoute.routeSize <= 2)
+    {
+        sol.numEv += 1;
+
+        if(sol.numEv > sol.numEvMax)
+        {
+            PRINT_DEBUG("", "ERRO. NUMERO DE EVS UTILIZADOS ("<<sol.numEv<<") EH MAIOR QUE MAX EVS("<<sol.numEvMax<<")");
+            throw "ERRO";
+        }
+    }
 
     int k = pos;
     shiftVectorDir(evRoute.route, pos+1, 1, evRoute.routeSize);

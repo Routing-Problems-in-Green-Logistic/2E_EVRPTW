@@ -1,14 +1,14 @@
+
 - [ ] \<Tarefa\> \<Tempo\>
 
 
 
 ***
 
-# 01/08 Seg
+# 08/08 Seg
 
-- [ ] Verificar ordem de insercao heurística gulosa
-- [x] Desabilitar inserção de rotas: sat <estacao...> cliente <estacao...> sat
-- [x] Corrigir mv shifit
+- [x] Restringir o numero de EVs
+- [ ] Corrigir mv shifit
 - [ ] ACO
 - [ ] Tabela
 
@@ -16,6 +16,11 @@ Erro movimento shifit:
 
 	Tempo de saída no mv shifit deve ser de Solucao::satTempoChegMax e nao da instancia!. Provavelmente!
 
+NumEVs:
+
+- Quando numEvs == numMaxEvs:
+	- Percorrer lista de candidatos 
+	- Se evRoute do candidato i é vazia, encontrar uma nova rota(não vazia) para o cliente
 
 ***
 
@@ -37,8 +42,8 @@ Erro movimento shifit:
 
 # Mudanças
 
-- Numéro de rotas fixas: min(numEvs, 5)
-- Add rota sat ... cliente ... sat está deslidado. 05/08/22
+- Numéro de rotas fixas: min(numEvMax, 5)
+
 
 
 
@@ -51,3 +56,14 @@ Erro movimento shifit:
 	- cliente j não visitado (viável)
 	- estação de recarga j
 	- Viável: É possível ir do cliente até uma estação de recarga ou voltar para o depósito.
+
+
+
+---
+
+# Gurobi
+- Parâmetros:
+	- `NoRelHeurTime`
+	- Symmetry
+- 
+

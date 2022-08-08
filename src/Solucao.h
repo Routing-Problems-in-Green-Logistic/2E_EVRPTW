@@ -28,9 +28,10 @@ public:
 
     // Guarda o ultimo tempo de chegada do veiculo do 1° nivel
     std::vector<double> satTempoChegMax;
-    int numTrucks;
-    int numEvs;
-    bool viavel = true;
+    int numTrucksMax = -1;
+    int numEvMax     = -1;
+    int numEv        = 0;                   // Num Ev utilizados
+    bool viavel      = true;
     std::vector<Route> primeiroNivel;
     bool mvShiftIntraRota = false;
     bool mvShiftInterRotas = false;

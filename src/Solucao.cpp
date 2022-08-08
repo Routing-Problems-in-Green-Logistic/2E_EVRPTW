@@ -12,12 +12,12 @@ Solucao::Solucao(Instance &Inst)
         satelites.emplace_back(Inst, i);
 
 
-    numTrucks = Inst.getN_Trucks();
-    numEvs = Inst.getN_Evs();
+    numTrucksMax = Inst.getN_Trucks();
+    numEvMax = Inst.getN_Evs();
 
-    primeiroNivel.reserve(numTrucks);
+    primeiroNivel.reserve(numTrucksMax);
 
-    for(int i=0; i < numTrucks; ++i)
+    for(int i=0; i < numTrucksMax; ++i)
         primeiroNivel.emplace_back(Inst);
 
     satTempoChegMax.reserve(Inst.getNSats()+1);
@@ -155,7 +155,7 @@ bool Solucao::checkSolution(std::string &erro, Instance &inst)
 
     string aux;
 
-    for(int t=0; t < numTrucks; ++t)
+    for(int t=0; t < numTrucksMax; ++t)
     {
         Route &route = primeiroNivel[t];
 
@@ -355,7 +355,7 @@ void Solucao::copia(Solucao &solution)
 
     distancia = solution.distancia;
     viavel = solution.viavel;
-
+    numEv = solution.numEv;
 
     for(int s=0; s <= solution.getNSatelites(); ++s)
         satelites[s].copia(solution.satelites[s]);

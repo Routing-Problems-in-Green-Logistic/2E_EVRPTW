@@ -199,6 +199,9 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
                                 addRotaCliente(sol, instance, evRouteSP, cliente);
                                 clientesAdd += 1;
+
+                                if(clientesAdd == sol.numEvMax)
+                                    break;
                             }
 
                             add = true;
@@ -551,7 +554,7 @@ void NameS_Grasp::addRotaCliente(Solucao &sol, Instance &instancia, const EvRout
         return;
 
     string str;
-    evRoute.print(str, instancia, true);
+    //evRoute.print(str, instancia, true);
 
     int sat = evRoute.satelite;
 
@@ -569,6 +572,8 @@ void NameS_Grasp::addRotaCliente(Solucao &sol, Instance &instancia, const EvRout
 
     if(sol.satelites[sat].vetEvRoute[next].routeSize > 2)
         return;
+
+    sol.numEv += 1;
 
     int aux = sol.satelites[sat].vetEvRoute[next].idRota;
     sol.satelites[sat].vetEvRoute[next].copia(evRoute);
