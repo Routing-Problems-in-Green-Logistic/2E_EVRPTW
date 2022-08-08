@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
             num = 1;
 
         //Parametros parametros(NUM_EXEC, 110, vetAlfa, 100, num);
-        Parametros parametros(NUM_EXEC, 250, vetAlfa, 200, num);
+        Parametros parametros(NUM_EXEC, 200, vetAlfa, 150, num, 0.1);
 
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -218,7 +218,7 @@ int main(int argc, char* argv[])
             double dist1Nivel = solBest->getDist1Nivel();
             double dist2Nivel = solBest->getDist2Nivel();
 
-            string saida = str(boost::format("%.2f; \t%.2f;\t\t%d;\t%.2f;\t%.2f;\t\t%.2f;\t\t%d") % float(estat.media()) % float(solBest->distancia) % estat.numSol % float(tempo) % float(dist1Nivel/solBest->distancia) % float(dist2Nivel/solBest->distancia) % estat.ultimaAtualizacaoBest);
+            string saida = str(boost::format("%.2f; \t%.2f; \t%d;\t%.2f;\t%.2f;\t\t%.2f;\t\t%d") % float(estat.media()) % float(solBest->distancia) % estat.numSol % float(tempo) % float(dist1Nivel/solBest->distancia) % float(dist2Nivel/solBest->distancia) % estat.ultimaAtualizacaoBest);
             saida += "\t\t"+tempoPocStr + "\t\t"+ to_string(solBest->numEv);
 
             //string saida = str(boost::format("%.2f") % float(estat.media()));

@@ -165,4 +165,28 @@ public:
 
 };
 
+
+class Parametros
+{
+
+public:
+
+    int numIteGrasp                     = 0;         // Numero de itracoes para o grasp
+    int iteracoesCalProb                = 50;        // Numero de iteracoes para calcular a prob de inserir uma rota: sat ... EST ... CLIENTE ... EST ... sat
+    std::vector<float> vetAlfa;
+    int numAtualProbReativo             = 50;        // Numero de iteracoes para atualizar a probabilidade do reativo
+    int numMaxClie                      = 0;         // Numero maximo de clientes(que NAO conseguem ser inseridos com heur) adicionados a solucao
+    float paramFuncSetSatParaCliente    = 0.1;       // Percentual de sat a ser considerados na funcao GreedyAlgNS::setSatParaCliente
+    Parametros()=default;
+    Parametros(int numIteGrasp_, int iteracoesCalProb_, const std::vector<float> &vetAlfa_, int numAtualProbReativo_, int numMaxClie_, float paramFuncSetSatParaCliente_)
+    {
+        numIteGrasp                 = numIteGrasp_;
+        iteracoesCalProb            = iteracoesCalProb_;
+        vetAlfa                     = vetAlfa_;
+        numAtualProbReativo         = numAtualProbReativo_;
+        numMaxClie                  = numMaxClie_;
+        paramFuncSetSatParaCliente  = paramFuncSetSatParaCliente_;
+    }
+};
+
 #endif

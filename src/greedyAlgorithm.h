@@ -96,7 +96,7 @@ namespace GreedyAlgNS
     bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instance &instance, bool modficaSatelite);
 
     std::vector<double> calculaTempoSaidaInicialSat(const Instance &instance);
-    void setSatParaCliente(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado);
+    void setSatParaCliente(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, Parametros &param);
 
 
 }

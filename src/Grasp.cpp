@@ -128,14 +128,14 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
     {
 
         Solucao sol(instance);
-        setSatParaCliente(instance, vetSatAtendCliente, satUtilizado);
+        setSatParaCliente(instance, vetSatAtendCliente, satUtilizado, parametros);
+
 
         if(i == parametros.iteracoesCalProb) //&& (i%parametros.iteracoesCalProb)==0)
         {
 
             for(int t=0; t < instance.getNClients(); ++t)
             {
-                //cout<<"cliente: "<<convClienteIndVet(t)<<" "<<vetSatAtendCliente[convClienteIndVet(t)]<<"\n";
 
                 const EvRoute &evRouteAux = instance.shortestPath[vetSatAtendCliente[convClienteIndVet(t)]].getEvRoute(convClienteIndVet(t));
 
