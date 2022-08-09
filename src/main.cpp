@@ -301,7 +301,8 @@ int main(int argc, char* argv[])
 int main(int argc, char* argv[])
 {
 
-    int semente = 0;//duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    int y = 0;
+    int semente = 0;
 
     if(argc == 3)
         semente = atoi(argv[2]);
@@ -311,9 +312,12 @@ int main(int argc, char* argv[])
 
     seed(semente);
 
+    cout<<"y = "<<y<<"\n";
+
     if(argc == 1 || argc > 3)
     {
-        cout<<"Compilado em: "<<__DATE__<<", "<<__TIME__<<".\n";
+        cout<<"Compilado em: \t"<<__DATE__<<", "<<__TIME__<<"\n";
+        cout<<"Commit: \tf7d1f0fbd4de1288fc027810a969822e3ba4e3dc\n\n";
         std::cerr<<"FORMATO: ./a.out file.txt\n";
         return -1;
     }
