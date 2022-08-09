@@ -25,7 +25,7 @@ namespace N_Aco
         double alfaConst        = 0.2;
         double ro               = 0.8;
         double q0               = 0.8;
-        int numAnts             = 10;
+        int numAnts             = 1;
         int8_t freqAtualAntBest = 25;
         int numIteracoes        = 2;
         int numItMaxHeur        = 20;
@@ -127,7 +127,7 @@ cout<<"\t\t\t\t"<<_cliente<<": dist("<<dist<<"); ferom("<<ferom<<")\n";
     void atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &instancia, const AcoParametros &acoParam, const Ant &antBest, const double feromMin, const double feromMax);
     void evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instance &instancia, const AcoParametros &acoParam, const double feromMin);
     bool clienteJValido(Instance &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat);
-    void atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance, Satelite &sat);
+    void atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance, Ant &ant);
 
 }
 

@@ -3,6 +3,9 @@
  *  Nome:    Igor de Andrade Junqueira
  *  Data:    21/07/22
  *  Arquivo: Aco.cpp
+ *
+ *  ERRO PROVAVELMENTE NA FUNC.: atualizaClienteJ
+ *
  * ****************************************
  * ****************************************/
 
@@ -115,7 +118,6 @@ cout<<clienteI<<" ";
                         if(clienteJValido(instance, clienteI, sateliteId, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId))
                             atualizaVetProx(sateliteId);
 
-
                         // Clientes
                        for(int j=instance.getFirstClientIndex(); j < instance.getEndClientIndex(); ++j)
                        {
@@ -144,10 +146,12 @@ cout<<"\n\t\ttam: "<<proxVetProximo<<"\n";
                            int proxClienteInd = 0;
                            static const int q0 = int(acoPar.q0*100);
 
+                           std::sort(vetProximo.begin(), vetProximo.begin()+proxVetProximo);
+
 
                            for(int i=0; i < proxVetProximo; ++i)
                            {
-                               cout<<"\t\t\t"<<vetProximo[i].cliente<<"("<<vetProximo[i].ferom_x_dist<<"\n";
+cout<<"\t\t\t"<<vetProximo[i].cliente<<"("<<vetProximo[i].ferom_x_dist<<") "<<i<<"\n";
                            }
 
                            if((rand_u32()%101) <= q0)
@@ -156,12 +160,7 @@ cout<<"\n\t\ttam: "<<proxVetProximo<<"\n";
                            }
                            else
                            {
-                               std::sort(vetProximo.begin(), vetProximo.begin()+proxVetProximo);
 
-                               for(int i=0; i < proxVetProximo; ++i)
-                               {
-                                   cout<<"\t\t\t"<<vetProximo[i].cliente<<"("<<vetProximo[i].ferom_x_dist<<"\n";
-                               }
 
                                double prob = 0.0;
                                int numRand = rand_u32()%100;
@@ -176,13 +175,12 @@ cout<<"\n\t\ttam: "<<proxVetProximo<<"\n";
                            }
 
                            // Cliente j foi escolhido
-                           pos += 1;
 
 cout<<"Cliente escolhido: "<<vetProximo[proxClienteInd].cliente<<"\n";
 
                            // Atualiza evRoute
-                           atualizaClienteJ(evRoute, pos, vetProximo[proxClienteInd].cliente, instance, ant.satelite);
-
+                           atualizaClienteJ(evRoute, pos, vetProximo[proxClienteInd].cliente, instance, ant);
+                           pos += 1;
 
                        }
                        else
@@ -211,6 +209,13 @@ cout<<"\n\n";
                 if(ant.satelite.distancia < antBest.satelite.distancia)
                     antBest.copia(ant);
             }
+
+cout<<"\n*************************************************\n\n";
+            string strSat;
+            ant.satelite.print(strSat, instance);
+
+cout<<strSat<<"\n\n*************************************************\n\n";
+
 
         }
 
@@ -248,13 +253,13 @@ cout<<"ANT BEST EH INVIAVEL\n";
     }
 }
 
-void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance, Satelite &sat)
+void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance, Ant &ant)
 {
 
-    const double dist_i_j = instance.getDistance(evRoute[pos-1].cliente, clienteJ);
-    evRoute[pos].cliente = clienteJ;
+    const double dist_i_j = instance.getDistance(evRoute[pos].cliente, clienteJ);
+    evRoute[pos+1].cliente = clienteJ;
     evRoute.routeSize = pos+1;
-    evRoute[pos].tempoCheg = evRoute[pos-1].tempoSaida+dist_i_j;
+    evRoute[pos+1].tempoCheg = evRoute[pos-1].tempoSaida+dist_i_j;
 
     double bat = evRoute[pos].bateriaRestante-dist_i_j;
 
@@ -263,14 +268,15 @@ void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ
     {
         string strRota;
         evRoute.print(strRota, instance, false);
-        PRINT_DEBUG("", "ERRO, Deveria ser possivel chegar no cliente "<<clienteJ<<"; bat: "<<evRoute[pos].bateriaRestante<<"\nRota: "<<strRota);
+        PRINT_DEBUG("", "ERRO, Deveria ser possivel chegar no cliente "<<clienteJ<<"; bat: "<<bat<<"\nRota: "<<strRota);
+        cout<<"pos: "<<pos<<"\n";
         throw "ERRO";
     }
 
     if(instance.isRechargingStation(clienteJ))
     {
         double dif = instance.getEvBattery(evRoute.idRota) - (evRoute[pos].bateriaRestante-dist_i_j);
-        evRoute[pos].tempoSaida = evRoute[pos].tempoCheg+instance.vectVeiculo[evRoute.idRota].taxaRecarga*dif;
+        evRoute[pos+1].tempoSaida = evRoute[pos+1].tempoCheg+instance.vectVeiculo[evRoute.idRota].taxaRecarga*dif;
         bat = instance.getEvBattery(evRoute.idRota);
     }
     else
@@ -279,12 +285,13 @@ void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ
     }
 
 
-    evRoute[pos].bateriaRestante = bat;
+    evRoute[pos+1].bateriaRestante = bat;
     evRoute.distancia += dist_i_j;
     evRoute.demanda += instance.vectCliente[clienteJ].demanda;
 
-    sat.distancia += dist_i_j;
-    sat.demanda += instance.vectCliente[clienteJ].demanda;
+    ant.satelite.distancia += dist_i_j;
+    ant.satelite.demanda += instance.vectCliente[clienteJ].demanda;
+    ant.vetNosAtend[evRoute[pos+1].cliente] += 1;
 
 }
 
