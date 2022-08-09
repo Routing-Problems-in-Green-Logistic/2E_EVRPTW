@@ -17,11 +17,23 @@
 using namespace std;
 using namespace boost::numeric;
 
-void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, const vector<int8_t> &clientes, const int sateliteId, Satelite &satBest)
+/* ******************************************************************************************************
+ * ******************************************************************************************************
+ * @param instance
+ * @param acoPar
+ * @param acoEst
+ * @param sateliteId
+ * @param satBest
+ * @param vetSatAtendCliente
+ * ******************************************************************************************************
+ * ******************************************************************************************************
+ */
+void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest, const vector<int> &vetSatAtendCliente)
 {
 
+    /*
     Solucao solucao(instance);
-/*    bool construtivo = GreedyAlgNS::secondEchelonGreedy(solucao, instance, acoPar.alfaConst, 0);
+    bool construtivo = GreedyAlgNS::secondEchelonGreedy(solucao, instance, acoPar.alfaConst, 0);
 
     if(!construtivo)
     {
@@ -42,10 +54,15 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
     for(int iteracoes = 0; iteracoes < acoPar.numIteracoes; ++iteracoes)
     {
 
+cout<<"ITE: "<<iteracoes<<"\n";
         std::vector<Ant> vetAnt(acoPar.numAnts, Ant(instance, sateliteId));
 
+        int antCount = 0;
         for(Ant &ant:vetAnt)
         {
+cout<<"ant: "<<antCount<<"\n\n";
+            antCount += 1;
+
             int rotaEv = -1;
 
             while(existeClienteNaoVisitado(ant, instance))
@@ -55,7 +72,10 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
 
                 if(rotaEv < instance.getN_Evs())
                 {
+
+cout<<"\tROTA: "<<rotaEv<<"\n";
                     EvRoute &evRoute = ant.satelite.vetEvRoute[rotaEv];
+                    evRoute[0].bateriaRestante = instance.getEvBattery(evRoute.idRota);
                     evRoute.routeSize = 1;
 
                     int pos             = 0;
@@ -66,8 +86,10 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
 
                     auto atualizaVetProx = [&](int clienteJ)
                     {
-                        double temp = vetProximo[proxVetProximo].atualiza(sateliteId, instance.getDistance(evRoute[pos].cliente, clienteJ),
+                        double temp = vetProximo[proxVetProximo].atualiza(clienteJ, instance.getDistance(evRoute[pos].cliente, clienteJ),
                                                                           matFeromonio(evRoute[pos].cliente, clienteJ), acoPar);
+cout<<"\t\t\tferom_X_dist: "<<temp<<"\n";
+
                         if(temp > multMax)
                         {
                             multMax         = temp;
@@ -79,10 +101,13 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
 
                     };
 
+cout<<"\t\t";
+
                     // Escolhe a proxima aresta
                     do
                     {
                         const int clienteI = evRoute[pos].cliente;
+cout<<clienteI<<" ";
 
                         proxVetProximo = 0;
 
@@ -94,11 +119,14 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
                         // Clientes
                        for(int j=instance.getFirstClientIndex(); j < instance.getEndClientIndex(); ++j)
                        {
-                           // Verifica Capacidade de carga do EV
-                           if(j != clienteI && (evRoute.demanda+instance.getDemand(j)) <= instance.getEvCap(rotaEv))
+                           if(vetSatAtendCliente[j] == sateliteId)
                            {
-                                if(clienteJValido(instance, clienteI, j, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId))
-                                    atualizaVetProx(j);
+                               // Verifica Capacidade de carga do EV
+                               if(j != clienteI && (evRoute.demanda + instance.getDemand(j)) <= instance.getEvCap(rotaEv))
+                               {
+                                   if(clienteJValido(instance, clienteI, j, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId))
+                                       atualizaVetProx(j);
+                               }
                            }
                        }
 
@@ -109,10 +137,18 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
                                atualizaVetProx(j);
                        }
 
-                       if(proxVetProximo != 0)
+cout<<"\n\t\ttam: "<<proxVetProximo<<"\n";
+
+                       if(proxVetProximo >= 1)
                        {
                            int proxClienteInd = 0;
                            static const int q0 = int(acoPar.q0*100);
+
+
+                           for(int i=0; i < proxVetProximo; ++i)
+                           {
+                               cout<<"\t\t\t"<<vetProximo[i].cliente<<"("<<vetProximo[i].ferom_x_dist<<"\n";
+                           }
 
                            if((rand_u32()%101) <= q0)
                            {
@@ -120,20 +156,29 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
                            }
                            else
                            {
-                               double prob = 0.0;
+                               std::sort(vetProximo.begin(), vetProximo.begin()+proxVetProximo);
+
                                for(int i=0; i < proxVetProximo; ++i)
                                {
-                                   prob = (vetProximo[i].ferom_x_dist/multSoma) * 100;
-                                   if((rand_u32()%101) <= int(prob))
-                                   {
-                                        proxClienteInd = i;
+                                   cout<<"\t\t\t"<<vetProximo[i].cliente<<"("<<vetProximo[i].ferom_x_dist<<"\n";
+                               }
+
+                               double prob = 0.0;
+                               int numRand = rand_u32()%100;
+                               for(int i=0; i < proxVetProximo; ++i)
+                               {
+                                   prob += (vetProximo[i].ferom_x_dist/multSoma) * 100;
+                                   proxClienteInd = i;
+
+                                   if(numRand <= int(prob))
                                         break;
-                                   }
                                }
                            }
 
                            // Cliente j foi escolhido
                            pos += 1;
+
+cout<<"Cliente escolhido: "<<vetProximo[proxClienteInd].cliente<<"\n";
 
                            // Atualiza evRoute
                            atualizaClienteJ(evRoute, pos, vetProximo[proxClienteInd].cliente, instance, ant.satelite);
@@ -149,10 +194,14 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
 
                     }while(evRoute[pos].cliente != sateliteId);
 
+                    if(evRoute[pos].cliente == sateliteId && pos > 0)
+ cout<<sateliteId<<"\n";
+
+cout<<"\n\n";
+
                 }
                 else
                     break;
-
             }
 
             if(!existeClienteNaoVisitado(ant, instance))
@@ -161,10 +210,11 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
 
                 if(ant.satelite.distancia < antBest.satelite.distancia)
                     antBest.copia(ant);
-
             }
 
         }
+
+cout<<"*******************\n\n";
 
         // Evapora e atualiza o feromonio com a melhor formiga
         if(antBest.viavel)
@@ -172,7 +222,29 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
             double feromMax = 1.0/antBest.satelite.distancia;
             atualizaFeromonio(matFeromonio, instance, acoPar, antBest, 0.1*feromMax, feromMax);
         }
+    }
 
+    satBest.copia(antBest.satelite);
+
+
+    string erro;
+
+    if(antBest.viavel)
+    {
+        if(satBest.checkSatellite(erro, instance))
+        {
+
+cout <<"ANT BEST VIAVEL\n";
+            string satStr;
+            satBest.print(satStr, instance);
+
+cout<<satStr;
+
+        }
+    }
+    else
+    {
+cout<<"ANT BEST EH INVIAVEL\n";
     }
 }
 
@@ -218,10 +290,16 @@ void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ
 
 bool N_Aco::clienteJValido(Instance &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat)
 {
-    if(i == j || vetNosAtend[j] == 0)
+    if(i == j || vetNosAtend[j] >= 1)
         return false;
 
+cout<<"clienteJValido\n";
+
     const double dist_i_j = instancia.getDistance(i,j);
+
+    if(dist_i_j == 0.0)
+        return false;
+
     double batTemp = bat - dist_i_j;
 
 
@@ -238,13 +316,13 @@ bool N_Aco::clienteJValido(Instance &instancia, const int i, const int j, const 
         }
 
         // Verifica se eh possivel retornar ao satelite
-        if((batTemp-instancia.getDistance(j, sat)) >= -TOLERANCIA_BATERIA)
+        if(j != sat && (batTemp-instancia.getDistance(j, sat)) >= -TOLERANCIA_BATERIA)
             return true;
 
         // Percorre as estacoes de recarga
         for(int es=instancia.getFirstRechargingSIndex(); es <= instancia.getEndRechargingSIndex(); ++es)
         {
-            if(vetNosAtend[es] < instancia.numUtilEstacao)
+            if(j != es && vetNosAtend[es] < instancia.numUtilEstacao)
             {
                 if((batTemp - instancia.getDistance(j, es)) >= -TOLERANCIA_BATERIA)
                     return true;
@@ -255,7 +333,11 @@ bool N_Aco::clienteJValido(Instance &instancia, const int i, const int j, const 
         return false;
     }
     else
+    {
+
+cout<<"true\n";
         return false;
+    }
 
 }
 

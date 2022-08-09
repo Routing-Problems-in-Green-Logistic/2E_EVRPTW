@@ -64,9 +64,11 @@ void leSolucao(Solucao &solucao, Instance &instancia, string &file);
 #define MAIN_TESTE      2
 #define MAIN_METODO_2   3
 #define MAIN_SOMA_CARGA 4
+#define MAIN_ACO        5
 
-#define MAIN MAIN_METODO_2
-//#define MAIN MAIN_DIST
+//#define MAIN MAIN_METODO_2
+#define MAIN MAIN_ACO
+
 #define PRINT_RESULT FALSE
 
 //#if MAIN == MAIN_METODO_2
@@ -77,6 +79,8 @@ int main(int argc, char* argv[])
 
     if(argc != 2 && argc != 3)
     {
+
+        cout<<"Compilado em: "<<__DATE__<<", "<<__TIME__<<".\n";
         std::cerr<<"FORMATO: a.out file.txt\n";
         return -1;
     }
@@ -288,6 +292,62 @@ int main(int argc, char* argv[])
     return 0;
 
 
+}
+
+#endif
+
+#if MAIN ==MAIN_ACO
+
+int main(int argc, char* argv[])
+{
+
+    int semente = 0;//duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    if(argc == 3)
+        semente = atoi(argv[2]);
+    else
+        semente = duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+
+    seed(semente);
+
+    if(argc == 1 || argc > 3)
+    {
+        cout<<"Compilado em: "<<__DATE__<<", "<<__TIME__<<".\n";
+        std::cerr<<"FORMATO: ./a.out file.txt\n";
+        return -1;
+    }
+
+    cout<<"SEMENTE: "<<semente<<"\n";
+
+
+    std::string file(argv[1]);
+    const string nomeInst = getNomeInstancia(file);
+    Instance instancia(file, nomeInst);
+
+    if(instancia.getNSats() > 1)
+    {
+        cout<<"ACO SO FUNCIONA COM 1 SATELITE!\n";
+        return -1;
+    }
+
+
+    const std::vector<float> vetAlfa{0.1, 0.3, 0.5, 0.7, 0.9};
+    int num = min(instancia.getN_Evs()/2, 8);
+    if(num == 0)
+        num = 1;
+
+    Parametros parm(NUM_EXEC, 200, vetAlfa, 150, num, 0.1);
+    AcoParametros acoParm;
+    AcoEstatisticas acoEst;
+    Satelite satelite(instancia, 1);
+
+    vector<int> vetSatAtendCliente(instancia.numNos, -1);
+    vector<int> satUtilizado(instancia.numSats+1, 0);
+    setSatParaCliente(instancia, vetSatAtendCliente, satUtilizado, parm);
+
+
+    aco(instancia, acoParm, acoEst, 1, satelite, vetSatAtendCliente);
 }
 
 #endif

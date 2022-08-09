@@ -25,16 +25,18 @@ namespace N_Aco
         double alfaConst        = 0.2;
         double ro               = 0.8;
         double q0               = 0.8;
-        int numAnts             = 0;
+        int numAnts             = 10;
         int8_t freqAtualAntBest = 25;
-        int numIteracoes        = 400;
+        int numIteracoes        = 2;
         int numItMaxHeur        = 20;
         double feromonioInicial = 0.0;
 
-        AcoParametros()
+/*        AcoParametros()
         {
-            numAnts = ceil(0.4/(q0* log(1.0-ro)));
-        }
+            //numAnts = ceil(0.4/(q0* log(1.0-ro)));
+
+            //cout<<"NUM ANTS: "<<numAnts<<"\n";
+        }*/
 
     };
 
@@ -93,8 +95,20 @@ namespace N_Aco
 
         inline double atualiza(int _cliente, double dist, double ferom, const AcoParametros &acoParam)
         {
-            ferom_x_dist = pow(ferom, acoParam.alfa) * pow(1.0/dist, acoParam.beta);
+cout<<"\t\t\t\t"<<_cliente<<": dist("<<dist<<"); ferom("<<ferom<<")\n";
+
+            cliente = _cliente;
+            ferom_x_dist = 1.0;
+            if(ferom > 0.0)
+                ferom_x_dist = pow(ferom, acoParam.alfa);
+
+            ferom_x_dist *= pow(1.0/dist, acoParam.beta);
             return ferom_x_dist;
+        }
+
+        bool operator < (const Proximo &proximo) const
+        {
+            return ferom_x_dist > proximo.ferom_x_dist;
         }
     };
 
@@ -109,7 +123,7 @@ namespace N_Aco
         return satelite.distancia;
     }
 
-    void aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, const vector<int8_t> &clientes, int sateliteId, Satelite &satBest);
+    void aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest, const vector<int> &vetSatAtendCliente);
     void atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &instancia, const AcoParametros &acoParam, const Ant &antBest, const double feromMin, const double feromMax);
     void evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instance &instancia, const AcoParametros &acoParam, const double feromMin);
     bool clienteJValido(Instance &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat);

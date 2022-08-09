@@ -682,6 +682,15 @@ bool GreedyAlgNS::existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendi
     return false;
 }
 
+/* ******************************************************************************************************
+ * ******************************************************************************************************
+ * @param instancia
+ * @param vetSatAtendCliente        Associa cliente(pos) com satelite
+ * @param satUtilizado              Conta quantos clientes foram selecionado para o satelite(pos)
+ * @param param
+ * ******************************************************************************************************
+ * ******************************************************************************************************
+ */
 void GreedyAlgNS::setSatParaCliente(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, Parametros &param)
 {
     std::fill(satUtilizado.begin()+1, satUtilizado.end(), 0);

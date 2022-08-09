@@ -5,7 +5,7 @@
 
 ***
 
-# 08/08 Seg
+# 09/08 Ter
 
 - [x] Restringir o numero de EVs
 - [ ] Corrigir mv shifit
@@ -27,6 +27,7 @@ NumEVs:
 ***
 
 # Outros
+- [ ] Verificação da Solução(num. de EVs)
 - [ ] Testes com > 1 execução!
 - [ ] Peseudo códigos 
 	- [ ] Construtívo
@@ -56,6 +57,10 @@ NumEVs:
 	- cliente j não visitado (viável)
 	- estação de recarga j
 	- Viável: É possível ir do cliente até uma estação de recarga ou voltar para o depósito.
+
+
+- feromônio incial igual 0
+- Dist igual  a 0. mult = inf
 
 
 
