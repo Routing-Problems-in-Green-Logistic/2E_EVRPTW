@@ -476,6 +476,83 @@ void NS_LocalSearch::insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::Inserca
 
 }
 
+
+
+bool NS_LocalSearch::mvEvSwapIntraRota(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux)
+{
+
+    // Percorre os satelites
+    for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+    {
+        Satelite &satelite = solucao.satelites[sat];
+        evRouteAux.satelite = sat;
+        evRouteAux[0].cliente = sat;
+
+        // Percorre os EVs
+        for(int ev=0; ev < instancia.getN_Evs(); ++ev)
+        {
+            EvRoute &evRoute = satelite.vetEvRoute[ev];
+
+            // Verifica se ev eh diferente de vazio e se existe mais de um cliente na rota
+            if(evRoute.routeSize > 3)
+            {
+                bool copiaEvRouteAux = false;
+
+                /* ****************************************************************************************************
+                 * ****************************************************************************************************
+                 * i, j percorrem evRoute realizando a troca(swap) de i,j
+                 *
+                 *  Verificar(se i < j) a partir de uma posicao anterior a i se existem duas
+                 * estacoes de recarga consecutivas.
+                 *
+                 *  Calculo da distancia:
+                 *
+                 *      Rota: 0 k i l ... m j n 0
+                 *      Dist(nova rota): dist(rota) -(k,i) -(i, l) -(m, j) -(j, n) +(k, j) +(j, l) +(m, i) +(i, n)
+                 *
+                 *      Rota: 0 k i j n 0
+                 *      Dist(nova rota): dist(rota) -(k,i) -(j,n) +(k, j) +(k, j) +(i, n)
+                 * ****************************************************************************************************
+                 * ****************************************************************************************************
+                 */
+
+                // i tem que ser menor ou igual que a penultima possicao de j
+                for(int i=1; i <= (evRoute.routeSize-3); ++i)
+                {
+
+                    for(int j=(i+1); j <= (evRoute.routeSize-2); ++j)
+                    {
+                        // Calcula a nova distancia
+                        double novaDist = evRoute.distancia;
+
+                        // Verifica se a rota eh diferente de 0 k i j n 0
+                        if((i+1) != j)
+                        {
+                            novaDist += -instancia.getDistance(evRoute[i-1].cliente, evRoute[i].cliente) +
+                                        -instancia.getDistance(evRoute[i].cliente, evRoute[i+1].cliente) +
+                                        -instancia.getDistance(evRoute[j-1].cliente, evRoute[j].cliente) +
+                                        -instancia.getDistance(evRoute[j].cliente, evRoute[j+1].cliente) +
+                                        +instancia.getDistance(evRoute[i-1].cliente, evRoute[j].cliente) +
+                                        +instancia.getDistance(evRoute[j].cliente, evRoute[i+1].cliente) +
+                                        +instancia.getDistance(evRoute[j-1].cliente, evRoute[i].cliente) +
+                                        +instancia.getDistance(evRoute[i].cliente, evRoute[j+1].cliente);
+                        }
+                        else
+                        {
+                            //novaDist += -instancia.getDistance(evRoute[i-1].cliente, evRoute[i].cliente)+
+                            //          -instancia.getDistance()
+                        }
+                    }
+
+                }
+
+            }
+        }
+    }
+
+}
+
+
 /*
 bool NS_LocalSearch::mvShifitIntraRota(Solucao &solution, const Instance &instance)
 {

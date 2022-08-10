@@ -66,8 +66,8 @@ void leSolucao(Solucao &solucao, Instance &instancia, string &file);
 #define MAIN_SOMA_CARGA 4
 #define MAIN_ACO        5
 
-//#define MAIN MAIN_METODO_2
-#define MAIN MAIN_ACO
+#define MAIN MAIN_METODO_2
+//#define MAIN MAIN_ACO
 
 #define PRINT_RESULT FALSE
 
@@ -81,6 +81,7 @@ int main(int argc, char* argv[])
     {
 
         cout<<"Compilado em: "<<__DATE__<<", "<<__TIME__<<".\n";
+        cout<<"Commit: \tf7d1f0fbd4de1288fc027810a969822e3ba4e3dc\n\n";
         std::cerr<<"FORMATO: a.out file.txt\n";
         return -1;
     }
@@ -318,7 +319,7 @@ int main(int argc, char* argv[])
     {
         cout<<"Compilado em: \t"<<__DATE__<<", "<<__TIME__<<"\n";
         cout<<"Commit: \tf7d1f0fbd4de1288fc027810a969822e3ba4e3dc\n\n";
-        std::cerr<<"FORMATO: ./a.out file.txt\n";
+        std::cerr<<"FORMATO: ./a.out instancia.txt\n";
         return -1;
     }
 

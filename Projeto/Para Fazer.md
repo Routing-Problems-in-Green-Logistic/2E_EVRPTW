@@ -5,7 +5,7 @@
 
 ***
 
-# 09/08 Ter
+# 09/08 Qua
 
 - [x] Restringir o numero de EVs
 - [ ] Corrigir mv shifit
@@ -43,7 +43,8 @@ NumEVs:
 
 # Mudanças
 
-- Numéro de rotas fixas: min(numEvMax, 5)
+- Número de rotas fixas: min(numEvMax, 5)
+- Número max de EVs
 
 
 
