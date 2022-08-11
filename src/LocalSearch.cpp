@@ -525,7 +525,7 @@ bool NS_LocalSearch::mvEvSwapIntraRota(Solucao &solucao, Instance &instancia, Ev
                         // Calcula a nova distancia
                         double novaDist = evRoute.distancia;
 
-                        // Verifica se a rota eh diferente de 0 k i j n 0
+                        // Verifica se a rota eh diferente de ex: 0 k i j n 0
                         if((i+1) != j)
                         {
                             novaDist += -instancia.getDistance(evRoute[i-1].cliente, evRoute[i].cliente) +
@@ -543,13 +543,10 @@ bool NS_LocalSearch::mvEvSwapIntraRota(Solucao &solucao, Instance &instancia, Ev
                             //          -instancia.getDistance()
                         }
                     }
-
                 }
-
             }
         }
     }
-
 }
 
 

@@ -53,6 +53,7 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
     ublas::matrix<double> matFeromonio(instance.numNos, instance.numNos, acoPar.feromonioInicial);
     Ant antBest(instance, sateliteId, true);
     vector<Proximo> vetProximo(1+instance.numClients+instance.numRechargingS);
+    vector<Proximo> vetProximoAux(1+instance.numClients+instance.numRechargingS);
 
     for(int iteracoes = 0; iteracoes < acoPar.numIteracoes; ++iteracoes)
     {
@@ -79,6 +80,7 @@ cout<<"ant: "<<antCount<<"\n\n";
 cout<<"\tROTA: "<<rotaEv<<"\n";
                     EvRoute &evRoute = ant.satelite.vetEvRoute[rotaEv];
                     evRoute[0].bateriaRestante = instance.getEvBattery(evRoute.idRota);
+                    evRoute[0].tempoSaida = instance.getDistance(0, sateliteId);
                     evRoute.routeSize = 1;
 
                     int pos             = 0;
@@ -86,6 +88,7 @@ cout<<"\tROTA: "<<rotaEv<<"\n";
                     double multMax      = -1.0;
                     int multMaxIndice   = -1;
                     int proxVetProximo  = 0;
+                    bool existeCliente  = false;
 
                     auto atualizaVetProx = [&](int clienteJ)
                     {
@@ -102,6 +105,9 @@ cout<<"\t\t\tferom_X_dist: "<<temp<<"\n";
                         multSoma += temp;
                         proxVetProximo += 1;
 
+                        if(instance.isClient(clienteJ))
+                            existeCliente = true;
+
                     };
 
 cout<<"\t\t";
@@ -109,13 +115,18 @@ cout<<"\t\t";
                     // Escolhe a proxima aresta
                     do
                     {
-                        const int clienteI = evRoute[pos].cliente;
+                        existeCliente = false;
+
+                        const int clienteI       = evRoute[pos].cliente;
+                        const double tempoSaidaI = evRoute[pos].tempoSaida;
 cout<<clienteI<<" ";
 
                         proxVetProximo = 0;
+                        multMax = -1.0;
+                        multMaxIndice = 0;
 
                         // satelite
-                        if(clienteJValido(instance, clienteI, sateliteId, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId))
+                        if(clienteJValido(instance, clienteI, sateliteId, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId, tempoSaidaI))
                             atualizaVetProx(sateliteId);
 
                         // Clientes
@@ -126,7 +137,7 @@ cout<<clienteI<<" ";
                                // Verifica Capacidade de carga do EV
                                if(j != clienteI && (evRoute.demanda + instance.getDemand(j)) <= instance.getEvCap(rotaEv))
                                {
-                                   if(clienteJValido(instance, clienteI, j, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId))
+                                   if(clienteJValido(instance, clienteI, j, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId, tempoSaidaI))
                                        atualizaVetProx(j);
                                }
                            }
@@ -135,7 +146,7 @@ cout<<clienteI<<" ";
                        // Estacoes de Recarga
                        for(int j=instance.getFirstRechargingSIndex(); j <= instance.getEndRechargingSIndex(); ++j)
                        {
-                           if(clienteJValido(instance, clienteI, j, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId))
+                           if(clienteJValido(instance, clienteI, j, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId, tempoSaidaI))
                                atualizaVetProx(j);
                        }
 
@@ -147,6 +158,24 @@ cout<<"\n\t\ttam: "<<proxVetProximo<<"\n";
                            static const int q0 = int(acoPar.q0*100);
 
                            std::sort(vetProximo.begin(), vetProximo.begin()+proxVetProximo);
+
+                           // Retira estacao de recarga se eh existe cliente
+                           if(existeCliente)
+                           {
+                               int j=0;
+                               for(int i=0; i < proxVetProximo; ++i)
+                               {
+                                   if(instance.isClient(vetProximo[i].cliente))
+                                   {
+                                       vetProximoAux[j] = vetProximo[i];
+                                       j += 1;
+                                   }
+                               }
+
+                               std::copy(vetProximoAux.begin(), vetProximoAux.begin()+j, vetProximo.begin());
+                               proxVetProximo = j;
+                           }
+
 
 
                            for(int i=0; i < proxVetProximo; ++i)
@@ -166,21 +195,28 @@ cout<<"\t\t\t"<<vetProximo[i].cliente<<"("<<vetProximo[i].ferom_x_dist<<") "<<i<
                                int numRand = rand_u32()%100;
                                for(int i=0; i < proxVetProximo; ++i)
                                {
-                                   prob += (vetProximo[i].ferom_x_dist/multSoma) * 100;
+                                   prob += (vetProximo[i].ferom_x_dist / multSoma) * 100;
                                    proxClienteInd = i;
 
                                    if(numRand <= int(prob))
-                                        break;
+                                       break;
                                }
                            }
 
+cout<<"proxClienteInd: "<<proxClienteInd<<"; vet tam: "<<proxVetProximo<<"\n";
+
                            // Cliente j foi escolhido
 
-cout<<"Cliente escolhido: "<<vetProximo[proxClienteInd].cliente<<"\n";
 
                            // Atualiza evRoute
                            atualizaClienteJ(evRoute, pos, vetProximo[proxClienteInd].cliente, instance, ant);
                            pos += 1;
+
+cout<<"Cliente escolhido: "<<vetProximo[proxClienteInd].cliente<<"\n";
+string strRota;
+evRoute.print(strRota, instance, true);
+cout<<"ROTA: "<<strRota<<"\n\n";
+cout<<"*************************************************\n\n";
 
                        }
                        else
@@ -249,6 +285,7 @@ cout<<satStr;
     }
     else
     {
+cout<<"cliente0 id: "<<instance.getFirstClientIndex()<<"\n";
 cout<<"ANT BEST EH INVIAVEL\n";
     }
 }
@@ -259,7 +296,13 @@ void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ
     const double dist_i_j = instance.getDistance(evRoute[pos].cliente, clienteJ);
     evRoute[pos+1].cliente = clienteJ;
     evRoute.routeSize = pos+1;
-    evRoute[pos+1].tempoCheg = evRoute[pos-1].tempoSaida+dist_i_j;
+    evRoute[pos+1].tempoCheg = evRoute[pos].tempoSaida+dist_i_j;
+
+    if(instance.isClient(clienteJ))
+    {
+        if(evRoute[pos+1].tempoCheg < instance.vectCliente[clienteJ].inicioJanelaTempo)
+            evRoute[pos+1].tempoCheg = instance.vectCliente[clienteJ].inicioJanelaTempo;
+    }
 
     double bat = evRoute[pos].bateriaRestante-dist_i_j;
 
@@ -281,13 +324,14 @@ void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ
     }
     else
     {
-        evRoute[pos].tempoSaida = evRoute[pos].tempoCheg+instance.vectCliente[clienteJ].tempoServico;
+        evRoute[pos+1].tempoSaida = evRoute[pos+1].tempoCheg+instance.vectCliente[clienteJ].tempoServico;
     }
 
 
     evRoute[pos+1].bateriaRestante = bat;
     evRoute.distancia += dist_i_j;
     evRoute.demanda += instance.vectCliente[clienteJ].demanda;
+    evRoute.routeSize += 1;
 
     ant.satelite.distancia += dist_i_j;
     ant.satelite.demanda += instance.vectCliente[clienteJ].demanda;
@@ -295,8 +339,21 @@ void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ
 
 }
 
-bool N_Aco::clienteJValido(Instance &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat)
+/**
+ * @param instancia
+ * @param i
+ * @param j
+ * @param bat
+ * @param vetNosAtend
+ * @param sat
+ * @param tempoSaidaI
+ * @return
+ */
+bool N_Aco::clienteJValido(Instance &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat, const double tempoSaidaI)
 {
+
+    // TEMPO ??
+
     if(i == j || vetNosAtend[j] >= 1)
         return false;
 
@@ -308,6 +365,15 @@ cout<<"clienteJValido\n";
         return false;
 
     double batTemp = bat - dist_i_j;
+
+    if(instancia.isClient(j))
+    {
+        double tempoChegadaJ = tempoSaidaI + dist_i_j;
+
+        if(!((tempoChegadaJ <= instancia.vectCliente[j].fimJanelaTempo) || (abs(tempoChegadaJ-instancia.vectCliente[j].fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO)))
+            return false;
+
+    }
 
 
     if((bat-dist_i_j) >= -TOLERANCIA_BATERIA)
@@ -342,7 +408,6 @@ cout<<"clienteJValido\n";
     else
     {
 
-cout<<"true\n";
         return false;
     }
 
