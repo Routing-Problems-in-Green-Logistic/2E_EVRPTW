@@ -8,7 +8,6 @@
 # 09/08 Qua
 
 - [x] Restringir o numero de EVs
-- [ ] Corrigir mv shifit
 - [ ] ACO
 - [ ] Tabela
 
@@ -47,8 +46,6 @@ NumEVs:
 - Número max de EVs
 
 
-
-
 ***
 ***
 
@@ -61,7 +58,33 @@ NumEVs:
 
 
 - feromônio incial igual 0
-- Dist igual  a 0. mult = inf
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

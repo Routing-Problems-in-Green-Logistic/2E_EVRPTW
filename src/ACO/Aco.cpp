@@ -162,13 +162,24 @@ cout<<"\n\t\ttam: "<<proxVetProximo<<"\n";
                            // Retira estacao de recarga se eh existe cliente
                            if(existeCliente)
                            {
+
+                               multMax = -1.0;
+                               multMaxIndice = 0;
                                int j=0;
+
                                for(int i=0; i < proxVetProximo; ++i)
                                {
                                    if(instance.isClient(vetProximo[i].cliente))
                                    {
                                        vetProximoAux[j] = vetProximo[i];
+                                       if(vetProximoAux[j].ferom_x_dist > multMax)
+                                       {
+                                           multMax = vetProximoAux[j].ferom_x_dist;
+                                           multMaxIndice = j;
+                                       }
+
                                        j += 1;
+
                                    }
                                }
 

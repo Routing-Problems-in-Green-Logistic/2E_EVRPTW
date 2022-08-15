@@ -20,8 +20,8 @@ namespace N_Aco
     {
     public:
 
-        double alfa             = 1.0;
-        double beta             = 5.0;
+        double alfa             = 0.2;
+        double beta             = 0.8;
         double alfaConst        = 0.2;
         double ro               = 0.8;
         double q0               = 0.8;
