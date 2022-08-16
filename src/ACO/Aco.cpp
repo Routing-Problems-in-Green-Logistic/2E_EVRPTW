@@ -144,7 +144,7 @@ cout<<clienteI<<" ";
                        }
 
                        // Estacoes de Recarga
-                       for(int j=instance.getFirstRechargingSIndex(); j <= instance.getEndRechargingSIndex(); ++j)
+                       for(int j= instance.getFirstRS_index(); j <= instance.getEndRS_index(); ++j)
                        {
                            if(clienteJValido(instance, clienteI, j, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId, tempoSaidaI))
                                atualizaVetProx(j);
@@ -194,11 +194,11 @@ cout<<"\n\t\ttam: "<<proxVetProximo<<"\n";
 cout<<"\t\t\t"<<vetProximo[i].cliente<<"("<<vetProximo[i].ferom_x_dist<<") "<<i<<"\n";
                            }
 
-                           if((rand_u32()%101) <= q0)
+/*                           if((rand_u32()%101) <= q0)
                            {
                                 proxClienteInd = multMaxIndice;
                            }
-                           else
+                           else*/
                            {
 
 
@@ -296,7 +296,9 @@ cout<<satStr;
     }
     else
     {
-cout<<"cliente0 id: "<<instance.getFirstClientIndex()<<"\n";
+cout<<"cliente0 id: \t"<<instance.getFirstClientIndex()<<"\n";
+cout<<"clienteUltimo: \t"<<instance.getEndClientIndex()<<"\n";
+
 cout<<"ANT BEST EH INVIAVEL\n";
     }
 }
@@ -365,14 +367,23 @@ bool N_Aco::clienteJValido(Instance &instancia, const int i, const int j, const 
 
     // TEMPO ??
 
-    if(i == j || vetNosAtend[j] >= 1)
-        return false;
+    if(i==2 && j==1)
+        cout<<"i=2, j=1\n";
 
-cout<<"clienteJValido\n";
+    if(i == j || (vetNosAtend[j] == 1 && !instancia.isSatelite(j)))
+    {
+        if(i==2 && j==1)
+            cout<<"1°\n";
+
+        return false;
+    }
+
+    if(instancia.isRechargingStation(j) && vetNosAtend[j] == instancia.numUtilEstacao)
+        return false;
 
     const double dist_i_j = instancia.getDistance(i,j);
 
-    if(dist_i_j == 0.0)
+    if(dist_i_j == 0.0 && !instancia.isSatelite(j))
         return false;
 
     double batTemp = bat - dist_i_j;
@@ -382,7 +393,12 @@ cout<<"clienteJValido\n";
         double tempoChegadaJ = tempoSaidaI + dist_i_j;
 
         if(!((tempoChegadaJ <= instancia.vectCliente[j].fimJanelaTempo) || (abs(tempoChegadaJ-instancia.vectCliente[j].fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO)))
+        {
+            if(i==2 && j==1)
+                cout<<"\t\tjanela de tempo\n";
+
             return false;
+        }
 
     }
 
@@ -400,11 +416,11 @@ cout<<"clienteJValido\n";
         }
 
         // Verifica se eh possivel retornar ao satelite
-        if(j != sat && (batTemp-instancia.getDistance(j, sat)) >= -TOLERANCIA_BATERIA)
+        if(j == sat || (batTemp-instancia.getDistance(j, sat)) >= -TOLERANCIA_BATERIA)
             return true;
 
         // Percorre as estacoes de recarga
-        for(int es=instancia.getFirstRechargingSIndex(); es <= instancia.getEndRechargingSIndex(); ++es)
+        for(int es= instancia.getFirstRS_index(); es <= instancia.getEndRS_index(); ++es)
         {
             if(j != es && vetNosAtend[es] < instancia.numUtilEstacao)
             {
@@ -413,12 +429,15 @@ cout<<"clienteJValido\n";
             }
         }
 
+        if(i==2 && j==1)
+            cout<<"???\n";
+
         // Nao eh possivel retornar ao deposito ou chegar no satelite
         return false;
     }
     else
     {
-
+        cout<<"bat\n";
         return false;
     }
 

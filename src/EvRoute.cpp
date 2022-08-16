@@ -12,7 +12,8 @@ using namespace GreedyAlgNS;
 
 
 
-EvRoute::EvRoute(const int _satellite, const int _idRota, const int RouteSizeMax, const Instance &instance):firstRechargingSIndex(instance.getFirstRechargingSIndex())
+EvRoute::EvRoute(const int _satellite, const int _idRota, const int RouteSizeMax, const Instance &instance):firstRechargingSIndex(
+        instance.getFirstRS_index())
 {
     satelite = _satellite;
     routeSize = 2;

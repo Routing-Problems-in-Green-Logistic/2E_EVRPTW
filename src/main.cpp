@@ -843,7 +843,7 @@ void escreveInstancia(const Instance &instance, string file)
             outfile<<s<<" S "<<instance.vectCliente[s].coordX<<" "<<instance.vectCliente[s].coordY<<" 0\n";
 
 
-        for(int f=instance.getFirstRechargingSIndex(); f <= instance.getEndRechargingSIndex(); ++f)
+        for(int f= instance.getFirstRS_index(); f <= instance.getEndRS_index(); ++f)
             outfile<<f<<" F "<<instance.vectCliente[f].coordX<<" "<<instance.vectCliente[f].coordY<<" 0\n";
 
 

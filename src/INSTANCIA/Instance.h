@@ -81,8 +81,8 @@ public:
     static int getDepotIndex() {return 0;}
     int getFirstClientIndex() const;
     int getEndClientIndex() const;
-    int getFirstRechargingSIndex() const;
-    int getEndRechargingSIndex() const;
+    int getFirstRS_index() const;
+    int getEndRS_index() const;
     int getFirstSatIndex() const;
     int getEndSatIndex() const;
 
@@ -160,6 +160,11 @@ public:
 
     // Guarda a distancia ate o satelite de forma ordenada para cada cliete
     vector<vector<DistSatelite>> vetVetDistClienteSatelite;
+
+    // Guarda para cada par (sat, RS)  se eh possivel voltar ao sat
+    vector<int8_t> vetVoltaRS_sat;
+
+    int getIndiceVetVoltaRS_sat(int sat, int rs);
 
     string nome;
 

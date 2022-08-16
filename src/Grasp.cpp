@@ -514,7 +514,7 @@ void NameS_Grasp::inicializaSol(Solucao &sol, Instance &instance)
         int vetTam = 0;
         evRoute.satelite = i;
 
-        for(int r=instance.getFirstRechargingSIndex(); r <= instance.getEndRechargingSIndex(); ++r)
+        for(int r= instance.getFirstRS_index(); r <= instance.getEndRS_index(); ++r)
         {
             vetEstDist[vetTam].estacao = r;
             vetEstDist[vetTam].distancia = instance.getDistance(i, r);

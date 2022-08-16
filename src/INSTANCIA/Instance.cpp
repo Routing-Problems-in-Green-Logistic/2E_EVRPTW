@@ -115,13 +115,13 @@ int Instance::getEndClientIndex() const
     return getFirstClientIndex()+getNClients()-1;
 }
 
-int Instance::getFirstRechargingSIndex() const {
+int Instance::getFirstRS_index() const {
     return 1 + numSats;
 }
 
-int Instance::getEndRechargingSIndex() const
+int Instance::getEndRS_index() const
 {
-    return getFirstRechargingSIndex() + numRechargingS  - 1;
+    return getFirstRS_index() + numRechargingS - 1;
 }
 
 int Instance::getFirstSatIndex() const {
@@ -138,8 +138,8 @@ bool Instance::isClient(int node) const {
 }
 
 bool Instance::isRechargingStation(int node) const {
-    return node >= this->getFirstRechargingSIndex() && node < this->getFirstRechargingSIndex() +
-                                                                      this->getN_RechargingS();
+    return node >= this->getFirstRS_index() && node < this->getFirstRS_index() +
+                                                      this->getN_RechargingS();
 }
 
 bool Instance::isSatelite(int node) const {
@@ -264,12 +264,12 @@ Instance::Instance(const std::string &str, const std::string &nome_)
 
     std::vector<EstMaisProx> vetEstMaisProx(numRechargingS);
 
-    for(int i=getFirstRechargingSIndex(); i <= getEndClientIndex(); ++i)
+    for(int i= getFirstRS_index(); i <= getEndClientIndex(); ++i)
     {
         for(int j=getFirstSatIndex(); j < i; ++j)
         {
             int prox = 0;
-            for(int est=getFirstRechargingSIndex(); est <= getEndRechargingSIndex(); ++est)
+            for(int est= getFirstRS_index(); est <= getEndRS_index(); ++est)
             {
                 if(i==est || j==est)
                     continue;
@@ -331,12 +331,31 @@ Instance::Instance(const std::string &str, const std::string &nome_)
     }
 
 
+    const int tamVet = 1 + numSats*numRechargingS;
+    vetVoltaRS_sat = vector<int8_t>(tamVet, int8_t(0));
+
+    for(int sat=getFirstSatIndex(); sat <= getEndSatIndex(); ++sat)
+    {
+        for(int rs= getFirstRS_index(); rs <= getEndRS_index(); ++rs)
+        {
+            const double consumoBat = getDistance(rs, sat)* getEvTaxaConsumo(getFirstEvIndex());
+            const double capBat     = vectVeiculo[getFirstEvIndex()].capacidadeBateria;
+
+            if(consumoBat <= capBat)
+            {
+                int id = getIndiceVetVoltaRS_sat(sat, rs);
+                vetVoltaRS_sat[id] = int8_t(1);
+
+cout<<"sat: "<<sat<<"; RS: "<<rs<<"; dist: "<<consumoBat<<"\n";
+            }
+        }
+    }
 }
 
 Instance::~Instance()
 {
 
-    for(int i=getFirstRechargingSIndex(); i <= getEndClientIndex(); ++i)
+    for(int i= getFirstRS_index(); i <= getEndClientIndex(); ++i)
     {
         for(int j = getFirstSatIndex(); j < i; ++j)
         {
@@ -347,6 +366,11 @@ Instance::~Instance()
 
     if(shortestPath != nullptr)
         delete []shortestPath;
+}
+
+int Instance::getIndiceVetVoltaRS_sat(int sat, int rs)
+{
+    return 1 + sat*numRechargingS + rs;
 }
 
 void Instance::print() const
@@ -382,7 +406,7 @@ void Instance::print() const
 
     cout<<"\nESTACAO ID \t COORD X \t COORD Y \t TW INICIO \t TW FIM \n\n";
 
-    for(int i=getFirstRechargingSIndex(); i <= getEndRechargingSIndex(); ++i)
+    for(int i= getFirstRS_index(); i <= getEndRS_index(); ++i)
     {
         const ClienteInst &clienteInst = vectCliente[i];
 

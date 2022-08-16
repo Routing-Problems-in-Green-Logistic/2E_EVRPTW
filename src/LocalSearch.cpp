@@ -308,7 +308,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instance &instancia, 
                                         {
                                             insereEstacaoRota(evRouteAux, insercaoEstacao, instancia, solucao.satTempoChegMax[satId]);
                                             evRoute.copia(evRouteAux);
-                                            evRoute.vetRecarga[insercaoEstacao.estacao - instancia.getFirstRechargingSIndex()].utilizado += 1;
+                                            evRoute.vetRecarga[insercaoEstacao.estacao - instancia.getFirstRS_index()].utilizado += 1;
 
                                             return true;
                                         }

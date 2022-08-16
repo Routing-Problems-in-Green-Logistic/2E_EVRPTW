@@ -37,7 +37,7 @@ Solucao::Solucao(Instance &Inst)
     vetClientesAtend[0] = -1;
 
     // Estacoes
-    std::fill((vetClientesAtend.begin()+Inst.getFirstRechargingSIndex()), (vetClientesAtend.begin()+Inst.getEndRechargingSIndex()+1), -1);
+    std::fill((vetClientesAtend.begin()+ Inst.getFirstRS_index()), (vetClientesAtend.begin() + Inst.getEndRS_index() + 1), -1);
 
     inicializaVetClientesAtend(Inst);
 
