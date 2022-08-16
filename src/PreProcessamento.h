@@ -41,6 +41,18 @@ namespace N_PreProcessamento
 
         ShortestPathNo()=default;
         ShortestPathNo(int sat, int cli){satId=sat; clienteId=cli;}
+        ShortestPathNo(const ShortestPathNo &outro)
+        {
+            satId = outro.satId;
+            clienteId = outro.clienteId;
+            caminhoIda = std::vector<int>(outro.caminhoIda);
+            caminhoVolta = std::vector<int>(outro.caminhoVolta);
+            distIda = outro.distIda;
+            distVolta = outro.distVolta;
+            distIdaVolta = outro.distIdaVolta;
+        }
+
+        ~ShortestPathNo()=default;
     };
 
 /*    class ShortestPathSatCli
@@ -77,6 +89,8 @@ namespace N_PreProcessamento
         double tempoSaida   = 0.0;
 
         DijkstraNo()=default;
+        ~DijkstraNo()=default;
+
         explicit DijkstraNo(int cliente){clienteId=cliente;}
 
         DijkstraNo(const int cliente_, const double dist_, const double bat_, const double tempoC, const double tempoS)

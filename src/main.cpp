@@ -66,8 +66,8 @@ void leSolucao(Solucao &solucao, Instance &instancia, string &file);
 #define MAIN_SOMA_CARGA 4
 #define MAIN_ACO        5
 
-//#define MAIN MAIN_METODO_2
-#define MAIN MAIN_ACO
+#define MAIN MAIN_METODO_2
+//#define MAIN MAIN_ACO
 
 #define PRINT_RESULT FALSE
 
@@ -172,6 +172,8 @@ int main(int argc, char* argv[])
 
 
             dijkstraSatCli(instance);
+            instance.calculaVetVoltaRS_sat();
+
             Estatisticas estat;
             Solucao *solBest = nullptr;
             solBest = grasp(instance, parametros, estat);
@@ -260,7 +262,7 @@ int main(int argc, char* argv[])
 
         outfile.close();
 
-
+        solBest->print(instance);
 
         delete solBest;
         return 0;
@@ -326,6 +328,7 @@ int main(int argc, char* argv[])
     std::string file(argv[1]);
     const string nomeInst = getNomeInstancia(file);
     Instance instancia(file, nomeInst);
+    instancia.calculaVetVoltaRS_sat();
 
     if(instancia.getNSats() > 1)
     {

@@ -116,16 +116,25 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
                 matCandidato[candPtr->satId](transformaIdEv(candPtr->routeId), transformaIdCliente(candPtr->clientId)) = candPtr;
                 vetCandPtr[transformaIdCliente(candPtr->clientId)] = candPtr;
 
+PRINT_DEBUG("", "");
+cout<<"Criando candidato para cliente: "<<candPtr->clientId<<" em  routeId: "<<candPtr->routeId<<"\n\n";
+
+
             } else
                 clientesSemCandidato.push_back(clientId);
         }
 
-
-
     }
 
+cout<<"*********************************************\n\n";
+
+    int y=0;
     while(!visitAllClientes(visitedClients, instance, vetSatAtendCliente, satId) && !listaCandidatos.empty())
     {
+
+cout<<"while: "<<y<<"\n";
+        y += 1;
+
         int randIndex = rand_u32()%(int(alpha * listaCandidatos.size() + 1));
         listaCandidatos.sort();
 
@@ -175,13 +184,17 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
                 CandidatoEV *candidatoEvPtrAux = matCandidato[sat->sateliteId](transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId));
                 bool numEVs_max = false;
 
-                if(candidatoEvPtrAux == nullptr && sol.numEv >= sol.numEvMax)
+                if(candidatoEvPtrAux == nullptr && sol.numEv == sol.numEvMax)
                 {
                     candidatoEvPtrAux = vetCandPtr[transformaIdCliente(clientId)];
 
                     if(candidatoEvPtrAux != nullptr)
                     {
                         int evRouteId = candidatoEvPtrAux->routeId;
+PRINT_DEBUG("", "");
+cout<<"evRouteId: "<<evRouteId<<"\n";
+cout<<"cliente: "<<clientId<<"\n\n";
+
                         EvRoute &evRoute1 = sol.satelites[satId].getRoute(evRouteId);
 
                         if(evRoute1.routeSize <= 2)
@@ -193,8 +206,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
                     }
                 }
 
-                if( !visitedClients[clientId] &&  (((vetSatAtendCliente[clientId] == satId) && candidatoEvPtrAux && clientId != topItem->clientId)
-                    || numEVs_max ))
+                if(!visitedClients[clientId] && (((vetSatAtendCliente[clientId] == satId) && candidatoEvPtrAux && clientId != topItem->clientId) || numEVs_max))
                 {
 
                     if(!numEVs_max)
@@ -222,6 +234,8 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
                                 continue;
 
                             canInsert(route, clientId, instance, candidatoEv, satId, vetTempoSaida[satId], evRouteAux);
+                            if(clientId == 8)
+                                cout<<"route routeId: "<<route.idRota<<"\n";
 
                         }
 
@@ -231,7 +245,14 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
                     {
                         // Encontrou uma rota viavel
                         *candidatoEvPtrAux = candidatoEv;
+                        candidatoEv.routeId -= 1;
                         matCandidato[candidatoEv.satId](transformaIdEv(candidatoEv.routeId), transformaIdCliente(candidatoEv.clientId)) = candidatoEvPtrAux;
+
+                        if(candidatoEv.clientId == 8)
+                        {
+cout<<"cliente 8 routeId: "<<candidatoEv.routeId<<"\n";
+                        }
+
                     }
                     else
                     {

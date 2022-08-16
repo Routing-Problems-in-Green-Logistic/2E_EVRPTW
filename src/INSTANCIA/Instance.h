@@ -168,6 +168,8 @@ public:
 
     string nome;
 
+    void calculaVetVoltaRS_sat();
+
 };
 
 

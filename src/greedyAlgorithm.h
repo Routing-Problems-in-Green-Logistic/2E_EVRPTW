@@ -27,7 +27,7 @@ namespace GreedyAlgNS
 
     };
 
-
+    // routeId NAO eh absoluto, NAO considera ~ev!!
     class CandidatoEV
     {
     public:

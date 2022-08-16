@@ -28,13 +28,19 @@ Satelite::Satelite(const Instance& instance, const int _satId)
 //    cout<<"vetTempoSaidaEvRoute size: "<<vetTempoSaidaEvRoute.size()<<"\n";
 
     sateliteId = _satId;
+    primeiroEv = instance.getFirstEvIndex();
+
 }
 
-int Satelite::getNRoutes() const {
+int Satelite::getNRoutes() const
+{
     return this->vetEvRoute.size();
 }
 
-EvRoute &Satelite::getRoute(int i) {
+EvRoute &Satelite::getRoute(int i)
+{
+    //cout<<"id: "<<(i-primeiroEv)<<"\n";
+    //cout<<"i: "<<i<<"\n";
     return this->vetEvRoute.at(i);
 }
 

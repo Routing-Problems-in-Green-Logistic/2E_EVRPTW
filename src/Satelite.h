@@ -60,5 +60,6 @@ void copia(Satelite &satelite);
     int sateliteId = -1;
     float demanda = 0.0;
     double distancia = 0.0;
+    int primeiroEv = -1;
 };
 #endif //INC_2E_EVRP_SATELITE_H

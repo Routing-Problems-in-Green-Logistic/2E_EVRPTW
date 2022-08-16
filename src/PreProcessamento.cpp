@@ -188,7 +188,7 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia)
         }
 
         excluidos[sat] = true;
-        minHeap.erase(minHeap.begin(), minHeap.end());
+        //minHeap.erase(minHeap.begin(), minHeap.end());
 
     }
 

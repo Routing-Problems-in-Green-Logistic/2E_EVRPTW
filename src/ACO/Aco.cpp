@@ -119,18 +119,33 @@ cout<<"\t\t";
 
                         const int clienteI       = evRoute[pos].cliente;
                         const double tempoSaidaI = evRoute[pos].tempoSaida;
-cout<<clienteI<<" ";
+cout<<clienteI<<"\n";
 
                         proxVetProximo = 0;
                         multMax = -1.0;
                         multMaxIndice = 0;
 
+                        bool voltaSat = false;
+                        bool rsConsecutivos2 = false;
+
+                        if(pos >= 2)
+                        {
+                            if(instance.isRechargingStation(evRoute[pos].cliente) && instance.isRechargingStation(evRoute[pos-1].cliente))
+                               rsConsecutivos2 = true;
+                        }
+
+
                         // satelite
                         if(clienteJValido(instance, clienteI, sateliteId, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId, tempoSaidaI))
-                            atualizaVetProx(sateliteId);
+                        {
+                            //atualizaVetProx(sateliteId);
+                            voltaSat = true;
+                        }
+
+
 
                         // Clientes
-                       for(int j=instance.getFirstClientIndex(); j < instance.getEndClientIndex(); ++j)
+                       for(int j=instance.getFirstClientIndex(); j <= instance.getEndClientIndex(); ++j)
                        {
                            if(vetSatAtendCliente[j] == sateliteId)
                            {
@@ -140,14 +155,46 @@ cout<<clienteI<<" ";
                                    if(clienteJValido(instance, clienteI, j, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId, tempoSaidaI))
                                        atualizaVetProx(j);
                                }
+                               else
+                               {
+                                   if(j != clienteI)
+                                   {
+                                       cout<<j<<": cap\n";
+                                   }
+                               }
                            }
                        }
 
-                       // Estacoes de Recarga
-                       for(int j= instance.getFirstRS_index(); j <= instance.getEndRS_index(); ++j)
+
+cout<<"\n\t\tapos clientes: tam: "<<proxVetProximo<<"\n";
+
+                       if(!rsConsecutivos2)
                        {
-                           if(clienteJValido(instance, clienteI, j, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId, tempoSaidaI))
-                               atualizaVetProx(j);
+                           bool voltaDep = false;
+
+                           // Se nao existe cliente entao, proxVetProximo eh igual a 1
+
+                           // Estacoes de Recarga
+                           for(int j = instance.getFirstRS_index(); j <= instance.getEndRS_index(); ++j)
+                           {
+                               if(clienteJValido(instance, clienteI, j, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId, tempoSaidaI))
+                               {
+
+                                   if(!voltaDep && instance.vetVoltaRS_sat[instance.getIndiceVetVoltaRS_sat(sateliteId, j)]==1)
+                                   {
+                                       //voltaDep = true;
+                                       //proxVetProximo = 0;
+                                       atualizaVetProx(j);
+                                   }
+                                   else if(!voltaDep)
+                                       atualizaVetProx(j);
+                               }
+                           }
+                       }
+
+                       if(proxVetProximo == 0 && voltaSat)
+                       {
+                           atualizaVetProx(sateliteId);
                        }
 
 cout<<"\n\t\ttam: "<<proxVetProximo<<"\n";
@@ -158,36 +205,6 @@ cout<<"\n\t\ttam: "<<proxVetProximo<<"\n";
                            static const int q0 = int(acoPar.q0*100);
 
                            std::sort(vetProximo.begin(), vetProximo.begin()+proxVetProximo);
-
-                           // Retira estacao de recarga se eh existe cliente
-                           if(existeCliente)
-                           {
-
-                               multMax = -1.0;
-                               multMaxIndice = 0;
-                               int j=0;
-
-                               for(int i=0; i < proxVetProximo; ++i)
-                               {
-                                   if(instance.isClient(vetProximo[i].cliente))
-                                   {
-                                       vetProximoAux[j] = vetProximo[i];
-                                       if(vetProximoAux[j].ferom_x_dist > multMax)
-                                       {
-                                           multMax = vetProximoAux[j].ferom_x_dist;
-                                           multMaxIndice = j;
-                                       }
-
-                                       j += 1;
-
-                                   }
-                               }
-
-                               std::copy(vetProximoAux.begin(), vetProximoAux.begin()+j, vetProximo.begin());
-                               proxVetProximo = j;
-                           }
-
-
 
                            for(int i=0; i < proxVetProximo; ++i)
                            {
@@ -204,14 +221,22 @@ cout<<"\t\t\t"<<vetProximo[i].cliente<<"("<<vetProximo[i].ferom_x_dist<<") "<<i<
 
                                double prob = 0.0;
                                int numRand = rand_u32()%100;
-                               for(int i=0; i < proxVetProximo; ++i)
+                               int i = rand_u32()%proxVetProximo;
+                               const int fist = i;
+
+                               //for(int i=0; i < proxVetProximo; ++i)
+                               do
                                {
                                    prob += (vetProximo[i].ferom_x_dist / multSoma) * 100;
                                    proxClienteInd = i;
 
-                                   if(numRand <= int(prob))
+                                   if(numRand <= int(prob) || proxVetProximo == 1)
                                        break;
-                               }
+
+                                   i = (i+1)%proxVetProximo;
+
+                               }while(i!=fist);
+
                            }
 
 cout<<"proxClienteInd: "<<proxClienteInd<<"; vet tam: "<<proxVetProximo<<"\n";
@@ -367,24 +392,30 @@ bool N_Aco::clienteJValido(Instance &instancia, const int i, const int j, const 
 
     // TEMPO ??
 
-    if(i==2 && j==1)
-        cout<<"i=2, j=1\n";
 
-    if(i == j || (vetNosAtend[j] == 1 && !instancia.isSatelite(j)))
+    if(i == j || (vetNosAtend[j] == 1 && !instancia.isSatelite(j) && !instancia.isRechargingStation(j)))
     {
-        if(i==2 && j==1)
-            cout<<"1°\n";
+        if(i!=j)
+            cout<<j<<": atend\n";
+        else
+            cout<<j<<" i==j\n";
 
         return false;
     }
 
     if(instancia.isRechargingStation(j) && vetNosAtend[j] == instancia.numUtilEstacao)
+    {
+cout<<j<<": RS\n";
         return false;
+    }
 
     const double dist_i_j = instancia.getDistance(i,j);
 
     if(dist_i_j == 0.0 && !instancia.isSatelite(j))
+    {
+cout<<j<<": dist = 0\n";
         return false;
+    }
 
     double batTemp = bat - dist_i_j;
 
@@ -394,9 +425,8 @@ bool N_Aco::clienteJValido(Instance &instancia, const int i, const int j, const 
 
         if(!((tempoChegadaJ <= instancia.vectCliente[j].fimJanelaTempo) || (abs(tempoChegadaJ-instancia.vectCliente[j].fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO)))
         {
-            if(i==2 && j==1)
-                cout<<"\t\tjanela de tempo\n";
 
+cout<<j<<": janela de tempo: TC("<<tempoChegadaJ<<") TW("<<instancia.vectCliente[j].fimJanelaTempo<<")\n";
             return false;
         }
 
@@ -410,14 +440,20 @@ bool N_Aco::clienteJValido(Instance &instancia, const int i, const int j, const 
         if(instancia.isRechargingStation(j))
         {
             if(vetNosAtend[j] < instancia.numUtilEstacao)
+            {
+                cout<<j<<": ok\n";
                 return true;
+            }
             else
                 return false;
         }
 
         // Verifica se eh possivel retornar ao satelite
         if(j == sat || (batTemp-instancia.getDistance(j, sat)) >= -TOLERANCIA_BATERIA)
+        {
+            cout<<j<<": ok\n";
             return true;
+        }
 
         // Percorre as estacoes de recarga
         for(int es= instancia.getFirstRS_index(); es <= instancia.getEndRS_index(); ++es)
@@ -425,19 +461,19 @@ bool N_Aco::clienteJValido(Instance &instancia, const int i, const int j, const 
             if(j != es && vetNosAtend[es] < instancia.numUtilEstacao)
             {
                 if((batTemp - instancia.getDistance(j, es)) >= -TOLERANCIA_BATERIA)
+                {
+                    cout<<j<<": ok\n";
                     return true;
+                }
             }
         }
-
-        if(i==2 && j==1)
-            cout<<"???\n";
 
         // Nao eh possivel retornar ao deposito ou chegar no satelite
         return false;
     }
     else
     {
-        cout<<"bat\n";
+        cout<<j<<" bat\n";
         return false;
     }
 

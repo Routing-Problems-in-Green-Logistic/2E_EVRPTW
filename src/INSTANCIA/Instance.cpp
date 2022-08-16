@@ -330,6 +330,10 @@ Instance::Instance(const std::string &str, const std::string &nome_)
         std::sort(vetDistClienteSat.begin(), vetDistClienteSat.end());
     }
 
+}
+
+void Instance::calculaVetVoltaRS_sat()
+{
 
     const int tamVet = 1 + numSats*numRechargingS;
     vetVoltaRS_sat = vector<int8_t>(tamVet, int8_t(0));
@@ -346,7 +350,7 @@ Instance::Instance(const std::string &str, const std::string &nome_)
                 int id = getIndiceVetVoltaRS_sat(sat, rs);
                 vetVoltaRS_sat[id] = int8_t(1);
 
-cout<<"sat: "<<sat<<"; RS: "<<rs<<"; dist: "<<consumoBat<<"\n";
+                cout<<"sat: "<<sat<<"; RS: "<<rs<<"; dist: "<<consumoBat<<"\n";
             }
         }
     }
