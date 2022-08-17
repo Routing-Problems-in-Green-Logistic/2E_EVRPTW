@@ -22,7 +22,7 @@ using namespace NS_LocalSearch;
 
 const float fator = 0.1;
 
-Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatisticas &estat)
+Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatisticas &estat, const bool retPrimeiraSol)
 {
 
     Solucao *solBest = new Solucao(instance);
@@ -133,7 +133,7 @@ cout<<"&vetSatAntendCliente: "<<&vetSatAtendCliente<<"\n&satUtilizado: "<<&satUt
         setSatParaCliente(instance, vetSatAtendCliente, satUtilizado, parametros);
 
 
-        if(i == parametros.iteracoesCalProb) //&& (i%parametros.iteracoesCalProb)==0)
+        if(i == parametros.iteracoesCalProb && instance.shortestPath) //&& (i%parametros.iteracoesCalProb)==0)
         {
 
             for(int t=0; t < instance.getNClients(); ++t)
@@ -177,7 +177,8 @@ cout<<"&vetSatAntendCliente: "<<&vetSatAtendCliente<<"\n&satUtilizado: "<<&satUt
 
         Solucao solTemp(instance);
 
-        if(i >= parametros.iteracoesCalProb && parametros.iteracoesCalProb > 0)
+        // Insere  rotas da forama: sat cliente sat
+       /* if(i >= parametros.iteracoesCalProb && parametros.iteracoesCalProb > 0)
         {
             int clientesAdd = 0;
 
@@ -236,7 +237,7 @@ cout<<"&vetSatAntendCliente: "<<&vetSatAtendCliente<<"\n&satUtilizado: "<<&satUt
 
             }
 
-        }
+        }*/
 
         somaProb = 0.0;
         posAlfa = 0;
@@ -262,7 +263,8 @@ cout<<"&vetSatAntendCliente: "<<&vetSatAtendCliente<<"\n&satUtilizado: "<<&satUt
         solTemp.copia(sol);
         construtivo(sol, instance, alfa, alfa, vetSatAtendCliente, satUtilizado);
 
-        if(!sol.viavel && parametros.iteracoesCalProb > 0)// && i < parametros.iteracoesCalProb)
+        // Add 1 se o cliente t nao foi atendido
+/*        if(!sol.viavel && parametros.iteracoesCalProb > 0)// && i < parametros.iteracoesCalProb)
         {
             int quantCliInv = 0;
             for(int t=instance.getFirstClientIndex(); t <= instance.getEndClientIndex(); ++t)
@@ -281,7 +283,7 @@ cout<<"&vetSatAntendCliente: "<<&vetSatAtendCliente<<"\n&satUtilizado: "<<&satUt
                 }
             }
 
-        }
+        }*/
 
 
         if(sol.viavel)
@@ -333,8 +335,11 @@ cout<<"&vetSatAntendCliente: "<<&vetSatAtendCliente<<"\n&satUtilizado: "<<&satUt
 
                     solBest->copia(sol);
 
-                    string fileBestAntes = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/solBestAntes.txt";
-                    escreveSol(fileBestAntes, *solBest, instance);
+                    if(retPrimeiraSol)
+                        return solBest;
+
+                    //string fileBestAntes = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/solBestAntes.txt";
+                    //escreveSol(fileBestAntes, *solBest, instance);
 
                     custoBest = solBest->distancia;
                     estat.ultimaAtualizacaoBest = i;

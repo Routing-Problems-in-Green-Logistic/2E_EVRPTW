@@ -183,7 +183,7 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const
                         shiftVectorClienteDir(evRouteSta.route, i + 1, 1, evRouteSta.routeSize);
                         evRouteSta.routeSize += 1;
 
-                        evRouteSta[i + 1].cliente = estacao;
+                        evRouteSta[i+1].cliente = estacao;
 
                         /*
                         string str;

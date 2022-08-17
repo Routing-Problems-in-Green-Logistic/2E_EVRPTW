@@ -27,7 +27,7 @@ public:
         else if(evRoute->routeSize <= 2 && tempo2.evRoute->routeSize > 2)
             return false;
 
-        return evRoute->route[0].tempoSaida < tempo2.evRoute->route[0].tempoSaida;
+        return evRoute->route.at(0).tempoSaida < tempo2.evRoute->route.at(0).tempoSaida;
     }
 
 

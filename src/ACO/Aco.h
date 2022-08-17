@@ -12,7 +12,7 @@
 #include "../Solucao.h"
 #include <boost/numeric/ublas/matrix.hpp>
 #include <algorithm>
-
+#include "../Grasp.h"
 
 namespace N_Aco
 {
@@ -20,32 +20,30 @@ namespace N_Aco
     {
     public:
 
-        double alfa             = 0.2;
-        double beta             = 0.8;
-        double alfaConst        = 0.2;
+        double alfa             = 0.1;               // Feromonio
+        double beta             = 0.0;               // Heuristica
+        double alfaConst        = 0.5;
         double ro               = 0.8;
-        double q0               = 0.8;
-        int numAnts             = 1;
+        double q0               = 0.6;
+        int numAnts             = 30;
         int8_t freqAtualAntBest = 25;
-        int numIteracoes        = 10;
+        int numIteracoes        = 50;
         int numItMaxHeur        = 20;
         double feromonioInicial = 0.0;
 
-/*        AcoParametros()
+        AcoParametros()
         {
-            //numAnts = ceil(0.4/(q0* log(1.0-ro)));
-
-            //cout<<"NUM ANTS: "<<numAnts<<"\n";
-        }*/
-
+            beta = 1.0-alfa;
+        }
     };
 
     class AcoEstatisticas
     {
     public:
-        int nAntViaveis     = 0;
-        int nAntGeradas     = 0;
-        double sumDistAnts  = 0.0;
+        int nAntViaveis             = 0;
+        int nAntGeradas             = 0;
+        int ultimaAtualisacaoIt     = 0;
+        double sumDistAntsViaveis   = 0.0;
     };
 
     class Ant
@@ -72,6 +70,7 @@ namespace N_Aco
         {
             satelite.copia(antOutra.satelite);
             vetNosAtend = antOutra.vetNosAtend;
+            viavel = antOutra.viavel;
         }
 
         bool operator < (const Ant &ant) const
@@ -95,7 +94,8 @@ namespace N_Aco
 
         inline double atualiza(int _cliente, double dist, double ferom, const AcoParametros &acoParam)
         {
-cout<<"\t\t\t\t"<<_cliente<<": dist("<<dist<<"); ferom("<<ferom<<")\n";
+
+            //cout<<"\t\t\t\t"<<_cliente<<": dist("<<dist<<"); ferom("<<ferom<<")\n";
 
             cliente = _cliente;
             ferom_x_dist = 1.0;
@@ -115,7 +115,14 @@ cout<<"\t\t\t\t"<<_cliente<<": dist("<<dist<<"); ferom("<<ferom<<")\n";
 
     inline bool existeClienteNaoVisitado(Ant &ant, Instance &instancia)
     {
-        return std::find((ant.vetNosAtend.begin()+instancia.getFirstClientIndex()), (ant.vetNosAtend.begin()+instancia.getEndClientIndex()+1), 0) != ant.vetNosAtend.end();
+        //return std::find((ant.vetNosAtend.begin()+instancia.getFirstClientIndex()), (ant.vetNosAtend.begin()+instancia.getEndClientIndex()+1), 0) == true;
+        for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+        {
+            if(ant.vetNosAtend[i] == int8_t(0))
+                return true;
+        }
+
+        return false;
     }
 
     inline double getDistSat(const Satelite &satelite)
@@ -123,7 +130,8 @@ cout<<"\t\t\t\t"<<_cliente<<": dist("<<dist<<"); ferom("<<ferom<<")\n";
         return satelite.distancia;
     }
 
-    void aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest, const vector<int> &vetSatAtendCliente);
+    void aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
+             const vector<int> &vetSatAtendCliente, Parametros &param, NameS_Grasp::Estatisticas &est);
     void atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &instancia, const AcoParametros &acoParam, const Ant &antBest, const double feromMin, const double feromMax);
     void evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instance &instancia, const AcoParametros &acoParam, const double feromMin);
     bool

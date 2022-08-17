@@ -89,7 +89,7 @@ namespace NameS_Grasp
         }
     };*/
 
-    Solucao *grasp(Instance &instance, Parametros &parametros, Estatisticas &estat);
+    Solucao *grasp(Instance &instance, Parametros &parametros, Estatisticas &estat, const bool retPrimeiraSol);
     double getDistMaisPenalidade(Solucao &sol, Instance &instancia);
     double getPenalidade(Solucao &sol, Instance &instancia, float f);
     void inicializaSol(Solucao &sol, Instance &instance);

@@ -1,0 +1,10 @@
+ Sem estacoes de recarga consecutivas
+
+ So permite a volta ao sat se nao existe outra opcao
+
+ Solução inicial do grasp(execução até encontrar sol. viável). Feromonio inicio igual a 1/d_i_j
+ 
+ Se (rand() % 101) <= q0: proxAresta <= max(arestas)
+ 
+ 
+

@@ -335,7 +335,7 @@ Instance::Instance(const std::string &str, const std::string &nome_)
 void Instance::calculaVetVoltaRS_sat()
 {
 
-    const int tamVet = 1 + numSats*numRechargingS;
+    const int tamVet = (numSats)*numRechargingS;
     vetVoltaRS_sat = vector<int8_t>(tamVet, int8_t(0));
 
     for(int sat=getFirstSatIndex(); sat <= getEndSatIndex(); ++sat)
@@ -348,7 +348,9 @@ void Instance::calculaVetVoltaRS_sat()
             if(consumoBat <= capBat)
             {
                 int id = getIndiceVetVoltaRS_sat(sat, rs);
-                vetVoltaRS_sat[id] = int8_t(1);
+                cout<<"sat, rs: "<<sat<<", "<<rs<<"\n";
+
+                vetVoltaRS_sat.at(id) = 1;
 
                 //cout<<"sat: "<<sat<<"; RS: "<<rs<<"; dist: "<<consumoBat<<"\n";
             }
@@ -374,7 +376,7 @@ Instance::~Instance()
 
 int Instance::getIndiceVetVoltaRS_sat(int sat, int rs)
 {
-    return 1 + sat*numRechargingS + rs;
+    return (sat-1)*numRechargingS + (rs-getFirstRS_index());
 }
 
 void Instance::print() const

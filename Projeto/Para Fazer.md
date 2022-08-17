@@ -59,7 +59,11 @@ NumEVs:
 
 - feromônio incial igual 0
 
+***
+***
 
+
+- Erro em PreProcessamento.cpp !!!
 
 
 

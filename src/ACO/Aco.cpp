@@ -13,9 +13,11 @@
 #include "Instance.h"
 #include "../greedyAlgorithm.h"
 #include "../mersenne-twister.h"
+#include "../greedyAlgorithm.h"
 #include <iostream>
 #include <boost/numeric/ublas/matrix.hpp>
 
+#define PRINT_0 FALSE
 
 using namespace std;
 using namespace boost::numeric;
@@ -31,26 +33,45 @@ using namespace boost::numeric;
  * ******************************************************************************************************
  * ******************************************************************************************************
  */
-void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest, const vector<int> &vetSatAtendCliente)
+void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
+                const vector<int> &vetSatAtendCliente, Parametros &param, NameS_Grasp::Estatisticas &est)
 {
 
-    /*
-    Solucao solucao(instance);
-    bool construtivo = GreedyAlgNS::secondEchelonGreedy(solucao, instance, acoPar.alfaConst, 0);
-
-    if(!construtivo)
+    if(instance.numSats > 1)
     {
-        for (int i = 0; i < acoPar.numItMaxHeur; ++i)
-        {
-            solucao = Solucao(instance);
-            construtivo = GreedyAlgNS::secondEchelonGreedy(solucao, instance, acoPar.alfaConst, 0);
+cout<<"NUM de SATs EH > 1\n\n";
+        return;
+    }
 
-            if(construtivo)
-                break;
-        }
-    }*/
+    Solucao *solGrasp = NameS_Grasp::grasp(instance, param, est, true);
+
+    if(solGrasp)
+cout<<"sol grasp viavel: "<<solGrasp->viavel<<"\ndist: "<<solGrasp->distancia<<"\n";
+
 
     ublas::matrix<double> matFeromonio(instance.numNos, instance.numNos, acoPar.feromonioInicial);
+
+    // Inicializa o feromonio com a sol do grasp:
+
+    auto satartFerom = [&]()
+    {
+        const double feromInicial = 1.0/solGrasp->satelites[sateliteId].distancia;
+
+        for(const EvRoute &evRoute:solGrasp->satelites[sateliteId].vetEvRoute)
+        {
+            if(evRoute.routeSize > 2)
+            {
+                for(int i=0; i < (evRoute.routeSize-1); ++i)
+                {
+                    matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) = 1.0/instance.getDistance(evRoute.route[i].cliente, evRoute.route[i+1].cliente);
+                }
+            }
+        }
+
+    };
+
+    satartFerom();
+
     Ant antBest(instance, sateliteId, true);
     vector<Proximo> vetProximo(1+instance.numClients+instance.numRechargingS);
     vector<Proximo> vetProximoAux(1+instance.numClients+instance.numRechargingS);
@@ -58,13 +79,21 @@ void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoE
     for(int iteracoes = 0; iteracoes < acoPar.numIteracoes; ++iteracoes)
     {
 
+        Ant antBestIt(instance, sateliteId, true);
+
+#if PRINT_0 == TRUE
 cout<<"ITE: "<<iteracoes<<"\n";
+#endif
         std::vector<Ant> vetAnt(acoPar.numAnts, Ant(instance, sateliteId));
 
         int antCount = 0;
         for(Ant &ant:vetAnt)
         {
+
+
+#if PRINT_0 == TRUE
 cout<<"ant: "<<antCount<<"\n\n";
+#endif
             antCount += 1;
 
             int rotaEv = -1;
@@ -77,7 +106,9 @@ cout<<"ant: "<<antCount<<"\n\n";
                 if(rotaEv < instance.getN_Evs())
                 {
 
+#if PRINT_0 == TRUE
 cout<<"\tROTA: "<<rotaEv<<"\n";
+#endif
                     EvRoute &evRoute = ant.satelite.vetEvRoute[rotaEv];
                     evRoute[0].bateriaRestante = instance.getEvBattery(evRoute.idRota);
                     evRoute[0].tempoSaida = instance.getDistance(0, sateliteId);
@@ -94,7 +125,10 @@ cout<<"\tROTA: "<<rotaEv<<"\n";
                     {
                         double temp = vetProximo[proxVetProximo].atualiza(clienteJ, instance.getDistance(evRoute[pos].cliente, clienteJ),
                                                                           matFeromonio(evRoute[pos].cliente, clienteJ), acoPar);
+
+#if PRINT_0 == TRUE
 cout<<"\t\t\tferom_X_dist: "<<temp<<"\n";
+#endif
 
                         if(temp > multMax)
                         {
@@ -110,8 +144,10 @@ cout<<"\t\t\tferom_X_dist: "<<temp<<"\n";
 
                     };
 
-cout<<"\t\t";
 
+#if PRINT_0 == TRUE
+cout<<"\t\t";
+#endif
                     // Escolhe a proxima aresta
                     do
                     {
@@ -119,18 +155,22 @@ cout<<"\t\t";
 
                         const int clienteI       = evRoute[pos].cliente;
                         const double tempoSaidaI = evRoute[pos].tempoSaida;
-cout<<clienteI<<"\n";
 
+
+#if PRINT_0 == TRUE
+cout<<clienteI<<"\n";
+#endif
                         proxVetProximo = 0;
                         multMax = -1.0;
                         multMaxIndice = 0;
 
                         bool voltaSat = false;
                         bool rsConsecutivos2 = false;
+                        bool clienteViavel = false;
 
                         if(pos >= 2)
                         {
-                            if(instance.isRechargingStation(evRoute[pos].cliente) && instance.isRechargingStation(evRoute[pos-1].cliente))
+                            if(instance.isRechargingStation(evRoute[pos].cliente))// && instance.isRechargingStation(evRoute[pos-1].cliente))
                                rsConsecutivos2 = true;
                         }
 
@@ -153,22 +193,33 @@ cout<<clienteI<<"\n";
                                if(j != clienteI && (evRoute.demanda + instance.getDemand(j)) <= instance.getEvCap(rotaEv))
                                {
                                    if(clienteJValido(instance, clienteI, j, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId, tempoSaidaI))
+                                   {
                                        atualizaVetProx(j);
+                                       clienteViavel = true;
+                                   }
                                }
                                else
                                {
+
+#if PRINT_0 == TRUE
                                    if(j != clienteI)
                                    {
-                                       cout<<j<<": cap\n";
+
+cout<<j<<": cap\n";
                                    }
+#endif
+
                                }
                            }
                        }
 
 
-cout<<"\n\t\tapos clientes: tam: "<<proxVetProximo<<"\n";
 
-                       if(!rsConsecutivos2)
+#if PRINT_0 == TRUE
+cout<<"\n\t\tapos clientes: tam: "<<proxVetProximo<<"\n";
+#endif
+
+                       if(!rsConsecutivos2 && !clienteViavel)
                        {
                            bool voltaDep = false;
 
@@ -197,7 +248,10 @@ cout<<"\n\t\tapos clientes: tam: "<<proxVetProximo<<"\n";
                            atualizaVetProx(sateliteId);
                        }
 
+
+#if PRINT_0 == TRUE
 cout<<"\n\t\ttam: "<<proxVetProximo<<"\n";
+#endif
 
                        if(proxVetProximo >= 1)
                        {
@@ -206,16 +260,19 @@ cout<<"\n\t\ttam: "<<proxVetProximo<<"\n";
 
                            std::sort(vetProximo.begin(), vetProximo.begin()+proxVetProximo);
 
+
+#if PRINT_0 == TRUE
                            for(int i=0; i < proxVetProximo; ++i)
                            {
 cout<<"\t\t\t"<<vetProximo[i].cliente<<"("<<vetProximo[i].ferom_x_dist<<") "<<i<<"\n";
                            }
+#endif
 
-/*                           if((rand_u32()%101) <= q0)
+                           if((rand_u32()%101) <= q0)
                            {
                                 proxClienteInd = multMaxIndice;
                            }
-                           else*/
+                           else
                            {
 
 
@@ -239,7 +296,10 @@ cout<<"\t\t\t"<<vetProximo[i].cliente<<"("<<vetProximo[i].ferom_x_dist<<") "<<i<
 
                            }
 
+
+#if PRINT_0 == TRUE
 cout<<"proxClienteInd: "<<proxClienteInd<<"; vet tam: "<<proxVetProximo<<"\n";
+#endif
 
                            // Cliente j foi escolhido
 
@@ -248,11 +308,14 @@ cout<<"proxClienteInd: "<<proxClienteInd<<"; vet tam: "<<proxVetProximo<<"\n";
                            atualizaClienteJ(evRoute, pos, vetProximo[proxClienteInd].cliente, instance, ant);
                            pos += 1;
 
+
+#if PRINT_0 == TRUE
 cout<<"Cliente escolhido: "<<vetProximo[proxClienteInd].cliente<<"\n";
 string strRota;
 evRoute.print(strRota, instance, true);
 cout<<"ROTA: "<<strRota<<"\n\n";
 cout<<"*************************************************\n\n";
+#endif
 
                        }
                        else
@@ -264,42 +327,62 @@ cout<<"*************************************************\n\n";
 
                     }while(evRoute[pos].cliente != sateliteId);
 
+
+#if PRINT_0 == TRUE
                     if(evRoute[pos].cliente == sateliteId && pos > 0)
- cout<<sateliteId<<"\n";
-
+                        cout<<sateliteId<<"\n";
 cout<<"\n\n";
-
+#endif
                 }
                 else
                     break;
-            }
+
+            } // Fim while(existeClienteNaoVisitado)
 
             if(!existeClienteNaoVisitado(ant, instance))
             {
+
+
+
+                //GreedyAlgNS::firstEchelonGreedy();
+
                 ant.viavel = true;
 
-                if(ant.satelite.distancia < antBest.satelite.distancia)
-                    antBest.copia(ant);
+                if(ant < antBestIt)//antBest.satelite.distancia)
+                    antBestIt.copia(ant);
+
+
+#if PRINT_0 == TRUE
+                cout<<"ANT VIAVEL\n";
+#endif
+                //delete solGrasp;
+                //return;
             }
 
+
+#if PRINT_0 == TRUE
 cout<<"\n*************************************************\n\n";
-            string strSat;
-            ant.satelite.print(strSat, instance);
-
+string strSat;
+ant.satelite.print(strSat, instance);
 cout<<strSat<<"\n\n*************************************************\n\n";
+#endif
 
+        } // Fim for ANTs
 
-        }
-
+#if PRINT_0 == TRUE
 cout<<"*******************\n\n";
+#endif
 
         // Evapora e atualiza o feromonio com a melhor formiga
-        if(antBest.viavel)
+        if(antBestIt.viavel)
         {
-            double feromMax = 1.0/antBest.satelite.distancia;
-            atualizaFeromonio(matFeromonio, instance, acoPar, antBest, 0.1*feromMax, feromMax);
+            double feromMax = 1.0/antBestIt.satelite.distancia;
+            //atualizaFeromonio(matFeromonio, instance, acoPar, antBestIt, 0.1*feromMax, feromMax);
+
+            if(antBestIt < antBest)
+                antBest.copia(antBestIt);
         }
-    }
+    } // Fim for iteracoes ACO
 
     satBest.copia(antBest.satelite);
 
@@ -311,21 +394,24 @@ cout<<"*******************\n\n";
         if(satBest.checkSatellite(erro, instance))
         {
 
-cout <<"ANT BEST VIAVEL\n";
-            string satStr;
-            satBest.print(satStr, instance);
 
+cout <<"ANT BEST VIAVEL\n";
+string satStr;
+satBest.print(satStr, instance);
 cout<<satStr;
 
         }
     }
     else
     {
+
 cout<<"cliente0 id: \t"<<instance.getFirstClientIndex()<<"\n";
 cout<<"clienteUltimo: \t"<<instance.getEndClientIndex()<<"\n";
-
 cout<<"ANT BEST EH INVIAVEL\n";
+
     }
+
+    delete solGrasp;
 }
 
 void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance, Ant &ant)
@@ -395,17 +481,21 @@ bool N_Aco::clienteJValido(Instance &instancia, const int i, const int j, const 
 
     if(i == j || (vetNosAtend[j] == 1 && !instancia.isSatelite(j) && !instancia.isRechargingStation(j)))
     {
+#if PRINT_0 == TRUE
         if(i!=j)
             cout<<j<<": atend\n";
         else
             cout<<j<<" i==j\n";
-
+#endif
         return false;
     }
 
     if(instancia.isRechargingStation(j) && vetNosAtend[j] == instancia.numUtilEstacao)
     {
+
+#if PRINT_0 == TRUE
 cout<<j<<": RS\n";
+#endif
         return false;
     }
 
@@ -413,7 +503,11 @@ cout<<j<<": RS\n";
 
     if(dist_i_j == 0.0 && !instancia.isSatelite(j))
     {
+
+
+#if PRINT_0 == TRUE
 cout<<j<<": dist = 0\n";
+#endif
         return false;
     }
 
@@ -426,7 +520,9 @@ cout<<j<<": dist = 0\n";
         if(!((tempoChegadaJ <= instancia.vectCliente[j].fimJanelaTempo) || (abs(tempoChegadaJ-instancia.vectCliente[j].fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO)))
         {
 
+#if PRINT_0 == TRUE
 cout<<j<<": janela de tempo: TC("<<tempoChegadaJ<<") TW("<<instancia.vectCliente[j].fimJanelaTempo<<")\n";
+#endif
             return false;
         }
 
@@ -441,7 +537,10 @@ cout<<j<<": janela de tempo: TC("<<tempoChegadaJ<<") TW("<<instancia.vectCliente
         {
             if(vetNosAtend[j] < instancia.numUtilEstacao)
             {
-                cout<<j<<": ok\n";
+
+#if PRINT_0 == TRUE
+cout<<j<<": ok\n";
+#endif
                 return true;
             }
             else
@@ -451,7 +550,10 @@ cout<<j<<": janela de tempo: TC("<<tempoChegadaJ<<") TW("<<instancia.vectCliente
         // Verifica se eh possivel retornar ao satelite
         if(j == sat || (batTemp-instancia.getDistance(j, sat)) >= -TOLERANCIA_BATERIA)
         {
+
+#if PRINT_0 == TRUE
             cout<<j<<": ok\n";
+#endif
             return true;
         }
 
@@ -462,7 +564,10 @@ cout<<j<<": janela de tempo: TC("<<tempoChegadaJ<<") TW("<<instancia.vectCliente
             {
                 if((batTemp - instancia.getDistance(j, es)) >= -TOLERANCIA_BATERIA)
                 {
+
+#if PRINT_0 == TRUE
                     cout<<j<<": ok\n";
+#endif
                     return true;
                 }
             }
@@ -473,7 +578,10 @@ cout<<j<<": janela de tempo: TC("<<tempoChegadaJ<<") TW("<<instancia.vectCliente
     }
     else
     {
+
+#if PRINT_0 == TRUE
         cout<<j<<" bat\n";
+#endif
         return false;
     }
 

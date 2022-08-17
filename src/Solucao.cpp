@@ -358,11 +358,11 @@ void Solucao::copia(Solucao &solution)
     numEv = solution.numEv;
 
     for(int s=0; s <= solution.getNSatelites(); ++s)
-        satelites[s].copia(solution.satelites[s]);
+        satelites.at(s).copia(solution.satelites[s]);
 
 
     for(int i=0; i < primeiroNivel.size(); ++i)
-        primeiroNivel[i].copia(solution.primeiroNivel[i]);
+        primeiroNivel.at(i).copia(solution.primeiroNivel[i]);
 
     //satTempoChegMax = solution.satTempoChegMax;
     satTempoChegMax = solution.satTempoChegMax;
