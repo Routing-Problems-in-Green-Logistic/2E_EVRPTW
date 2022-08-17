@@ -46,9 +46,14 @@ cout<<"NUM de SATs EH > 1\n\n";
     Solucao *solGrasp = NameS_Grasp::grasp(instance, param, est, true);
 
     if(solGrasp)
-cout<<"sol grasp viavel: "<<solGrasp->viavel<<"\ndist: "<<solGrasp->distancia<<"\n";
+    {
+        if(solGrasp->viavel)
+cout<<"sol grasp viavel: " << solGrasp->viavel << "\ndist: " << solGrasp->distancia << "\n";
 
+        else
+cout<<"sol grasp inviavel\n";
 
+    }
     ublas::matrix<double> matFeromonio(instance.numNos, instance.numNos, acoPar.feromonioInicial);
 
     // Inicializa o feromonio com a sol do grasp:
@@ -63,7 +68,8 @@ cout<<"sol grasp viavel: "<<solGrasp->viavel<<"\ndist: "<<solGrasp->distancia<<"
             {
                 for(int i=0; i < (evRoute.routeSize-1); ++i)
                 {
-                    matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) = 1.0/instance.getDistance(evRoute.route[i].cliente, evRoute.route[i+1].cliente);
+                    //matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) = 1.0/instance.getDistance(evRoute.route[i].cliente, evRoute.route[i+1].cliente);
+                    matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) = feromInicial;
                 }
             }
         }
@@ -395,11 +401,17 @@ cout<<"*******************\n\n";
         {
 
 
-cout <<"ANT BEST VIAVEL\n";
+cout<<"\n\nANT BEST VIAVEL\n";
+cout<<"DIST "<<satBest.distancia<<"\n\n";
+
 string satStr;
 satBest.print(satStr, instance);
 cout<<satStr;
 
+        }
+        else
+        {
+            PRINT_DEBUG("\n\n", "ANT BEST EH INVIAVEL!!");
         }
     }
     else

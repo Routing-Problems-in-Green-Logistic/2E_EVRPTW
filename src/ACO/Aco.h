@@ -20,7 +20,7 @@ namespace N_Aco
     {
     public:
 
-        double alfa             = 0.1;               // Feromonio
+        double alfa             = 0.2;               // Feromonio
         double beta             = 0.0;               // Heuristica
         double alfaConst        = 0.5;
         double ro               = 0.8;
