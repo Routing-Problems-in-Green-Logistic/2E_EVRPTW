@@ -31,8 +31,10 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
     EvRoute evRoute(1, instance.getFirstEvIndex(), instance.getEvRouteSizeMax(), instance);
 
 
-    vector<int> vetSatAtendCliente(instance.numNos, -1);
+    vector<int> vetSatAtendCliente(instance.numNos, -1); // ***
     vector<int> satUtilizado(instance.numSats+1, 0);
+
+cout<<"&vetSatAntendCliente: "<<&vetSatAtendCliente<<"\n&satUtilizado: "<<&satUtilizado<<"\n\n";
 
     estat.numSol = 0.0;
     estat.numIte = parametros.numIteGrasp;
@@ -136,14 +138,25 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
             for(int t=0; t < instance.getNClients(); ++t)
             {
+                //cout<<"t: "<<t<<"\n";
+                //cout<<"conv(t): "<<convClienteIndVet(t)<<"\n";
 
-                const EvRoute &evRouteAux = instance.shortestPath[vetSatAtendCliente[convClienteIndVet(t)]].getEvRoute(convClienteIndVet(t));
+                const int sat = vetSatAtendCliente[convClienteIndVet(t)];
 
-                vetQuantCliente[t].calculaProb(i);
-                if(vetQuantCliente[t].prob == 0 && evRouteAux.routeSize > 2)
+                if(sat < 0)
+                    continue;
+
+                //cout<<"vetSatAtendCliente: "<<sat<<"\n";
+
+                const EvRoute &evRouteAux = instance.shortestPath[sat].getEvRoute(convClienteIndVet(t));
+
+//cout<<"evRouteAux.routeSize="<<evRouteAux.routeSize<<"\n";
+
+                vetQuantCliente.at(t).calculaProb(i);
+                if(vetQuantCliente.at(t).prob == 0 && evRouteAux.routeSize > 2)
                     addRotaClienteProbIgual += 1;
 
-                else if(vetQuantCliente[t].prob >= 90 && evRouteAux.routeSize > 2)
+                else if(vetQuantCliente.at(t).prob >= 90 && evRouteAux.routeSize > 2)
                     vetQuantCliente[t].prob = 90;
 
                 else if(evRouteAux.routeSize <= 2)
@@ -188,23 +201,29 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                         {
 
                             int cliente = vetQuantCliente[t].cliente;
-                            clienteAdd = cliente;
-                            //cout<<"cliente: "<<cliente<<": "<<vetSatAtendCliente[cliente]<<"\n";
-                            EvRoute &evRouteSP = instance.shortestPath[vetSatAtendCliente[cliente]].getEvRoute(cliente);
-                            auto shortestPath = (instance.shortestPath[vetSatAtendCliente[cliente]].getShortestPath(cliente));
+                            const int pos = vetSatAtendCliente[cliente];
 
-
-                            if(shortestPath.distIdaVolta < DOUBLE_INF)
+                            if(pos >= 0)
                             {
 
-                                addRotaCliente(sol, instance, evRouteSP, cliente);
-                                clientesAdd += 1;
+                                clienteAdd = cliente;
+                                //cout<<"cliente: "<<cliente<<": "<<vetSatAtendCliente[cliente]<<"\n";
+                                EvRoute &evRouteSP = instance.shortestPath[pos].getEvRoute(cliente);
+                                auto shortestPath = instance.shortestPath[pos].getShortestPath(cliente);
 
-                                if(clientesAdd == sol.numEvMax)
-                                    break;
+
+                                if(shortestPath.distIdaVolta < DOUBLE_INF)
+                                {
+
+                                    addRotaCliente(sol, instance, evRouteSP, cliente);
+                                    clientesAdd += 1;
+
+                                    if(clientesAdd == sol.numEvMax)
+                                        break;
+                                }
+
+                                add = true;
                             }
-
-                            add = true;
                         }
 
                         if(clientesAdd >= parametros.numMaxClie)
@@ -243,7 +262,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
         solTemp.copia(sol);
         construtivo(sol, instance, alfa, alfa, vetSatAtendCliente, satUtilizado);
 
-/*        if(!sol.viavel && parametros.iteracoesCalProb > 0)// && i < parametros.iteracoesCalProb)
+        if(!sol.viavel && parametros.iteracoesCalProb > 0)// && i < parametros.iteracoesCalProb)
         {
             int quantCliInv = 0;
             for(int t=instance.getFirstClientIndex(); t <= instance.getEndClientIndex(); ++t)
@@ -262,7 +281,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                 }
             }
 
-        }*/
+        }
 
 
         if(sol.viavel)

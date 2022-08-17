@@ -350,7 +350,7 @@ void Instance::calculaVetVoltaRS_sat()
                 int id = getIndiceVetVoltaRS_sat(sat, rs);
                 vetVoltaRS_sat[id] = int8_t(1);
 
-                cout<<"sat: "<<sat<<"; RS: "<<rs<<"; dist: "<<consumoBat<<"\n";
+                //cout<<"sat: "<<sat<<"; RS: "<<rs<<"; dist: "<<consumoBat<<"\n";
             }
         }
     }
