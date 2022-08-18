@@ -21,7 +21,7 @@ using namespace NameViabRotaEv;
 #define PRINT_DIJSTRA       FALSE
 #define PRINT_DIJSTRA_CLIEN FALSE
 
-ShortestPathSatCli::ShortestPathSatCli(Instance &instancia)
+ShortestPathSatCli::ShortestPathSatCli(Instance &instancia):fistCliente(instancia.getFirstClientIndex())
 {
     start(instancia);
 }
@@ -29,7 +29,7 @@ ShortestPathSatCli::ShortestPathSatCli(Instance &instancia)
 void ShortestPathSatCli::start(Instance &instancia)
 {
 
-    fistCliente = instancia.getFirstClientIndex();
+    //fistCliente = instancia.getFirstClientIndex();
     numClientes = instancia.getNClients();
     numEstacoes = instancia.getN_RechargingS();
 
@@ -460,7 +460,16 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
 
 EvRoute& ShortestPathSatCli::getEvRoute(int cliente)
 {
-    return vetEvRoute[cliente-fistCliente];
+    if(fistCliente == -1)
+    {
+        PRINT_DEBUG("", "ERRO fistCliente=-1\n");
+        throw "ERRO";
+    }
+
+    cout<<"cliente: "<<cliente<<" "<<(cliente-fistCliente)<<"\n";
+    cout<<"fistCliente: "<<fistCliente<<"\n\n";
+
+    return vetEvRoute.at(cliente-fistCliente);
 }
 
 int N_PreProcessamento::getPaiMinHeap(int pos)

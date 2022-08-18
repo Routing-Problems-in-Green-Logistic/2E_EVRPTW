@@ -264,7 +264,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
         construtivo(sol, instance, alfa, alfa, vetSatAtendCliente, satUtilizado);
 
         // Add 1 se o cliente t nao foi atendido
-/*        if(!sol.viavel && parametros.iteracoesCalProb > 0)// && i < parametros.iteracoesCalProb)
+        if(!sol.viavel && parametros.iteracoesCalProb > 0 && instance.shortestPath)
         {
             int quantCliInv = 0;
             for(int t=instance.getFirstClientIndex(); t <= instance.getEndClientIndex(); ++t)
@@ -285,7 +285,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                 }
             }
 
-        }*/
+        }
 
 
         if(sol.viavel)
