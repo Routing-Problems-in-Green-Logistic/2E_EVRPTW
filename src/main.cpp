@@ -384,12 +384,27 @@ int main(int argc, char* argv[])
             string erroSol;
             if(solucao.checkSolution(erroSol, instancia))
             {
+
+                auto end = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> tempoAux = end - start;
+                double tempo = tempoAux.count();
+
+                /*
                 cout<<"sol viavel\n";
                 cout<<"DIST: "<<solucao.distancia<<"\n\n";
 
+                cout<<"inst \t antsMedia \t antBest \t antsViaveis \t numAntsTotal \t numAntsPorIt \t numIt \t numMedioAntsViaveisP_it \t tempo\n";
+                cout<<acoEst.sumDistAntsViaveis<<" \t "<<acoEst.distBestAnt<<" \t "<<acoEst.nAntViaveis<<" \t\t "<<acoEst.nAntGeradas<<" \t\t "
+                <<acoParm.numAnts<<" \t\t "<<acoParm.numIteracoes<<" \t "<<acoEst.mediaAntsViaveisPorIt<<" \t\t\t\t "<<tempo<<"\n";
+                */
+
             }
             else
-                cout<<"sol inviavel\n";
+            {
+                cout << "sol inviavel\n";
+                cout<<"ERRO: "<<erroSol<<"\n\n";
+                solucao.viavel = false;
+            }
         }
 
     }
@@ -421,21 +436,26 @@ int main(int argc, char* argv[])
 
         outfile<<dataStr<<";\t;\t;\t;\t;\t;\t;\n";
         //outfile<<"nomeInst;\tmedia; \t\tbest; \t\tnumSol;\ttempo;\t1° nivel;\t2° nivel;\tultimaA;\ttempoViab;\tnumEVs\n";
-        outfile<<"nomeInst;\tbestAntDist;\ttempo\n";
+        //outfile<<"nomeInst;\tbestAntDist;\ttempo\n";
+
+        outfile<<"inst \t\t antsMedia \t antBest \t distSol \t antsViaveis \t numAntsTotal \t numAntsPorIt \t numIt \t numMedioAntsViaveisP_it \t tempo\n";
     }
 
     outfile<<nomeInst<<";\t";
 
     if(solucao.viavel)
     {
-        outfile<<solucao.distancia<<";\t";
+        //outfile<<solucao.distancia<<";\t";
+
+        outfile<<" "<<acoEst.sumDistAntsViaveis<<"; \t "<<acoEst.distBestAnt<<"; \t "<<solucao.distancia<<"; \t "<<acoEst.nAntViaveis<<"; \t\t "<<acoEst.nAntGeradas<<"; \t\t "
+            <<acoParm.numAnts<<"; \t\t "<<acoParm.numIteracoes<<"; \t "<<acoEst.mediaAntsViaveisPorIt<<"; \t\t\t\t "<<tempo<<"\n";
     }
     else
     {
-        outfile<<"*;\t";
+        outfile<<";*;*;*;*;*;*;*;*\n";
     }
 
-    outfile<<tempo<<"\n";
+    //outfile<<tempo<<"\n";
     outfile.close();
 }
 

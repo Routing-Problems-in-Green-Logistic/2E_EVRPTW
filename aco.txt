@@ -2,7 +2,7 @@
 
  So permite a volta ao sat se nao existe outra opcao
 
- Solução inicial do grasp(execução até encontrar sol. viável). Feromonio inicio igual a 1/d_i_j
+ Solução inicial do grasp(execução até encontrar sol. viável). Feromonio inicio igual a 1/dist(sat)
  
  Atualizacao ferom: 1/bestAnt
  

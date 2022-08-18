@@ -348,7 +348,7 @@ void Instance::calculaVetVoltaRS_sat()
             if(consumoBat <= capBat)
             {
                 int id = getIndiceVetVoltaRS_sat(sat, rs);
-                cout<<"sat, rs: "<<sat<<", "<<rs<<"\n";
+                //cout<<"sat, rs: "<<sat<<", "<<rs<<"\n";
 
                 vetVoltaRS_sat.at(id) = 1;
 

@@ -34,7 +34,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
     vector<int> vetSatAtendCliente(instance.numNos, -1); // ***
     vector<int> satUtilizado(instance.numSats+1, 0);
 
-cout<<"&vetSatAntendCliente: "<<&vetSatAtendCliente<<"\n&satUtilizado: "<<&satUtilizado<<"\n\n";
+//cout<<"&vetSatAntendCliente: "<<&vetSatAtendCliente<<"\n&satUtilizado: "<<&satUtilizado<<"\n\n";
 
     estat.numSol = 0.0;
     estat.numIte = parametros.numIteGrasp;

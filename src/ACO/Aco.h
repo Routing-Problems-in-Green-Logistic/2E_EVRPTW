@@ -40,10 +40,12 @@ namespace N_Aco
     class AcoEstatisticas
     {
     public:
-        int nAntViaveis             = 0;
-        int nAntGeradas             = 0;
-        int ultimaAtualisacaoIt     = 0;
-        double sumDistAntsViaveis   = 0.0;
+        int nAntViaveis                 = 0;
+        double mediaAntsViaveisPorIt    = 0.0;
+        int nAntGeradas                 = 0;
+        int ultimaAtualisacaoIt         = 0;
+        double sumDistAntsViaveis       = 0.0;
+        double distBestAnt              = -1.0;
     };
 
     class Ant
@@ -71,15 +73,16 @@ namespace N_Aco
             satelite.copia(antOutra.satelite);
             vetNosAtend = antOutra.vetNosAtend;
             viavel = antOutra.viavel;
+            vazia = antOutra.vazia;
         }
 
         bool operator < (const Ant &ant) const
         {
-            if(viavel && (!ant.viavel || ant.vazia))
+            if((viavel && !vazia) && (!ant.viavel || ant.vazia))
                 return true;
 
 
-            if((!viavel || vazia) && ant.viavel)
+            if((!viavel || vazia) && (ant.viavel && !ant.vazia))
                 return false;
 
             return satelite.distancia < ant.satelite.distancia;

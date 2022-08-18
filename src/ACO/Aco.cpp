@@ -45,6 +45,7 @@ cout<<"NUM de SATs EH > 1\n\n";
 
     Solucao *solGrasp = NameS_Grasp::grasp(instance, param, est, true);
 
+#if PRINT_0 == TRUE
     if(solGrasp)
     {
         if(solGrasp->viavel)
@@ -54,6 +55,9 @@ cout<<"sol grasp viavel: " << solGrasp->viavel << "\ndist: " << solGrasp->distan
 cout<<"sol grasp inviavel\n";
 
     }
+#endif
+
+
     ublas::matrix<double> matFeromonio(instance.numNos, instance.numNos, acoPar.feromonioInicial);
 
     // Inicializa o feromonio com a sol do grasp:
@@ -82,10 +86,11 @@ cout<<"sol grasp inviavel\n";
     vector<Proximo> vetProximo(1+instance.numClients+instance.numRechargingS);
     vector<Proximo> vetProximoAux(1+instance.numClients+instance.numRechargingS);
 
-    for(int iteracoes = 0; iteracoes < acoPar.numIteracoes; ++iteracoes)
+    for(int iteracao = 0; iteracao < acoPar.numIteracoes; ++iteracao)
     {
 
         Ant antBestIt(instance, sateliteId, true);
+        int numAntsViaveisIt = 0;
 
 #if PRINT_0 == TRUE
 cout<<"ITE: "<<iteracoes<<"\n";
@@ -345,6 +350,9 @@ cout<<"\n\n";
 
             } // Fim while(existeClienteNaoVisitado)
 
+            acoEst.nAntGeradas += 1;
+
+            // Verifica se ant eh viavel
             if(!existeClienteNaoVisitado(ant, instance))
             {
 
@@ -353,6 +361,10 @@ cout<<"\n\n";
                 //GreedyAlgNS::firstEchelonGreedy();
 
                 ant.viavel = true;
+                acoEst.nAntViaveis += 1;
+                acoEst.sumDistAntsViaveis += ant.satelite.distancia;
+
+                numAntsViaveisIt += 1;
 
                 if(ant < antBestIt)//antBest.satelite.distancia)
                 {
@@ -375,7 +387,10 @@ ant.satelite.print(strSat, instance);
 cout<<strSat<<"\n\n*************************************************\n\n";
 #endif
 
+
         } // Fim for ANTs
+
+        acoEst.mediaAntsViaveisPorIt += double(numAntsViaveisIt);
 
 #if PRINT_0 == TRUE
 cout<<"*******************\n\n";
@@ -388,20 +403,29 @@ cout<<"*******************\n\n";
             atualizaFeromonio(matFeromonio, instance, acoPar, antBestIt, 0.1*feromMax, feromMax);
 
             if(antBestIt < antBest)
+            {
                 antBest.copia(antBestIt);
+                acoEst.ultimaAtualisacaoIt = iteracao;
+            }
+
         }
+
     } // Fim for iteracoes ACO
 
     satBest.copia(antBest.satelite);
-
 
     string erro;
 
     if(antBest.viavel)
     {
+        acoEst.distBestAnt = antBest.satelite.distancia;
+        acoEst.sumDistAntsViaveis /= double(acoEst.nAntViaveis);
+        acoEst.mediaAntsViaveisPorIt /= double(acoPar.numIteracoes);
+
         if(satBest.checkSatellite(erro, instance))
         {
 
+#if PRINT_0 == TRUE
 
 cout<<"\n\nANT BEST VIAVEL\n";
 cout<<"DIST "<<satBest.distancia<<"\n\n";
@@ -410,6 +434,8 @@ string satStr;
 satBest.print(satStr, instance);
 cout<<satStr;
 
+#endif
+
             delete solGrasp;
             return true;
 
@@ -417,6 +443,8 @@ cout<<satStr;
         else
         {
             PRINT_DEBUG("\n\n", "ANT BEST EH INVIAVEL!!");
+            cout<<"ERRO: "<<erro<<"\n\n\n";
+            throw "ERRO";
         }
     }
     else
