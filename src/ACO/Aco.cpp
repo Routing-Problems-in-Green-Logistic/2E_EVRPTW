@@ -33,14 +33,14 @@ using namespace boost::numeric;
  * ******************************************************************************************************
  * ******************************************************************************************************
  */
-void N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
+bool N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
                 const vector<int> &vetSatAtendCliente, Parametros &param, NameS_Grasp::Estatisticas &est)
 {
 
     if(instance.numSats > 1)
     {
 cout<<"NUM de SATs EH > 1\n\n";
-        return;
+        return false;
     }
 
     Solucao *solGrasp = NameS_Grasp::grasp(instance, param, est, true);
@@ -355,7 +355,9 @@ cout<<"\n\n";
                 ant.viavel = true;
 
                 if(ant < antBestIt)//antBest.satelite.distancia)
+                {
                     antBestIt.copia(ant);
+                }
 
 
 #if PRINT_0 == TRUE
@@ -383,7 +385,7 @@ cout<<"*******************\n\n";
         if(antBestIt.viavel)
         {
             double feromMax = 1.0/antBestIt.satelite.distancia;
-            //atualizaFeromonio(matFeromonio, instance, acoPar, antBestIt, 0.1*feromMax, feromMax);
+            atualizaFeromonio(matFeromonio, instance, acoPar, antBestIt, 0.1*feromMax, feromMax);
 
             if(antBestIt < antBest)
                 antBest.copia(antBestIt);
@@ -408,6 +410,9 @@ string satStr;
 satBest.print(satStr, instance);
 cout<<satStr;
 
+            delete solGrasp;
+            return true;
+
         }
         else
         {
@@ -424,6 +429,7 @@ cout<<"ANT BEST EH INVIAVEL\n";
     }
 
     delete solGrasp;
+    return false;
 }
 
 void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance, Ant &ant)

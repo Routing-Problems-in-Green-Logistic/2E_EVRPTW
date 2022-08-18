@@ -4,7 +4,16 @@
 
  Solução inicial do grasp(execução até encontrar sol. viável). Feromonio inicio igual a 1/d_i_j
  
+ Atualizacao ferom: 1/bestAnt
+ 
  Se (rand() % 101) <= q0: proxAresta <= max(arestas)
  
  
-
+ Parâmetros:
+ 
+    alfa:           0.2
+    beta:           0.8
+    q0:             0.6
+    numAnts:        30
+    numItercaoes:   50
+    numAntsTotal:   1500

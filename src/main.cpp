@@ -111,6 +111,7 @@ int main(int argc, char* argv[])
 
     seed(semente);
     std::string file(argv[1]);
+
     const string nomeInst = getNomeInstancia(file);
 
     Instance instance(file, nomeInst);
@@ -356,8 +357,86 @@ int main(int argc, char* argv[])
 
     Parametros parametros(NUM_EXEC, 200, vetAlfa, 150, num, 0.1);
     Estatisticas est;
+    Solucao solucao(instancia);
 
-    aco(instancia, acoParm, acoEst, 1, satelite, vetSatAtendCliente, parametros, est);
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+
+    if(aco(instancia, acoParm, acoEst, 1, satelite, vetSatAtendCliente, parametros, est))
+    {
+        solucao.satelites[1].copia(satelite);
+
+        for(EvRoute &evRoute:solucao.satelites[1].vetEvRoute)
+        {
+            if(evRoute.routeSize > 2)
+            {
+                for(int i=1; i < (evRoute.routeSize-1); ++i)
+                    solucao.vetClientesAtend[evRoute[i].cliente] += 1;
+            }
+        }
+        solucao.distancia = satelite.distancia;
+
+        GreedyAlgNS::firstEchelonGreedy(solucao, instancia, parametros.vetAlfa[0]);
+
+        if(solucao.viavel)
+        {
+            string erroSol;
+            if(solucao.checkSolution(erroSol, instancia))
+            {
+                cout<<"sol viavel\n";
+                cout<<"DIST: "<<solucao.distancia<<"\n\n";
+
+            }
+            else
+                cout<<"sol inviavel\n";
+        }
+
+    }
+    else
+        solucao.viavel = false;
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> tempoAux = end - start;
+    double tempo = tempoAux.count();
+
+    string fileResultado = "resultadoACO.csv";
+
+    bool exists = std::filesystem::exists(fileResultado);
+    std::ofstream outfile;
+    outfile.open(fileResultado, std::ios_base::app);
+    if(!exists)
+    {
+
+        std::time_t result = std::time(nullptr);
+        auto data = std::asctime(std::localtime(&result));
+        string dataStr;
+        string temp(data);
+
+        for(auto ch:temp)
+        {
+            if(ch != '\n')
+                dataStr +=  ch;
+        }
+
+        outfile<<dataStr<<";\t;\t;\t;\t;\t;\t;\n";
+        //outfile<<"nomeInst;\tmedia; \t\tbest; \t\tnumSol;\ttempo;\t1° nivel;\t2° nivel;\tultimaA;\ttempoViab;\tnumEVs\n";
+        outfile<<"nomeInst;\tbestAntDist;\ttempo\n";
+    }
+
+    outfile<<nomeInst<<";\t";
+
+    if(solucao.viavel)
+    {
+        outfile<<solucao.distancia<<";\t";
+    }
+    else
+    {
+        outfile<<"*;\t";
+    }
+
+    outfile<<tempo<<"\n";
+    outfile.close();
 }
 
 #endif
