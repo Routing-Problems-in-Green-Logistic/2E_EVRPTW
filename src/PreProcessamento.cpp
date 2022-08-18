@@ -476,6 +476,12 @@ int N_PreProcessamento::shifitUpMinHeap(std::vector<DijkstraNo> &minHeap, int po
 {
 
     int pai = getPaiMinHeap(pos);
+
+    if(pai < 0)
+    {
+        return 0;
+    }
+
     while(minHeap[pos] < minHeap[pai])
     {
         // swap pos com pai

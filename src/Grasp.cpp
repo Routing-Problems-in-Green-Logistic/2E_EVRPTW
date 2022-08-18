@@ -178,7 +178,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
         Solucao solTemp(instance);
 
         // Insere  rotas da forama: sat cliente sat
-       /* if(i >= parametros.iteracoesCalProb && parametros.iteracoesCalProb > 0)
+        if(i >= parametros.iteracoesCalProb && parametros.iteracoesCalProb > 0 && instance.shortestPath)
         {
             int clientesAdd = 0;
 
@@ -237,7 +237,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
             }
 
-        }*/
+        }
 
         somaProb = 0.0;
         posAlfa = 0;
@@ -274,6 +274,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
                     quantCliInv += 1;
                     //cout<<"\tCLI: "<<t<<"\n";
+
+                    //
                     const EvRoute &evRouteAux = instance.shortestPath->getEvRoute(t);
                     if(evRouteAux.routeSize > 2)
                     {

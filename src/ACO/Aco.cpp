@@ -58,7 +58,7 @@ cout<<"sol grasp inviavel\n";
 #endif
 
 
-    ublas::matrix<double> matFeromonio(instance.numNos, instance.numNos, acoPar.feromonioInicial);
+    ublas::matrix<double> matFeromonio(instance.numNos, instance.numNos, 0.01);
 
     // Inicializa o feromonio com a sol do grasp:
 

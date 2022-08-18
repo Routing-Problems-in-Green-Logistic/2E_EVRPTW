@@ -24,8 +24,8 @@ namespace N_Aco
         double beta             = 0.0;               // Heuristica
         double alfaConst        = 0.5;
         double ro               = 0.8;
-        double q0               = 0.6;
-        int numAnts             = 30;
+        double q0               = 0.1;
+        int numAnts             = 300;
         int8_t freqAtualAntBest = 25;
         int numIteracoes        = 50;
         int numItMaxHeur        = 20;

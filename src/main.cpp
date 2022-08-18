@@ -6,11 +6,6 @@
  *
  * Considerando dist(i,j) == dist(j,i) !!
  *
- * VERIFICAR ALTERACAO DE TEMPO DO VEIC A COMBUSTAO
- * greedyAlgorithm Linha 653
- *
- * ./run ../../instancias/2e-vrp-tw/Customer_100/C102_21x.txt 1658934858
- *
  * ****************************************************************
  * ****************************************************************
  */
@@ -136,7 +131,7 @@ int main(int argc, char* argv[])
         sementeStr += "SEMENTE: " + to_string(semente)  + "\t"+data;
         cout<<sementeStr;
 
-        string arquivoInst = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/ultimaExec.txt";
+/*        string arquivoInst = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/ultimaExec.txt";
         ofstream escrita;
         escrita.open(arquivoInst, ios::out);
         if(escrita.is_open())
@@ -149,7 +144,7 @@ int main(int argc, char* argv[])
             cout<<"NAO FOI POSSIVEL ABRIR ARQUIVO: "<<arquivoInst<<"\n";
             //int p;
             //cin>>p;
-        }
+        }*/
 
 
 /*        escreveInstancia(instance, arquivo);
@@ -174,12 +169,12 @@ int main(int argc, char* argv[])
         auto start = std::chrono::high_resolution_clock::now();
 
 
-            //dijkstraSatCli(instance);
+            dijkstraSatCli(instance);
             instance.calculaVetVoltaRS_sat();
 
             Estatisticas estat;
             Solucao *solBest = nullptr;
-            solBest = grasp(instance, parametros, estat);
+            solBest = grasp(instance, parametros, estat, false);
 
 
         auto end = std::chrono::high_resolution_clock::now();
