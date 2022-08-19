@@ -10,7 +10,7 @@ Debugging memory leaks:
 
 valgrind --vgdb=yes --vgdb-error=0 ./run ../../instancias/2e-vrp-tw/
 
-gdb:
+gdb run:
 
  set non-stop off
  target remote | vgdb

@@ -135,9 +135,9 @@ namespace NS_Auxiliary
     {
         string str;
         for(int i=0; i < tam; ++i)
-            str += to_string(static_cast<double>(vector[i])) + " ";
+            str += to_string(static_cast<T>(vector[i])) + " ";
 
-        return std::move(str);
+        return str;
     }
 
 

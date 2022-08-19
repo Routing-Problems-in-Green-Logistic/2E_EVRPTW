@@ -480,7 +480,10 @@ void NS_LocalSearch::insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::Inserca
 
 bool NS_LocalSearch::mvEvSwapIntraRota(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux)
 {
+
+PRINT_DEBUG("", "RETURN FALSE");
     return false;
+
     // Percorre os satelites
     for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
     {

@@ -150,8 +150,6 @@ int main(int argc, char* argv[])
 /*        escreveInstancia(instance, arquivo);
         return 0;*/
 
-        cout<<"numNos: "<<instance.numNos<<"\n";
-
         double tempo = 0.0;
         //instance.print();
 
@@ -260,8 +258,8 @@ int main(int argc, char* argv[])
 
         outfile.close();
 
-        solBest->print(instance);
-        cout<<"numEVs: "<<solBest->numEv<<"\n\n";
+        //solBest->print(instance);
+        //cout<<"numEVs: "<<solBest->numEv<<"\n\n";
 
         delete solBest;
         return 0;

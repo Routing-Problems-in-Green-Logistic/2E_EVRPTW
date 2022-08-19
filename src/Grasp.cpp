@@ -276,7 +276,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
                     //cout<<"\tCLI: "<<t<<"\n";
 
                     //
-                    const EvRoute &evRouteAux = instance.shortestPath->getEvRoute(t);
+                    const EvRoute &evRouteAux = instance.shortestPath[vetSatAtendCliente[t]].getEvRoute(t);
                     if(evRouteAux.routeSize > 2)
                     {
                         vetQuantCliente[convIndClienteVet(t)].add1Quant();

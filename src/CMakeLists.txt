@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.20)
 project(2E_EVRP)
 
 
-#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-set(CMAKE_CXX_FLAGS_RELEASE "-g3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+#set(CMAKE_CXX_FLAGS_RELEASE "-g3")
 set(CMAKE_CXX_FLAGS_RELEASE "-ggdb")
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS_RELEASE "-Wall")

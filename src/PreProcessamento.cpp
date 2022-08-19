@@ -21,7 +21,7 @@ using namespace NameViabRotaEv;
 #define PRINT_DIJSTRA       FALSE
 #define PRINT_DIJSTRA_CLIEN FALSE
 
-ShortestPathSatCli::ShortestPathSatCli(Instance &instancia):fistCliente(instancia.getFirstClientIndex())
+ShortestPathSatCli::ShortestPathSatCli(Instance &instancia)//:fistCliente(instancia.getFirstClientIndex())
 {
     start(instancia);
 }
@@ -29,7 +29,7 @@ ShortestPathSatCli::ShortestPathSatCli(Instance &instancia):fistCliente(instanci
 void ShortestPathSatCli::start(Instance &instancia)
 {
 
-    //fistCliente = instancia.getFirstClientIndex();
+    fistCliente = instancia.getFirstClientIndex();
     numClientes = instancia.getNClients();
     numEstacoes = instancia.getN_RechargingS();
 
@@ -141,13 +141,14 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia)
 
                     if(ida)
                     {
-                        caminho.caminhoIda  = std::move(rota);
+
+                        caminho.caminhoIda  = std::vector<int>(rota);
                         caminho.distIda     = preDecessorIda[i].dist;
                         caminho.batIda      = preDecessorIda[i].bateria;
                     }
                     else
                     {
-                        caminho.caminhoVolta = std::move(rota);
+                        caminho.caminhoVolta = std::vector<int>(rota);
                         caminho.distVolta    = preDecessorVolta[sat].dist;
                         caminho.distIdaVolta = caminho.distIda+caminho.distVolta;
                         caminho.batVolta     = preDecessorVolta[sat].bateria;
@@ -156,6 +157,7 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia)
 
                 if(preDecessorVolta[sat].preDecessor != -1)
                 {
+
                     ShortestPathNo &caminho = instancia.shortestPath[sat].getShortestPath(i);
                     double dist = preDecessorIda[i].dist + preDecessorVolta[sat].dist;
 
@@ -460,15 +462,6 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
 
 EvRoute& ShortestPathSatCli::getEvRoute(int cliente)
 {
-    if(fistCliente == -1)
-    {
-        PRINT_DEBUG("", "ERRO fistCliente=-1\n");
-        throw "ERRO";
-    }
-
-    cout<<"cliente: "<<cliente<<" "<<(cliente-fistCliente)<<"\n";
-    cout<<"fistCliente: "<<fistCliente<<"\n\n";
-
     return vetEvRoute.at(cliente-fistCliente);
 }
 
