@@ -484,6 +484,67 @@ bool NS_LocalSearch::mvEvSwapIntraRota(Solucao &solucao, Instance &instancia, Ev
 PRINT_DEBUG("", "RETURN FALSE");
     return false;
 
+    // Copia evRoute para evRouteAux sem repeticao de RS, realizando a troca de i com j. Retorna a distancia e o ultimo indice em que a rota ainda eh valida
+    auto copiaEvRoute = [&](const EvRoute &evRoute, int &ultimoValIndice, int posI, int posJ)
+    {
+
+        ultimoValIndice = -1;
+        int i           = 1;
+        double dist     = 0.0;
+        int indiceEvAux = 1;
+        evRouteAux[0]   = evRoute.route[0];
+        bool copiaAll   = true;
+
+        if(posJ < posI)
+        {
+            int temp = posI;
+            posI = posJ;
+            posJ = temp;
+        }
+
+        for(; i < evRoute.routeSize; ++i)
+        {
+
+            if(evRoute.route[i].cliente != evRoute.route[i-1].cliente)
+            {
+                if(copiaAll)
+                {
+                    if(i == posI)
+                    {
+                        evRouteAux[indiceEvAux].cliente = evRoute.route[posJ].cliente;
+                        copiaAll = false;
+                        ultimoValIndice = indiceEvAux - 1;
+                    } else
+                        evRouteAux[indiceEvAux] = evRoute.route[i];
+                } else
+                {
+                    if(i == posI)
+                        evRouteAux[indiceEvAux].cliente = evRoute.route[posJ].cliente;
+
+                    else if(i == posJ)
+                        evRouteAux[indiceEvAux].cliente = evRoute.route[posI].cliente;
+
+                    else
+                        evRouteAux[indiceEvAux].cliente = evRoute.route[i].cliente;
+                }
+
+                dist += instancia.getDistance(evRouteAux[i - 1].cliente, evRouteAux[i].cliente);
+                indiceEvAux += 1;
+            }
+            else
+            {
+                if(copiaAll)
+                {
+                    copiaAll = false;
+                    ultimoValIndice = i - 1;
+                }
+            }
+        }
+
+        evRouteAux.routeSize = indiceEvAux;
+        return dist;
+    };
+
     // Percorre os satelites
     for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
     {
@@ -499,7 +560,6 @@ PRINT_DEBUG("", "RETURN FALSE");
             // Verifica se ev eh diferente de vazio e se existe mais de um cliente na rota
             if(evRoute.routeSize > 3)
             {
-                bool copiaEvRouteAux = false;
 
                 /* ****************************************************************************************************
                  * ****************************************************************************************************
@@ -522,14 +582,17 @@ PRINT_DEBUG("", "RETURN FALSE");
                 // i tem que ser menor ou igual que a penultima possicao de j
                 for(int i=1; i <= (evRoute.routeSize-3); ++i)
                 {
+                    const int clienteI = evRoute[i].cliente;
 
                     for(int j=(i+1); j <= (evRoute.routeSize-2); ++j)
                     {
+                        const int clienteJ = evRoute[j].cliente;
+
                         // Calcula a nova distancia
                         double novaDist = evRoute.distancia;
 
                         // Verifica se a rota eh diferente de ex: 0 k i j n 0
-                        if((i+1) != j)
+                        if(((i+1) != j))
                         {
                             novaDist += -instancia.getDistance(evRoute[i-1].cliente, evRoute[i].cliente) +
                                         -instancia.getDistance(evRoute[i].cliente, evRoute[i+1].cliente) +
@@ -542,15 +605,68 @@ PRINT_DEBUG("", "RETURN FALSE");
                         }
                         else
                         {
-                            //novaDist += -instancia.getDistance(evRoute[i-1].cliente, evRoute[i].cliente)+
-                            //          -instancia.getDistance()
+                            // Se rota eh do tipo: 0 k i j n 0
+                            novaDist += -instancia.getDistance(evRoute[i-1].cliente, clienteI)+
+                                        -instancia.getDistance(clienteJ, evRoute[j+1].cliente)+
+                                        +instancia.getDistance(evRoute[i-1].cliente, clienteJ)+
+                                        +instancia.getDistance(clienteI, evRoute[j+1].cliente);
                         }
+
+                        // Verifica se existe melhora
+                        if(novaDist < evRoute.distancia)
+                        {
+
+                            evRouteAux.copia(evRoute);
+
+                            //swap i,j
+                            evRoute[j].cliente = clienteI;
+                            evRoute[i].cliente = clienteJ;
+
+
+
+                        }
+
                     }
                 }
             }
         }
     }
 }
+
+/*
+ *      *  *
+ * 0 i RS0 j RS0 w k l q p 0
+ *
+ * Nova rota:
+ *
+ *      0 i j RS0 RS0  w k l q p 0
+ *
+ * Dist:
+ *      -(i RS0) -(j RS0) +(i j) +(RS0 RS0)
+ *
+ *      Falta: (j RS0)
+ *
+ * **********************************************
+ *      *    *
+ * 0 i RS0 t j RS0 w k l q p 0
+ *
+ * Nova rota:
+ *
+ *      0 i j t RS0 RS0 w k l q p 0
+ *
+ * Dist:
+ *
+ *      -(i RS0) -(RS0 t) - (t j) -(j RS0)
+ *      +(i j) +(j t) +(t RS0) +(RS0 RS0)
+ *
+ *
+ *      -(i RS0) -(j RS0)
+ *      +(i j)
+ *
+ *      OK! ???
+ *
+ *
+ */
 
 
 /*

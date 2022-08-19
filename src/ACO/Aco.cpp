@@ -4,7 +4,6 @@
  *  Data:    21/07/22
  *  Arquivo: Aco.cpp
  *
- *  ERRO PROVAVELMENTE NA FUNC.: atualizaClienteJ
  *
  * ****************************************
  * ****************************************/
@@ -673,7 +672,6 @@ void N_Aco::evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<i
     // Atualizacoes arestas (i,j), i sat e j cliente
     for(const int s:vetSat)
     {
-
         for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
             matFeromonio(s, i) = max(matFeromonio(s, i)*ro_1, feromMin);
     }
