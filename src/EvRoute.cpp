@@ -89,21 +89,47 @@ EvRoute::EvRoute(const EvRoute &evRoute):firstRechargingSIndex(evRoute.firstRech
     //numEstRecarga = instance.getN_RechargingS();
     numMaxUtilizacao = evRoute.numMaxUtilizacao;
 
-    copia(evRoute);
+    copia(evRoute, false, nullptr);
 }
 
-void EvRoute::copia(const EvRoute &evRoute)
+void EvRoute::copia(const EvRoute &evRoute, const bool calculaDemanda, Instance *instancia)
 {
     satelite = evRoute.satelite;
     routeSize = evRoute.routeSize;
     idRota = evRoute.idRota;
-    demanda = evRoute.demanda;
+
+    if(!calculaDemanda)
+        demanda = evRoute.demanda;
+    else if(instancia)
+        demanda = 0.0;
+    else
+    {
+        PRINT_DEBUG("", "calculaDemanda=true e instancia=nullptr eh invalido");
+        throw "ERRO";
+    }
+
     numEstRecarga = evRoute.numEstRecarga;
     distancia = evRoute.distancia;
     firstRechargingSIndex = evRoute.firstRechargingSIndex;
 
-    for(int i=0; i < routeSize; ++i)
-        route[i] = evRoute.route[i];
+
+    if(!calculaDemanda)
+    {
+        for(int i = 0; i < routeSize; ++i)
+            route[i] = evRoute.route[i];
+    }
+    else
+    {
+
+        for(int i = 0; i < routeSize; ++i)
+        {
+            route[i] = evRoute.route[i];
+            demanda += instancia->getDemand(evRoute.route[i].cliente);
+        }
+    }
+
+
+
 
     for(int i=0; i < numEstRecarga; ++i)
         vetRecarga[i] = evRoute.vetRecarga[i];

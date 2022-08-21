@@ -4,9 +4,12 @@ project(2E_EVRP)
 
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE, "-march=native")
+
 #set(CMAKE_CXX_FLAGS_RELEASE "-g3")
-set(CMAKE_CXX_FLAGS_RELEASE "-ggdb")
-set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_CXX_FLAGS_RELEASE "-ggdb")
+#set(CMAKE_BUILD_TYPE Debug)
+
 set(CMAKE_CXX_FLAGS_RELEASE "-Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "-Wextra")
 set(CMAKE_CXX_FLAGS_RELEASE "-Wnull-dereference")
@@ -17,17 +20,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Wmisleading-indentation")
 set(CMAKE_CXX_FLAGS_RELEASE "-Wunknown-pragmas")
 set(CMAKE_CXX_FLAGS_RELEASE "-Wfloat-equal")
 set(CMAKE_CXX_FLAGS_RELEASE "-Wconversion")
-
-
-#debug de memnoria:
-#cmake .. -DCMAKE_BUILD_TYPE=asan
-
-#set(CMAKE_CXX_FLAGS_TSAN  "-fsanitize=thread -g -O1" CACHE STRING "Flags used by the C++ compiler during ThreadSanitizer builds." FORCE)
-#set(CMAKE_CXX_FLAGS_ASAN "-fsanitize=address -fno-optimize-sibling-calls -fsanitize-address-use-after-scope -fno-omit-frame-pointer -g -O1" CACHE STRING "Flags used by the C++ compiler during AddressSanitizer builds." FORCE)
-#set(CMAKE_CXX_FLAGS_LSAN "-fsanitize=leak -fno-omit-frame-pointer -g -O1" CACHE STRING "Flags used by the C++ compiler during LeakSanitizer builds." FORCE)
-#set(CMAKE_CXX_FLAGS_MSAN "-fsanitize=memory -fno-optimize-sibling-calls -fsanitize-memory-track-origins=2 -fno-omit-frame-pointer -g -O2" CACHE STRING "Flags used by the C++ compiler during MemorySanitizer builds." FORCE)
-#set(CMAKE_CXX_FLAGS_UBSAN "-fsanitize=undefined" CACHE STRING "Flags used by the C++ compiler during UndefinedBehaviourSanitizer builds." FORCE)
-
 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D __FILENAME__='\"$(subst  ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
@@ -64,7 +56,7 @@ set(SOURCES main.cpp
 
 
 
-add_executable(run)
+add_executable(run INSTANCIA/ParametrosEntrada.cpp INSTANCIA/ParametrosEntrada.h)
 
 
 #target_include_directories(run PUBLIC "ACO")

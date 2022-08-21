@@ -85,6 +85,7 @@ Satelite* Solucao::getSatelite(int index) {
     return &satelites.at(index);
 }
 
+// Retorna true se a solucao eh vialvel
 bool Solucao::checkSolution(std::string &erro, Instance &inst)
 {
     double distanciaAux = 0.0;

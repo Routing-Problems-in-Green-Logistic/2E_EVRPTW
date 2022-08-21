@@ -126,7 +126,7 @@ public:
     bool alteraTempoSaida(double novoTempoSaida, const Instance &instance);
 
     void copiaCliente(const EvRoute &outro);
-    void copia(const EvRoute &evRoute);
+    void copia(const EvRoute &evRoute, const bool calculaDemanda, Instance *instancia);
     void copiaParametros(const EvRoute &outro);
 
     EvNo & operator [](int pos)
@@ -138,7 +138,7 @@ public:
 
     double distancia = 0.0;
     int routeSize = 2;
-    float demanda = 0.0;
+    double demanda = 0.0;
     int routeSizeMax = -1;
     int satelite = -1;
     int idRota = -1;

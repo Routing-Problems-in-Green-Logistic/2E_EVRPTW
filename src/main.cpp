@@ -32,6 +32,7 @@
 #include "Teste.h"
 #include "Grasp.h"
 #include "PreProcessamento.h"
+#include "ParametrosEntrada.h"
 
 #include "Aco.h"
 
@@ -42,12 +43,13 @@ using namespace NameTeste;
 using namespace NameS_Grasp;
 using namespace N_PreProcessamento;
 using namespace N_Aco;
+using namespace NS_parametros;
 
 void routine(char** filenames, int nFileNames);
 float distance(std::pair<float, float> p1, std::pair<float,float> p2);
 Instance* getInstanceFromFile(std::string &fileName);
 void saveSolutionToFile(const Solucao& Sol, const std::string& fileName="solution.txt");
-string getNomeInstancia(string str);
+string getNomeInstancia2(string str);
 void escreveInstancia(const Instance &instance, string file);
 void escreveSolucao(Solucao &solution, Instance &instance, string &file);
 void leSolucao(Solucao &solucao, Instance &instancia, string &file);
@@ -71,6 +73,8 @@ void leSolucao(Solucao &solucao, Instance &instancia, string &file);
 #if MAIN == MAIN_METODO_2
 int main(int argc, char* argv[])
 {
+/*    ParametrosEntrada parametrosEntrada;
+    caregaParametros(parametrosEntrada, argc-1, &argv[1]);*/
 
     if(argc != 2 && argc != 3)
     {
@@ -126,7 +130,6 @@ int main(int argc, char* argv[])
         auto data = std::asctime(std::localtime(&result));
 
         string sementeStr;
-
         sementeStr += "INSTANCIA: " + string(nomeInst) + "\t";
         sementeStr += "SEMENTE: " + to_string(semente)  + "\t"+data;
         cout<<sementeStr;
@@ -178,6 +181,9 @@ int main(int argc, char* argv[])
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> tempoAux = end - start;
         tempo = tempoAux.count();
+
+        if(tempo < 1.0)
+            sleep(1);
 
 /*        cout<<"\nINST \t\tDISTANCIA_MEDIA \tBEST \t\tNUM \tTEMPO\n";
         if(solBest->viavel)
@@ -1054,7 +1060,7 @@ void saveSolutionToFile(const Solucao& Sol, const std::string& fileName){
     file.close();
 }
 */
-string getNomeInstancia(string str)
+string getNomeInstancia2(string str)
 {
     int posNome = -1;
 

@@ -307,14 +307,14 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instance &instancia, 
                                         if(insercaoEstacao.pos != -1)
                                         {
                                             insereEstacaoRota(evRouteAux, insercaoEstacao, instancia, solucao.satTempoChegMax[satId]);
-                                            evRoute.copia(evRouteAux);
+                                            evRoute.copia(evRouteAux, false, nullptr);
                                             evRoute.vetRecarga[insercaoEstacao.estacao - instancia.getFirstRS_index()].utilizado += 1;
 
                                             return true;
                                         }
                                         else
                                         {
-                                            evRoute.copia(evRouteAux);
+                                            evRoute.copia(evRouteAux, false, nullptr);
                                         }
 
                                         evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instancia, true, solucao.satTempoChegMax[satId], 0, nullptr);
@@ -477,12 +477,13 @@ void NS_LocalSearch::insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::Inserca
 }
 
 
+#define PRINT_MV_SWAP FALSE
 
 bool NS_LocalSearch::mvEvSwapIntraRota(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux)
 {
 
-PRINT_DEBUG("", "RETURN FALSE");
-    return false;
+//PRINT_DEBUG("", "RETURN FALSE");
+//    return false;
 
     // Copia evRoute para evRouteAux sem repeticao de RS, realizando a troca de i com j. Retorna a distancia e o ultimo indice em que a rota ainda eh valida
     auto copiaEvRoute = [&](const EvRoute &evRoute, int &ultimoValIndice, int posI, int posJ)
@@ -528,8 +529,11 @@ PRINT_DEBUG("", "RETURN FALSE");
                         evRouteAux[indiceEvAux].cliente = evRoute.route[i].cliente;
                 }
 
-                dist += instancia.getDistance(evRouteAux[i - 1].cliente, evRouteAux[i].cliente);
-                indiceEvAux += 1;
+                if(evRouteAux[indiceEvAux-1].cliente != evRouteAux[indiceEvAux].cliente)
+                {
+                    dist += instancia.getDistance(evRouteAux[indiceEvAux - 1].cliente, evRouteAux[indiceEvAux].cliente);
+                    indiceEvAux += 1;
+                }
             }
             else
             {
@@ -553,14 +557,23 @@ PRINT_DEBUG("", "RETURN FALSE");
         evRouteAux[0].cliente = sat;
 
         // Percorre os EVs
-        for(int ev=0; ev < instancia.getN_Evs(); ++ev)
+        for(int ev=0; ev < satelite.getNRoutes(); ++ev)
         {
+
+#if PRINT_MV_SWAP == TRUE
+cout<<"EV: "<<ev<<"\n";
+#endif
             EvRoute &evRoute = satelite.vetEvRoute[ev];
 
             // Verifica se ev eh diferente de vazio e se existe mais de um cliente na rota
             if(evRoute.routeSize > 3)
             {
 
+#if PRINT_MV_SWAP == TRUE
+string strRota;
+evRoute.print(strRota, instancia, true);
+cout<<"SWAP ROTA: "<<strRota<<"\n";
+#endif
                 /* ****************************************************************************************************
                  * ****************************************************************************************************
                  * i, j percorrem evRoute realizando a troca(swap) de i,j
@@ -587,6 +600,7 @@ PRINT_DEBUG("", "RETURN FALSE");
                     for(int j=(i+1); j <= (evRoute.routeSize-2); ++j)
                     {
                         const int clienteJ = evRoute[j].cliente;
+
 
                         // Calcula a nova distancia
                         double novaDist = evRoute.distancia;
@@ -616,21 +630,72 @@ PRINT_DEBUG("", "RETURN FALSE");
                         if(novaDist < evRoute.distancia)
                         {
 
-                            evRouteAux.copia(evRoute);
 
-                            //swap i,j
-                            evRoute[j].cliente = clienteI;
-                            evRoute[i].cliente = clienteJ;
+#if PRINT_MV_SWAP == TRUE
+cout<<"\tClienteI: "<<clienteI<<"\n";
+cout<<"\n\t\tClienteJ: "<<clienteJ<<"\n";
+cout<<"\t\t\tNova dist: "<<novaDist<<"\n";
+#endif
 
+                            int ultimoValIndice = 0;
 
+                            // Copia rota
+                            novaDist = copiaEvRoute(evRoute, ultimoValIndice, i, j);
+
+#if PRINT_MV_SWAP == TRUE
+string strRota1;
+evRouteAux.print(strRota1, instancia, true);
+cout<<"\t\t\tNova rota: "<<strRota1<<"\n\n";
+#endif
+
+                            if(novaDist < evRoute.distancia)
+                            {
+                                // Testa nova rota:
+                                double distReal = testaRota(evRouteAux, evRouteAux.routeSize, instancia, false, evRoute[0].tempoSaida,
+                                                            ultimoValIndice, nullptr);
+
+                                // Verifica se a nova rota eh viavel
+                                if(distReal > 0.0 && (distReal+1e-4) < evRoute.distancia)
+                                {
+
+#if PRINT_MV_SWAP == TRUE
+cout<<"\t\t\tRota viavel. Dist: "<<distReal<<"\n\n";
+#endif
+                                    distReal = testaRota(evRouteAux, evRouteAux.routeSize, instancia, true, evRoute[0].tempoSaida,
+                                                            ultimoValIndice, nullptr);
+
+                                    satelite.distancia -= evRoute.distancia;
+                                    solucao.distancia  -= evRoute.distancia;
+
+                                    evRouteAux.distancia = distReal;
+                                    evRoute.copia(evRouteAux, true, &instancia);
+
+                                    satelite.distancia += distReal;
+                                    solucao.distancia  += distReal;
+
+                                    return true;
+                                }
+
+#if PRINT_MV_SWAP == TRUE
+                                else
+cout<<"\t\t\tRota inviavel\n\n";
+#endif
+
+                            }
 
                         }
-
                     }
                 }
             }
+
+#if PRINT_MV_SWAP == TRUE
+cout<<"*******************\n";
+#endif
+
         }
     }
+
+    return false;
 }
 
 /*

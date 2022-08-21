@@ -17,7 +17,7 @@
 
 namespace NS_vnd
 {
-    void rvnd(Solucao &solution, const Instance &instance);
+    void rvnd(Solucao &solution, Instance &instance);
 }
 
 #endif //INC_2E_EVRP_VND_H

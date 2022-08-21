@@ -7,60 +7,71 @@
 using namespace NS_vnd;
 using namespace NS_LocalSearch;
 
-/*
 
-void NS_vnd::rvnd(Solucao &solution, const Instance &instance)
+void NS_vnd::rvnd(Solucao &solution, Instance &instance)
 {
 
-    int vetMV[NUM_MAX];
-
-    for(int i=0; i < NUM_MAX; ++i)
+    EvRoute evRouteAux(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
+    while(mvEvSwapIntraRota(solution, instance, evRouteAux))
     {
-        vetMV[i] = rand_u32() % NUM_MAX;
-
-        int j=0;
-        while(j < i)
+        string erro;
+        if(!solution.checkSolution(erro, instance))
         {
-            if(vetMV[i] == vetMV[j])
-            {
-                vetMV[i] = (vetMV[i]+1) % NUM_MAX;
-                j = 0;
-            }
-            else
-                j = j+1;
-        }
-    }
-
-    int i = 0;
-
-    while(i < NUM_MAX)
-    {
-        bool melhora = false;
-        float aux = 0;
-
-        switch(i)
-        {
-            case VND_SHIFIT_INTRA_ROTA:
-                melhora = mvShifitIntraRota(solution, instance);
-                break;
-
-            case VND_SHIFIT_INTER_ROTAS:
-                melhora = mvShiftInterRotasIntraSatellite(solution, instance);
-                break;
-
-            case VND_SWAP_INTRA_ROTA:
-
-                //melhora = interSatelliteSwap(solution, instance, aux);
-                break;
-
+            PRINT_DEBUG("", "ERRO. mvEvSwapIntraRota:\n");
+            cout<<erro<<"\n";
+            exit(-1);
         }
 
-        if(melhora)
-            i = 0;
-        else
-            i = i+1;
+        //cout<<"#######################################################################\n\n";
     }
+
+//cout<<"***************************************************************************\n\n";
+
+
 
 }
 
-*/
+/*
+  double valOrig = sol.distancia;
+
+            while(mvEvShifitIntraRota(sol, instance, evRoute, SELECAO_PRIMEIRO) && mv)
+            {
+                mv = true;
+
+                //PRINT_DEBUG("\t", "checkSolution");
+
+                if(!sol.checkSolution(erro, instance))
+                {
+                    cout << "MV SHIFIT\n";
+
+                    cout << "\n\nSOLUCAO:\n\n";
+                    sol.print(instance);
+
+                    cout << erro
+                         << "\n****************************************************************************************\n\n";
+
+                    mv = false;
+                    sol.viavel = false;
+                    delete solBest;
+                    throw "ERRO";
+                }
+                else
+                {
+                    //cout<<"MV SHIFIT ATUALIZACAO!!\n\n";
+
+                    if((sol.distancia < solBest->distancia || !solBest->viavel) && mv)
+                    {
+                        solBest->copia(sol);
+                        custoBest = solBest->distancia;
+                        estat.ultimaAtualizacaoBest = i;
+
+                        //solBest->print(instance);
+                        //cout<<"i: "<<i<<"\n";
+
+                    }
+
+                }
+
+                //PRINT_DEBUG("\t", "END");
+            }
+ */

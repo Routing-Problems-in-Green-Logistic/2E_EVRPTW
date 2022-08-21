@@ -12,6 +12,7 @@
 #include "mersenne-twister.h"
 #include "LocalSearch.h"
 #include "PreProcessamento.h"
+#include "Vnd.h"
 #include <fstream>
 
 #define NUM_EST_INI 3
@@ -19,6 +20,7 @@
 using namespace GreedyAlgNS;
 using namespace NameS_Grasp;
 using namespace NS_LocalSearch;
+using namespace NS_vnd;
 
 const float fator = 0.1;
 
@@ -290,7 +292,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
 
         if(sol.viavel)
         {
-            //cout<<"VIAVEL\n";
             string erro;
             bool mv = true;
 
@@ -313,27 +314,11 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
             } else
             {
 
+
+                rvnd(sol, instance);
+
                 if(sol.distancia < solBest->distancia || !solBest->viavel)
                 {
-
-                    auto escreveSol = [](string &file, Solucao &solucao, Instance &instance)
-                    {
-
-                        ofstream fileStream;
-                        fileStream.open(file, ios::out);
-
-                        if(!fileStream.is_open())
-                        {
-                            cout<<"NAO FOI POSSIVEL ABRIR ARQUIVO: "<<file<<"\n\n";
-                            return;
-                        }
-
-                        string solStr;
-                        solucao.print(solStr, instance);
-                        fileStream<<solStr;
-                        fileStream.close();
-                    };
-
 
                     solBest->copia(sol);
 
@@ -379,48 +364,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatis
             }
 
 
-            double valOrig = sol.distancia;
 
-            while(mvEvShifitIntraRota(sol, instance, evRoute, SELECAO_PRIMEIRO) && mv)
-            {
-                mv = true;
 
-                //PRINT_DEBUG("\t", "checkSolution");
-
-                if(!sol.checkSolution(erro, instance))
-                {
-                    cout << "MV SHIFIT\n";
-
-                    cout << "\n\nSOLUCAO:\n\n";
-                    sol.print(instance);
-
-                    cout << erro
-                         << "\n****************************************************************************************\n\n";
-
-                    mv = false;
-                    sol.viavel = false;
-                    delete solBest;
-                    throw "ERRO";
-                }
-                else
-                {
-                    //cout<<"MV SHIFIT ATUALIZACAO!!\n\n";
-
-                    if((sol.distancia < solBest->distancia || !solBest->viavel) && mv)
-                    {
-                        solBest->copia(sol);
-                        custoBest = solBest->distancia;
-                        estat.ultimaAtualizacaoBest = i;
-
-                        //solBest->print(instance);
-                        //cout<<"i: "<<i<<"\n";
-
-                    }
-
-                }
-
-                //PRINT_DEBUG("\t", "END");
-            }
 
             if(sol.viavel)
             {
@@ -602,7 +547,7 @@ void NameS_Grasp::addRotaCliente(Solucao &sol, Instance &instancia, const EvRout
     sol.numEv += 1;
 
     int aux = sol.satelites[sat].vetEvRoute[next].idRota;
-    sol.satelites[sat].vetEvRoute[next].copia(evRoute);
+    sol.satelites[sat].vetEvRoute[next].copia(evRoute, false, nullptr);
     sol.satelites[sat].vetEvRoute[next].idRota = aux;
 
 

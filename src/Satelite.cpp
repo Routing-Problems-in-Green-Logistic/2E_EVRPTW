@@ -119,7 +119,7 @@ void Satelite::copia(Satelite &satelite)
     for(int i=0; i < tamVetEvRoute; ++i)
     {
 
-        vetEvRoute.at(i).copia(satelite.vetEvRoute[i]);
+        vetEvRoute.at(i).copia(satelite.vetEvRoute[i], false, nullptr);
 
     }
 

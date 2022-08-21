@@ -1,4 +1,4 @@
-
+-
 - [ ] \<Tarefa\> \<Tempo\>
 
 
@@ -67,6 +67,8 @@ NumEVs:
 -  
 
 
+- ERRO HEURISTICA:
+	- ./run ../../instancias/2e-vrp-tw/Customer_15/C202_C15x.txt 1661100950
 
 
 
