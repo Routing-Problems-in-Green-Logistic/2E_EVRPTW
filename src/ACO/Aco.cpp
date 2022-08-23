@@ -72,17 +72,12 @@ cout<<"sol grasp inviavel\n";
 
     auto satartFerom = [&]()
     {
-        //const double feromInicial = 1.0/solGrasp->satelites[sateliteId].distancia;
-        double min = DOUBLE_INF;
-        //cout<<"ferom ini: "<<feromInicial<<"\n";
 
         for(const EvRoute &evRoute:solGrasp->satelites[sateliteId].vetEvRoute)
         {
             if(evRoute.routeSize > 2)
             {
-                double inc = 1.0/evRoute.distancia;
-                if(inc < min)
-                    min = inc;
+                const double inc = 1.0/evRoute.distancia;
 
                 for(int i=0; i < (evRoute.routeSize-1); ++i)
                 {
