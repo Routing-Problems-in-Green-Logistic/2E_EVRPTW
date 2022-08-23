@@ -27,7 +27,7 @@ namespace N_Aco
         double q0               = 0.1;
         int numAnts             = 300;
         int8_t freqAtualAntBest = 25;
-        int numIteracoes        = 50;
+        int numIteracoes        = 50;               // Original 50
         int numItMaxHeur        = 20;
         double feromonioInicial = 0.0;
 

@@ -58,6 +58,9 @@ NumEVs:
 
 
 - feromônio incial igual 0
+***
+
+- Queda rápida do feromônio 
 
 ***
 ***

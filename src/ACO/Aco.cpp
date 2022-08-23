@@ -15,8 +15,10 @@
 #include "../greedyAlgorithm.h"
 #include <iostream>
 #include <boost/numeric/ublas/matrix.hpp>
+#include <boost/format.hpp>
 
 #define PRINT_0 FALSE
+#define PRINT_GRAPS TRUE
 
 using namespace std;
 using namespace boost::numeric;
@@ -42,14 +44,18 @@ cout<<"NUM de SATs EH > 1\n\n";
         return false;
     }
 
+
     Solucao *solGrasp = NameS_Grasp::grasp(instance, param, est, true);
 
-#if PRINT_0 == TRUE
+#if PRINT_GRAPS == TRUE
     if(solGrasp)
     {
         if(solGrasp->viavel)
-cout<<"sol grasp viavel: " << solGrasp->viavel << "\ndist: " << solGrasp->distancia << "\n";
+        {
+cout << "sol grasp viavel: " << solGrasp->viavel << "\ndist: " << solGrasp->distancia << "\n";
+cout<<"sat: "<<solGrasp->satelites[sateliteId].distancia<<"\n";
 
+        }
         else
 cout<<"sol grasp inviavel\n";
 
@@ -64,6 +70,7 @@ cout<<"sol grasp inviavel\n";
     auto satartFerom = [&]()
     {
         const double feromInicial = 1.0/solGrasp->satelites[sateliteId].distancia;
+        cout<<"ferom ini: "<<feromInicial<<"\n";
 
         for(const EvRoute &evRoute:solGrasp->satelites[sateliteId].vetEvRoute)
         {
@@ -72,7 +79,7 @@ cout<<"sol grasp inviavel\n";
                 for(int i=0; i < (evRoute.routeSize-1); ++i)
                 {
                     //matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) = 1.0/instance.getDistance(evRoute.route[i].cliente, evRoute.route[i+1].cliente);
-                    matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) = feromInicial;
+                    matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) += feromInicial;
                 }
             }
         }
@@ -80,6 +87,23 @@ cout<<"sol grasp inviavel\n";
     };
 
     satartFerom();
+
+    auto printMatFerom = [&](int it)
+    {
+        cout<<"\nMAT DE FEROMONIO NA ITERACAO "<<it<<"\n\n";
+
+        for(int i=0; i < instance.numNos; ++i)
+        {
+            for(int j =0; j < instance.numNos; ++j)
+            {
+                cout<<str(boost::format("%.5f ") % matFeromonio(i,j));
+            }
+
+            cout<<"\n";
+        }
+    };
+
+    printMatFerom(-1);
 
     Ant antBest(instance, sateliteId, true);
     vector<Proximo> vetProximo(1+instance.numClients+instance.numRechargingS);
@@ -398,8 +422,11 @@ cout<<"*******************\n\n";
         // Evapora e atualiza o feromonio com a melhor formiga
         if(antBestIt.viavel)
         {
+            cout<<"best: "<<antBestIt.satelite.distancia<<"\n\n";
+
             double feromMax = 1.0/antBestIt.satelite.distancia;
             atualizaFeromonio(matFeromonio, instance, acoPar, antBestIt, 0.1*feromMax, feromMax);
+            printMatFerom(iteracao);
 
             if(antBestIt < antBest)
             {
@@ -637,6 +664,7 @@ void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &ins
 {
     double inc = 1.0/getDistSat(antBest.satelite);
     evaporaFeromonio(matFeromonio, {antBest.satelite.sateliteId}, instancia, acoParam, feromMin);
+    cout<<"inc: "<<inc<<"\n";
 
     // Percorre a solucao para add feromonio 1/dist
     for(const EvRoute &evRoute:antBest.satelite.vetEvRoute)
@@ -655,7 +683,9 @@ void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &ins
 void N_Aco::evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instance &instancia, const AcoParametros &acoParam, const double feromMin)
 {
 
-    static const double ro_1 = 1.0 - acoParam.ro;
+    static const double ro_1 = acoParam.ro;
+
+cout<<"ferm min: "<<feromMin<<"\n\n";
 
     // Atualizacao das arestas (i,j), i,j clientes
     for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
