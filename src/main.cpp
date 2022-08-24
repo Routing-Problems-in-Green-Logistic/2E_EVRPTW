@@ -63,12 +63,12 @@ void leSolucao(Solucao &solucao, Instance &instancia, string &file);
 #define MAIN_SOMA_CARGA 4
 #define MAIN_ACO        5
 
-//#define MAIN MAIN_METODO_2
-#define MAIN MAIN_ACO
+#define MAIN MAIN_METODO_2
+//#define MAIN MAIN_ACO
 
 #define PRINT_RESULT FALSE
 
-//#if MAIN == MAIN_METODO_2
+
 
 #if MAIN == MAIN_METODO_2
 int main(int argc, char* argv[])
@@ -227,8 +227,8 @@ int main(int argc, char* argv[])
             double dist1Nivel = solBest->getDist1Nivel();
             double dist2Nivel = solBest->getDist2Nivel();
 
-            string saida = str(boost::format("%.2f; \t%.2f; \t%d;\t%.2f;\t%.2f;\t\t%.2f;\t\t%d") % float(estat.media()) % float(solBest->distancia) % estat.numSol % float(tempo) % float(dist1Nivel/solBest->distancia) % float(dist2Nivel/solBest->distancia) % estat.ultimaAtualizacaoBest);
-            saida += "\t\t"+tempoPocStr + "\t\t"+ to_string(solBest->numEv);
+            string saida = str(boost::format("%.2f; \t%.2f; \t%d;\t%.2f;\t%.2f;\t\t%.2f;\t\t%d;") % float(estat.media()) % float(solBest->distancia) % estat.numSol % float(tempo) % float(dist1Nivel/solBest->distancia) % float(dist2Nivel/solBest->distancia) % estat.ultimaAtualizacaoBest);
+            saida += "\t\t"+tempoPocStr + ";\t\t"+ to_string(solBest->numEv);
 
             //string saida = str(boost::format("%.2f") % float(estat.media()));
             //outfile << nomeInst << ";\t" << estat.media() << ";\t " << solBest->distancia << ";\t" << estat.numSol<< ";\t" << tempo << "\n";

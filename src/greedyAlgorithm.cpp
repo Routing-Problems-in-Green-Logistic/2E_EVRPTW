@@ -20,7 +20,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
     if(sol.numEv == sol.numEvMax)
         return false;
 
-    //cout<<"**********************************************CONSTRUTIVO SAT("<<satId<<")*****************************************\n\n";
+cout<<"**********************************************CONSTRUTIVO SAT("<<satId<<")*****************************************\n\n";
 
     std::vector<int8_t> &visitedClients = sol.vetClientesAtend;
 
@@ -105,13 +105,8 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
     }
 
 
-int y=0;
-
     while(!visitAllClientes(visitedClients, instance, vetSatAtendCliente, satId) && !listaCandidatos.empty())
     {
-
-/*cout<<"y: "<<y<<"\n";
-y += 1;*/
 
         int randIndex = rand_u32()%(int(alpha * listaCandidatos.size() + 1));
         listaCandidatos.sort();
@@ -119,7 +114,6 @@ y += 1;*/
 
         auto topItem = std::next(listaCandidatos.begin(), randIndex);
         CandidatoEV *candEvPtr = &(*topItem);
-
         visitedClients.at(topItem->clientId) = 1;
         sol.vetClientesAtend.at(topItem->clientId) = 1;
 
@@ -143,7 +137,6 @@ y += 1;*/
         }
 
         bool resultadoTopItem = insert(evRoute, *topItem, instance, vetTempoSaida[topItem->satId], sol);
-
         if(!resultadoTopItem)
         {
             PRINT_DEBUG("", "ERRO, INSERT RETORNOU FALSE!!!\n\n");
@@ -177,6 +170,8 @@ y += 1;*/
                 if(numEVsMax && instance.getNSats() > 1 && candidatoEvPtrAux)
                 {
                     // Se numEvMax=True e evRouteTemp eh VAZIO, entao eh necessario reavaliar o cliente em todas as rotas
+
+                    cout<<"cliente: "<<candidatoEvPtrAux->clientId<<"\n";
 
                     EvRoute &evRouteTemp = sat->getRoute(candidatoEvPtrAux->routeId);
                     if(evRouteTemp.routeSize <= 2)
@@ -222,15 +217,18 @@ y += 1;*/
                     if(candidatoEv.pos != -1)
                     {
                          // Encontrou uma rota viavel
-
-                        if(!candidatoEvPtrAux)
+                        if(candidatoEvPtrAux == nullptr)
                         {
+                            clientesSemCandidato.remove(candidatoEv.clientId);
                             listaCandidatos.push_back(candidatoEv);
                             vetCandPtr.at(transformaIdCliente(candidatoEv.clientId)) = &listaCandidatos.back();
                             candidatoEvPtrAux = vetCandPtr.at(transformaIdCliente(candidatoEv.clientId));
                         }
                         else
+                        {
+
                             *candidatoEvPtrAux = candidatoEv;
+                        }
 
                         matCandidato.at(candidatoEv.satId)(transformaIdEv(candidatoEv.routeId), transformaIdCliente(candidatoEv.clientId)) = candidatoEvPtrAux;
                     }
@@ -307,6 +305,7 @@ y += 1;*/
 
                 if(resultado)
                 {
+
                     listaCandidatos.push_back(candidatoEv);
                     CandidatoEV *candPtr = &listaCandidatos.back();
                     matCandidato.at(satId)(transformaIdEv(routeId), transformaIdCliente(cliente)) = candPtr;

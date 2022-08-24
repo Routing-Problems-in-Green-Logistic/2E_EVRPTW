@@ -64,32 +64,26 @@ cout<<"sol grasp inviavel\n";
 
 
     ublas::matrix<double> matFeromonio(instance.numNos, instance.numNos, 0.01);
-    ublas::matrix<double> matIncrementoFerm(instance.numNos, instance.numNos, 0.0);
 
     //matFeromonio += matIncrementoFerm;
 
     // Inicializa o feromonio com a sol do grasp:
 
-    auto satartFerom = [&]()
+
+    for(const EvRoute &evRoute: solGrasp->satelites[sateliteId].vetEvRoute)
     {
-
-        for(const EvRoute &evRoute:solGrasp->satelites[sateliteId].vetEvRoute)
+        if(evRoute.routeSize > 2)
         {
-            if(evRoute.routeSize > 2)
-            {
-                const double inc = 1.0/evRoute.distancia;
+            const double inc = 1.0 / evRoute.distancia;
 
-                for(int i=0; i < (evRoute.routeSize-1); ++i)
-                {
-                    //matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) = 1.0/instance.getDistance(evRoute.route[i].cliente, evRoute.route[i+1].cliente);
-                    matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) += inc;
-                }
+            for(int i = 0; i < (evRoute.routeSize - 1); ++i)
+            {
+                //matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) = 1.0/instance.getDistance(evRoute.route[i].cliente, evRoute.route[i+1].cliente);
+                matFeromonio(evRoute.route[i].cliente, evRoute.route[i + 1].cliente) += inc;
             }
         }
+    }
 
-    };
-
-    satartFerom();
 
     auto printMatFerom = [&](int it)
     {
