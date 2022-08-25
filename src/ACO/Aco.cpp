@@ -18,7 +18,8 @@
 #include <boost/format.hpp>
 
 #define PRINT_0 FALSE
-#define PRINT_GRAPS TRUE
+#define PRINT_GRAPS FALSE
+#define PRINT_MAT_FERM FALSE
 
 using namespace std;
 using namespace boost::numeric;
@@ -100,7 +101,9 @@ cout<<"sol grasp inviavel\n";
         }
     };
 
-    printMatFerom(-1);
+#if PRINT_MAT_FERM == TRUE
+printMatFerom(-1);
+#endif
 
     Ant antBest(instance, sateliteId, true);
     vector<Proximo> vetProximo(1+instance.numClients+instance.numRechargingS);
@@ -419,12 +422,17 @@ cout<<"*******************\n\n";
         // Evapora e atualiza o feromonio com a melhor formiga
         if(antBestIt.viavel)
         {
-            cout<<"best: "<<antBestIt.satelite.distancia<<"\n\n";
+
+#if PRINT_MAT_FERM == TRUE
+cout<<"best: "<<antBestIt.satelite.distancia<<"\n\n";
+#endif
 
             double feromMax = 1.0/antBestIt.satelite.distancia;
             atualizaFeromonio(matFeromonio, instance, acoPar, antBestIt);
-            printMatFerom(iteracao);
 
+#if PRINT_MAT_FERM == TRUE
+printMatFerom(iteracao);
+#endif
             if(antBestIt < antBest)
             {
                 antBest.copia(antBestIt);
@@ -666,12 +674,18 @@ void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &ins
     {
         if(evRoute.routeSize > 2)
         {
-            if(evRoute.distancia > feromMax)
-                feromMax = evRoute.distancia;
+            double temp = 1.0/evRoute.distancia;
+            if(temp > feromMax)
+                feromMax = temp;
         }
-
     }
+
     evaporaFeromonio(matFeromonio, {antBest.satelite.sateliteId}, instancia, acoParam, 0.1*feromMax);
+    feromMax *= 100.0;
+
+#if PRINT_MAT_FERM == TRUE
+cout<<"FEROMONIO MAX: "<<feromMax<<"\n";
+#endif
 
     // Percorre a solucao para add feromonio 1/dist
     for(const EvRoute &evRoute:antBest.satelite.vetEvRoute)
@@ -680,12 +694,22 @@ void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &ins
         {
             double inc = 1.0/evRoute.distancia;
             for(int i=0; i < (evRoute.routeSize-1); ++i)
-            {
-                const double feromTemp = matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente);
-                matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) = min((feromTemp+inc), feromMax);
-            }
+                matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) += inc;
+
         }
     }
+
+    for(int i=0; i < instancia.numNos; ++i)
+    {
+        for(int j=0; j < instancia.numNos; ++j)
+        {
+            matFeromonio(i,j) = min(matFeromonio(i,j), feromMax);
+        }
+    }
+
+
+    //cout<<"****************************************************************************************************\n\n";
+
 }
 
 void N_Aco::evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instance &instancia, const AcoParametros &acoParam, const double feromMin)
@@ -693,32 +717,21 @@ void N_Aco::evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<i
 
     static const double ro_1 = 1.0-acoParam.ro;
 
-cout<<"ferm min: "<<feromMin<<"\n\n";
 
-    // Atualizacao das arestas (i,j), i,j clientes
-    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+#if PRINT_MAT_FERM == TRUE
+cout<<"ferm min: "<<feromMin<<"\n\n";
+#endif
+
+    // Atualizacao das arestas (i,j)
+    for(int i=1; i < instancia.numNos; ++i)
     {
-        for(int j=instancia.getFirstClientIndex(); j <= instancia.getEndClientIndex(); ++j)
+        for(int j=1; j < instancia.numNos; ++j)
         {
             if(i==j)
                 continue;
 
             matFeromonio(i,j) = max(matFeromonio(i,j)*ro_1, feromMin);
         }
-    }
-
-    // Atualizacoes arestas (i,j), i sat e j cliente
-    for(const int s:vetSat)
-    {
-        for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
-            matFeromonio(s, i) = max(matFeromonio(s, i)*ro_1, feromMin);
-    }
-
-    // Atualizacoes arestas (i,j), i cliente e j cliente
-    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
-    {
-        for(const int s:vetSat)
-            matFeromonio(i, s) = max(matFeromonio(i, s)*ro_1, feromMin);
     }
 
 }
