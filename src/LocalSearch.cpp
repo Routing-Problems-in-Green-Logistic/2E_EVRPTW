@@ -696,6 +696,7 @@ cout<<"\t\t\tRota viavel. Dist: "<<distReal<<"\n\n";
                                             insereEstacaoRota(evRouteAux, insereEstacao, instancia,
                                                               evRoute[0].tempoSaida);
                                             double dif = (evRouteAux.distancia - distOrig) / distOrig;
+
 //cout << "MELHORA VIAB.: " << 100.0 * dif << "%\n";
 
                                             solucao.distancia -= evRoute.distancia;

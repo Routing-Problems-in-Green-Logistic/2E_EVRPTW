@@ -20,7 +20,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
     if(sol.numEv == sol.numEvMax)
         return false;
 
-cout<<"**********************************************CONSTRUTIVO SAT("<<satId<<")*****************************************\n\n";
+//cout<<"**********************************************CONSTRUTIVO SAT("<<satId<<")*****************************************\n\n";
 
     std::vector<int8_t> &visitedClients = sol.vetClientesAtend;
 
@@ -117,6 +117,7 @@ cout<<"**********************************************CONSTRUTIVO SAT("<<satId<<"
         visitedClients.at(topItem->clientId) = 1;
         sol.vetClientesAtend.at(topItem->clientId) = 1;
 
+//cout<<"ADD CLIENTE: "<<topItem->clientId<<"\n";
 
         Satelite *satelite = sol.getSatelite(topItem->satId);
         satelite->demanda += topItem->demand;
@@ -171,9 +172,9 @@ cout<<"**********************************************CONSTRUTIVO SAT("<<satId<<"
                 {
                     // Se numEvMax=True e evRouteTemp eh VAZIO, entao eh necessario reavaliar o cliente em todas as rotas
 
-                    cout<<"cliente: "<<candidatoEvPtrAux->clientId<<"\n";
+//cout<<"cliente: "<<candidatoEvPtrAux->clientId<<"\n";
 
-                    EvRoute &evRouteTemp = sat->getRoute(candidatoEvPtrAux->routeId);
+                    EvRoute &evRouteTemp = sat->getRoute(transformaIdEv(candidatoEvPtrAux->routeId));
                     if(evRouteTemp.routeSize <= 2)
                         candidatoEvPtrAux = nullptr;
                 }
@@ -330,7 +331,14 @@ cout<<"**********************************************CONSTRUTIVO SAT("<<satId<<"
             break;
         }
 
-    }
+/*cout<<"LISTA DE CAND.: ";
+for(auto &cand:listaCandidatos)
+{
+    cout<<cand.clientId<<"("<<cand.routeId<<") ";
+}
+cout<<"\n";*/
+
+    } // while(!visitAllClientes)
 
 
     sol.viavel = visitAllClientes(visitedClients, instance, vetSatAtendCliente, satId);

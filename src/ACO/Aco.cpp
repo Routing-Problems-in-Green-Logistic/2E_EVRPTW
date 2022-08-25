@@ -422,7 +422,7 @@ cout<<"*******************\n\n";
             cout<<"best: "<<antBestIt.satelite.distancia<<"\n\n";
 
             double feromMax = 1.0/antBestIt.satelite.distancia;
-            atualizaFeromonio(matFeromonio, instance, acoPar, antBestIt, 0.1*feromMax, feromMax);
+            atualizaFeromonio(matFeromonio, instance, acoPar, antBestIt);
             printMatFerom(iteracao);
 
             if(antBestIt < antBest)
@@ -657,17 +657,28 @@ cout<<j<<": ok\n";
 }
 
 
-void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &instancia, const AcoParametros &acoParam, const Ant &antBest, const double feromMin, const double feromMax)
+void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &instancia, const AcoParametros &acoParam, const Ant &antBest)
 {
-    double inc = 1.0/getDistSat(antBest.satelite);
-    evaporaFeromonio(matFeromonio, {antBest.satelite.sateliteId}, instancia, acoParam, feromMin);
-    cout<<"inc: "<<inc<<"\n";
+
+    double feromMax = -DOUBLE_INF;
+
+    for(const EvRoute &evRoute:antBest.satelite.vetEvRoute)
+    {
+        if(evRoute.routeSize > 2)
+        {
+            if(evRoute.distancia > feromMax)
+                feromMax = evRoute.distancia;
+        }
+
+    }
+    evaporaFeromonio(matFeromonio, {antBest.satelite.sateliteId}, instancia, acoParam, 0.1*feromMax);
 
     // Percorre a solucao para add feromonio 1/dist
     for(const EvRoute &evRoute:antBest.satelite.vetEvRoute)
     {
         if(evRoute.routeSize > 2)
         {
+            double inc = 1.0/evRoute.distancia;
             for(int i=0; i < (evRoute.routeSize-1); ++i)
             {
                 const double feromTemp = matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente);
@@ -680,7 +691,7 @@ void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &ins
 void N_Aco::evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instance &instancia, const AcoParametros &acoParam, const double feromMin)
 {
 
-    static const double ro_1 = acoParam.ro;
+    static const double ro_1 = 1.0-acoParam.ro;
 
 cout<<"ferm min: "<<feromMin<<"\n\n";
 

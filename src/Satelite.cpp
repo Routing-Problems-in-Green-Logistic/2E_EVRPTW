@@ -37,6 +37,7 @@ int Satelite::getNRoutes() const
     return this->vetEvRoute.size();
 }
 
+// Recebe i = [0, numEvs-1]
 EvRoute &Satelite::getRoute(int i)
 {
     //cout<<"id: "<<(i-primeiroEv)<<"\n";

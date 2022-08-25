@@ -23,7 +23,7 @@ namespace N_Aco
         double alfa             = 0.2;               // Feromonio
         double beta             = 0.0;               // Heuristica
         double alfaConst        = 0.5;
-        double ro               = 0.9;               // Quantidade % de ferimonio que ira para a prox iteracao
+        double ro               = 0.1;               // Quantidade % de ferimonio que ira para a prox iteracao
         double q0               = 0.1;
         int numAnts             = 300;
         int8_t freqAtualAntBest = 25;
@@ -135,7 +135,8 @@ namespace N_Aco
 
     bool aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
              const vector<int> &vetSatAtendCliente, Parametros &param, NameS_Grasp::Estatisticas &est);
-    void atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &instancia, const AcoParametros &acoParam, const Ant &antBest, const double feromMin, const double feromMax);
+    void atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &instancia, const AcoParametros &acoParam,
+                           const Ant &antBest);
     void evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instance &instancia, const AcoParametros &acoParam, const double feromMin);
     bool clienteJValido(Instance &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat, const double tempoSaidaI);
     void atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance, Ant &ant);

@@ -118,7 +118,9 @@ int main(int argc, char* argv[])
     //cout<<nomeInst<<" ; "<<instance.numRechargingS<<" ; "<<instance.numSats<<" ; "<<instance.numEv<<" ; "<<instance.numTruck<<"\n";
 
     //instance.print();
-
+    //return 0;
+    //cout<<"fist evRoute: "<<instance.getFirstEvIndex()<<"\n";
+    //cout<<"last evRoute: "<<instance.getEndEvIndex()<<"\n";
     //return 0;
 
     try
