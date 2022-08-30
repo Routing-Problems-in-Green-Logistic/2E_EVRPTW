@@ -57,6 +57,7 @@ namespace NS_LocalSearch
     void getMov(int movId, string &mov);
     void insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, Instance &instance, double tempoSaida);
     bool mvEvSwapIntraRota(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux);
+    bool mvEv2opt(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux);
 
     /*
     bool intraSatelliteSwap(Solucao& Sol, int SatId, const Instance& Inst, float& improvement);
