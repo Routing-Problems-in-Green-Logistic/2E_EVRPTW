@@ -32,7 +32,7 @@
 #include "Teste.h"
 #include "Grasp.h"
 #include "PreProcessamento.h"
-#include "ParametrosEntrada.h"
+#include "Parametros.h"
 
 #include "Aco.h"
 

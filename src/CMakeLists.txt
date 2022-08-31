@@ -56,7 +56,7 @@ set(SOURCES main.cpp
 
 
 
-add_executable(run INSTANCIA/ParametrosEntrada.cpp INSTANCIA/ParametrosEntrada.h)
+add_executable(run INSTANCIA/Parametros.cpp INSTANCIA/Parametros.h)
 
 
 #target_include_directories(run PUBLIC "ACO")

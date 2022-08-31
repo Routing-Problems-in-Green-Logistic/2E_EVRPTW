@@ -11,30 +11,30 @@
  * ****************************************/
 
 #include <chrono>
-#include "ParametrosEntrada.h"
+#include "Parametros.h"
 using namespace NS_parametros;
 
-void NS_parametros::escreveSolCompleta(ParametrosEntrada &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol)
+void NS_parametros::escreveSolCompleta(ParametrosGrasp &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol)
 {
 
 }
 
-void NS_parametros::escreveSolParaPrint(ParametrosEntrada &paramEntrada, Solucao &sol)
+void NS_parametros::escreveSolParaPrint(ParametrosGrasp &paramEntrada, Solucao &sol)
 {
 
 }
 
-void NS_parametros::escreveResultadosAcumulados(ParametrosEntrada &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol)
+void NS_parametros::escreveResultadosAcumulados(ParametrosGrasp &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol)
 {
 
 }
 
-void NS_parametros::consolidaResultados(ParametrosEntrada &paramEntrada)
+void NS_parametros::consolidaResultados(ParametrosGrasp &paramEntrada)
 {
 
 }
 
-void NS_parametros::saida(ParametrosEntrada &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol)
+void NS_parametros::saida(ParametrosGrasp &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol)
 {
 
     escreveSolCompleta(paramEntrada, paramSaida, sol);
@@ -45,7 +45,7 @@ void NS_parametros::saida(ParametrosEntrada &paramEntrada, ParametrosSaida &para
 }
 
 // argv[0] eh a instancia
-void NS_parametros::caregaParametros(ParametrosEntrada &paramEntrada, int argc, char* argv[])
+void NS_parametros::caregaParametros(ParametrosGrasp &paramEntrada, int argc, char* argv[])
 {
 
     if(argc >= 1)
@@ -79,7 +79,7 @@ void NS_parametros::caregaParametros(ParametrosEntrada &paramEntrada, int argc, 
                 }
                 else if(opcao == "--execAtual")
                 {
-                    paramEntrada.execucaoAual = atoi(argv[i+1]);
+                    paramEntrada.execucaoAtual = atoi(argv[i + 1]);
                 }
                 else if(opcao == "--resulCSV")
                     paramEntrada.resultadoCSV = string(argv[i+1]);
@@ -97,13 +97,13 @@ void NS_parametros::caregaParametros(ParametrosEntrada &paramEntrada, int argc, 
 
             if(paramEntrada.caminhoPasta != "")
             {
-                if(paramEntrada.numExecucoesTotais == 0 || paramEntrada.execucaoAual == -1)
+                if(paramEntrada.numExecucoesTotais == 0 || paramEntrada.execucaoAtual == -1)
                 {
                     cout<<"ERRO: OPCOES(--execTotal e --execAtual) TEM QUE SER UTILIZADAS EM CONJUNTO COM --pasta\n\n";
                     throw "ERRO";
                 }
             }
-            else if(paramEntrada.caminhoPasta == "" && (paramEntrada.numExecucoesTotais != 0 || paramEntrada.execucaoAual != 0))
+            else if(paramEntrada.caminhoPasta == "" && (paramEntrada.numExecucoesTotais != 0 || paramEntrada.execucaoAtual != 0))
             {
 
                 cout<<"ERRO: OPCOES(--execTotal e --execAtual) TEM QUE SER UTILIZADAS EM CONJUNTO COM --pasta\n\n";
