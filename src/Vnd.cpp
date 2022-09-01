@@ -14,18 +14,18 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
     EvRoute evRouteAux(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
     while(mvEv2opt(solution, instance, evRouteAux))
     {
-/*        string erro;
+        string erro;
         if(!solution.checkSolution(erro, instance))
         {
             PRINT_DEBUG("", "ERRO. mvEvSwapIntraRota:\n");
             cout<<erro<<"\n";
             exit(-1);
-        }*/
+        }
 
-cout<<"#######################################################################\n\n";
+//cout<<"#######################################################################\n\n";
     }
 
-cout<<"***************************************************************************\n\n";
+//cout<<"***************************************************************************\n\n";
 
 
 

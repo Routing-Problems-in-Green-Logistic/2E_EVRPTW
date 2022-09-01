@@ -80,7 +80,7 @@ Tabela com:
 
 lista = [(' ', 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
 
-tamanhoInst = [5, 10]
+tamanhoInst = [5, 10, 15]
 diretorioIni = 'instancias/2e-vrp-tw/'
 instancias = []
 

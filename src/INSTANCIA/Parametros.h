@@ -33,11 +33,11 @@ namespace NS_parametros
     struct ParametrosGrasp
     {
 
-        uint32_t semente = 0;                    // --seed  semente
-        string caminhoPasta;                     // --pasta caminhoPasta/
-        int numExecucoesTotais = 0;              // --execTotal num
-        int execucaoAtual = -1;                   // --execAtual 0 ; 0, ..., num-1
-        string resultadoCSV = "resultados.csv";  // --resulCSV
+        uint32_t semente       = 0;                 // --seed  semente
+        string caminhoPasta;                        // --pasta caminhoPasta/
+        int numExecucoesTotais = 0;                 // --execTotal num
+        int execucaoAtual      = -1;                // --execAtual 0 ; 0, ..., num-1
+        string resultadoCSV    = "resultados.csv";  // --resulCSV
         string instancia;
         string nomeInstancia;
         string data;

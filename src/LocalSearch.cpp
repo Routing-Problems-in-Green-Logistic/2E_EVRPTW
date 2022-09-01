@@ -16,7 +16,7 @@ using namespace GreedyAlgNS;
 using namespace NameViabRotaEv;
 
 #define PRINT_MV_SHIFIT_INTRA FALSE
-#define PRINT_MV_2OPT TRUE
+#define PRINT_MV_2OPT FALSE
 
 void NS_LocalSearch::getMov(const int movId, string &mov)
 {
@@ -762,13 +762,15 @@ bool NS_LocalSearch::mvEv2opt(Solucao &solucao, Instance &instancia, EvRoute &ev
 
         // copia ate posI - 1
         std::copy(evRoute.route.begin(), evRoute.route.begin()+posI, evRouteAux.route.begin());
-cout<<"\t\t\t\tAte (posI-1)("<<posI-1<<"): ";
-string rotaStr;
-for(int i=0; i < posI; ++i)
-    rotaStr += to_string(evRouteAux[i].cliente) + " ";
-cout<<rotaStr<<"\n";
 
-cout<<"\t\t\t\tDE (posJ, clienteJ)("<<posJ<<", "<<evRoute.route[posJ].cliente<<") ATE (posI, clienteI)("<<posI<<", "<<evRoute.route[posI].cliente<<"):\n\t\t\t\t\t";
+        /*
+        cout<<"\t\t\t\tAte (posI-1)("<<posI-1<<"): ";
+        string rotaStr;
+        for(int i=0; i < posI; ++i)
+            rotaStr += to_string(evRouteAux[i].cliente) + " ";
+        cout<<rotaStr<<"\n";
+        cout<<"\t\t\t\tDE (posJ, clienteJ)("<<posJ<<", "<<evRoute.route[posJ].cliente<<") ATE (posI, clienteI)("<<posI<<", "<<evRoute.route[posI].cliente<<"):\n\t\t\t\t\t";
+        */
 
         // copia de posJ ate posI
         for(; posEvRoute >= posI; )
@@ -777,14 +779,14 @@ cout<<"\t\t\t\tDE (posJ, clienteJ)("<<posJ<<", "<<evRoute.route[posJ].cliente<<"
             if(evRouteAux[posEvRouteAux-1].cliente != evRoute.route[posEvRoute].cliente)
             {
                 evRouteAux[posEvRouteAux].cliente = evRoute.route[posEvRoute].cliente;
-cout<<evRouteAux[posEvRouteAux].cliente<<" ";
+                //cout<<evRouteAux[posEvRouteAux].cliente<<" ";
                 posEvRouteAux += 1;
             }
 
             posEvRoute -= 1;
         }
 
-cout<<"\n\n";
+        //cout<<"\n\n";
 
         // copia de posJ+1 ate o fim
         //std::copy(evRoute.route.begin()+posJ+1, evRoute.route.begin()+evRoute.routeSize, evRouteAux.route.begin()+posEvRouteAux);
@@ -910,9 +912,8 @@ cout<<"\t\t\tNova dist: "<<novaDist<<"\n";
                             string strRota1;
 evRouteAux.print(strRota1, instancia, true);
 cout<<"\t\t\tNova rota: "<<strRota1<<"\n\n";
-#endif
-
 cout<<"\tnovaDistC("<<novaDist<<"); dist rota("<<evRoute.distancia<<")\n";
+#endif
 
                             if(novaDist < evRoute.distancia)
                             {
@@ -928,11 +929,14 @@ cout<<"\t\t\tRota viavel. Dist: "<<distReal<<"\n\n";
 #endif
                                     double distOrig = evRoute.distancia;
                                     distReal = testaRota(evRouteAux, evRouteAux.routeSize, instancia, true, evRoute[0].tempoSaida, ultimoValIndice, nullptr);
+
+
+#if PRINT_MV_2OPT == TRUE
                                     double dif = (distReal-distOrig)/distOrig;
-
 cout<<"\t\t\tMELHORA: "<<100.0*dif<<"%\n";
+#endif
 
-                                    /*satelite.distancia -= evRoute.distancia;
+                                    satelite.distancia -= evRoute.distancia;
                                     solucao.distancia  -= evRoute.distancia;
 
                                     evRouteAux.distancia = distReal;
@@ -941,7 +945,7 @@ cout<<"\t\t\tMELHORA: "<<100.0*dif<<"%\n";
                                     satelite.distancia += distReal;
                                     solucao.distancia  += distReal;
 
-                                    return true;*/
+                                    return true;
                                 }
                                 else if(distReal <= 0.0)
                                 {
@@ -954,13 +958,13 @@ cout<<"\t\t\tMELHORA: "<<100.0*dif<<"%\n";
 
                                             double distOrig = evRoute.distancia;
 
-                                            insereEstacaoRota(evRouteAux, insereEstacao, instancia,
-                                                              evRoute[0].tempoSaida);
+                                            insereEstacaoRota(evRouteAux, insereEstacao, instancia, evRoute[0].tempoSaida);
+
+#if PRINT_MV_2OPT == TRUE
                                             double dif = (evRouteAux.distancia - distOrig) / distOrig;
-
 cout << "\t\t\tMELHORA VIAB.: " << 100.0 * dif << "%\n";
-
-                                            /*solucao.distancia -= evRoute.distancia;
+#endif
+                                            solucao.distancia -= evRoute.distancia;
                                             satelite.distancia -= evRoute.distancia;
 
                                             evRoute.copia(evRouteAux, true, &instancia);
@@ -968,10 +972,13 @@ cout << "\t\t\tMELHORA VIAB.: " << 100.0 * dif << "%\n";
                                             solucao.distancia += evRoute.distancia;
                                             satelite.distancia += evRoute.distancia;
 
-                                            return true;*/
+                                            return true;
                                         }
+
+#if PRINT_MV_2OPT == TRUE
                                         else
-cout<<"\t\t\tROTA VIAVEL > DO QUE ROTA ORIGINAL\n";
+cout<<"\t\t\tROTA VIABILIZADA > DO QUE ROTA ORIGINAL\n";
+#endif
 
                                     }
 
@@ -985,9 +992,11 @@ cout<<"\t\t\tRota inviavel\n\n";
 
                                 }
                             }
+
+#if PRINT_MV_2OPT == TRUE
                             else
 cout<<"\t\t\tDIST REAL EH MAIOR!!\n";
-
+#endif
                         }
                     }
                 }
