@@ -358,6 +358,47 @@ void Instance::calculaVetVoltaRS_sat()
     }
 }
 
+/*******************************************************
+ * *****************************************************
+ *
+ * @param rs : Estacao de recarga
+ * @param p  : 0, 1, 2
+ * @return   : pº estaca de recarga do tipo rs
+ *
+ * *****************************************************
+ * *****************************************************
+ */
+int Instance::getP_Estacao(int rs, int p) const
+{
+    static const int primeiraRs = getFirstRS_index();
+    static const int utilRs = numUtilEstacao-1;
+
+    if(p >= numUtilEstacao)
+    {
+        PRINT_DEBUG("", "ERRO, P("<<p<<") >= Num Utilizacao Max RS("<<numUtilEstacao);
+        throw "ERRO";
+    }
+
+    if(p==0)
+        return rs;
+
+    return ((rs-primeiraRs)*(utilRs))+numNos+(p-1);
+
+}
+
+/*   * *
+ * 0 1 2 3 4 5 6| 7 8 - 9 10
+ *
+ * (1, 0): 1
+ * (2, 0): 2
+ *
+ * (1, 1): (1-1)*2+7+(1-1) = 0 + 7 = 7      V
+ * (1, 2): (1-1)*2+7+(2-1) = 0 + 7 + 1 = 8  V
+ *
+ * (2, 1): (2-1)*2+7+(1-1) = 2+7 + 0 = 9    V
+ * (2, 2): (2-1)*2+7+(2-1) = 2+7 + 1 = 10   V
+ */
+
 Instance::~Instance()
 {
 

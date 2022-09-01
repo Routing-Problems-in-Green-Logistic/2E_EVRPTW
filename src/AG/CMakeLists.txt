@@ -14,4 +14,4 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Wconversion")
 
 
 
-target_sources(run PUBLIC Aco.h Aco.cpp)
+target_sources(run PUBLIC Ag.h Ag.cpp)
