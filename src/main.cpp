@@ -32,10 +32,9 @@
 #include "Teste.h"
 #include "Grasp.h"
 #include "PreProcessamento.h"
-#include "Parametros.h"
+#include "ParametrosEntrada.h"
 
 #include "Aco.h"
-#include "AG/Ag.h"
 
 using namespace std;
 using namespace GreedyAlgNS;
@@ -44,7 +43,6 @@ using namespace NameTeste;
 using namespace NameS_Grasp;
 using namespace N_PreProcessamento;
 using namespace N_Aco;
-using namespace NS_Ag;
 using namespace NS_parametros;
 
 void routine(char** filenames, int nFileNames);
@@ -64,11 +62,9 @@ void leSolucao(Solucao &solucao, Instance &instancia, string &file);
 #define MAIN_METODO_2   3
 #define MAIN_SOMA_CARGA 4
 #define MAIN_ACO        5
-#define MAIN_AG         6
 
 //#define MAIN MAIN_METODO_2
-//#define MAIN MAIN_ACO
-#define MAIN MAIN_AG
+#define MAIN MAIN_ACO
 
 #define PRINT_RESULT FALSE
 
@@ -77,7 +73,6 @@ void leSolucao(Solucao &solucao, Instance &instancia, string &file);
 #if MAIN == MAIN_METODO_2
 int main(int argc, char* argv[])
 {
-
 /*    ParametrosEntrada parametrosEntrada;
     caregaParametros(parametrosEntrada, argc-1, &argv[1]);*/
 
@@ -467,51 +462,6 @@ int main(int argc, char* argv[])
 }
 
 #endif
-
-#if MAIN == MAIN_AG
-
-int main(int argc, char* argv[])
-{
-
-    int semente = 0;
-
-    if(argc == 1 || argc > 3)
-    {
-        std::cerr<<"FORMATO: ./a.out instancia.txt\n";
-        return -1;
-    }
-
-    if(argc == 3)
-        semente = atoi(argv[2]);
-    else
-        semente = duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-
-
-    seed(semente);
-
-    std::string file(argv[1]);
-    const string nomeInst = getNomeInstancia(file);
-    Instance instance(file, nomeInst);
-
-
-    std::time_t result = std::time(nullptr);
-    auto data = std::asctime(std::localtime(&result));
-
-    string sementeStr;
-    sementeStr += "INSTANCIA: " + string(nomeInst) + "\t";
-    sementeStr += "SEMENTE: " + to_string(semente)  + "\t"+data;
-    cout<<sementeStr;
-
-
-    //instance.print();
-
-    RandomKey randomKey(instance);
-    randomKey.ordenaVetDecod();
-
-}
-
-#endif
-
 
 #if MAIN == MAIN_SOMA_CARGA
 

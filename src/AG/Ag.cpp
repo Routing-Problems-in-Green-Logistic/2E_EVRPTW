@@ -64,6 +64,18 @@ void NS_Ag::RandomKey::printVetDecod(string &str)
     str += "\n";
 }
 
+/** ******************************************************************************
+ ** ******************************************************************************
+ **
+ ** @param instancia
+ ** @param randKey                  Chama ordenaVetDecod(); modificado
+ ** @param sat                      Guarda a solucao para o satelite; modificado
+ ** @param vetSatAtendCliente       Indica o sat para cada cliente; nao modificado
+ ** @param tempoSaida               Tempo de saida para sat, se <= 0: tempoSaida=vetTempoSaida[sat]; nao modificado
+ **
+ ** ******************************************************************************
+ ** ******************************************************************************/
+
 void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat, const vector<int> &vetSatAtendCliente, const double tempoSaida)
 {
 
@@ -83,20 +95,19 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
 
 
     // Seta 0 para o cliente que deve ser atendido por sat e 1 caso contrario
-
     vector<int> vetClieAtend(vetSatAtendCliente);
 
-    for(int &i : vetClieAtend)
+    for(int &it : vetClieAtend)
     {
-        if(i == sat.sateliteId)
-            i = 0;
+        if(it == sat.sateliteId)
+            it = 0;
         else
-            i = 1;
+            it = 1;
     }
 
 
-    int posAnt = 0;
-    int pos    = 0;
+    int posAnt = 0;     // Guarda ...
+    int pos    = 0;     // Guarda ...
 
 
 

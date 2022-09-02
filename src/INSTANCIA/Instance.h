@@ -169,7 +169,6 @@ public:
     string nome;
 
     void calculaVetVoltaRS_sat();
-    int getP_Estacao(int rs, int p) const;
 
 };
 

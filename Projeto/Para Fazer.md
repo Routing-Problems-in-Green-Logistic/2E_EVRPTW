@@ -5,11 +5,12 @@
 
 ***
 
-# 01/09 Qui
+# 09/08 Qua
 
+- [x] Restringir o numero de EVs
 - [ ] ACO
-- [ ] AG
-	- [ ] Random key
+- [ ] Tabela
+
 
 
 ***
@@ -17,14 +18,14 @@
 ***
 
 # Outros
+- [ ] Verificação da Solução(num. de EVs)
+- [ ] Testes com > 1 execução!
 - [ ] Peseudo códigos 
 	- [ ] Construtívo
 	- [x] viabilizador de rota
 	- [ ] Gera rotas iniciais (somente cliente ou cliente cliente)
 	- [x] Atualiza prob. add rota inicial
 
-
-- Arquivos:
 
 
 
@@ -47,9 +48,8 @@
 	- estação de recarga j
 	- Viável: É possível ir do cliente até uma estação de recarga ou voltar para o depósito.
 
-
-- feromônio incial igual 0.01
 ***
+- Utilizar mais de uma formiga pra reforcar o feromônio
 
 
 ***
@@ -57,6 +57,13 @@
 
 
 # Problemas:
+-  
+
+
+- ERRO HEURISTICA:
+	- ./run ../../instancias/2e-vrp-tw/Customer_15/C202_C15x.txt 1661100950
+
+
 
 
 

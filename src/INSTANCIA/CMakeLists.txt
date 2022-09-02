@@ -22,5 +22,4 @@ target_include_directories(run PUBLIC "../ACO" )
 add_subdirectory("../ACO" [EXCLUDE_FROM_ALL])
 
 
-target_include_directories(run PUBLIC "../AG" )
-add_subdirectory("../AG" {STATE_BIN_DIR}/AG)
+

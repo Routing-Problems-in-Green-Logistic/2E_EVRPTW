@@ -20,16 +20,17 @@ namespace N_Aco
     {
     public:
 
-        double alfa             = 0.2;               // Feromonio
-        double beta             = 0.0;               // Heuristica
+        double alfa             = 0.2;              // Feromonio
+        double beta             = 0.0;              // Heuristica: 1-alfa
         double alfaConst        = 0.5;
-        double ro               = 0.1;               // Quantidade % de ferimonio que ira para a prox iteracao
+        double ro               = 0.1;              // Quantidade % de ferimonio que ira para a prox iteracao
         double q0               = 0.1;
         int numAnts             = 300;
         int8_t freqAtualAntBest = 25;
         int numIteracoes        = 50;               // Original 50
         int numItMaxHeur        = 20;
         double feromonioInicial = 0.0;
+        double porcAtualFerom   = 1.05;             // As formigas com dist <= 1.05*ant_best sao atualizadas
 
         AcoParametros()
         {
