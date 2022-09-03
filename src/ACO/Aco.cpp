@@ -65,7 +65,7 @@ cout<<"sol grasp inviavel\n";
 
 
     ublas::matrix<double> matFeromonio(instance.numNos, instance.numNos, 0.01);
-    ublas::matrix<double> matAtualFeromonio(instance.numNos, instance.numNos, 0.0);
+    ublas::matrix<double> matAtualFeromonio(instance.numNos, instance.numNos);
 
     //matFeromonio += matIncrementoFerm;
 
@@ -426,8 +426,8 @@ cout<<"*******************\n\n";
 cout<<"best: "<<antBestIt.satelite.distancia<<"\n\n";
 #endif
 
-            double feromMax = 1.0/antBestIt.satelite.distancia;
-            atualizaFeromonio(matFeromonio, instance, acoPar, antBestIt);
+            std::sort(vetAnt.begin(), vetAnt.end());
+            atualizaFeromonio(matFeromonio, matAtualFeromonio, instance, acoPar, antBestIt, vetAnt);
 
 #if PRINT_MAT_FERM == TRUE
 printMatFerom(iteracao);
@@ -438,8 +438,7 @@ printMatFerom(iteracao);
                 acoEst.ultimaAtualisacaoIt = iteracao;
             }
 
-            std::sort(vetAnt.begin(), vetAnt.end());
-
+            /*
             cout<<"IT: "<<iteracao<<"\n\n";
             int q=0;
             for(Ant &ant:vetAnt)
@@ -454,6 +453,7 @@ printMatFerom(iteracao);
             }
 
             cout<<"\n\n**************************************************************************************************\n\n";
+             */
 
         }
 
@@ -681,7 +681,8 @@ cout<<j<<": ok\n";
 }
 
 
-void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &instancia, const AcoParametros &acoParam, const Ant &antBest)
+void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, ublas::matrix<double> &matAtualFeromonio, Instance &instancia, const AcoParametros &acoParam,
+                              const Ant &antBest, const vector<Ant> &vetAnt)
 {
 
     double feromMax = 1.0/antBest.satelite.distancia;
@@ -703,17 +704,31 @@ void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, Instance &ins
 cout<<"FEROMONIO MAX: "<<feromMax<<"\n";
 #endif
 
-    const double inc = 1.0/antBest.satelite.distancia;
+    matAtualFeromonio = ublas::zero_matrix(instancia.numNos, instancia.numNos);
+    const double distMax = antBest.satelite.distancia * acoParam.porcAtualFerom;
 
-    // Percorre a solucao para add feromonio 1/dist
-    for(const EvRoute &evRoute:antBest.satelite.vetEvRoute)
+    for(const Ant &ant:vetAnt)
     {
-        if(evRoute.routeSize > 2)
+        if(ant.satelite.distancia > distMax)
+            break;
+
+        const double inc = 1.0 / ant.satelite.distancia;
+
+        // Percorre a solucao para add feromonio 1/dist
+        for(const EvRoute &evRoute: antBest.satelite.vetEvRoute)
         {
-            for(int i=0; i < (evRoute.routeSize-1); ++i)
-                matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) += inc;
+            if(evRoute.routeSize > 2)
+            {
+                for(int i = 0; i < (evRoute.routeSize - 1); ++i)
+                {
+                    double val = matAtualFeromonio(evRoute.route[i].cliente, evRoute.route[i + 1].cliente);
+                    matAtualFeromonio(evRoute.route[i].cliente, evRoute.route[i + 1].cliente) = max(inc, val);
+                }
+            }
         }
     }
+
+    matFeromonio += matAtualFeromonio;
 
     for(int i=0; i < instancia.numNos; ++i)
     {
