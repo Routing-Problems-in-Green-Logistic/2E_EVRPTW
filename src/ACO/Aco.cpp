@@ -704,7 +704,7 @@ void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, ublas::matrix
 cout<<"FEROMONIO MAX: "<<feromMax<<"\n";
 #endif
 
-    matAtualFeromonio = ublas::zero_matrix(instancia.numNos, instancia.numNos);
+    //matAtualFeromonio = ublas::zero_matrix(instancia.numNos, instancia.numNos);
     const double distMax = antBest.satelite.distancia * acoParam.porcAtualFerom;
 
     for(const Ant &ant:vetAnt)
@@ -721,22 +721,29 @@ cout<<"FEROMONIO MAX: "<<feromMax<<"\n";
             {
                 for(int i = 0; i < (evRoute.routeSize - 1); ++i)
                 {
+
+                    /*
+                     *
                     double val = matAtualFeromonio(evRoute.route[i].cliente, evRoute.route[i + 1].cliente);
-                    matAtualFeromonio(evRoute.route[i].cliente, evRoute.route[i + 1].cliente) = max(inc, val);
+                    matAtualFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) = max(inc, val);
+                     */
+
+                    double val = matFeromonio(evRoute.route[i].cliente, evRoute.route[i + 1].cliente) + inc;
+                    matFeromonio(evRoute.route[i].cliente, evRoute.route[i+1].cliente) = min(feromMax, val);
                 }
             }
         }
     }
 
-    matFeromonio += matAtualFeromonio;
+/*    matFeromonio += matAtualFeromonio;
 
-    for(int i=0; i < instancia.numNos; ++i)
+    for(int i=1; i < instancia.numNos; ++i)
     {
-        for(int j=0; j < instancia.numNos; ++j)
+        for(int j=1; j < instancia.numNos; ++j)
         {
             matFeromonio(i,j) = min(matFeromonio(i,j), feromMax);
         }
-    }
+    }*/
 
 
     //cout<<"****************************************************************************************************\n\n";
@@ -758,8 +765,6 @@ cout<<"ferm min: "<<feromMin<<"\n\n";
     {
         for(int j=1; j < instancia.numNos; ++j)
         {
-            if(i==j)
-                continue;
 
             matFeromonio(i,j) = max(matFeromonio(i,j)*ro_1, feromMin);
         }
