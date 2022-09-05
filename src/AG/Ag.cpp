@@ -136,8 +136,9 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
         while(clienteInv)
         {
             // Encontra um cliente que respeita a capacidade do ev
-            while((sat.vetEvRoute[ev].demanda + instancia.getDemand(randKey.vetDecod[pos].cliente)) > instancia.getEvCap(ev) ||
-                  !vetBackTrack[pos] || vetClieAtend[pos])
+            while(((sat.vetEvRoute[ev].demanda + instancia.getDemand(randKey.vetDecod[pos].cliente)) > instancia.getEvCap(ev) ||
+                  !vetBackTrack[pos]) && (vetClieAtend[randKey.vetDecod[pos].cliente] == 0 && randKey.vetDecod[pos].cliente != clienteAnt &&
+                  randKey.vetDecod[pos].chave >= 0.0))
             {
                 pos += 1;
 
@@ -153,21 +154,14 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
             const int cliente = randKey.vetDecod[pos].cliente;
             if(instancia.isRechargingStation(cliente) && sat.vetEvRoute[ev].getUtilizacaoRecarga(cliente) == instancia.numUtilEstacao)
             {
-               pos += 1;
-
-
-               if(pos == randKey.vetDecod.size())
-               {
-                   clienteInv = false;
-                   pos = -1;
-                   break;
-               }
+                clienteInv = true;
+                continue;
             }
 
             // Verifica se eh possivel chegar ate pos
             if(pos != -1)
             {
-                const int cliente = randKey.vetDecod[pos].cliente;
+                //const int cliente = randKey.vetDecod[pos].cliente;
 
                 int routeSize = sat.vetEvRoute[ev].routeSize;
                 const EvNo &evNo = sat.vetEvRoute[ev].route[routeSize-1];
@@ -201,6 +195,8 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
                     continue;
                 }
 
+                bool voltaSatRS = true;
+
                 if(instancia.isRechargingStation(cliente))
                 {
 
@@ -210,7 +206,34 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
                 }
                 else
                 {
-                    // Verifica se eh possivel voltar ao sat ou a uma estacao
+                    // Verifica se eh possivel voltar ao sat
+                   double batTemp = bateria + instancia.getDistance(cliente, sat.sateliteId);
+                   if(batTemp < -TOLERANCIA_BATERIA)
+                   {
+
+                       // Verifica se eh possivel chegar a uma rs
+                       int posTemp = posAnt;                       // Pode existir uma rs antes de pos??
+
+                       bool cond = randKey.vetDecod[posTemp].chave >= 0 && (instancia.isRechargingStation(randKey.vetDecod[posTemp].cliente) &&
+                                          sat.vetEvRoute[ev].getUtilizacaoRecarga(randKey.vetDecod[posTemp].cliente) < instancia.numUtilEstacao);
+
+                       while(!cond)
+                       {
+                           posTemp += 1;
+                           if(posTemp == randKey.vetDecod.size()-1)
+                               break;
+
+                           cond = randKey.vetDecod[posTemp].chave >= 0 && (instancia.isRechargingStation(randKey.vetDecod[posTemp].cliente) &&
+                                          sat.vetEvRoute[ev].getUtilizacaoRecarga(randKey.vetDecod[posTemp].cliente) < instancia.numUtilEstacao);
+
+                       }
+
+                       if(cond)
+                       {
+
+                       }
+
+                   }
 
                 }
 

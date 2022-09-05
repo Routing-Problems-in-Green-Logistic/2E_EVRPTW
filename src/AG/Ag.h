@@ -18,7 +18,7 @@ namespace NS_Ag
     struct RandomNo
     {
         int cliente = -1;
-        float chave = 0.0;
+        float chave = 0.0;                               // Chave com valor < 0, cliente ja esta na sol
 
         bool operator < (const RandomNo &outro) const
         {
