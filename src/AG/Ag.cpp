@@ -64,6 +64,17 @@ void NS_Ag::RandomKey::printVetDecod(string &str)
     str += "\n";
 }
 
+bool NS_Ag::atendeTodosOsClientes(const std::vector<int> &vetClienteAtend)
+{
+    for(const int &it:vetClienteAtend)
+    {
+        if(it == 0)
+            return false;
+    }
+
+    return true;
+}
+
 /** ******************************************************************************
  ** ******************************************************************************
  **
@@ -71,17 +82,17 @@ void NS_Ag::RandomKey::printVetDecod(string &str)
  ** @param randKey                  Chama ordenaVetDecod(); modificado
  ** @param sat                      Guarda a solucao para o satelite; modificado
  ** @param vetSatAtendCliente       Indica o sat para cada cliente; nao modificado
- ** @param tempoSaida               Tempo de saida para sat, se <= 0: tempoSaida=vetTempoSaida[sat]; nao modificado
+ ** @param tempoSaidaSat            Tempo de saida para sat, se <= 0: tempoSaida=vetTempoSaida[sat]; nao modificado
  **
  ** ******************************************************************************
  ** ******************************************************************************/
 
-void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat, const vector<int> &vetSatAtendCliente, const double tempoSaida)
+void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat, const vector<int> &vetSatAtendCliente, const double tempoSaidaSat)
 {
 
     randKey.ordenaVetDecod();
 
-    double tempoS = tempoSaida;
+    double tempoS = tempoSaidaSat;
     if(tempoS <= 0.0)
         tempoS = instancia.vetTempoSaida[sat.sateliteId];
 
@@ -106,8 +117,125 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
     }
 
 
-    int posAnt = 0;     // Guarda ...
-    int pos    = 0;     // Guarda ...
+    int posAnt     = 0;     // Guarda a posicao mais a esquerda que nao foi utilizada
+    int pos        = 0;     // Guarda a posicao atual
+    int ev         = 0;
+    int clienteAnt = sat.sateliteId;
+    static std::vector<bool> vetBackTrack(instancia.numNos*2);
+
+
+    // Cada iteracao do do-while um novo veiculo eh gerado
+    // Inicio do while(!atendeTodosOsClientes))
+    do
+    {
+        std::fill(vetBackTrack.begin()+posAnt, vetBackTrack.begin()+randKey.vetDecod.size(), true);
+
+        pos = posAnt;
+        bool clienteInv = true;
+
+        while(clienteInv)
+        {
+            // Encontra um cliente que respeita a capacidade do ev
+            while((sat.vetEvRoute[ev].demanda + instancia.getDemand(randKey.vetDecod[pos].cliente)) > instancia.getEvCap(ev) ||
+                  !vetBackTrack[pos] || vetClieAtend[pos])
+            {
+                pos += 1;
+
+                if(pos == randKey.vetDecod.size())
+                {
+                    pos = -1;
+                    clienteInv = false;
+                    break;
+
+                }
+
+            }
+
+            const int cliente = randKey.vetDecod[pos].cliente;
+            if(instancia.isRechargingStation(cliente) && sat.vetEvRoute[ev].getUtilizacaoRecarga(cliente) == instancia.numUtilEstacao)
+            {
+               pos += 1;
+
+
+               if(pos == randKey.vetDecod.size())
+               {
+                   clienteInv = false;
+                   pos = -1;
+                   break;
+               }
+            }
+
+            // Verifica se eh possivel chegar ate pos
+            if(pos != -1)
+            {
+                const int cliente = randKey.vetDecod[pos].cliente;
+
+                int routeSize = sat.vetEvRoute[ev].routeSize;
+                const EvNo &evNo = sat.vetEvRoute[ev].route[routeSize-1];
+                const double dist = instancia.getDistance(evNo.cliente, cliente);
+
+                double tempoChegada = evNo.tempoSaida + dist;
+                double tempoSaida   = tempoChegada + dist;
+                double bateria      = evNo.bateriaRestante - dist;
+                const double iniTW  = instancia.getInicioJanelaTempoCliente(cliente);
+                const double fimTW  = instancia.getFimJanelaTempoCliente(cliente);
+
+                if(tempoChegada < iniTW)
+                    tempoChegada = iniTW;
+
+                // Verifica viabilidade da janela de tempo
+                if(!((tempoChegada <= fimTW) || (abs(tempoChegada-fimTW) <= TOLERANCIA_JANELA_TEMPO)))
+                {
+                    vetBackTrack[pos] = false;
+                    pos = posAnt;
+                    clienteInv = true;
+                    continue;
+                }
+
+                // Verifica viabilidade da bateria
+                if(bateria < -TOLERANCIA_BATERIA)
+                {
+
+                    //vetBackTrack[pos] = false;
+                    pos = posAnt;
+                    clienteInv = true;
+                    continue;
+                }
+
+                if(instancia.isRechargingStation(cliente))
+                {
+
+                    double dif = instancia.getEvBattery(ev) - bateria;
+                    tempoSaida += dif*instancia.vectVeiculo[ev].taxaRecarga;
+                    bateria = instancia.getEvBattery(ev);
+                }
+                else
+                {
+                    // Verifica se eh possivel voltar ao sat ou a uma estacao
+
+                }
+
+                // Escreve em sat
+
+
+            }
+
+        } // End while(clienteInv)
+
+        if(pos != -1)
+        {
+
+        }
+        else
+        {
+
+        }
+
+        ev += 1;
+        if(ev >= instancia.numEv)
+            break;
+
+    }while(!atendeTodosOsClientes(vetClieAtend));
 
 
 

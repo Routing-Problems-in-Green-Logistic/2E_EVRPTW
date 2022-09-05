@@ -31,6 +31,7 @@ namespace NS_Ag
 
         std::vector<RandomNo> vetRandom;
         std::vector<RandomNo> vetDecod;
+        double val = 0.0;
 
         explicit RandomKey(Instance &instancia);
         void geraRandoKey();
@@ -40,7 +41,7 @@ namespace NS_Ag
     };
 
     void decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat, const vector<int> &vetSatAtendCliente, const double tempoSaida);
-
+    bool atendeTodosOsClientes(const std::vector<int> &vetClienteAtend);
 }
 
 #endif //PLOTSOLUTION_PRIMEIRO_NIVEL_PY_AG_H
