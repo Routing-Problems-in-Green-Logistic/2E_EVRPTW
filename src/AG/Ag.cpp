@@ -24,7 +24,7 @@ NS_Ag::RandomKey::RandomKey(Instance &instancia)
         for(int quant = 0; quant < instancia.numUtilEstacao*instancia.numEv; ++quant, ++vetIndex)
         {
             vetRandom[vetIndex].cliente = rs;
-            vetRandom[vetIndex].chave   = (rand_u32()%100)/1000.0;
+            vetRandom[vetIndex].chave   = (rand_u32()%1000)/1000.0;
         }
 
     }
@@ -125,7 +125,7 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
 
 
     // Cada iteracao do do-while um novo veiculo eh gerado
-    // Inicio do while(!atendeTodosOsClientes))
+    // Inicio do while(!atendeTodosOsClientes())
     do
     {
         std::fill(vetBackTrack.begin()+posAnt, vetBackTrack.begin()+randKey.vetDecod.size(), true);
@@ -148,7 +148,6 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
                     break;
 
                 }
-
             }
 
             const int cliente = randKey.vetDecod[pos].cliente;
@@ -222,6 +221,7 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
 
         } // End while(clienteInv)
 
+        // Se nao existe cliente, volta para o sat
         if(pos != -1)
         {
 
