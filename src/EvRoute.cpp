@@ -136,6 +136,59 @@ void EvRoute::copia(const EvRoute &evRoute, const bool calculaDemanda, Instance 
 
 }
 
+void EvRoute::copiaN(const EvRoute &evRoute, const int n, bool calculaDemanda, Instance *instancia)
+{
+
+    satelite = evRoute.satelite;
+    routeSize = n;
+    idRota = evRoute.idRota;
+
+    if(!calculaDemanda)
+        demanda = evRoute.demanda;
+    else if(instancia)
+        demanda = 0.0;
+    else
+    {
+        PRINT_DEBUG("", "calculaDemanda=true e instancia=nullptr eh invalido");
+        throw "ERRO";
+    }
+
+    if(n < 2 || n > evRoute.routeSize)
+    {
+
+        PRINT_DEBUG("", "n("<<n<<") > routeSize("<<evRoute.routeSize<<")");
+        throw "ERRO";
+    }
+
+    numEstRecarga = evRoute.numEstRecarga;
+    distancia = 0.0;
+    firstRechargingSIndex = evRoute.firstRechargingSIndex;
+
+
+    if(!calculaDemanda)
+    {
+        for(int i = 0; i < n; ++i)
+        {
+            route[i] = evRoute.route[i];
+        }
+    }
+    else
+    {
+
+        for(int i = 0; i < n; ++i)
+        {
+            route[i] = evRoute.route[i];
+            demanda += instancia->getDemand(evRoute.route[i].cliente);
+        }
+    }
+
+    for(int i=1; i < (n-1); ++i)
+        distancia += instancia->getDistance(route[i-1].cliente, route[i].cliente);
+
+
+    for(int i=0; i < numEstRecarga; ++i)
+        vetRecarga[i] = evRoute.vetRecarga[i];
+}
 
 void EvRoute::copiaParametros(const EvRoute &evRoute)
 {

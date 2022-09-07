@@ -127,6 +127,7 @@ public:
 
     void copiaCliente(const EvRoute &outro);
     void copia(const EvRoute &evRoute, const bool calculaDemanda, Instance *instancia);
+    void copiaN(const EvRoute &evRoute, int n, bool calculaDemanda, Instance *instance);
     void copiaParametros(const EvRoute &outro);
 
     EvNo & operator [](int pos)
