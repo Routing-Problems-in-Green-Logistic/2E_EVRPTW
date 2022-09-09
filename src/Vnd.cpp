@@ -12,7 +12,8 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
 {
 
     EvRoute evRouteAux(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
-    while(mvEvSwapIntraRota(solution, instance, evRouteAux))
+    //while(mvEvSwapIntraRota(solution, instance, evRouteAux))
+    while(mvEv2opt(solution, instance, evRouteAux))
     {
         string erro;
         if(!solution.checkSolution(erro, instance))

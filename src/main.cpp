@@ -63,8 +63,8 @@ void leSolucao(Solucao &solucao, Instance &instancia, string &file);
 #define MAIN_SOMA_CARGA 4
 #define MAIN_ACO        5
 
-//#define MAIN MAIN_METODO_2
-#define MAIN MAIN_ACO
+#define MAIN MAIN_METODO_2
+//#define MAIN MAIN_ACO
 
 #define PRINT_RESULT FALSE
 
@@ -292,8 +292,6 @@ int main(int argc, char* argv[])
         cout<<"EXCEPTION:\n"<<exception<<"\n\n";
         cout<<"SEMENTE: \t"<<semente<<"\n";
         return -1;
-
-
     }
 
 

@@ -80,7 +80,7 @@ Tabela com:
 
 lista = [(' ', 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
 
-tamanhoInst = [5, 10]
+tamanhoInst =  ['5', '10', '15', '100_0', '100_1', '100_2']
 diretorioIni = 'instancias/2e-vrp-tw/'
 instancias = []
 
@@ -128,11 +128,10 @@ for instancia in instancias:
     
     for i in range(numExecucoes):
 
-      #time.sleep(1)
+      #print(instancia)
       strExecutavel = 'src/cmake-build-debug//run ' + str(instancia) # + ' ' +str(resultados) # + ' > /dev/null'
       os.system(strExecutavel)
-       	#ramdom.write(str(semente))
-       	#ramdom.write('\n')
+
 
     '''
     nomeArq = nomeParciais + '/' + instanciaNome + '.txt'
