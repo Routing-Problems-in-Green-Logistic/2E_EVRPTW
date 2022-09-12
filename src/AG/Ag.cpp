@@ -162,11 +162,11 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
     }
 
 
-    int posAnt     = 0;                                              // Guarda a posicao mais a esquerda que nao foi utilizada
-    int pos        = 0;                                              // Guarda a posicao atual
+    int posAnt     = 0;                                                  // Guarda a posicao mais a esquerda que nao foi utilizada
+    int pos        = 0;                                                  // Guarda a posicao atual
     int ev         = 0;
     int clienteAnt = sat.sateliteId;
-    static std::vector<bool> vetBackTrack(instancia.numNos*2);       // Indica se a posicao deve ser testada novamente, no mesmo veic
+    static std::vector<bool> vetBackTrack(instancia.numNos*2);        // Indica se a posicao deve ser testada novamente, no mesmo veic
 
      // Incrementa posAnt se vetDecod eh invalido
     auto avancaPosAnt = [&]()
