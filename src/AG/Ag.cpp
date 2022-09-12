@@ -90,6 +90,51 @@ bool NS_Ag::atendeTodosOsClientes(const std::vector<int> &vetClienteAtend)
 void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat, const vector<int> &vetSatAtendCliente, const double tempoSaidaSat)
 {
 
+    /* *************************************************************************************************************************************
+     * *************************************************************************************************************************************
+     *
+     * DECODIFICACAO DA SOLUCAO:
+     *
+     * Sequencia: 2 3 4 5 6 7 ...
+     *
+     * posAnt: posicao mais a esq que nao foi utilizada
+     * pos:    posicao atual
+     *
+     * Inicio veiculo: sat
+     *
+     * Tenta adicionar o arco: (sat 2):
+     *
+     *      .Verificacoes:
+     *
+     *          Bat:    é possivel chegar em 2 com a bat atual?
+     *          carga:  Carga do veiculo + carga(2) <= capacidade(veicEv)?              (false) => (backTrack(2) <- false)
+     *          TW:     t_sai(sat) + t(sat 2) <= tw_fim(2)?                             (false) => (backTrack(2) <- false)
+     *
+     *          Viabilidade de (2 sat) e (2 rs), se nao for possivel, 2 eh descartado   (backTrack(2) <- true)
+     *
+     *
+     *      .Se o arco (sat, 2) eh adicionado a sol e 2 == rs:
+     *
+     *          pos deve retroceder para ??
+     *
+     *      .Caso contrario:
+     *
+     *          pos nao retrocede!
+     *
+     *
+     *      .vet backTrack:
+     *
+     *          Indica se a posicao deve ser testada novamente, no mesmo veic. Ex: Se nao eh possivel chergar em um cliente por conta da bat,
+     *              se o veicEv eh recaregado, essa pos pode se tornar viavel;
+     *
+     *          Quando recarregar a bat, backTrack <- true para todas as possicoes
+     *
+     *      .pos so retrocede para posAnt quando atinge uma rs ou comeca um novo veiculo
+     *
+     *
+     * *************************************************************************************************************************************
+     * *************************************************************************************************************************************/
+
     randKey.ordenaVetDecod();
 
     double tempoS = tempoSaidaSat;
@@ -99,13 +144,13 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
     // Reseta o satelite
     for(int ev=0; ev < instancia.numEv; ++ev)
     {
-        sat.vetEvRoute[ev].routeSize = 2;
+        sat.vetEvRoute[ev].routeSize = 1;
         sat.vetEvRoute[ev].route[1].cliente = sat.vetEvRoute[ev].route[0].cliente = sat.sateliteId;
-        sat.vetEvRoute[ev].route[0].tempoSaida = instancia.vetTempoSaida[sat.sateliteId];
+        sat.vetEvRoute[ev].route[0].tempoSaida = tempoS;
     }
 
 
-    // Seta 0 para o cliente que deve ser atendido por sat e 1 caso contrario
+    // Seta 0 para o cliente que deve ser atendido por sat e 1 caso contrario. Rs nao sao marcadas nesse vetor
     vector<int> vetClieAtend(vetSatAtendCliente);
 
     for(int &it : vetClieAtend)
@@ -117,11 +162,19 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
     }
 
 
-    int posAnt     = 0;     // Guarda a posicao mais a esquerda que nao foi utilizada
-    int pos        = 0;     // Guarda a posicao atual
+    int posAnt     = 0;                                              // Guarda a posicao mais a esquerda que nao foi utilizada
+    int pos        = 0;                                              // Guarda a posicao atual
     int ev         = 0;
     int clienteAnt = sat.sateliteId;
-    static std::vector<bool> vetBackTrack(instancia.numNos*2);
+    static std::vector<bool> vetBackTrack(instancia.numNos*2);       // Indica se a posicao deve ser testada novamente, no mesmo veic
+
+     // Incrementa posAnt se vetDecod eh invalido
+    auto avancaPosAnt = [&]()
+    {
+
+        while(randKey.vetDecod[posAnt].chave < 0.0)
+            posAnt += 1;
+    };
 
 
     // Cada iteracao do do-while um novo veiculo eh gerado
@@ -130,58 +183,63 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
     {
         std::fill(vetBackTrack.begin()+posAnt, vetBackTrack.begin()+randKey.vetDecod.size(), true);
 
-        pos = posAnt;
-        bool clienteInv = true;
+        avancaPosAnt();
 
-        while(clienteInv)
+        pos = posAnt;
+        bool naoSat = true;
+
+        while(naoSat)
         {
-            // Encontra um cliente que respeita a capacidade do ev
-            while(((sat.vetEvRoute[ev].demanda + instancia.getDemand(randKey.vetDecod[pos].cliente)) > instancia.getEvCap(ev) ||
-                  !vetBackTrack[pos]) && (vetClieAtend[randKey.vetDecod[pos].cliente] == 0 && randKey.vetDecod[pos].cliente != clienteAnt &&
+            // Encontra um cliente que respeita a capacidade do ev, nao foi atendido e eh diferente do cliente anterior
+            while(!((sat.vetEvRoute[ev].demanda + instancia.getDemand(randKey.vetDecod[pos].cliente)) <= instancia.getEvCap(ev) &&
+                  vetBackTrack.at(pos) && vetClieAtend[randKey.vetDecod[pos].cliente] == 0 && randKey.vetDecod[pos].cliente != clienteAnt &&
                   randKey.vetDecod[pos].chave >= 0.0))
             {
+                if((sat.vetEvRoute[ev].demanda + instancia.getDemand(randKey.vetDecod[pos].cliente)) > instancia.getEvCap(ev))
+                    vetBackTrack[pos] = false;
+
                 pos += 1;
 
+                // Verifica se chegou ao final
                 if(pos == randKey.vetDecod.size())
                 {
                     pos = -1;
-                    clienteInv = false;
+                    naoSat = false;
                     break;
 
                 }
             }
 
-            const int cliente = randKey.vetDecod[pos].cliente;
-            if(instancia.isRechargingStation(cliente) && sat.vetEvRoute[ev].getUtilizacaoRecarga(cliente) == instancia.numUtilEstacao)
+            if(naoSat && pos != -1)
             {
-                clienteInv = true;
-                continue;
-            }
+                const int cliente = randKey.vetDecod[pos].cliente;
 
-            // Verifica se eh possivel chegar ate pos
-            if(pos != -1)
-            {
-                //const int cliente = randKey.vetDecod[pos].cliente;
+                // Verifica a utilizacao max da rs
+                if(instancia.isRechargingStation(cliente) && sat.vetEvRoute[ev].getUtilizacaoRecarga(cliente) == instancia.numUtilEstacao)
+                {
+                    naoSat = true;
+                    continue;
+                }
 
                 int routeSize = sat.vetEvRoute[ev].routeSize;
                 const EvNo &evNo = sat.vetEvRoute[ev].route[routeSize-1];
                 const double dist = instancia.getDistance(evNo.cliente, cliente);
 
                 double tempoChegada = evNo.tempoSaida + dist;
-                double tempoSaida   = tempoChegada + dist;
-                double bateria      = evNo.bateriaRestante - dist;
-                const double iniTW  = instancia.getInicioJanelaTempoCliente(cliente);
-                const double fimTW  = instancia.getFimJanelaTempoCliente(cliente);
+                double tempoSaida = tempoChegada + instancia.vectCliente[cliente].tempoServico;
+                double bateria = evNo.bateriaRestante - dist;
+                const double iniTW = instancia.getInicioJanelaTempoCliente(cliente);
+                const double fimTW = instancia.getFimJanelaTempoCliente(cliente);
 
                 if(tempoChegada < iniTW)
                     tempoChegada = iniTW;
 
                 // Verifica viabilidade da janela de tempo
-                if(!((tempoChegada <= fimTW) || (abs(tempoChegada-fimTW) <= TOLERANCIA_JANELA_TEMPO)))
+                if(!((tempoChegada <= fimTW) || (abs(tempoChegada - fimTW) <= TOLERANCIA_JANELA_TEMPO)))
                 {
                     vetBackTrack[pos] = false;
                     pos = posAnt;
-                    clienteInv = true;
+                    naoSat = true;
                     continue;
                 }
 
@@ -191,7 +249,7 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
 
                     //vetBackTrack[pos] = false;
                     pos = posAnt;
-                    clienteInv = true;
+                    naoSat = true;
                     continue;
                 }
 
@@ -201,51 +259,93 @@ void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat
                 {
 
                     double dif = instancia.getEvBattery(ev) - bateria;
-                    tempoSaida += dif*instancia.vectVeiculo[ev].taxaRecarga;
+                    tempoSaida += dif * instancia.vectVeiculo[ev].taxaRecarga;
                     bateria = instancia.getEvBattery(ev);
-                }
-                else
+
+                    //pos = posAnt;
+
+                } else
                 {
                     // Verifica se eh possivel voltar ao sat
-                   double batTemp = bateria + instancia.getDistance(cliente, sat.sateliteId);
-                   if(batTemp < -TOLERANCIA_BATERIA)
-                   {
+                    double batTemp = bateria + instancia.getDistance(cliente, sat.sateliteId);
+                    if(batTemp < -TOLERANCIA_BATERIA)
+                    {
 
-                       // Verifica se eh possivel chegar a uma rs
-                       int posTemp = posAnt;                       // Pode existir uma rs antes de pos??
+                        // Verifica se eh possivel chegar a uma rs
+                        int posTemp = pos+1;                       // Pode existir uma rs antes de pos??
 
-                       bool cond = randKey.vetDecod[posTemp].chave >= 0 && (instancia.isRechargingStation(randKey.vetDecod[posTemp].cliente) &&
-                                          sat.vetEvRoute[ev].getUtilizacaoRecarga(randKey.vetDecod[posTemp].cliente) < instancia.numUtilEstacao);
+                        bool cond = randKey.vetDecod[posTemp].chave >= 0 &&
+                                    (instancia.isRechargingStation(randKey.vetDecod[posTemp].cliente) &&
+                                     sat.vetEvRoute[ev].getUtilizacaoRecarga(randKey.vetDecod[posTemp].cliente) <
+                                     instancia.numUtilEstacao);
 
-                       while(!cond)
-                       {
-                           posTemp += 1;
-                           if(posTemp == randKey.vetDecod.size()-1)
-                               break;
+                        while(!cond)
+                        {
+                            posTemp += 1;
+                            if(posTemp == randKey.vetDecod.size() - 1)
+                                break;
 
-                           cond = randKey.vetDecod[posTemp].chave >= 0 && (instancia.isRechargingStation(randKey.vetDecod[posTemp].cliente) &&
-                                          sat.vetEvRoute[ev].getUtilizacaoRecarga(randKey.vetDecod[posTemp].cliente) < instancia.numUtilEstacao);
+                            cond = randKey.vetDecod[posTemp].chave >= 0 &&
+                                   (instancia.isRechargingStation(randKey.vetDecod[posTemp].cliente) &&
+                                    sat.vetEvRoute[ev].getUtilizacaoRecarga(randKey.vetDecod[posTemp].cliente) <
+                                    instancia.numUtilEstacao);
 
-                       }
+                        }
 
-                       if(cond)
-                       {
+                        if(cond)
+                        {
+                            // cliente eh valido
+                        }
+                        else
+                        {
+                            // cliente eh invalido
+                            pos += 1;
+                            naoSat = true;
+                            continue;
+                        }
 
-                       }
-
-                   }
+                    }
 
                 }
 
-                // Escreve em sat
+                if(pos >= 0)
+                {
+                    randKey.vetDecod[pos].chave = -1.0;
+
+                    if(instancia.isRechargingStation(cliente))
+                    {
+                        avancaPosAnt();
+                        pos = posAnt;
+                    }
+                    else
+                        pos += 1;
+
+                    // Escreve em sat
+                    EvRoute &evRoute = sat.vetEvRoute[ev];
+                    double dem = instancia.getDemand(cliente);
+                    sat.demanda += dem;
+                    evRoute.demanda += dem;
+
+                    const int posEvRoute = evRoute.routeSize;
+                    evRoute[posEvRoute].cliente = cliente;
+                    evRoute[posEvRoute].tempoCheg = tempoChegada;
+                    evRoute[posEvRoute].tempoSaida = tempoSaida;
+                    evRoute[posEvRoute].bateriaRestante = bateria;
+                    evRoute.routeSize += 1;
+
+                    evRoute.distancia += dist;
+                    sat.distancia += dist;
+                }
 
 
-            }
 
-        } // End while(clienteInv)
+            } // End if(naoSat)
+
+
+        } // End while(naoSat)
 
         // Se nao existe cliente, volta para o sat
-        if(pos != -1)
+        if(!naoSat)
         {
 
         }
