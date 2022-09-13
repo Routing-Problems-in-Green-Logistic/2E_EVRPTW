@@ -400,6 +400,18 @@ cout<<"\n\n";
                 //delete solGrasp;
                 //return;
             }
+            else
+            {
+                ant.clientesNaoAtend = 0;
+
+
+                for(int i=instance.getFirstClientIndex(); i <= instance.getEndClientIndex(); ++i)
+                {
+                    if(ant.vetNosAtend[i] == int8_t(0))
+                        ant.clientesNaoAtend += 1;
+                }
+
+            }
 
 
 #if PRINT_0 == TRUE

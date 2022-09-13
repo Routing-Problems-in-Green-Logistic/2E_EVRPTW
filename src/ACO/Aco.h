@@ -56,6 +56,7 @@ namespace N_Aco
         vector<int8_t> vetNosAtend;                 // Guarda os vertices que sao atendidos. tam = numNos
         bool vazia = false;
         bool viavel = false;
+        int clientesNaoAtend = 0;
 
         Ant(Instance &instance, int satId, bool _vazia=false): satelite(Satelite(instance, satId))
         {
@@ -85,6 +86,9 @@ namespace N_Aco
 
             if((!viavel || vazia) && (ant.viavel && !ant.vazia))
                 return false;
+
+            if(!viavel && clientesNaoAtend != ant.clientesNaoAtend)
+                return clientesNaoAtend < ant.clientesNaoAtend;
 
             return satelite.distancia < ant.satelite.distancia;
         }
