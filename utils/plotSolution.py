@@ -57,17 +57,16 @@ numSat = int(sys.argv[3])
 remover = [int(x) for x in remover]
 removereRota = []
 
-
-print(remover)
-
 if not solutionPath or not instancePath:
     print("usage: plotSolution solution.txt instance.txt' \nE.g.: plotSolution solution.txt ./instancias/Set1/....1.txt")
     exit(0)
 
 coord = pd.read_csv(instancePath, header=0, delim_whitespace=True)
 
-removeNo = [int(1) for i in range(coord.size)]
+removeNo = [int(0) for i in range(coord.size)]
 
+for i in remover:
+    removeNo[i] = 1
 
 for i in remover:
     if coord.iloc[i].code == 'S':
@@ -124,12 +123,13 @@ plt.gca().set_aspect('equal', adjustable='box')
 
 
 for i in range(len(nodeId)):
-    
+    print(nodeId[i])
     if removeNo[i] == 1:
         continue
 
-    if nodeId[i] <= numSat:
-        plt.annotate(nodeId[i], (x[i], y[i]), color='r', zorder=10)
+    #if nodeId[i] >= numSat:
+    plt.annotate(nodeId[i], (x[i], y[i]), color='r', zorder=10)
+        
     print(nodeId[i], ": ", x[i], " ", y[i])
 
     color = ''

@@ -105,11 +105,14 @@ printMatFerom(-1);
 #endif
 
     Ant antBest(instance, sateliteId, true);
+    antBest.clientesNaoAtend = instance.numClients;
+
     vector<Proximo> vetProximo(1+instance.numClients+instance.numRechargingS);
     vector<Proximo> vetProximoAux(1+instance.numClients+instance.numRechargingS);
 
     for(int iteracao = 0; iteracao < acoPar.numIteracoes; ++iteracao)
     {
+        cout<<"ITERACAO "<<iteracao<<"\n\n";
 
         Ant antBestIt(instance, sateliteId, true);
         int numAntsViaveisIt = 0;
@@ -421,8 +424,10 @@ ant.satelite.print(strSat, instance);
 cout<<strSat<<"\n\n*************************************************\n\n";
 #endif
 
-
+            cout<<"\n\n#####################FIM ANT\n\n";
         } // Fim for ANTs
+
+         cout<<"***********************************FIM FOR ANTs***********************************\n\n";
 
         acoEst.mediaAntsViaveisPorIt += double(numAntsViaveisIt);
 
@@ -431,23 +436,33 @@ cout<<"*******************\n\n";
 #endif
 
         // Evapora e atualiza o feromonio com a melhor formiga
-        if(antBestIt.viavel)
+        //if(antBestIt.viavel)
         {
 
 #if PRINT_MAT_FERM == TRUE
 cout<<"best: "<<antBestIt.satelite.distancia<<"\n\n";
 #endif
-
             std::sort(vetAnt.begin(), vetAnt.end());
+
+            if(antBestIt.vazia)
+            {
+                antBestIt.copia(vetAnt[0]);
+            }
+
             atualizaFeromonio(matFeromonio, matAtualFeromonio, instance, acoPar, antBestIt, vetAnt);
 
 #if PRINT_MAT_FERM == TRUE
 printMatFerom(iteracao);
 #endif
-            if(antBestIt < antBest)
+            if(antBestIt.viavel && antBestIt < antBest)
             {
                 antBest.copia(antBestIt);
                 acoEst.ultimaAtualisacaoIt = iteracao;
+            }
+            else
+            {
+                if(antBestIt < antBest)
+                    antBest.copia(antBestIt);
             }
 
             /*
@@ -468,6 +483,8 @@ printMatFerom(iteracao);
              */
 
         }
+
+
 
     } // Fim for iteracoes ACO
 
@@ -513,6 +530,9 @@ cout<<"cliente0 id: \t"<<instance.getFirstClientIndex()<<"\n";
 cout<<"clienteUltimo: \t"<<instance.getEndClientIndex()<<"\n";
 cout<<"ANT BEST EH INVIAVEL\n";
 
+        //antBest.satelite.print(instance);
+        satBest.print(instance);
+
     }
 
     delete solGrasp;
@@ -521,6 +541,8 @@ cout<<"ANT BEST EH INVIAVEL\n";
 
 void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance, Ant &ant)
 {
+
+    cout<<"ADD CLIENTE("<<clienteJ<<") AO EV("<<evRoute.idRota<<")\n\n";
 
     const double dist_i_j = instance.getDistance(evRoute[pos].cliente, clienteJ);
     evRoute[pos+1].cliente = clienteJ;
@@ -698,6 +720,9 @@ void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, ublas::matrix
 {
 
     double feromMax = 1.0/antBest.satelite.distancia;
+
+    if(!antBest.viavel)
+        feromMax *= 0.1;
 /*
     for(const EvRoute &evRoute:antBest.satelite.vetEvRoute)
     {
@@ -712,6 +737,9 @@ void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, ublas::matrix
     evaporaFeromonio(matFeromonio, {antBest.satelite.sateliteId}, instancia, acoParam, 0.1*feromMax);
     feromMax *= 100.0;
 
+    if(!antBest.viavel)
+        feromMax *= 10.0;
+
 #if PRINT_MAT_FERM == TRUE
 cout<<"FEROMONIO MAX: "<<feromMax<<"\n";
 #endif
@@ -724,7 +752,8 @@ cout<<"FEROMONIO MAX: "<<feromMax<<"\n";
         if(ant.satelite.distancia > distMax)
             break;
 
-        const double inc = 1.0 / ant.satelite.distancia;
+        double temp = 1.0/ant.satelite.distancia;
+        const double inc = temp*ant.viavel + !ant.viavel*temp*0.01;
 
         // Percorre a solucao para add feromonio 1/dist
         for(const EvRoute &evRoute: antBest.satelite.vetEvRoute)

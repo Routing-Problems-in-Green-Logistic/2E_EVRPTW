@@ -409,7 +409,13 @@ int main(int argc, char* argv[])
 
     }
     else
+    {
+        solucao.satelites[1].copia(satelite);
         solucao.viavel = false;
+    }
+
+    string arquivoSol = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/utils/solucao/" + nomeInst + "_ACO.txt";
+    escreveSolucao(solucao, instancia, arquivoSol);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> tempoAux = end - start;

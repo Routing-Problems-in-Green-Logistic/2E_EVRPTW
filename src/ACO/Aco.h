@@ -76,6 +76,7 @@ namespace N_Aco
             vetNosAtend = antOutra.vetNosAtend;
             viavel = antOutra.viavel;
             vazia = antOutra.vazia;
+            clientesNaoAtend = antOutra.clientesNaoAtend;
         }
 
         bool operator < (const Ant &ant) const
