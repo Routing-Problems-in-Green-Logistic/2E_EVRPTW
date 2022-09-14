@@ -19,17 +19,19 @@ def drawArrow(x1, x2, y1, y2, width, color, ls):
     plt.arrow(x1, y1, dx, dy, head_width=0, length_includes_head=True, edgecolor=None, color=color, zorder=1, label=dist, ls=ls, aa=True, alpha=0.8)
     return dist
 
-plt.figure()
+fig = plt.figure(dpi=800)
+ax = fig.gca()
+
+
 plt.grid(visible=True, alpha=0.3)
-plt.legend(prop={'size': 6})
-plt.legend()
-plt.xlabel("x")
-plt.ylabel("y")
 
 path = sys.argv[1]
 if not path:
     exit(255)
 coord = pd.read_csv(path, header=None, names=['code', 'x', 'y', 'demand'], delim_whitespace=True);
+coord = coord[1:]
+coord = coord.reset_index()
+print(coord)
 # extracting
 #   the type ((D)epot, (S)at, (C)lient, (F)Recharging Station
 #   the number (id)
@@ -38,12 +40,15 @@ print(coord['code'].values)
 print(coord['x'].values)
 print(coord['y'].values)
 print(coord['demand'].values)
-nodeId = [int(x[1:]) for x in coord['code'].values[:-3]]
-nodeType = [x[0] for x in coord['code'].values[:-3]]
+nodeId = [int(x) for x in coord['index'].values]
+
+print("nodeId: ", nodeId)
+
+nodeType = [x for x in coord['code'].values]
 #nodeType = coord['code'].values[:-3]
-x = [float(x) for x in coord['x'].values[:-3]]
-y = [float(x) for x in coord['y'].values[:-3]]
-demand = [float(x) for x in coord['demand'].values[:-3]]
+x = [float(x) for x in coord['x'].values]
+y = [float(x) for x in coord['y'].values]
+demand = [float(x) for x in coord['demand'].values]
 print("nodeId", ' ')
 print(nodeId)
 print("nodeType", ' ')
@@ -58,8 +63,11 @@ print(demand)
 #could have converted to float on the go, but...
 
 for i in range(len(nodeId)):
-    if demand[i] != 0:
-        plt.annotate(round(demand[i]), (x[i], y[i]), color='r')
+    
+    if i == 0:
+        continue
+
+    plt.annotate(int(nodeId[i]), (x[i], y[i]), color='r')
 
     color = ''
     marker = ''
@@ -76,16 +84,11 @@ for i in range(len(nodeId)):
     if nodeType[i] == 'D':
         marker = 's'
         color = '#ff0000'
-    for j in range(i, len(nodeId)):
-        if i != j:
-            if nodeType[i] == 'S' and (nodeType[j] == 'C' or nodeType[j] == 'F'):
-                dist = drawArrow(x[i], x[j], y[i], y[j], width=0.01, color=color, ls='-')
-            if (nodeType[i] == 'D' and nodeType[j] == 'S'):
-                dist = drawArrow(x[i], x[j], y[i], y[j], width=0.01, color='#c1c1c1', ls=':')
+
                 #plt.annotate(round(dist), mean((x[i], y[i]), (y[j],y[j])), color='b')
     plt.scatter(x[i], y[i], c=color, marker=marker, s=25, zorder= 5, edgecolors='#222222')
 #plt.plot(x, y)
-plt.savefig('instance' + ''+ '.png')
+
 
 """
 for name in glob(path + "/route*.csv"):

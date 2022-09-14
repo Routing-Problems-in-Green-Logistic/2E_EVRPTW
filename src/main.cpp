@@ -62,9 +62,11 @@ void leSolucao(Solucao &solucao, Instance &instancia, string &file);
 #define MAIN_METODO_2   3
 #define MAIN_SOMA_CARGA 4
 #define MAIN_ACO        5
+#define MAIN_ACO_SOL    6
 
 //#define MAIN MAIN_METODO_2
-#define MAIN MAIN_ACO
+//#define MAIN MAIN_ACO
+#define MAIN MAIN_ACO_SOL
 
 #define PRINT_RESULT FALSE
 
@@ -302,6 +304,114 @@ int main(int argc, char* argv[])
 
 #endif
 
+#if MAIN == MAIN_ACO_SOL
+
+int main(int argc, char* argv[])
+{
+    int semente = 0;
+
+    if(argc == 3)
+        semente = atoi(argv[2]);
+    else
+        semente = duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+
+    seed(semente);
+
+    if(argc == 1 || argc > 3)
+    {
+        cout << "Compilado em: \t" << __DATE__ << ", " << __TIME__ << "\n";
+        cout << "Commit: \tf7d1f0fbd4de1288fc027810a969822e3ba4e3dc\n\n";
+        std::cerr << "FORMATO: ./a.out instancia.txt\n";
+        return -1;
+    }
+
+    //cout<<"SEMENTE: "<<semente<<"\n";
+
+
+    std::string file(argv[1]);
+    const string nomeInst = getNomeInstancia(file);
+
+    std::time_t result2 = std::time(nullptr);
+    auto data2 = std::asctime(std::localtime(&result2));
+
+    string sementeStr;
+    sementeStr += "INSTANCIA: " + string(nomeInst) + "\t";
+    sementeStr += "SEMENTE: " + to_string(semente) + "\t" + data2;
+    cout << sementeStr;
+
+
+    Instance instancia(file, nomeInst);
+    dijkstraSatCli(instancia);
+    instancia.calculaVetVoltaRS_sat();
+
+    const std::vector<float> vetAlfa{0.1, 0.3, 0.5, 0.7, 0.9};
+    int num = min(instancia.getN_Evs() / 2, 8);
+    if(num == 0)
+        num = 1;
+
+    Parametros parm(NUM_EXEC, 200, vetAlfa, 150, num, 0.1);
+    AcoParametros acoParm;
+    AcoEstatisticas acoEst;
+    Estatisticas est;
+    Solucao best(instancia);
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+        bool viavel = N_Aco::acoSol(instancia, acoParm, acoEst, parm, est, best);
+
+    auto end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double> tempoAux = end - start;
+    double tempo = tempoAux.count();
+
+
+    string fileResultado = "resultadoACO.csv";
+
+    bool exists = std::filesystem::exists(fileResultado);
+    std::ofstream outfile;
+    outfile.open(fileResultado, std::ios_base::app);
+    if(!exists)
+    {
+
+        std::time_t result = std::time(nullptr);
+        auto data = std::asctime(std::localtime(&result));
+        string dataStr;
+        string temp(data);
+
+        for(auto ch:temp)
+        {
+            if(ch != '\n')
+                dataStr +=  ch;
+        }
+
+        outfile<<dataStr<<";\t;\t\n";
+        //outfile<<"nomeInst;\tmedia; \t\tbest; \t\tnumSol;\ttempo;\t1° nivel;\t2° nivel;\tultimaA;\ttempoViab;\tnumEVs\n";
+        //outfile<<"nomeInst;\tbestAntDist;\ttempo\n";
+
+        outfile<<"inst; \t\t distSol; \t tempo\n";
+    }
+
+    outfile<<nomeInst<<"; \t ";
+
+    if(best.viavel)
+    {
+        //outfile<<solucao.distancia<<";\t";
+
+
+        outfile<<str(boost::format("%.2f; \t %.2f\n") % best.distancia % tempo);
+    }
+    else
+    {
+        outfile<<"*; *\n";
+    }
+
+    //outfile<<tempo<<"\n";
+    outfile.close();
+
+}
+#endif
+
 #if MAIN ==MAIN_ACO
 
 int main(int argc, char* argv[])
@@ -325,11 +435,21 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    cout<<"SEMENTE: "<<semente<<"\n";
+    //cout<<"SEMENTE: "<<semente<<"\n";
 
 
     std::string file(argv[1]);
     const string nomeInst = getNomeInstancia(file);
+
+    std::time_t result2 = std::time(nullptr);
+    auto data2 = std::asctime(std::localtime(&result2));
+
+    string sementeStr;
+    sementeStr += "INSTANCIA: " + string(nomeInst) + "\t";
+    sementeStr += "SEMENTE: " + to_string(semente)  + "\t"+data2;
+    cout<<sementeStr;
+
+
     Instance instancia(file, nomeInst);
     dijkstraSatCli(instancia);
     instancia.calculaVetVoltaRS_sat();

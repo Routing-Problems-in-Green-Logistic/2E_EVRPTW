@@ -36,17 +36,11 @@ using namespace boost::numeric;
  * ******************************************************************************************************
  */
 bool N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
-                const vector<int> &vetSatAtendCliente, Parametros &param, NameS_Grasp::Estatisticas &est)
+                const vector<int> &vetSatAtendCliente, Parametros &param, NameS_Grasp::Estatisticas &est, const Solucao *solGrasp, const int numEVs)
 {
 
-    if(instance.numSats > 1)
-    {
-cout<<"NUM de SATs EH > 1\n\n";
-        return false;
-    }
 
-
-    Solucao *solGrasp = NameS_Grasp::grasp(instance, param, est, true);
+    //Solucao *solGrasp = NameS_Grasp::grasp(instance, param, est, true);
 
 #if PRINT_GRAPS == TRUE
     if(solGrasp)
@@ -112,7 +106,7 @@ printMatFerom(-1);
 
     for(int iteracao = 0; iteracao < acoPar.numIteracoes; ++iteracao)
     {
-        cout<<"ITERACAO "<<iteracao<<"\n\n";
+        //cout<<"ITERACAO "<<iteracao<<"\n\n";
 
         Ant antBestIt(instance, sateliteId, true);
         int numAntsViaveisIt = 0;
@@ -134,12 +128,12 @@ cout<<"ant: "<<antCount<<"\n\n";
 
             int rotaEv = -1;
 
-            while(existeClienteNaoVisitado(ant, instance))
+            while(existeClienteNaoVisitado(ant, instance, vetSatAtendCliente))
             {
                 // Cria uma nova rota
                 rotaEv += 1;
 
-                if(rotaEv < instance.getN_Evs())
+                if(rotaEv < numEVs)
                 {
 
 #if PRINT_0 == TRUE
@@ -231,7 +225,7 @@ cout<<clienteI<<"\n";
                                    if(clienteJValido(instance, clienteI, j, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId, tempoSaidaI))
                                    {
                                        atualizaVetProx(j);
-                                       clienteViavel = true;
+                                       //clienteViavel = true;
                                    }
                                }
                                else
@@ -257,7 +251,6 @@ cout<<"\n\t\tapos clientes: tam: "<<proxVetProximo<<"\n";
 
                        if(!rsConsecutivos2 && !clienteViavel)
                        {
-                           bool voltaDep = false;
 
                            // Se nao existe cliente entao, proxVetProximo eh igual a 1
 
@@ -267,14 +260,13 @@ cout<<"\n\t\tapos clientes: tam: "<<proxVetProximo<<"\n";
                                if(clienteJValido(instance, clienteI, j, evRoute[pos].bateriaRestante, ant.vetNosAtend, sateliteId, tempoSaidaI))
                                {
 
-                                   if(!voltaDep && instance.vetVoltaRS_sat[instance.getIndiceVetVoltaRS_sat(sateliteId, j)]==1)
+                                   if(instance.vetVoltaRS_sat[instance.getIndiceVetVoltaRS_sat(sateliteId, j)]==1)
                                    {
-                                       //voltaDep = true;
-                                       //proxVetProximo = 0;
+
                                        atualizaVetProx(j);
                                    }
-                                   else if(!voltaDep)
-                                       atualizaVetProx(j);
+                                   //else
+                                   //    atualizaVetProx(j);
                                }
                            }
                        }
@@ -378,7 +370,7 @@ cout<<"\n\n";
             acoEst.nAntGeradas += 1;
 
             // Verifica se ant eh viavel
-            if(!existeClienteNaoVisitado(ant, instance))
+            if(!existeClienteNaoVisitado(ant, instance, vetSatAtendCliente))
             {
 
 
@@ -424,10 +416,10 @@ ant.satelite.print(strSat, instance);
 cout<<strSat<<"\n\n*************************************************\n\n";
 #endif
 
-            cout<<"\n\n#####################FIM ANT\n\n";
+            //cout<<"\n\n#####################FIM ANT\n\n";
         } // Fim for ANTs
 
-         cout<<"***********************************FIM FOR ANTs***********************************\n\n";
+         //cout<<"***********************************FIM FOR ANTs***********************************\n\n";
 
         acoEst.mediaAntsViaveisPorIt += double(numAntsViaveisIt);
 
@@ -511,8 +503,6 @@ satBest.print(satStr, instance);
 cout<<satStr;
 
 #endif
-
-            delete solGrasp;
             return true;
 
         }
@@ -526,23 +516,22 @@ cout<<satStr;
     else
     {
 
-cout<<"cliente0 id: \t"<<instance.getFirstClientIndex()<<"\n";
+/*cout<<"cliente0 id: \t"<<instance.getFirstClientIndex()<<"\n";
 cout<<"clienteUltimo: \t"<<instance.getEndClientIndex()<<"\n";
-cout<<"ANT BEST EH INVIAVEL\n";
+cout<<"ANT BEST EH INVIAVEL\n";*/
 
         //antBest.satelite.print(instance);
-        satBest.print(instance);
+        //satBest.print(instance);
 
     }
 
-    delete solGrasp;
     return false;
 }
 
 void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance, Ant &ant)
 {
 
-    cout<<"ADD CLIENTE("<<clienteJ<<") AO EV("<<evRoute.idRota<<")\n\n";
+    //cout<<"ADD CLIENTE("<<clienteJ<<") AO EV("<<evRoute.idRota<<")\n\n";
 
     const double dist_i_j = instance.getDistance(evRoute[pos].cliente, clienteJ);
     evRoute[pos+1].cliente = clienteJ;
@@ -810,5 +799,161 @@ cout<<"ferm min: "<<feromMin<<"\n\n";
             matFeromonio(i,j) = max(matFeromonio(i,j)*ro_1, feromMin);
         }
     }
+
+}
+
+bool N_Aco::acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &acoEst, Parametros &param, NameS_Grasp::Estatisticas &est, Solucao &best)
+{
+
+    //Solucao best(instancia);
+    best.distancia = DOUBLE_INF;
+
+
+    //cout<<"NUM EVs: "<<instancia.numEv<<"\n";
+
+    vector<int> vetSatAtendCliente(instancia.numNos, -1);
+    vector<int> satUtilizado(instancia.numSats+1, 0);
+    vector<int> numEvPorSat(instancia.numSats+1, 0);
+    vector<double> cargaPorSat(instancia.numSats+1, 0);
+
+
+    for(int sol = 0; sol < acoPar.numSol; ++sol)
+    {
+
+        //cout<<"SOL "<<sol<<"\n\n";
+        Solucao solucao(instancia);
+
+        GreedyAlgNS::setSatParaCliente(instancia, vetSatAtendCliente, satUtilizado, param);
+        Solucao *solGrasp = NameS_Grasp::grasp(instancia, param, est, true);
+
+/*        if(solGrasp->viavel)
+            cout<<"SOL GRASP VIAVEL\n";*/
+
+        std::fill(numEvPorSat.begin(), numEvPorSat.end(), 0);
+        std::fill(cargaPorSat.begin(), cargaPorSat.end(), 0.0);
+
+        for(int cli=instancia.getFirstClientIndex(); cli <= instancia.getEndClientIndex(); ++cli)
+        {
+            int sat = vetSatAtendCliente[cli];
+            cargaPorSat[sat] += instancia.vectCliente[cli].demanda;
+        }
+
+        int numEvAlocados = 0;
+
+        for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+        {
+            if(satUtilizado[sat] >= 1)
+            {
+                numEvPorSat[sat] = ceil(cargaPorSat[sat]/instancia.vectVeiculo[instancia.getFirstEvIndex()].capacidade);
+                numEvAlocados += numEvPorSat[sat];
+            }
+        }
+
+        //cout<<"NUM EV ALOCADOS: "<<numEvAlocados<<"\n\n";
+
+        if(numEvAlocados > instancia.numEv)
+        {
+            cout<<"ALOCADO NUM MAIOR DE EVs ("<<numEvAlocados<<"). MAX("<<instancia.numEv<<"\n";
+            continue;
+        }
+
+        if(numEvAlocados < instancia.numEv)
+        {
+            while(numEvAlocados < instancia.numEv)
+            {
+                int sat = instancia.getFirstSatIndex();
+                sat += rand_u32()%instancia.numSats;
+                const int satFist = sat;
+
+                do
+                {
+                    if(satUtilizado[sat] >= 1)
+                    {
+                        numEvPorSat[sat] += 1;
+                        numEvAlocados += 1;
+
+                        if(numEvAlocados == instancia.numEv)
+                            break;
+                    }
+
+                    sat = instancia.getFirstSatIndex() + (sat+1)%instancia.numSats;
+
+                } while(sat != satFist);
+            }
+        }
+
+        //cout<<"\tNUM EV ALOCADOS: "<<numEvAlocados<<"\n";
+
+
+
+/*        for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+        {
+            if(satUtilizado[sat] >= 1)
+            {
+                cout<<"NUM DE VEIC SAT("<<sat<<"): "<<numEvPorSat[sat]<<"\n";
+            }
+        }*/
+
+        bool satViavel = true;
+        solucao.distancia = 0.0;
+
+        for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+        {
+            if(satUtilizado[sat] >= 1)
+            {
+
+                bool temp = aco(instancia, acoPar, acoEst, sat, solucao.satelites[sat], vetSatAtendCliente, param, est, solGrasp, numEvPorSat[sat]);
+                satViavel *= temp;
+                solucao.distancia += solucao.satelites[sat].distancia;
+
+                if(!satViavel)
+                    break;
+            }
+        }
+
+        if(satViavel)
+        {
+            for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+            {
+                for(EvRoute &evRoute: solucao.satelites[sat].vetEvRoute)
+                {
+                    if(evRoute.routeSize > 2)
+                    {
+                        evRoute.atualizaParametrosRota(instancia);
+
+                        for(int i = 1; i < (evRoute.routeSize - 1); ++i)
+                            solucao.vetClientesAtend[evRoute[i].cliente] += 1;
+                    }
+                }
+            }
+
+            //cout << "TODOS OS SAT VIAVEIS\n";
+            GreedyAlgNS::firstEchelonGreedy(solucao, instancia, param.vetAlfa[0]);
+
+            if(solucao.viavel)
+            {
+                string erroStr;
+                if(!solucao.checkSolution(erroStr, instancia))
+                    cout<<"SOL INVIAVEL!\n";
+                else
+                {
+                    if(solucao.distancia < best.distancia)
+                        best.copia(solucao);
+                }
+            }
+
+        }
+
+        //solucao.print(instancia);
+
+        //cout<<"\n\n**********************************************************************************************************************************\n\n";
+
+        delete solGrasp;
+    }
+
+    if(best.viavel)
+       return true;
+    else
+        return false;
 
 }

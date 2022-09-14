@@ -24,8 +24,9 @@ using namespace std;
 #define SAIDA_EXEC_MAX   1
 #define SAIDA_EXEC_AVG   2
 #define SAIDA_EXEC_STD   3
+#define SAIDA_EXEC_VAL   4
 
-#define SAIDA_ULTIMO     SAIDA_EXEC_STD
+#define SAIDA_ULTIMO     SAIDA_EXEC_VAL
 
 namespace NS_parametros
 {
@@ -100,6 +101,16 @@ namespace NS_parametros
                     case SAIDA_EXEC_STD:
                         saidaStr += nome + "_std; ";
                         break;
+
+                    case SAIDA_EXEC_VAL:
+                        if(saidaExec.size() > 1)
+                        {
+                            cout<<"OPCAO(SAIDA_EXEC_VAL) SO PODE SER UTILIZADA SOZINHA!\n";
+                            throw "ERRO";
+                        }
+
+                        saidaStr += nome + " ";
+                        break;
                 }
             }
 
@@ -160,9 +171,28 @@ namespace NS_parametros
                         std = sqrt(std);
                         saidaStr += to_string(std) + "; ";
                         break;
+
+                    case SAIDA_EXEC_VAL:
+
+                        if(listVal.size() > 1)
+                        {
+
+                            cout<<"OPCAO(SAIDA_EXEC_VAL) SO PODE SER UTILIZADA SOZINHA!\n";
+                            throw "ERRO";
+                        }
+
+
+                        if(tipo == SAIDA_TIPO_FLOAT)
+                            saidaStr += to_string(min) + "; ";
+                        else
+                            saidaStr += to_string(int(min)) + "; ";
+
                 }
             }
         }
+
+
+
     };
 
     struct ParametrosSaida

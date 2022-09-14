@@ -31,6 +31,7 @@ namespace N_Aco
         int numItMaxHeur        = 20;
         double feromonioInicial = 0.0;
         double porcAtualFerom   = 1.10;             // As formigas com dist <= 1.05*ant_best sao atualizadas
+        int numSol              = 10;
 
         AcoParametros()
         {
@@ -122,12 +123,13 @@ namespace N_Aco
     };
 
 
-    inline bool existeClienteNaoVisitado(Ant &ant, Instance &instancia)
+    inline bool existeClienteNaoVisitado(Ant &ant, Instance &instancia, const vector<int> &vetSatAtendCliente)
     {
+
         //return std::find((ant.vetNosAtend.begin()+instancia.getFirstClientIndex()), (ant.vetNosAtend.begin()+instancia.getEndClientIndex()+1), 0) == true;
         for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
         {
-            if(ant.vetNosAtend[i] == int8_t(0))
+            if(vetSatAtendCliente[i] == ant.satelite.sateliteId && ant.vetNosAtend[i] == int8_t(0))
                 return true;
         }
 
@@ -140,10 +142,11 @@ namespace N_Aco
     }
 
     bool aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
-             const vector<int> &vetSatAtendCliente, Parametros &param, NameS_Grasp::Estatisticas &est);
+             const vector<int> &vetSatAtendCliente, Parametros &param, NameS_Grasp::Estatisticas &est, const Solucao *solGrasp, const int numEVs);
+    bool acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &acoEst, Parametros &param,
+                NameS_Grasp::Estatisticas &est, Solucao &best);
     void atualizaFeromonio(ublas::matrix<double> &matFeromonio, ublas::matrix<double> &matAtualFeromonio,
-                           Instance &instancia, const AcoParametros &acoParam, const Ant &antBest,
-                           const vector<Ant> &vetAnt);
+                           Instance &instancia, const AcoParametros &acoParam, const Ant &antBest, const vector<Ant> &vetAnt);
     void evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instance &instancia, const AcoParametros &acoParam, const double feromMin);
     bool clienteJValido(Instance &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat, const double tempoSaidaI);
     void atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance, Ant &ant);
