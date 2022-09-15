@@ -702,7 +702,7 @@ bool GreedyAlgNS::existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendi
     return false;
 }
 
-void GreedyAlgNS::setSatParaCliente(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, Parametros &param)
+void GreedyAlgNS::setSatParaCliente(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, ParametrosGrasp &param)
 {
     std::fill(satUtilizado.begin()+1, satUtilizado.end(), 0);
     std::fill(vetSatAtendCliente.begin()+1, vetSatAtendCliente.end(), -1);

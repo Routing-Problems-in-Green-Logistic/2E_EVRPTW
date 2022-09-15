@@ -265,7 +265,7 @@ bool Solucao::checkSolution(std::string &erro, Instance &inst)
 
 void Solucao::print(std::string &saida, const Instance &instance)
 {
-    saida += "satTempoChegMax: ";
+/*    saida += "satTempoChegMax: ";
 
     for(int i=0; i < satTempoChegMax.size(); ++i)
         saida += to_string(i) + "\t\t";
@@ -273,9 +273,9 @@ void Solucao::print(std::string &saida, const Instance &instance)
     saida += "\n\t\t\t\t";
 
     for(int i=0; i < satTempoChegMax.size(); ++i)
-        saida += str(boost::format("%.1f\t") % satTempoChegMax[i]);
+        saida += str(boost::format("%.1f\t") % satTempoChegMax[i]);*/
 
-    saida += "\n\n2º NIVEL:\n";
+    saida += "2º NIVEL:\n";
 
     for(int sat = instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
     {

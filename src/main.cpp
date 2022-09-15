@@ -32,7 +32,7 @@
 #include "Teste.h"
 #include "Grasp.h"
 #include "PreProcessamento.h"
-#include "ParametrosEntrada.h"
+//#include "ParametrosEntrada.h"
 
 #include "Aco.h"
 
@@ -43,7 +43,7 @@ using namespace NameTeste;
 using namespace NameS_Grasp;
 using namespace N_PreProcessamento;
 using namespace N_Aco;
-using namespace NS_parametros;
+//using namespace NS_parametros;
 
 void routine(char** filenames, int nFileNames);
 float distance(std::pair<float, float> p1, std::pair<float,float> p2);
@@ -330,7 +330,7 @@ int main(int argc, char* argv[])
 
 
     std::string file(argv[1]);
-    const string nomeInst = getNomeInstancia(file);
+    const string nomeInst = getNomeInstancia2(file);
 
     std::time_t result2 = std::time(nullptr);
     auto data2 = std::asctime(std::localtime(&result2));
@@ -350,7 +350,7 @@ int main(int argc, char* argv[])
     if(num == 0)
         num = 1;
 
-    Parametros parm(NUM_EXEC, 200, vetAlfa, 150, num, 0.1);
+    ParametrosGrasp parm(NUM_EXEC, 200, vetAlfa, 150, num, 0.1);
     AcoParametros acoParm;
     AcoEstatisticas acoEst;
     Estatisticas est;

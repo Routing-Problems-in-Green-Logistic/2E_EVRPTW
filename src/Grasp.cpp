@@ -24,7 +24,7 @@ using namespace NS_vnd;
 
 const float fator = 0.1;
 
-Solucao * NameS_Grasp::grasp(Instance &instance, Parametros &parametros, Estatisticas &estat, const bool retPrimeiraSol)
+Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol)
 {
 
     Solucao *solBest = new Solucao(instance);

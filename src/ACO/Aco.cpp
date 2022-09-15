@@ -36,7 +36,7 @@ using namespace boost::numeric;
  * ******************************************************************************************************
  */
 bool N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
-                const vector<int> &vetSatAtendCliente, Parametros &param, NameS_Grasp::Estatisticas &est, const Solucao *solGrasp, const int numEVs)
+                const vector<int> &vetSatAtendCliente, ParametrosGrasp &param, NameS_Grasp::Estatisticas &est, const Solucao *solGrasp, const int numEVs)
 {
 
 
@@ -802,7 +802,7 @@ cout<<"ferm min: "<<feromMin<<"\n\n";
 
 }
 
-bool N_Aco::acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &acoEst, Parametros &param, NameS_Grasp::Estatisticas &est, Solucao &best)
+bool N_Aco::acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &acoEst, ParametrosGrasp &param, NameS_Grasp::Estatisticas &est, Solucao &best)
 {
 
     //Solucao best(instancia);

@@ -25,7 +25,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Wconversion")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D __FILENAME__='\"$(subst  ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
 #CXX_FLAGS+=-D__FILENAME__='\"$(subst $(SOURCE_PREFIX)/,,$(abspath $<))\"'"
 
-set(SOURCES main.cpp
+set(SOURCES #newMain.cpp
+            main.cpp
             Satelite.cpp
             Satelite.h
         Auxiliary.cpp
@@ -56,7 +57,7 @@ set(SOURCES main.cpp
 
 
 
-add_executable(run INSTANCIA/ParametrosEntrada.cpp INSTANCIA/ParametrosEntrada.h)
+add_executable(run)# INSTANCIA/ParametrosEntrada.cpp INSTANCIA/ParametrosEntrada.h)
 
 
 #target_include_directories(run PUBLIC "ACO")

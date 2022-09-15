@@ -31,11 +31,11 @@ using namespace std;
 namespace NS_parametros
 {
 
-    struct ParametrosGrasp
+    struct Parametros
     {
 
-        uint32_t semente       = 0;                 // --seed  semente
-        string caminhoPasta;                        // --pasta caminhoPasta/
+        int64_t semente        = 0;                 // --seed  semente
+        string caminhoPasta    = "resultados";      // --pasta caminhoPasta/
         int numExecucoesTotais = 0;                 // --execTotal num
         int execucaoAtual      = -1;                // --execAtual 0 ; 0, ..., num-1
         string resultadoCSV    = "resultados.csv";  // --resulCSV
@@ -47,16 +47,30 @@ namespace NS_parametros
 
     struct NoSaida
     {
+        NoSaida()
+        {
+
+        }
+
         string nome;
         char tipo = SAIDA_TIPO_FLOAT;
         vector<int> saidaExec;
         list<float> listVal;
 
-
-
         void operator ()(float val)
         {
             listVal.push_back(val);
+        }
+
+
+        void operator ()(double val)
+        {
+            listVal.push_back(val);
+        }
+
+        void addSaida(int saida)
+        {
+            saidaExec.push_back(saida);
         }
 
         NoSaida(const NoSaida &outro)
@@ -67,7 +81,7 @@ namespace NS_parametros
             listVal = list<float>(outro.listVal);
         }
 
-        NoSaida(string nome_, char tipo_)
+        NoSaida(string nome_, char tipo_=SAIDA_TIPO_FLOAT)
         {
             nome = std::move(nome_);
             tipo = tipo_;
@@ -109,11 +123,12 @@ namespace NS_parametros
                             throw "ERRO";
                         }
 
-                        saidaStr += nome + " ";
+                        saidaStr += nome + "; ";
                         break;
                 }
             }
 
+            saidaStr.resize(saidaStr.size()-2);
         }
 
         void getVal(string &saidaStr)
@@ -189,6 +204,9 @@ namespace NS_parametros
 
                 }
             }
+
+            saidaStr.resize(saidaStr.size()-2);
+
         }
 
 
@@ -197,17 +215,27 @@ namespace NS_parametros
 
     struct ParametrosSaida
     {
+    public:
+
         std::map<std::string, NoSaida> mapNoSaida;
         double tempo;
+
+        template<class T>
+        void setTempo(T start, T end)
+        {
+
+            std::chrono::duration<double> tempoAux = end - start;
+            tempo = tempoAux.count();
+        }
     };
 
-    void escreveSolCompleta(ParametrosGrasp &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol);
-    void escreveSolParaPrint(ParametrosGrasp &paramEntrada, Solucao &sol);
-    void escreveResultadosAcumulados(ParametrosGrasp &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol);
-    void consolidaResultados(ParametrosGrasp &paramEntrada);
-    void saida(ParametrosGrasp &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol);
+    void escreveSolCompleta(Parametros &paramEntrada, Solucao &sol, Instance &instancia);
+    void escreveSolParaPrint(Parametros &paramEntrada, Solucao &sol, Instance &instancia);
+    void escreveResultadosAcumulados(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol);
+    void consolidaResultados(Parametros &paramEntrada);
+    void saida(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol, Instance &instancia);
     string getNomeInstancia(string str);
-    void caregaParametros(ParametrosGrasp &paramEntrada, int argc, char* argv[]);
+    void caregaParametros(Parametros &paramEntrada, int argc, char* argv[]);
 
 }
 

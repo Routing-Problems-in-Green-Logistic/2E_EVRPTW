@@ -142,8 +142,8 @@ namespace N_Aco
     }
 
     bool aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
-             const vector<int> &vetSatAtendCliente, Parametros &param, NameS_Grasp::Estatisticas &est, const Solucao *solGrasp, const int numEVs);
-    bool acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &acoEst, Parametros &param,
+             const vector<int> &vetSatAtendCliente, ParametrosGrasp &param, NameS_Grasp::Estatisticas &est, const Solucao *solGrasp, const int numEVs);
+    bool acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &acoEst, ParametrosGrasp &param,
                 NameS_Grasp::Estatisticas &est, Solucao &best);
     void atualizaFeromonio(ublas::matrix<double> &matFeromonio, ublas::matrix<double> &matAtualFeromonio,
                            Instance &instancia, const AcoParametros &acoParam, const Ant &antBest, const vector<Ant> &vetAnt);
