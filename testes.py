@@ -81,7 +81,7 @@ Tabela com:
 lista = [(' ', 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
 
 #tamanhoInst =  ['5', '10', '15', '100_0', '100_1', '100_2']
-tamanhoInst =  ['5', '10']
+tamanhoInst =  ['100_0']
 diretorioIni = 'instancias/2e-vrp-tw/'
 instancias = []
 
@@ -130,7 +130,7 @@ for instancia in instancias:
     for i in range(numExecucoes):
 
       #print(instancia)
-      strExecutavel = 'src/cmake-build-debug//run ' + str(instancia) # + ' ' +str(resultados) # + ' > /dev/null'
+      strExecutavel = './run ' + str(instancia) # + ' ' +str(resultados) # + ' > /dev/null'
       os.system(strExecutavel)
 
 

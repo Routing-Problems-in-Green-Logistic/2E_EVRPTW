@@ -15,14 +15,47 @@
 #include "../mersenne-twister.h"
 #include <fstream>
 
+#include <bits/stdc++.h>
+#include <iostream>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+using namespace std;
 using namespace NS_parametros;
 
 void NS_parametros::escreveSolCompleta(Parametros &paramEntrada, Solucao &sol, Instance &instancia)
 {
 
+
+    const string caminhoSolComp = paramEntrada.caminhoPasta + "/solCompleta/";
+
+    if(mkdir(caminhoSolComp.c_str(), 0777) == -1)
+    {
+        if(errno != EEXIST)
+        {
+            cout << "ERRO, NAO FOI POSSIVEL CRIAR O DIRETORIO: " << caminhoSolComp << "\nErro: " << strerror(errno) << "\n\n";
+            throw "ERRO";
+        }
+    }
+
+
+    // Cria diretorio paramEntrada.caminhoPasta + "/solCompleta/" + nomeInst/
+
+    const string caminho = caminhoSolComp + paramEntrada.nomeInstancia + "/";
+
+    if(mkdir(caminho.c_str(), 0777) == -1)
+    {
+        if(errno != EEXIST)
+        {
+            cout << "ERRO, NAO FOI POSSIVEL CRIAR O DIRETORIO: " << caminho << "\nErro: " << strerror(errno) << "\n\n";
+            throw "ERRO";
+        }
+    }
+    //cout<<"DIRETORIO: "<<caminho<<" criado\n";
+
     string saida;
     sol.print(saida, instancia);
-    string strSaida = paramEntrada.caminhoPasta + "/solCompleta/"+paramEntrada.nomeInstancia+"_EXE_"+ to_string(paramEntrada.execucaoAtual)+".txt";
+    string strSaida = caminho+paramEntrada.nomeInstancia+"_EXE_"+ to_string(paramEntrada.execucaoAtual)+".txt";
 
     std::ofstream outfile;
     outfile.open(strSaida, std::ios_base::out);
@@ -43,7 +76,34 @@ void NS_parametros::escreveSolCompleta(Parametros &paramEntrada, Solucao &sol, I
 void NS_parametros::escreveSolParaPrint(Parametros &paramEntrada, Solucao &solution, Instance &instance)
 {
 
-    string file = paramEntrada.caminhoPasta + "/solPrint/"+paramEntrada.nomeInstancia+"_EXE_"+ to_string(paramEntrada.execucaoAtual)+".txt";
+
+
+    const string caminhoSolPrint = paramEntrada.caminhoPasta + "/solPrint/";
+
+    if(mkdir(caminhoSolPrint.c_str(), 0777) == -1)
+    {
+        if(errno != EEXIST)
+        {
+            cout << "ERRO, NAO FOI POSSIVEL CRIAR O DIRETORIO: " << caminhoSolPrint << "\nErro: " << strerror(errno) << "\n\n";
+            throw "ERRO";
+        }
+    }
+
+
+    // Cria diretorio paramEntrada.caminhoPasta + "/solCompleta/" + nomeInst/
+    const string caminho =  caminhoSolPrint+ paramEntrada.nomeInstancia + "/";
+
+    if(mkdir(caminho.c_str(), 0777) == -1)
+    {
+        if(errno != EEXIST)
+        {
+            cout << "ERRO, NAO FOI POSSIVEL CRIAR O DIRETORIO: " << caminho << "\nErro: " << strerror(errno) << "\n\n";
+            throw "ERRO";
+        }
+    }
+
+
+    string file = caminho+paramEntrada.nomeInstancia+"_EXE_"+ to_string(paramEntrada.execucaoAtual)+".txt";
 
     std::ofstream outfile;
     outfile.open(file, std::ios_base::out);
@@ -103,20 +163,191 @@ void NS_parametros::escreveSolParaPrint(Parametros &paramEntrada, Solucao &solut
 void NS_parametros::escreveResultadosAcumulados(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol)
 {
 
+
+    // Cria diretorio paramEntrada.caminhoPasta + "/solCompleta/" + nomeInst/
+
+    const string caminho = paramEntrada.caminhoPasta + "/solAcumu/";
+
+    if(mkdir(caminho.c_str(), 0777) == -1)
+    {
+        if(errno != EEXIST)
+        {
+            cout << "ERRO, NAO FOI POSSIVEL CRIAR O DIRETORIO: " << caminho << "\nErro: " << strerror(errno) << "\n\n";
+            throw "ERRO";
+        }
+    }
+
+    const string fileStr = caminho + paramEntrada.nomeInstancia+".csv";
+
+
+    bool exists = std::filesystem::exists(fileStr);
+    std::ofstream outfile;
+    outfile.open(fileStr, std::ios_base::app);
+
+    if(!outfile.is_open())
+    {
+
+        cout << "ERRO, NAO FOI POSSIVEL ABRIR O ARQUIVO: " << fileStr << "\nErro: " << strerror(errno) << "\n\n";
+        throw "ERRO";
+    }
+
+    if(!exists)
+    {
+        string cabecalho;
+        paramSaida.getCabecalho(cabecalho);
+
+        paramEntrada.data.resize(paramEntrada.data.size()-2);
+        outfile<<"INSTANCIA: "<<paramEntrada.nomeInstancia<<"\nDATA: '"<<paramEntrada.data<<"'\n\n";
+        outfile<<cabecalho<<"\n";
+    }
+
+    string val;
+    paramSaida.getVal(val);
+    outfile<<val<<"\n";
+
+    outfile.close();
+
+
 }
 
-void NS_parametros::consolidaResultados(Parametros &paramEntrada)
+void NS_parametros::consolidaResultados(Parametros &paramEntrada, ParametrosSaida &paramSaida)
 {
+
+
+    if((paramEntrada.execucaoAtual+1) == paramEntrada.numExecucoesTotais)
+    {
+        ParametrosSaida paramConsol;
+
+        const string caminho = paramEntrada.caminhoPasta + "/solAcumu/" + paramEntrada.nomeInstancia+".csv";
+        std::ifstream file;
+        file.open(caminho, std::ios::in);
+        if(file.is_open())
+        {
+            string line;
+
+            for(int i=0; i < 3; ++i)
+            {
+                line = "";
+                getline(file, line);
+            }
+
+            //cout<<"LINE: "<<line<<"\n\n";
+            vector<string> cabec;
+
+            for(int i=0; i < paramSaida.mapNoSaida.size(); ++i)
+            {
+                string param;
+                file>>param;
+                cabec.push_back(param);
+
+                if(param != "sem")
+                {
+                    paramConsol.mapNoSaida[param] = NoSaida(param);
+                    paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_AVG);
+
+                    if(param == "ultimaA")
+                        paramConsol.mapNoSaida[param].tipo = SAIDA_TIPO_INT;
+                    else
+                    {
+                        if(param != "t(s)")
+                        {
+                            paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_MIN);
+                            paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_STD);
+                        }
+                    }
+                }
+            }
+
+            int p=0;
+            double val;
+            while(file>>val)
+            {
+
+                //cout<<p<<": ";
+                for(int i=0; i < paramSaida.mapNoSaida.size(); ++i)
+                {
+                    //double val;
+                    const string param = cabec[i];
+                    //file>>val;
+
+                    if(param != "sem")
+                    {   //cout<<val<<" ";
+                        paramConsol.mapNoSaida[param](val);
+                    }
+                    if(i+1 < paramSaida.mapNoSaida.size())
+                        file>>val;
+                }
+
+                string lixo;
+                //getline(file, lixo);
+                p += 1;
+                //cout<<"\n************\n\n";
+
+            }
+
+            string strCab;
+            paramConsol.getCabecalho(strCab);
+            //cout<<"CABECALHO: "<<strCab<<"\n";
+
+            string strVal;
+            paramConsol.getVal(strVal);
+            //cout<<strVal<<"\n\n";
+
+            // Escreve em resultados.csv
+
+
+            const string fileResul = paramEntrada.caminhoPasta+"/"+paramEntrada.resultadoCSV;
+            bool exists = std::filesystem::exists(fileResul);
+            std::ofstream outfile;
+            outfile.open(fileResul, std::ios_base::app);
+
+            if(!exists)
+            {
+                paramEntrada.data.resize(paramEntrada.data.size()-2);
+
+                outfile<<"DATA: '"<<paramEntrada.data<<"'\n\n";
+                outfile<<"instancia \t "<<strCab<<"\n";
+            }
+
+            outfile<<paramEntrada.nomeInstancia<<" \t "<<strVal<<"\n";
+            outfile.close();
+
+/*
+            line = "";
+            getline(file, line);
+            cout<<"LINE: "<<line<<"\n\n";*/
+        }
+        else
+        {
+
+            cout << "ERRO, NAO FOI POSSIVEL ABRIR O ARQUIVO: " << caminho << "\n\n";
+            throw "ERRO";
+        }
+
+    }
+
 
 }
 
 void NS_parametros::saida(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol, Instance &instancia)
 {
 
+
+    const string caminho = paramEntrada.caminhoPasta;
+
+    if(mkdir(caminho.c_str(), 0777) == -1)
+    {
+        if(errno != EEXIST)
+        {
+            cout << "ERRO, NAO FOI POSSIVEL CRIAR O DIRETORIO: " << caminho << "\nErro: " << strerror(errno) << "\n\n";
+            throw "ERRO";
+        }
+    }
+
     escreveSolCompleta(paramEntrada, sol, instancia);
     escreveSolParaPrint(paramEntrada, sol, instancia);
     escreveResultadosAcumulados(paramEntrada, paramSaida, sol);
-    consolidaResultados(paramEntrada);
+    consolidaResultados(paramEntrada, paramSaida);
 
 }
 
@@ -227,9 +458,10 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
 
     cout<<sementeStr;
 
-    cout<<"Semente: "<<paramEntrada.semente<<"\ncaminhoPasta: "<<paramEntrada.caminhoPasta<<"\nexecucoesTotais: "<<paramEntrada.numExecucoesTotais<<"\n";
+
+/*    cout<<"Semente: "<<paramEntrada.semente<<"\ncaminhoPasta: "<<paramEntrada.caminhoPasta<<"\nexecucoesTotais: "<<paramEntrada.numExecucoesTotais<<"\n";
     cout<<"execucaoAtual: "<<paramEntrada.execucaoAtual<<"\nnomeInstancia: "<<paramEntrada.nomeInstancia<<"\nresultadoCSV: "<<paramEntrada.resultadoCSV<<"\n";
-    cout<<"DATA: "<<paramEntrada.data<<"\n";
+    cout<<"DATA: "<<paramEntrada.data<<"\n";*/
     //exit(-1);
 
 }

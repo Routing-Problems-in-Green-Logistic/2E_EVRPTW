@@ -3,12 +3,12 @@ cmake_minimum_required(VERSION 3.20)
 project(2E_EVRP)
 
 
-#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_FLAGS_RELEASE, "-march=native")
 
-set(CMAKE_CXX_FLAGS_RELEASE "-g3")
-set(CMAKE_CXX_FLAGS_RELEASE "-ggdb")
-set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_CXX_FLAGS_RELEASE "-g3")
+#set(CMAKE_CXX_FLAGS_RELEASE "-ggdb")
+#set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_CXX_FLAGS_RELEASE "-Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "-Wextra")
@@ -25,8 +25,8 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Wconversion")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D __FILENAME__='\"$(subst  ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
 #CXX_FLAGS+=-D__FILENAME__='\"$(subst $(SOURCE_PREFIX)/,,$(abspath $<))\"'"
 
-set(SOURCES #newMain.cpp
-            main.cpp
+set(SOURCES newMain.cpp
+            #main.cpp
             Satelite.cpp
             Satelite.h
         Auxiliary.cpp

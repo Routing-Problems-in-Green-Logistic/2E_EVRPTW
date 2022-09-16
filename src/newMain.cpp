@@ -66,28 +66,36 @@ int main(int argc, char* argv[])
 
         parametrosSaida.mapNoSaida["dist"] = NoSaida("dist");
         parametrosSaida.mapNoSaida["t(s)"] = NoSaida("t(s)");
+        parametrosSaida.mapNoSaida["sem"] = NoSaida("sem");
+
 
         parametrosSaida.mapNoSaida["dist"](best.distancia);
-        parametrosSaida.mapNoSaida["dist"](best.distancia*1.1);
+        parametrosSaida.mapNoSaida["t(s)"](parametrosSaida.tempo);
+        parametrosSaida.mapNoSaida["sem"].addSemente(parametros.semente);
 
-        parametrosSaida.mapNoSaida["dist"].addSaida(SAIDA_EXEC_AVG);
-        parametrosSaida.mapNoSaida["dist"].addSaida(SAIDA_EXEC_STD);
-        parametrosSaida.mapNoSaida["dist"].addSaida(SAIDA_EXEC_MIN);
+        parametrosSaida.mapNoSaida["dist"].addSaida(SAIDA_EXEC_VAL);
+        parametrosSaida.mapNoSaida["t(s)"].addSaida(SAIDA_EXEC_VAL);
+        parametrosSaida.mapNoSaida["sem"].addSaida(SAIDA_EXEC_SEM);
 
-        cout<<parametrosSaida.mapNoSaida["dist"].nome<<"\n";
+
+        //cout<<parametrosSaida.mapNoSaida["dist"].nome<<"\n";
 
         string cab;
         parametrosSaida.mapNoSaida["dist"].getCabecalho(cab);
-        cout<<cab<<"\n";
+        //cout<<cab<<"\n";
 
         string val;
         parametrosSaida.mapNoSaida["dist"].getVal(val);
-        cout<<val<<"\n";
+        //cout<<val<<"\n";
 
-        cout<<"tempo: "<<parametrosSaida.tempo<<"\n";
+        //cout<<"tempo: "<<parametrosSaida.tempo<<"\n";
+        saida(parametros, parametrosSaida, best, instancia);
 
-        escreveSolCompleta(parametros, best, instancia);
-        escreveSolParaPrint(parametros, best, instancia);
+
+
+
+/*        escreveSolCompleta(parametros, best, instancia);
+        escreveSolParaPrint(parametros, best, instancia);*/
     }
     catch(const char *erro)
     {

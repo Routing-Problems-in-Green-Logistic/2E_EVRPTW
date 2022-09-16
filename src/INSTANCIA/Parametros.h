@@ -25,8 +25,10 @@ using namespace std;
 #define SAIDA_EXEC_AVG   2
 #define SAIDA_EXEC_STD   3
 #define SAIDA_EXEC_VAL   4
+#define SAIDA_EXEC_SEM   5
 
-#define SAIDA_ULTIMO     SAIDA_EXEC_VAL
+
+#define SAIDA_ULTIMO     SAIDA_EXEC_SEM
 
 namespace NS_parametros
 {
@@ -55,7 +57,8 @@ namespace NS_parametros
         string nome;
         char tipo = SAIDA_TIPO_FLOAT;
         vector<int> saidaExec;
-        list<float> listVal;
+        list<double> listVal;
+        uint64_t semente=0;
 
         void operator ()(float val)
         {
@@ -68,6 +71,11 @@ namespace NS_parametros
             listVal.push_back(val);
         }
 
+        void addSemente(uint64_t sem_)
+        {
+            semente = sem_;
+        }
+
         void addSaida(int saida)
         {
             saidaExec.push_back(saida);
@@ -78,7 +86,7 @@ namespace NS_parametros
             nome = outro.nome;
             tipo = outro.tipo;
             saidaExec = vector<int>(outro.saidaExec);
-            listVal = list<float>(outro.listVal);
+            listVal = list<double>(outro.listVal);
         }
 
         NoSaida(string nome_, char tipo_=SAIDA_TIPO_FLOAT)
@@ -101,19 +109,19 @@ namespace NS_parametros
                 switch(saida)
                 {
                     case SAIDA_EXEC_MIN:
-                        saidaStr += nome + "_min; ";
+                        saidaStr += nome + "_min \t ";
                         break;
 
                     case SAIDA_EXEC_MAX:
-                        saidaStr += nome + "_max; ";
+                        saidaStr += nome + "_max \t ";
                         break;
 
                     case SAIDA_EXEC_AVG:
-                        saidaStr += nome + "_avg; ";
+                        saidaStr += nome + "_avg \t ";
                         break;
 
                     case SAIDA_EXEC_STD:
-                        saidaStr += nome + "_std; ";
+                        saidaStr += nome + "_std \t ";
                         break;
 
                     case SAIDA_EXEC_VAL:
@@ -123,24 +131,35 @@ namespace NS_parametros
                             throw "ERRO";
                         }
 
-                        saidaStr += nome + "; ";
+                        saidaStr += nome + " \t ";
+                        break;
+
+                    case SAIDA_EXEC_SEM:
+
+                        if(saidaExec.size() > 1)
+                        {
+                            cout<<"OPCAO(SAIDA_EXEC_SEM) SO PODE SER UTILIZADA SOZINHA!\n";
+                            throw "ERRO";
+                        }
+
+                        saidaStr += "sem \t ";
                         break;
                 }
             }
 
-            saidaStr.resize(saidaStr.size()-2);
+            //saidaStr.resize(saidaStr.size()-2);
         }
 
         void getVal(string &saidaStr)
         {
 
-            vector<float> vectorSaida(listVal.size());
+            vector<double> vectorSaida(listVal.size());
             std::copy(listVal.begin(), listVal.end(), vectorSaida.begin());
-            float min = FLOAT_MAX;
-            float max = FLOAT_MIN;
-            float avg = 0.0;
+            double min = DOUBLE_MAX;
+            double max = DOUBLE_MIN;
+            double avg = 0.0;
 
-            for(const float i:vectorSaida)
+            for(const double i:vectorSaida)
             {
                 if(i < min)
                     min = i;
@@ -151,8 +170,8 @@ namespace NS_parametros
                 avg += i;
             }
 
-            avg = avg/float(vectorSaida.size());
-            float std = 0.0;
+            avg = avg/double(vectorSaida.size());
+            double std = 0.0;
 
             for(int &saida:saidaExec)
             {
@@ -161,30 +180,30 @@ namespace NS_parametros
                 {
                     case SAIDA_EXEC_MIN:
                         if(tipo == SAIDA_TIPO_FLOAT)
-                            saidaStr += to_string(min) + "; ";
+                            saidaStr += to_string(min) + " \t ";
                         else
-                            saidaStr += to_string(int(min)) + "; ";
+                            saidaStr += to_string(int(min)) + " \t ";
 
                         break;
 
                     case SAIDA_EXEC_MAX:
                         if(tipo == SAIDA_TIPO_FLOAT)
-                            saidaStr += to_string(max) + "; ";
+                            saidaStr += to_string(max) + " \t ";
                         else
-                            saidaStr += to_string(int(max)) + "; ";
+                            saidaStr += to_string(int(max)) + " \t ";
                         break;
 
                     case SAIDA_EXEC_AVG:
-                        saidaStr += to_string(avg) + "; ";
+                        saidaStr += to_string(avg) + " \t ";
                         break;
 
                     case SAIDA_EXEC_STD:
 
-                        for(const float i:vectorSaida)
-                            std += pow(i-avg, float(2));
+                        for(const double i:vectorSaida)
+                            std += pow(i-avg, double(2));
 
                         std = sqrt(std);
-                        saidaStr += to_string(std) + "; ";
+                        saidaStr += to_string(std) + " \t ";
                         break;
 
                     case SAIDA_EXEC_VAL:
@@ -198,14 +217,28 @@ namespace NS_parametros
 
 
                         if(tipo == SAIDA_TIPO_FLOAT)
-                            saidaStr += to_string(min) + "; ";
+                            saidaStr += to_string(min) + " \t ";
                         else
-                            saidaStr += to_string(int(min)) + "; ";
+                            saidaStr += to_string(int(min)) + " \t ";
+
+                        break;
+
+
+                    case SAIDA_EXEC_SEM:
+
+                        if(saidaExec.size() > 1)
+                        {
+                            cout<<"OPCAO(SAIDA_EXEC_SEM) SO PODE SER UTILIZADA SOZINHA!\n";
+                            throw "ERRO";
+                        }
+
+                        saidaStr += to_string(semente)+" \t ";
+                        break;
 
                 }
             }
 
-            saidaStr.resize(saidaStr.size()-2);
+            //saidaStr.resize(saidaStr.size()-2);
 
         }
 
@@ -227,12 +260,29 @@ namespace NS_parametros
             std::chrono::duration<double> tempoAux = end - start;
             tempo = tempoAux.count();
         }
+
+        void getCabecalho(string &saida)
+        {
+            for(auto &it:mapNoSaida)
+            {
+                it.second.getCabecalho(saida);
+            }
+        }
+
+        void getVal(string &saida)
+        {
+
+            for(auto &it:mapNoSaida)
+            {
+                it.second.getVal(saida);
+            }
+        }
     };
 
     void escreveSolCompleta(Parametros &paramEntrada, Solucao &sol, Instance &instancia);
     void escreveSolParaPrint(Parametros &paramEntrada, Solucao &sol, Instance &instancia);
     void escreveResultadosAcumulados(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol);
-    void consolidaResultados(Parametros &paramEntrada);
+    void consolidaResultados(Parametros &paramEntrada, ParametrosSaida &paramSaida);
     void saida(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol, Instance &instancia);
     string getNomeInstancia(string str);
     void caregaParametros(Parametros &paramEntrada, int argc, char* argv[]);

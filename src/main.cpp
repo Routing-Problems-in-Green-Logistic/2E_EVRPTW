@@ -321,7 +321,7 @@ int main(int argc, char* argv[])
     if(argc == 1 || argc > 3)
     {
         cout << "Compilado em: \t" << __DATE__ << ", " << __TIME__ << "\n";
-        cout << "Commit: \tf7d1f0fbd4de1288fc027810a969822e3ba4e3dc\n\n";
+        cout << "Commit: \t532370b0f5da08a84c88b4a4649d417032c87fff\n\n";
         std::cerr << "FORMATO: ./a.out instancia.txt\n";
         return -1;
     }
