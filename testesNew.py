@@ -9,15 +9,15 @@ if(len(sys.argv) != 2):
     print("NUMERO DE ARGUMENTOS ESTA ERRADO.\npython3 teste.py caminho")
     exit(-1)
 
+#tamanhoInst = ['5', '10', '15']
+tamanhoInst = ['100_0']
 numExecucoes = 10
+
 caminhoDir = str(sys.argv[1])
 
 parametros = " --pasta '" + caminhoDir +"' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --execAtual "
 
 
-
-#tamanhoInst =  ['5', '10', '15', '100_0', '100_1', '100_2']
-tamanhoInst =  ['5']
 diretorioIni = 'instancias/2e-vrp-tw/'
 instancias = []
 
@@ -40,5 +40,6 @@ for instancia in instancias:
       #print(strExecutavel)
       
     print("\n\n")
+
 
 

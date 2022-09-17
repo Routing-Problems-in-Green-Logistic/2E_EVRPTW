@@ -35,7 +35,6 @@ namespace NS_parametros
 
     struct Parametros
     {
-
         int64_t semente        = 0;                 // --seed  semente
         string caminhoPasta    = "resultados";      // --pasta caminhoPasta/
         int numExecucoesTotais = 0;                 // --execTotal num
@@ -215,14 +214,12 @@ namespace NS_parametros
                             throw "ERRO";
                         }
 
-
                         if(tipo == SAIDA_TIPO_FLOAT)
                             saidaStr += to_string(min) + " \t ";
                         else
                             saidaStr += to_string(int(min)) + " \t ";
 
                         break;
-
 
                     case SAIDA_EXEC_SEM:
 
@@ -234,15 +231,10 @@ namespace NS_parametros
 
                         saidaStr += to_string(semente)+" \t ";
                         break;
-
                 }
             }
-
             //saidaStr.resize(saidaStr.size()-2);
-
         }
-
-
 
     };
 
@@ -256,7 +248,6 @@ namespace NS_parametros
         template<class T>
         void setTempo(T start, T end)
         {
-
             std::chrono::duration<double> tempoAux = end - start;
             tempo = tempoAux.count();
         }
@@ -271,7 +262,6 @@ namespace NS_parametros
 
         void getVal(string &saida)
         {
-
             for(auto &it:mapNoSaida)
             {
                 it.second.getVal(saida);
@@ -286,7 +276,18 @@ namespace NS_parametros
     void saida(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol, Instance &instancia);
     string getNomeInstancia(string str);
     void caregaParametros(Parametros &paramEntrada, int argc, char* argv[]);
+    ParametrosSaida getParametros();
 
+    template <typename T>
+    void setParametrosSaida(ParametrosSaida &parametrosSaida, const Parametros &parametros, Solucao &best, T start, T end)
+    {
+
+        parametrosSaida.setTempo(start, end);
+
+        parametrosSaida.mapNoSaida["dist"](best.distancia);
+        parametrosSaida.mapNoSaida["t(s)"](parametrosSaida.tempo);
+        parametrosSaida.mapNoSaida["sem"].addSemente(parametros.semente);
+    }
 }
 
 #endif //PARAMETROSENTRADA_H

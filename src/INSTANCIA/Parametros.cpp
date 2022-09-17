@@ -6,7 +6,7 @@
  * ****************************************
  *  Nome:    Igor de Andrade Junqueira
  *  Data:    21/08/22
- *  Arquivo: ParametrosEntrada.cpp
+ *  Arquivo: Parametros.cpp
  * ****************************************
  * ****************************************/
 
@@ -162,7 +162,8 @@ void NS_parametros::escreveSolParaPrint(Parametros &paramEntrada, Solucao &solut
 
 void NS_parametros::escreveResultadosAcumulados(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol)
 {
-
+    if(!sol.viavel || sol.distancia == DOUBLE_INF)
+        return;
 
     // Cria diretorio paramEntrada.caminhoPasta + "/solCompleta/" + nomeInst/
 
@@ -319,9 +320,80 @@ void NS_parametros::consolidaResultados(Parametros &paramEntrada, ParametrosSaid
         }
         else
         {
+            const int size = paramSaida.mapNoSaida.size();
+            string saida = paramEntrada.nomeInstancia+" \t ";
+            for(int i=0; i < size; ++i)
+                saida += "* \t ";
 
-            cout << "ERRO, NAO FOI POSSIVEL ABRIR O ARQUIVO: " << caminho << "\n\n";
-            throw "ERRO";
+
+            const string fileResul = paramEntrada.caminhoPasta+"/"+paramEntrada.resultadoCSV;
+            bool exists = std::filesystem::exists(fileResul);
+            std::ofstream outfile;
+            outfile.open(fileResul, std::ios_base::app);
+
+            if(!exists)
+            {
+                string strCab;
+
+                {
+                    std::ofstream saidaCap;
+                    saidaCap.open(paramEntrada.caminhoPasta + "/temp.txt", ios::out);
+
+
+                    string strSaidaCab;
+                    paramSaida.getCabecalho(strSaidaCab);
+                    saidaCap<<strSaidaCab;
+                    saidaCap.close();
+
+                    std::ifstream lerCap;
+                    lerCap.open(paramEntrada.caminhoPasta + "/temp.txt", ios::in);
+
+                    std::vector<string> cabec;
+
+                    for(int i=0; i < paramSaida.mapNoSaida.size(); ++i)
+                    {
+                        string param;
+                        lerCap>>param;
+                        cabec.push_back(param);
+
+                        if(param != "sem")
+                        {
+                            paramConsol.mapNoSaida[param] = NoSaida(param);
+                            paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_AVG);
+
+                            if(param == "ultimaA")
+                                paramConsol.mapNoSaida[param].tipo = SAIDA_TIPO_INT;
+                            else
+                            {
+                                if(param != "t(s)")
+                                {
+                                    paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_MIN);
+                                    paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_STD);
+                                }
+                            }
+                        }
+                    }
+
+                    lerCap.close();
+                    string fineName = paramEntrada.caminhoPasta + "/temp.txt";
+                    remove(fineName.c_str());
+
+                    paramConsol.getCabecalho(strCab);
+
+
+                }
+
+                paramEntrada.data.resize(paramEntrada.data.size()-2);
+
+                outfile<<"DATA: '"<<paramEntrada.data<<"'\n\n";
+                outfile<<"instancia \t "<<strCab<<"\n";
+            }
+
+            outfile<<saida<<"\n";
+            outfile.close();
+
+            cout<<"\tNAO EXISTEM SOLUCOES VIAVEIS\n";
+            //throw "ERRO";
         }
 
     }
@@ -503,4 +575,20 @@ string NS_parametros::getNomeInstancia(string str)
     }
     else
         return "ERRO";
+}
+
+ParametrosSaida NS_parametros::getParametros()
+{
+    ParametrosSaida parametrosSaida;
+
+
+    parametrosSaida.mapNoSaida["dist"] = NoSaida("dist");
+    parametrosSaida.mapNoSaida["t(s)"] = NoSaida("t(s)");
+    parametrosSaida.mapNoSaida["sem"] = NoSaida("sem");
+
+    parametrosSaida.mapNoSaida["dist"].addSaida(SAIDA_EXEC_VAL);
+    parametrosSaida.mapNoSaida["t(s)"].addSaida(SAIDA_EXEC_VAL);
+    parametrosSaida.mapNoSaida["sem"].addSaida(SAIDA_EXEC_SEM);
+
+    return std::move(parametrosSaida);
 }

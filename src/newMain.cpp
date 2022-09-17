@@ -1,7 +1,3 @@
-//
-// Created by igor on 14/09/22.
-//
-
 /* ****************************************
  * ****************************************
  *  Nome:    Igor de Andrade Junqueira
@@ -61,41 +57,11 @@ int main(int argc, char* argv[])
 
         auto end = std::chrono::high_resolution_clock::now();
 
-        ParametrosSaida parametrosSaida;
-        parametrosSaida.setTempo(start, end);
-
-        parametrosSaida.mapNoSaida["dist"] = NoSaida("dist");
-        parametrosSaida.mapNoSaida["t(s)"] = NoSaida("t(s)");
-        parametrosSaida.mapNoSaida["sem"] = NoSaida("sem");
-
-
-        parametrosSaida.mapNoSaida["dist"](best.distancia);
-        parametrosSaida.mapNoSaida["t(s)"](parametrosSaida.tempo);
-        parametrosSaida.mapNoSaida["sem"].addSemente(parametros.semente);
-
-        parametrosSaida.mapNoSaida["dist"].addSaida(SAIDA_EXEC_VAL);
-        parametrosSaida.mapNoSaida["t(s)"].addSaida(SAIDA_EXEC_VAL);
-        parametrosSaida.mapNoSaida["sem"].addSaida(SAIDA_EXEC_SEM);
-
-
-        //cout<<parametrosSaida.mapNoSaida["dist"].nome<<"\n";
-
-        string cab;
-        parametrosSaida.mapNoSaida["dist"].getCabecalho(cab);
-        //cout<<cab<<"\n";
-
-        string val;
-        parametrosSaida.mapNoSaida["dist"].getVal(val);
-        //cout<<val<<"\n";
-
-        //cout<<"tempo: "<<parametrosSaida.tempo<<"\n";
+        ParametrosSaida parametrosSaida = getParametros();
+        setParametrosSaida(parametrosSaida, parametros, best, start, end);
         saida(parametros, parametrosSaida, best, instancia);
 
 
-
-
-/*        escreveSolCompleta(parametros, best, instancia);
-        escreveSolParaPrint(parametros, best, instancia);*/
     }
     catch(const char *erro)
     {
