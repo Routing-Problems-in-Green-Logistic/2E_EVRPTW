@@ -5,9 +5,11 @@ import pandas as pd
 import math
 import time
 
-if(len(sys.argv) != 2):
+if(len(sys.argv) < 2 and len(sys.argv) > 3):
     print("NUMERO DE ARGUMENTOS ESTA ERRADO.\npython3 teste.py caminho")
     exit(-1)
+    
+print("PID: ",os.getpid())
 
 #tamanhoInst = ['5', '10', '15']
 tamanhoInst = ['100_0']
@@ -15,11 +17,10 @@ numExecucoes = 10
 
 caminhoDir = str(sys.argv[1])
 
-parametros = " --pasta '" + caminhoDir +"' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --execAtual "
-
 
 diretorioIni = 'instancias/2e-vrp-tw/'
-instancias = []
+instanciasVet = []
+numExecucoesVet = []
 
 for i in tamanhoInst:
     caminho = diretorioIni + 'Customer_' + str(i) + '/'
@@ -27,18 +28,43 @@ for i in tamanhoInst:
     files.sort()
 
     for f in files:
-        instancias.append(caminho+f)
-        
-        
+        instanciasVet.append(caminho+f)
+        numExecucoesVet.append(0)
 
-for instancia in instancias:
+
+instancias = pd.DataFrame()
+instanciasCsv = caminhoDir+"/instancias.csv"
+
+if(len(sys.argv) == 3):
+    instancias = pd.read_csv(instanciasCsv)
+    #instancias = instancias.drop(columns=['0'])
     
-    for i in range(numExecucoes):
+else:
+    temp = {'instancia' : instanciasVet, 'prox' : numExecucoesVet}
+    instancias = pd.DataFrame(data=temp)
+    instancias.to_csv(instanciasCsv, index=False)
+    
+print(instancias)    
+
+
+parametros = " --pasta '" + caminhoDir +"' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --execAtual "
+        
+        
+n = len(instancias.index)
+for j in range(n):
+    
+    instancia = instancias.loc[j,'instancia']
+    start = int(instancias.loc[j,'prox'])
+    
+    for i in range(start, numExecucoes, 1):
 
       strExecutavel = caminhoDir+'//run ' + str(instancia) + parametros + str(i)
       os.system(strExecutavel)
       #print(strExecutavel)
+      instancias.loc[j,'prox'] = i+1
+      instancias.to_csv(instanciasCsv, index=False)
       
+    #print(instancias)
     print("\n\n")
 
 

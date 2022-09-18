@@ -3,22 +3,42 @@ find="-03"
 replace=""
 data=${data//$find/$replace}
 
-find=" "
-replace="_"
-data=${data//$find/$replace}
+echo $#
+n=$#
 
-size=${#data}
-size=$((size - 4))
-data=${data:0:$size}
-dir="TESTES/testes_"$data
-dir2=$dir"/log.txt"
-#echo $dir
+mkdir "TESTES"
 
-mkdir $dir
-cp src/cmake-build-debug/run $dir
+if (($n==1))
+then
 
-echo $data + '\n'
+    data=$1
+    dir="TESTES/testes_"$data
+    dir2=$dir"/log.txt"
+    echo "Continuacao teste: "$data
+    
+    python3 testesNew.py $dir 1 | tee $dir2
+    
+else
+    echo 'else'
+    find=" "
+    replace="_"
+    data=${data//$find/$replace}
 
-python3 testesNew.py $dir | tee $dir2
+    size=${#data}
+    size=$((size - 4))
+    data=${data:0:$size}
+
+
+    dir="TESTES/testes_"$data
+    dir2=$dir"/log.txt"
+    #echo $dir
+
+    mkdir $dir
+    cp src/cmake-build-debug/run $dir
+
+    echo $data
+    
+    python3 testesNew.py $dir | tee $dir2
+fi
 
 #echo $size
