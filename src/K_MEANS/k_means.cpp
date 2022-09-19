@@ -114,7 +114,7 @@ void N_k_means::k_means(Instance &instancia)
 
     };
 
-    for(int i = 0; i < 10; ++i)
+    for(int i = 0; i < 400; ++i)
     {
         cout<<"i: "<<i<<"\n\n";
 
@@ -134,7 +134,7 @@ void N_k_means::k_means(Instance &instancia)
         }
 
         if(i != 0)
-            centroideAnt = std::vector<Ponto>(centroide);
+            centroideAnt = centroide;
 
         calculaCentroide(clienteCluster);
 

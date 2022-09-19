@@ -22,8 +22,8 @@ for i in range(len(dados.index)):
     color = satColors[dados.loc[i, 'cluster']]
     print(no, ': ', tipo, ' ', tipo)
     
-    if(tipo != 'X')
-        plt.annotate(no, (x,y), color='r', zorder=10)
+    #if(tipo != 'X'):
+    #    plt.annotate(no, (x,y), color='r', zorder=10)
     
     plt.scatter(x, y, c=color, marker=tipo, s=65, zorder= 5)
     

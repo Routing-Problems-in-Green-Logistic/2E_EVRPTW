@@ -443,6 +443,7 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
                 if((i+1)==argc)
                 {
                     cout<<"ERRO; OPCAO("<<opcao<<") FALTA O VALOR\n";
+                    cout<<paramEntrada.getParametros()<<"\n\n";
                     throw "ERRO";
                 }
 
@@ -465,10 +466,26 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
                 }
                 else if(opcao == "--resulCSV")
                     paramEntrada.resultadoCSV = string(argv[i+1]);
+                else if(opcao == "--mt")
+                {
+                    string metodoStr = string(argv[i+1]);
+                    if(metodoStr == "G" || metodoStr == "Grasp")
+                        paramEntrada.metodo = METODO_GRASP;
+
+                    else if(metodoStr == "ACO")
+                        paramEntrada.metodo = METODO_ACO;
+
+                    else
+                    {
+                        cout<<"OPCAO --mt "<<metodoStr<<" EH INVALIDA. METODO "<<metodoStr<<" NAO EXISTE\n";
+                        cout<<paramEntrada.getParametros()<<"\n\n";
+                        throw "ERRO";
+                    }
+                }
                 else
                 {
                     cout<<"ERRO ENTRADA: OPCAO("<<opcao<<") EH INVALIDA\n";
-                    cout<<"OPCOES VALIDAS: --seed --pasta --execTotal --execAtual --resulCSV\n\n";
+                    cout<<paramEntrada.getParametros()<<"\n\n";
                     throw "ERRO";
                 }
 
@@ -485,21 +502,24 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
 
             if(paramEntrada.numExecucoesTotais != 0 && paramEntrada.execucaoAtual == -1)
             {
-                cout<<"ERRO: OPCAO(--execAtual) TEM QUE SER UTILIZADA COM --execTotal\n\n";
+                cout<<"ERRO: OPCAO(--execAtual) TEM QUE SER UTILIZADA COM --execTotal\n";
+                cout<<paramEntrada.getParametros()<<"\n\n";
                 throw "ERRO";
             }
 
 
             if(paramEntrada.numExecucoesTotais == 0 && paramEntrada.execucaoAtual != -1)
             {
-                cout<<"ERRO: OPCAO(--execTotal) TEM QUE SER UTILIZADA COM --execAtual\n\n";
+                cout<<"ERRO: OPCAO(--execTotal) TEM QUE SER UTILIZADA COM --execAtual\n";
+                cout<<paramEntrada.getParametros()<<"\n\n";
                 throw "ERRO";
             }
 
             if(paramEntrada.caminhoPasta == "" && (paramEntrada.numExecucoesTotais != 0 || paramEntrada.execucaoAtual != 0))
             {
 
-                cout<<"ERRO: OPCOES(--execTotal e --execAtual) TEM QUE SER UTILIZADAS EM CONJUNTO COM --pasta\n\n";
+                cout<<"ERRO: OPCOES(--execTotal e --execAtual) TEM QUE SER UTILIZADAS EM CONJUNTO COM --pasta\n";
+                cout<<paramEntrada.getParametros()<<"\n\n";
                 throw "ERRO";
             }
         }
@@ -511,9 +531,8 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
     }
     else
     {
-        cout<<"ERRO ENTRADA; FALTA A INSTANCIA!\nOPCOES: --seed --pasta --execTotal --execAtual --resulCSV\nEXECUCAO: ./run instancia <--opcao val>\n\n";
-        cout<<"Compilado em: "<<__DATE__<<", "<<__TIME__<<".\n";
-        //cout<<"Commit: \tf7d1f0fbd4de1288fc027810a969822e3ba4e3dc\n\n";
+        cout<<"ERRO ENTRADA; FALTA A INSTANCIA!\n";
+        cout<<paramEntrada.getParametros()<<"\n\n";
 
         throw "ERRO";
     }
@@ -591,4 +610,11 @@ ParametrosSaida NS_parametros::getParametros()
     parametrosSaida.mapNoSaida["sem"].addSaida(SAIDA_EXEC_SEM);
 
     return std::move(parametrosSaida);
+}
+
+string NS_parametros::Parametros::getParametros()
+{
+    string saida = "OPCOES VALIDAS: \n\t--seed: semente \n\t--pasta: pasta onde os resultados serao guardados \n\t--execTotal: numero de execucoes totais"
+                   "  \n\t--execAtual: execucao atual \n\t--resulCSV: nome do arquivo csv para escrever os resultados consolidados \n\t --mt: metodo((Grasp ou G) para GRASP, (ACO)\n\n";
+    return saida;
 }

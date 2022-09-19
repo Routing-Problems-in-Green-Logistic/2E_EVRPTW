@@ -10,9 +10,10 @@ if(len(sys.argv) < 2 and len(sys.argv) > 3):
     exit(-1)
     
 print("PID: ",os.getpid())
+print("\n")
 
-#tamanhoInst = ['5', '10', '15']
-tamanhoInst = ['100_0']
+tamanhoInst = ['5', '10', '15', '100_0']
+#tamanhoInst = ['100_0']
 numExecucoes = 10
 
 caminhoDir = str(sys.argv[1])

@@ -651,7 +651,7 @@ evRouteAux.print(strRota1, instancia, true);
 cout<<"\t\t\tNova rota: "<<strRota1<<"\n\n";
 #endif
 
-                            if(novaDist < evRoute.distancia)
+                            if(novaDist < (evRoute.distancia-1E-2))
                             {
                                 // Testa nova rota:
                                 double distReal = testaRota(evRouteAux, evRouteAux.routeSize, instancia, false, evRoute[0].tempoSaida,

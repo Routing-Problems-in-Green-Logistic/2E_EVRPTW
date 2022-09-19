@@ -22,6 +22,7 @@ public:
     void inicializaVetClientesAtend(Instance &instance);
     double getDist1Nivel();
     double getDist2Nivel();
+    void recalculaDist();
 
     // Possui numSat + 1 !!
     std::vector<Satelite> satelites;

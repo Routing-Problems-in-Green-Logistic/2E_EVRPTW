@@ -413,3 +413,19 @@ double Solucao::getDist2Nivel()
     return dist;
 
 }
+
+void Solucao::recalculaDist()
+{
+    distancia = 0.0;
+    for(auto &sat:satelites)
+    {
+        sat.recalculaDist();
+        distancia += sat.distancia;
+    }
+
+    for(auto &rota:primeiroNivel)
+    {
+        if(rota.routeSize > 2)
+            distancia += rota.totalDistence;
+    }
+}

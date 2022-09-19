@@ -46,8 +46,8 @@ public:
     bool checkSatellite(std::string &erro, const Instance &Inst);
     void print(std::string &str, const Instance &instance);
     void print(const Instance &instance);
-
-void copia(Satelite &satelite);
+    void copia(Satelite &satelite);
+    void recalculaDist();
 
     std::vector<EvRoute> vetEvRoute;
 

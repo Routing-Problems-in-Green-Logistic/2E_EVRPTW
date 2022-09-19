@@ -27,6 +27,9 @@ using namespace std;
 #define SAIDA_EXEC_VAL   4
 #define SAIDA_EXEC_SEM   5
 
+#define METODO_GRASP 0
+#define METODO_ACO   1
+
 
 #define SAIDA_ULTIMO     SAIDA_EXEC_SEM
 
@@ -43,6 +46,10 @@ namespace NS_parametros
         string instancia;
         string nomeInstancia;
         string data;
+        int metodo = METODO_GRASP;
+        string commit;
+
+        string getParametros();
 
     };
 
@@ -283,6 +290,8 @@ namespace NS_parametros
     {
 
         parametrosSaida.setTempo(start, end);
+        if(parametrosSaida.tempo <= 2.0)
+            sleep(1);
 
         parametrosSaida.mapNoSaida["dist"](best.distancia);
         parametrosSaida.mapNoSaida["t(s)"](parametrosSaida.tempo);

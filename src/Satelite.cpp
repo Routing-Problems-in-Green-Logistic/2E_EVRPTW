@@ -128,3 +128,16 @@ void Satelite::copia(Satelite &satelite)
     demanda = satelite.demanda;
     distancia = satelite.distancia;
 }
+
+void Satelite::recalculaDist()
+{
+
+    distancia = 0.0;
+
+    for(auto &ev:vetEvRoute)
+    {
+        if(ev.routeSize > 2)
+            distancia += ev.distancia;
+    }
+
+}
