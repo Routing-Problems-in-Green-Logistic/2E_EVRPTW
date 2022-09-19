@@ -1,11 +1,8 @@
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_FLAGS_RELEASE, "-march=native")
 
-
-#set(CMAKE_CXX_FLAGS_RELEASE "-g3")
 #set(CMAKE_CXX_FLAGS_RELEASE "-ggdb")
-#set(CMAKE_BUILD_TYPE Debug)
-
+set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS_RELEASE "-Wall")
 set(CMAKE_CXX_FLAGS_RELEASE "-Wextra")
 set(CMAKE_CXX_FLAGS_RELEASE "-Wnull-dereference")
@@ -19,18 +16,4 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Wconversion")
 
 
 
-target_sources(run PUBLIC Instance.h Instance.cpp Parametros.h Parametros.cpp)
-
-target_include_directories(run PUBLIC "../ACO" )
-add_subdirectory("../ACO" ACO)
-
-
-target_include_directories(run PUBLIC "../AG" )
-add_subdirectory("../AG" AG)
-
-
-target_include_directories(run PUBLIC "../K_MEANS" )
-add_subdirectory("../K_MEANS" K_MEANS)
-
-
-
+target_sources(run PUBLIC k_means.h k_means.cpp)

@@ -12,13 +12,14 @@
 #include "Instance.h"
 #include "Aco.h"
 #include "PreProcessamento.h"
+#include "k_means.h"
 
 using namespace std;
 using namespace NS_parametros;
 using namespace NameS_Grasp;
 using namespace N_PreProcessamento;
 using namespace N_Aco;
-
+using namespace N_k_means;
 
 int main(int argc, char* argv[])
 {
@@ -37,8 +38,17 @@ int main(int argc, char* argv[])
         caregaParametros(parametros, argc-1, &argv[1]);
         Instance instancia(parametros.instancia, parametros.nomeInstancia);
 
+
         dijkstraSatCli(instancia);
         instancia.calculaVetVoltaRS_sat();
+
+
+
+        cout<<"k means inicio\n";
+        k_means(instancia);
+        cout<<"k means fim\n";
+
+        return 0;
 
         const std::vector<float> vetAlfa{0.1, 0.3, 0.5, 0.7, 0.9};
         int num = min(instancia.getN_Evs() / 2, 8);
