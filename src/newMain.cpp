@@ -52,16 +52,11 @@ int main(int argc, char* argv[])
         dijkstraSatCli(instancia);
         instancia.calculaVetVoltaRS_sat();
 
-        k_means(instancia);
-
-        return 0;
-
-
-
+        //k_means(instancia);
+        //return 0;
 
         ParametrosGrasp parametrosGrasp;
         setParamGrasp(instancia, parametrosGrasp);
-
         Solucao best(instancia);
 
         auto start = std::chrono::high_resolution_clock::now();
@@ -81,8 +76,6 @@ int main(int argc, char* argv[])
                 break;
         }
 
-
-
         auto end = std::chrono::high_resolution_clock::now();
 
         ParametrosSaida parametrosSaida = getParametros();
@@ -93,7 +86,7 @@ int main(int argc, char* argv[])
     }
     catch(const char *erro)
     {
-        cout<<"COMMITE: "<<parametros.commit<<"\n";
+        cout<<"\n\n*************************************************\n\nCOMMITE: "<<parametros.commit<<"\n";
         cout<<"Compilado em: "<<__DATE__<<", "<<__TIME__<<".\n";
         cout<<"SEMENTE: "<<parametros.semente<<"\n\n";
 

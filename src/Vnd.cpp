@@ -68,24 +68,27 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
     {
         bool aplicacao = false;
         double val = solution.distancia;
-        cout<<"\t\t"<<vetMv[i]<<"; i: "<<i<<"\n";
 
-/*        if(i==0)
+        if(i==0)
         {
-            cout << "\t\tVAL: " << val << "\n";
+            //cout << "\t\tVAL: " << val << "\n";
+            static double valRef;
 
-            if(!valEsp && (abs(val-766.429)<=10E-2))
+            if(!valEsp)
             {
                 valEsp = true;
+                valRef = val;
 
             }
-            else if(valEsp && (abs(val-766.429)<=10E-2))
+            else if(valEsp && !NS_Auxiliary::menor(val, valRef))
             {
-                cout<<"VAL == 766.429\n";
-                exit(-1);
+                cout<<"VAL("<<val<<") >= "<<valRef<<"\n";
+                throw("ERRO");
             }
+            else if(valEsp)
+                valRef = val;
 
-        }*/
+        }
 
         switch(vetMv[i])
         {
@@ -94,9 +97,7 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
                 break;
 
             case MV_EV_SWAP_INTRA_ROTA:
-/*                cout<<"MV 1 INI\n";
                 aplicacao = mvEvSwapIntraRota(solution, instance, evRouteAux);
-                cout<<"MV 1 FIM "<<aplicacao<<"\n";*/
                 break;
 
             case MV_EV_2OPT:
@@ -112,7 +113,7 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
 
         if(aplicacao)
         {
-            cout<<"\t\t\tAPLICACAO MV: "<<vetMv[i]<<"; VAL: "<<solution.distancia<<"\n";
+            //cout<<"\t\t\tAPLICACAO MV: "<<vetMv[i]<<"; VAL: "<<solution.distancia<<"\n";
             //solution.recalculaDist();
             string erro;
             if(!solution.checkSolution(erro, instance))
@@ -127,9 +128,10 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
         else
             i += 1;
 
-        cout<<"#######################\n";
+        //cout<<"#######################\n";
     }
-    cout<<"\n*************************\n";
+
+    //cout<<"\n#################################################\n";
     //cout<<"\tRVND FIM\n\n";
 
 

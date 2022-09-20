@@ -23,7 +23,7 @@ static int num_G = 0;
  * @param pos
  * @param instance
  * @param best
- * @param insercaoEstacao
+ * @param insercaoEstacao       Guarda o custo da rota viabilizada quando a func retorna true
  * @return
  */
 

@@ -25,10 +25,10 @@ void N_k_means::converteClientes(Instance &instancia, std::vector<Ponto> &vetPon
 
 void N_k_means::k_means(Instance &instancia)
 {
-    //static std::vector<Ponto> vetPonto;
-    std::vector<Ponto> vetPonto;
-    converteClientes(instancia, vetPonto);
-/*
+    static std::vector<Ponto> vetPonto;
+    //std::vector<Ponto> vetPonto;
+    //converteClientes(instancia, vetPonto);
+
     static bool convCli = false;
 
     if(!convCli)
@@ -36,7 +36,7 @@ void N_k_means::k_means(Instance &instancia)
         converteClientes(instancia, vetPonto);
         convCli = true;
     }
-*/
+
 
     const int numSats = instancia.numSats;
     std::vector<Ponto> centroide(numSats, Ponto());
@@ -150,7 +150,7 @@ void N_k_means::k_means(Instance &instancia)
 
         calculaCentroide(clienteCluster, centroide);
 
-        // Calcula a dist ao quadrado
+        // Calcula a dist
         if(i != 0)
         {
             double dist = 0.0;

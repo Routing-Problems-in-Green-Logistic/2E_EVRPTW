@@ -268,7 +268,9 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instance &instancia, 
                                     }
                                 }
 
-                                if(distNovaRota < evRoute.distancia)
+
+                                //if(distNovaRota < evRoute.distancia)
+                                if(menor(distNovaRota, evRoute.distancia))
                                 {
                                     double dif = evRoute.distancia - distNovaRota;
                                     bool contB = true;
@@ -324,6 +326,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instance &instancia, 
                                             PRINT_DEBUG("", "ERRO FUNC testaRota");
                                             throw "ERRO";
                                         }
+                                        solucao.recalculaDist();
                                         return true;
                                     }
 
@@ -668,16 +671,15 @@ cout<<"SWAP ROTA: "<<strRota<<"\n";
                                         cout<<"\t\t\tRota viavel. Dist: "<<distReal<<"\n\n";
 #endif
                                         double distOrig = evRoute.distancia;
+                                        distReal = testaRota(evRouteAux, evRouteAux.routeSize, instancia, true, evRoute[0].tempoSaida, ultimoValIndice, nullptr);
 
-                                        string rotaStr;
-                                        evRoute.print(rotaStr, instancia, true);
-                                        cout << "ROTA ANTES: " << rotaStr << "\n";
-                                        cout << "(distReal-10E-2) < evRoute.distancia)): "
-                                             << ((distReal - 10E-2) < evRoute.distancia) << "\n";
-                                        cout << "distReal: " << distReal << "; evRoute: " << evRoute.distancia << "\n";
-
-                                        distReal = testaRota(evRouteAux, evRouteAux.routeSize, instancia, true,
-                                                             evRoute[0].tempoSaida, ultimoValIndice, nullptr);
+                                        if(!menor(distReal, evRoute.distancia))
+                                        {
+                                            PRINT_DEBUG("","");
+                                            cout<<"ERRO, ROTA REAL EH MAIOR:\n";
+                                            cout<<"DIST REAL: "<<distReal<<"\nROTA DE REF.: "<<evRoute.distancia<<"\n\n";
+                                            exit(-1);
+                                        }
 
                                         double dif = (distReal - distOrig) / distOrig;
 
@@ -685,13 +687,9 @@ cout<<"SWAP ROTA: "<<strRota<<"\n";
 
                                         satelite.distancia -= evRoute.distancia;
                                         solucao.distancia -= evRoute.distancia;
-
                                         evRouteAux.distancia = distReal;
                                         evRoute.copia(evRouteAux, true, &instancia);
 
-                                        rotaStr = "";
-                                        evRoute.print(rotaStr, instancia, true);
-                                        cout << "ROTA DEPOIS: " << rotaStr << "\n";
 
                                         satelite.distancia += distReal;
                                         solucao.distancia += distReal;
@@ -702,26 +700,16 @@ cout<<"SWAP ROTA: "<<strRota<<"\n";
                                     else if(distReal < 0.0)
                                     {
                                         // Tenta viabilizar rota
-                                        if(viabilizaRotaEv(evRouteAux, instancia, false, insereEstacao,
-                                                           (evRoute.distancia-10E-2), false, evRoute[0].tempoSaida))
+                                        if(viabilizaRotaEv(evRouteAux, instancia, false, insereEstacao, (evRoute.distancia-10E-2), false, evRoute[0].tempoSaida))
                                         {
 
                                             //if((evRouteAux.distancia+10E-2) < evRoute.distancia)
-                                            if(menor(evRouteAux.distancia, evRoute.distancia))
+                                            if(menor(insereEstacao.distanciaRota, evRoute.distancia))
                                             {
-                                                cout<<"menor("<<evRouteAux.distancia<<", "<<evRoute.distancia<<"): 1\n";
-                                                 string rotaStr;
-                                                evRoute.print(rotaStr, instancia, true);
-                                                cout << "ROTA ANTES: " << rotaStr << "\n";
-
                                                 double distOrig = evRoute.distancia;
-
                                                 insereEstacaoRota(evRouteAux, insereEstacao, instancia, evRoute[0].tempoSaida);
                                                 double dif = (evRouteAux.distancia - distOrig) / distOrig;
 
-                                                rotaStr="";
-                                                evRouteAux.print(rotaStr, instancia, true);
-                                                cout << "ROTA DEPOIS VIAB.: " << rotaStr << "\n";
 
                                                 if(!menor(evRouteAux.distancia, evRoute.distancia))
                                                 {
@@ -735,12 +723,8 @@ cout<<"SWAP ROTA: "<<strRota<<"\n";
 
                                                 solucao.distancia -= evRoute.distancia;
                                                 satelite.distancia -= evRoute.distancia;
-
                                                 evRoute.copia(evRouteAux, true, &instancia);
-
-                                                rotaStr = "";
-                                                evRoute.print(rotaStr, instancia, true);
-                                                cout << "ROTA DEPOIS: " << rotaStr << "\n";
+                                                evRoute.vetRecarga[insereEstacao.estacao - instancia.getFirstRS_index()].utilizado += 1;
 
                                                 solucao.distancia += evRoute.distancia;
                                                 satelite.distancia += evRoute.distancia;
@@ -934,7 +918,9 @@ cout<<" ROTA: "<<strRota<<"\n";
                                     +instancia.getDistance(clienteI, clienteJ_mais1);
 
                         // Verifica se existe melhora
-                        if(novaDist < evRoute.distancia)
+
+                        //if(novaDist < evRoute.distancia)
+                        if(menor(novaDist, evRoute.distancia))
                         {
 #if PRINT_MV_2OPT == TRUE
                             cout<<"\tClienteI: "<<clienteI<<"\n";
@@ -954,13 +940,16 @@ cout<<"\t\t\tNova rota: "<<strRota1<<"\n\n";
 cout<<"\tnovaDistC("<<novaDist<<"); dist rota("<<evRoute.distancia<<")\n";
 #endif
 
-                            if(novaDist < evRoute.distancia)
+
+                            //if(novaDist < evRoute.distancia)
+                            if(menor(novaDist, evRoute.distancia))
                             {
                                 // Testa nova rota:
                                 double distReal = testaRota(evRouteAux, evRouteAux.routeSize, instancia, false, evRoute[0].tempoSaida, ultimoValIndice, nullptr);
 
                                 // Verifica se a nova rota eh viavel
-                                if(distReal > 0.0 && (distReal+1e-3) < evRoute.distancia)
+                                //if(distReal > 0.0 && (distReal+1e-3) < evRoute.distancia)
+                                if(distReal > 0.0 && menor(distReal, evRoute.distancia))
                                 {
 
 #if PRINT_MV_2OPT == TRUE
@@ -969,6 +958,14 @@ cout<<"\tnovaDistC("<<novaDist<<"); dist rota("<<evRoute.distancia<<")\n";
                                     double distOrig = evRoute.distancia;
                                     distReal = testaRota(evRouteAux, evRouteAux.routeSize, instancia, true, evRoute[0].tempoSaida, ultimoValIndice, nullptr);
 
+                                    if(!menor(distReal, evRoute.distancia))
+                                    {
+                                        PRINT_DEBUG("","");
+                                        cout<<"ERRO, ROTA REAL EH MAIOR:\n";
+                                        cout<<"DIST REAL: "<<distReal<<"\nROTA DE REF.: "<<evRoute.distancia<<"\n\n";
+                                        exit(-1);
+
+                                    }
 
 #if PRINT_MV_2OPT == TRUE
                                     double dif = (distReal-distOrig)/distOrig;
@@ -983,6 +980,7 @@ cout<<"\t\t\tMELHORA: "<<100.0*dif<<"%\n";
 
                                     satelite.distancia += distReal;
                                     solucao.distancia  += distReal;
+                                    solucao.recalculaDist();
 
                                     return true;
                                 }
@@ -992,12 +990,13 @@ cout<<"\t\t\tMELHORA: "<<100.0*dif<<"%\n";
                                     if(viabilizaRotaEv(evRouteAux, instancia, true, insereEstacao, (evRoute.distancia-1E-3), false, evRoute[0].tempoSaida))
                                     {
 
-                                        if((evRouteAux.distancia+10E-3) < evRoute.distancia)
+                                        //if((evRouteAux.distancia+10E-3) < evRoute.distancia)
+                                        if(menor(insereEstacao.distanciaRota, evRoute.distancia))
                                         {
 
                                             double distOrig = evRoute.distancia;
-
                                             insereEstacaoRota(evRouteAux, insereEstacao, instancia, evRoute[0].tempoSaida);
+
 
 #if PRINT_MV_2OPT == TRUE
                                             double dif = (evRouteAux.distancia - distOrig) / distOrig;
@@ -1005,11 +1004,12 @@ cout << "\t\t\tMELHORA VIAB.: " << 100.0 * dif << "%\n";
 #endif
                                             solucao.distancia -= evRoute.distancia;
                                             satelite.distancia -= evRoute.distancia;
-
                                             evRoute.copia(evRouteAux, true, &instancia);
+                                            evRoute.vetRecarga[insereEstacao.estacao - instancia.getFirstRS_index()].utilizado += 1;
 
                                             solucao.distancia += evRoute.distancia;
                                             satelite.distancia += evRoute.distancia;
+                                            solucao.recalculaDist();
 
                                             return true;
                                         }
