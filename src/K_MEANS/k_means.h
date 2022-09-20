@@ -54,6 +54,7 @@ namespace N_k_means
 
     void converteClientes(Instance &instancia, std::vector<Ponto> &vetPonto);
     void k_means(Instance &instancia);
+    void printVetPonto(const std::vector<Ponto> &vetPonto);
 
 }
 

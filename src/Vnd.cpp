@@ -63,12 +63,29 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
 //cout<<"***************************************************************************\n\n";
 
     int i=0;
+    bool valEsp = false;
     while(i < NUM_MV)
     {
         bool aplicacao = false;
         double val = solution.distancia;
-        //cout<<"\t\t"<<vetMv[i]<<"; i: "<<i<<"\n";
-        //cout<<"\t\t"<<val<<"\n";
+        cout<<"\t\t"<<vetMv[i]<<"; i: "<<i<<"\n";
+
+/*        if(i==0)
+        {
+            cout << "\t\tVAL: " << val << "\n";
+
+            if(!valEsp && (abs(val-766.429)<=10E-2))
+            {
+                valEsp = true;
+
+            }
+            else if(valEsp && (abs(val-766.429)<=10E-2))
+            {
+                cout<<"VAL == 766.429\n";
+                exit(-1);
+            }
+
+        }*/
 
         switch(vetMv[i])
         {
@@ -77,7 +94,9 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
                 break;
 
             case MV_EV_SWAP_INTRA_ROTA:
-                //aplicacao = mvEvSwapIntraRota(solution, instance, evRouteAux);
+/*                cout<<"MV 1 INI\n";
+                aplicacao = mvEvSwapIntraRota(solution, instance, evRouteAux);
+                cout<<"MV 1 FIM "<<aplicacao<<"\n";*/
                 break;
 
             case MV_EV_2OPT:
@@ -93,7 +112,8 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
 
         if(aplicacao)
         {
-            solution.recalculaDist();
+            cout<<"\t\t\tAPLICACAO MV: "<<vetMv[i]<<"; VAL: "<<solution.distancia<<"\n";
+            //solution.recalculaDist();
             string erro;
             if(!solution.checkSolution(erro, instance))
             {
@@ -102,15 +122,14 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
                 exit(-1);
             }
 
-            if(solution.distancia < (val-1E-2))
-                i = 0;
-            else
-                i += 1;
+            i = 0;
         }
         else
             i += 1;
+
+        cout<<"#######################\n";
     }
-    //cout<<"\n";
+    cout<<"\n*************************\n";
     //cout<<"\tRVND FIM\n\n";
 
 

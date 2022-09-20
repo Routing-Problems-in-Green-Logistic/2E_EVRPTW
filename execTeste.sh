@@ -3,7 +3,6 @@ find="-03"
 replace=""
 data=${data//$find/$replace}
 
-echo $#
 n=$#
 
 mkdir "TESTES"
@@ -19,7 +18,6 @@ then
     python3 testesNew.py $dir 1 | tee $dir2
     
 else
-    echo 'else'
     find=" "
     replace="_"
     data=${data//$find/$replace}

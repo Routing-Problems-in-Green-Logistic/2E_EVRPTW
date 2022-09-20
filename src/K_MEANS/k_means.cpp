@@ -25,7 +25,10 @@ void N_k_means::converteClientes(Instance &instancia, std::vector<Ponto> &vetPon
 
 void N_k_means::k_means(Instance &instancia)
 {
-    static std::vector<Ponto> vetPonto;
+    //static std::vector<Ponto> vetPonto;
+    std::vector<Ponto> vetPonto;
+    converteClientes(instancia, vetPonto);
+/*
     static bool convCli = false;
 
     if(!convCli)
@@ -33,10 +36,11 @@ void N_k_means::k_means(Instance &instancia)
         converteClientes(instancia, vetPonto);
         convCli = true;
     }
+*/
 
     const int numSats = instancia.numSats;
-    std::vector<Ponto> centroide(numSats);
-    std::vector<Ponto> centroideAnt(numSats);
+    std::vector<Ponto> centroide(numSats, Ponto());
+    std::vector<Ponto> centroideAnt(numSats, Ponto());
 
     std::vector<int> clienteCluster(instancia.numNos, -1);
 
@@ -68,11 +72,12 @@ void N_k_means::k_means(Instance &instancia)
         std::sort(vetDistCluster.begin(), vetDistCluster.end());
     };
 
-    auto calculaCentroide = [&](std::vector<int> &clienteCluster)
+    auto calculaCentroide = [&](std::vector<int> &clienteCluster, std::vector<Ponto> &centroide)
     {
 
         for(auto &it:centroide)
             it.set(0.0, 0.0);
+
 
         vector<int> quantPorCluster(numSats, 0);
 
@@ -85,6 +90,7 @@ void N_k_means::k_means(Instance &instancia)
             centroide[cluster].y += vetPonto[cli].y;
         }
 
+
         // Atualizacao do centroide pelos satelites
         for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
         {
@@ -94,14 +100,17 @@ void N_k_means::k_means(Instance &instancia)
             centroide[cluster].y += vetPonto[sat].y;
         }
 
+
+
         // Atualizacao do centroide pelos RS
         for(int rs=instancia.getFirstRS_index(); rs <= instancia.getEndRS_index(); ++rs)
         {
-            const int cluster = (rs - instancia.getFirstSatIndex());
+            const int cluster = clienteCluster[rs];
             quantPorCluster[cluster] += 1;
             centroide[cluster].x += vetPonto[rs].x;
             centroide[cluster].y += vetPonto[rs].y;
         }
+
 
         // Calculas medias
         for(int i=0; i < numSats; ++i)
@@ -111,12 +120,12 @@ void N_k_means::k_means(Instance &instancia)
         }
 
 
-
     };
 
     for(int i = 0; i < 400; ++i)
     {
         cout<<"i: "<<i<<"\n\n";
+        //cout<<"centroide: "<<&centroide[0]<<"; ant: "<<&centroideAnt[0]<<"\n\n";
 
         for(int cli=instancia.getFirstClientIndex(); cli <= instancia.getEndClientIndex(); ++cli)
         {
@@ -134,20 +143,24 @@ void N_k_means::k_means(Instance &instancia)
         }
 
         if(i != 0)
-            centroideAnt = centroide;
+        {
+            for(int k=0; k < numSats; ++k)
+                centroideAnt[k] = centroide[k];
+        }
 
-        calculaCentroide(clienteCluster);
+        calculaCentroide(clienteCluster, centroide);
 
         // Calcula a dist ao quadrado
-
         if(i != 0)
         {
             double dist = 0.0;
             for(int k = 0; k < instancia.numSats; ++k)
+            {
                 dist += centroide[k].distancia(centroideAnt[k]);
-            dist /= instancia.numSats;
-            cout<<"DIST MEDIA: "<<dist<<"\n\n";
+                //cout<<k<<": "<<centroideAnt[k]<<"; "<<centroide[k]<<"\n";
+            }
 
+            dist /= instancia.numSats;
             if(dist <= 1E-3)
                 break;
 
@@ -162,11 +175,6 @@ void N_k_means::k_means(Instance &instancia)
 
     for(int rs=instancia.getFirstRS_index(); rs <= instancia.getEndRS_index(); ++rs)
         encontraClusterParaCli(rs, vetDistCluster);
-
-    for(int cli=instancia.getFirstClientIndex(); cli <= instancia.getEndClientIndex(); ++cli)
-    {
-        cout<<cli<<": "<<clienteCluster[cli]<<"\n";
-    }
 
     cout<<"\n\nCENTROIDE:\n";
 
@@ -197,4 +205,12 @@ void N_k_means::k_means(Instance &instancia)
     for(int i=0; i < instancia.numSats; ++i)
         cout<<(i+instancia.numNos)<<", "<<centroide[i].x<<", "<<centroide[i].y<<", "<<i<<", X\n";
 
+}
+
+void N_k_means::printVetPonto(const std::vector<Ponto> &vetPonto)
+{
+    for(const Ponto &ponto:vetPonto)
+        cout<<ponto<<"\n";
+
+    cout<<"\n";
 }

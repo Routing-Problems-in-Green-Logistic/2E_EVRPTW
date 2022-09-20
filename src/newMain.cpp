@@ -1,3 +1,6 @@
+// Erro MV 1:
+// run ../../instancias/2e-vrp-tw/Customer_15/C202_C15x.txt --execTotal 2 --pasta 'resultados' --resulCSV 'resultados.csv' --execAtual 0 --mt G --seed 1663599262
+
 /* ****************************************
  * ****************************************
  *  Nome:    Igor de Andrade Junqueira
@@ -49,16 +52,10 @@ int main(int argc, char* argv[])
         dijkstraSatCli(instancia);
         instancia.calculaVetVoltaRS_sat();
 
-
-
-        /*
-
-        cout<<"k means inicio\n";
         k_means(instancia);
-        cout<<"k means fim\n";
+
         return 0;
 
-         */
 
 
 

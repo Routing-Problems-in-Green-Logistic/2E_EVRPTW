@@ -15,8 +15,8 @@ print("\n")
 tamanhoInst = ['5', '10', '15', '100_0']
 #tamanhoInst = ['100_0']
 numExecucoes = 10
-
 caminhoDir = str(sys.argv[1])
+parametros = " --pasta '" + caminhoDir +"' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --execAtual "
 
 
 diretorioIni = 'instancias/2e-vrp-tw/'
@@ -38,6 +38,8 @@ instanciasCsv = caminhoDir+"/instancias.csv"
 
 if(len(sys.argv) == 3):
     instancias = pd.read_csv(instanciasCsv)
+    print(instancias)
+    print("\n\n")
     #instancias = instancias.drop(columns=['0'])
     
 else:
@@ -45,10 +47,10 @@ else:
     instancias = pd.DataFrame(data=temp)
     instancias.to_csv(instanciasCsv, index=False)
     
-print(instancias)    
+
+sys.stdout.flush()
 
 
-parametros = " --pasta '" + caminhoDir +"' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --execAtual "
         
         
 n = len(instancias.index)
@@ -67,6 +69,4 @@ for j in range(n):
       
     #print(instancias)
     print("\n\n")
-
-
-
+    sys.stdout.flush()

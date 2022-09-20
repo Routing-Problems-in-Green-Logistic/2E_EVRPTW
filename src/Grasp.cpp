@@ -131,7 +131,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
         //if(i>0 && (i%100)==0)
-        //  cout<<"ITERACAO: "<<i<<"\n";
+        cout<<"ITERACAO: "<<i<<"\n";
 
         Solucao sol(instance);
         setSatParaCliente(instance, vetSatAtendCliente, satUtilizado, parametros);
