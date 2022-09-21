@@ -7,6 +7,7 @@
  * ****************************************/
 
 #include "k_means.h"
+#include "../mersenne-twister.h"
 
 using namespace N_k_means;
 
@@ -20,36 +21,120 @@ void N_k_means::converteClientes(Instance &instancia, std::vector<Ponto> &vetPon
         vetPonto[i] = Ponto(instancia.vectCliente[i]);
         //cout<<i<<": "<<vetPonto[i]<<"\n";
     }
-
 }
 
-void N_k_means::k_means(Instance &instancia)
+void N_k_means::k_means(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, bool seed)
 {
     static std::vector<Ponto> vetPonto;
-    //std::vector<Ponto> vetPonto;
-    //converteClientes(instancia, vetPonto);
+    static std::vector<double> vetRaioSat;
 
-    static bool convCli = false;
+    static bool staticStart = false;
 
-    if(!convCli)
+    if(instancia.numSats == 1)
     {
-        converteClientes(instancia, vetPonto);
-        convCli = true;
+        std::fill((vetSatAtendCliente.begin()+instancia.getFirstClientIndex()),
+                  (vetSatAtendCliente.begin()+instancia.getEndClientIndex()+1), instancia.getFirstSatIndex());
+
+        satUtilizado[instancia.getFirstSatIndex()] = 1;
+        return;
+    }
+    else
+    {
+        std::fill(vetSatAtendCliente.begin(), vetSatAtendCliente.end(), -1);
+        std::fill(vetSatAtendCliente.begin()+1, vetSatAtendCliente.end(), -1);
     }
 
+    if(!staticStart)
+    {
+        converteClientes(instancia, vetPonto);
+        if(seed)
+            vetRaioSat = calculaRaioSatSeedK_means(instancia);
+
+        staticStart = true;
+    }
 
     const int numSats = instancia.numSats;
     std::vector<Ponto> centroide(numSats, Ponto());
     std::vector<Ponto> centroideAnt(numSats, Ponto());
 
+    // Clusters [0, numSats)
     std::vector<int> clienteCluster(instancia.numNos, -1);
 
-    // Inicializa os centroides com os sats
-    for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+    if(!seed)
     {
-        centroide[sat-instancia.getFirstSatIndex()] = vetPonto[sat];
-        clienteCluster[sat] = sat-instancia.getFirstSatIndex();
-        //cout<<sat<<": "<<clienteCluster[sat]<<"\n";
+        // Inicializa os centroides com os sats
+        for(int sat = instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+        {
+            centroide[sat - instancia.getFirstSatIndex()] = vetPonto[sat];
+            clienteCluster[sat] = sat - instancia.getFirstSatIndex();
+        }
+    }
+    else
+    {
+        // Inicializa os centroides em um raio dos sats
+        for(int sat = instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+        {
+            Ponto ponto = vetPonto[sat];
+            const Ponto centro(ponto);
+
+            if(vetRaioSat[sat] == 0.0)
+            {
+                centroide[sat-instancia.getFirstSatIndex()] = ponto;
+                clienteCluster[sat] = sat - instancia.getFirstSatIndex();
+                continue;
+            }
+
+            double temp = rand_u32() % int(floor(vetRaioSat[sat]));
+            const double raio =temp+double((rand_u32()%100)/100.0);
+
+            int angulo = rand_u32()%360; // [0,359]
+            if(angulo < 90)
+            {
+                //cout<<"< 90\n";
+                const double complementar = angulo*0.0174533;
+
+                ponto.x += abs(cos(complementar)*raio);
+                ponto.y += abs(sin(complementar)*raio);
+
+            }
+            else if((angulo>=90) && (angulo<180))
+            {
+                //cout<<">= 90; < 180\n";
+                const double complementar = (180-angulo)*0.0174533;
+
+                ponto.x += -abs(cos(complementar)*raio);
+                ponto.y += abs(sin(complementar)*raio);
+            }
+            else if((angulo>=180) && (angulo<270))
+            {
+                //cout<<">= 180; < 270\n";
+                const double complementar = (angulo-180)*0.0174533;
+
+                ponto.x += -abs(cos(complementar)*raio);
+                ponto.y += -abs(sin(complementar)*raio);
+            }
+            else // angulo >= 270 && angulo < 360
+            {
+                //cout<<">= 270; < 360\n";
+                const double complementar = (360-angulo)*0.0174533;
+
+                ponto.x += abs(cos(complementar)*raio);
+                ponto.y += -abs(sin(complementar)*raio);
+            }
+
+            double dist = ponto.distancia(centro);
+
+            if(abs(dist-raio) > 10E-2)
+            {
+                cout<<"ERRO DIST(CENTRO, PONTO)("<<dist<<") != RAIO("<<raio<<")\n\n";
+            }
+
+            //cout<<"SAT("<<sat<<") PONTO("<<vetPonto[sat]<<"); RAIO("<<raio<<"); CENTROIDE: "<<ponto<<"; DIST(PONTO, SAT): "<<dist<<"\n";
+            centroide[sat-instancia.getFirstSatIndex()] = ponto;
+            clienteCluster[sat] = sat - instancia.getFirstSatIndex();
+        }
+
+        //cout<<"\n\n";
 
     }
 
@@ -57,7 +142,6 @@ void N_k_means::k_means(Instance &instancia)
 
     auto encontraClusterParaCli = [&](const int cli, std::vector<DistCluster> &vetDistCluster)
     {
-
         for(auto &it:vetDistCluster)
             it = DistCluster();
 
@@ -74,10 +158,8 @@ void N_k_means::k_means(Instance &instancia)
 
     auto calculaCentroide = [&](std::vector<int> &clienteCluster, std::vector<Ponto> &centroide)
     {
-
         for(auto &it:centroide)
             it.set(0.0, 0.0);
-
 
         vector<int> quantPorCluster(numSats, 0);
 
@@ -90,7 +172,6 @@ void N_k_means::k_means(Instance &instancia)
             centroide[cluster].y += vetPonto[cli].y;
         }
 
-
         // Atualizacao do centroide pelos satelites
         for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
         {
@@ -99,8 +180,6 @@ void N_k_means::k_means(Instance &instancia)
             centroide[cluster].x += vetPonto[sat].x;
             centroide[cluster].y += vetPonto[sat].y;
         }
-
-
 
         // Atualizacao do centroide pelos RS
         for(int rs=instancia.getFirstRS_index(); rs <= instancia.getEndRS_index(); ++rs)
@@ -111,37 +190,34 @@ void N_k_means::k_means(Instance &instancia)
             centroide[cluster].y += vetPonto[rs].y;
         }
 
-
         // Calculas medias
         for(int i=0; i < numSats; ++i)
         {
             centroide[i].x /= quantPorCluster[i];
             centroide[i].y /= quantPorCluster[i];
         }
-
-
     };
 
     for(int i = 0; i < 400; ++i)
     {
-        cout<<"i: "<<i<<"\n\n";
+        //cout<<"i: "<<i<<"\n\n";
         //cout<<"centroide: "<<&centroide[0]<<"; ant: "<<&centroideAnt[0]<<"\n\n";
 
+        // Aloca o cluster(centroide) mais prox para cada cliente
         for(int cli=instancia.getFirstClientIndex(); cli <= instancia.getEndClientIndex(); ++cli)
         {
             encontraClusterParaCli(cli, vetDistCluster);
-
-            //cout<<"\n";
-
             clienteCluster[cli] = vetDistCluster[0].cluster;
         }
 
+        // Aloca o cluster(centroide) mais prox para cada RS
         for(int rs=instancia.getFirstRS_index(); rs <= instancia.getEndRS_index(); ++rs)
         {
             encontraClusterParaCli(rs, vetDistCluster);
             clienteCluster[rs] = vetDistCluster[0].cluster;
         }
 
+        // Guarda o centroide da it anterior
         if(i != 0)
         {
             for(int k=0; k < numSats; ++k)
@@ -150,33 +226,44 @@ void N_k_means::k_means(Instance &instancia)
 
         calculaCentroide(clienteCluster, centroide);
 
-        // Calcula a dist
+        // Calcula a dist entre centroide da iteracao anterior e o novo
         if(i != 0)
         {
             double dist = 0.0;
             for(int k = 0; k < instancia.numSats; ++k)
-            {
                 dist += centroide[k].distancia(centroideAnt[k]);
-                //cout<<k<<": "<<centroideAnt[k]<<"; "<<centroide[k]<<"\n";
-            }
 
             dist /= instancia.numSats;
             if(dist <= 1E-3)
+            {
+                //cout<<"NUM IT: "<<i+1<<"\n\n";
                 break;
-
+            }
         }
-
     }
 
 
     for(int cli=instancia.getFirstClientIndex(); cli <= instancia.getEndClientIndex(); ++cli)
         encontraClusterParaCli(cli, vetDistCluster);
 
-
     for(int rs=instancia.getFirstRS_index(); rs <= instancia.getEndRS_index(); ++rs)
         encontraClusterParaCli(rs, vetDistCluster);
 
-    cout<<"\n\nCENTROIDE:\n";
+    // Seta os vetores vetSatAtendCliente e satUtilizado utilizados no construtivo
+    for(int cli=instancia.getFirstClientIndex(); cli <= instancia.getEndClientIndex(); ++cli)
+    {
+        const int sat = clienteCluster[cli]+instancia.getFirstSatIndex();
+        vetSatAtendCliente[cli] = sat;
+        satUtilizado[sat] = 1;
+    }
+
+/*    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+    {
+        cout << i << " " << clienteCluster[i]<<"; "<<vetSatAtendCliente[i]<<"\n";
+    }
+    cout<<"\n\n";*/
+
+/*    cout<<"\n\nCENTROIDE:\n";
 
     for(int sat=0; sat < numSats; ++sat)
         cout<<sat<<": "<<centroide[sat]<<"\n";
@@ -203,7 +290,7 @@ void N_k_means::k_means(Instance &instancia)
     }
 
     for(int i=0; i < instancia.numSats; ++i)
-        cout<<(i+instancia.numNos)<<", "<<centroide[i].x<<", "<<centroide[i].y<<", "<<i<<", X\n";
+        cout<<(i+instancia.numNos)<<", "<<centroide[i].x<<", "<<centroide[i].y<<", "<<i<<", X\n";*/
 
 }
 
@@ -213,4 +300,50 @@ void N_k_means::printVetPonto(const std::vector<Ponto> &vetPonto)
         cout<<ponto<<"\n";
 
     cout<<"\n";
+}
+
+/*
+ * Excentricidade de um vertice:
+ *
+ *      Sendo um grafo G(V, E), V conjunto de vertices e E conjunto de arstas, tal que (i,j), i!=j, i,j \in V
+ *   Cada aresta de E esta associada uma distância, d(i,j) como sendo d a distacia euclidiana  entre i e j.
+ *
+ *      A  excentricidade e(i), i \in V eh igual a: max: d(i,j) para todo j \in V
+ *
+ * Centro do grafo
+ *
+ *
+ */
+
+
+std::vector<double>N_k_means::calculaRaioSatSeedK_means(Instance &instancia)
+{
+    // Calcula a excentricidade de cada vertice
+    std::vector<double> vetExcentricidadeNos(instancia.numNos, DOUBLE_MIN);
+    int centro = -1;
+    double eCentro = DOUBLE_MAX;
+
+    for(int i=1; i < instancia.numNos; ++i)
+    {
+        for(int j=1; j < instancia.numNos; ++j)
+            vetExcentricidadeNos[i] = max(vetExcentricidadeNos[i], instancia.getDistance(i, j));
+
+        if(vetExcentricidadeNos[i] < eCentro)
+        {
+            centro = i;
+            eCentro = vetExcentricidadeNos[i];
+        }
+        //cout<<"e("<<i<<") = "<<vetExcentricidadeNos[i]<<"\n";
+    }
+    //cout<<"Centro do grafo: "<<centro<<"\n\n";
+
+    std::vector<double> raioSat(instancia.numSats+1, 0.0);
+
+    for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+    {
+        raioSat[sat] = instancia.getDistance(sat, centro);
+        //cout<<"Raio("<<sat<<") = "<<raioSat[sat]<<"\n";
+    }
+
+    return std::move(raioSat);
 }

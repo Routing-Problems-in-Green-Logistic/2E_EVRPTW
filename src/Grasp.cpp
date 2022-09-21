@@ -14,6 +14,7 @@
 #include "PreProcessamento.h"
 #include "Vnd.h"
 #include <fstream>
+#include "k_means.h"
 
 #define NUM_EST_INI 3
 
@@ -33,7 +34,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
     EvRoute evRoute(1, instance.getFirstEvIndex(), instance.getEvRouteSizeMax(), instance);
 
 
-    vector<int> vetSatAtendCliente(instance.numNos, -1); // ***
+    vector<int> vetSatAtendCliente(instance.numNos, -1);
     vector<int> satUtilizado(instance.numSats+1, 0);
 
 //cout<<"&vetSatAntendCliente: "<<&vetSatAtendCliente<<"\n&satUtilizado: "<<&satUtilizado<<"\n\n";
@@ -134,7 +135,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
         //cout<<"ITERACAO: "<<i<<"\n";
 
         Solucao sol(instance);
-        setSatParaCliente(instance, vetSatAtendCliente, satUtilizado, parametros);
+        //setSatParaCliente(instance, vetSatAtendCliente, satUtilizado, parametros);
+        N_k_means::k_means(instance, vetSatAtendCliente, satUtilizado, true);
 
 
         if(i == parametros.iteracoesCalProb && instance.shortestPath) //&& (i%parametros.iteracoesCalProb)==0)

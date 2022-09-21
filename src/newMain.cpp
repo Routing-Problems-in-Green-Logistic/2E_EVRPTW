@@ -52,8 +52,18 @@ int main(int argc, char* argv[])
         dijkstraSatCli(instancia);
         instancia.calculaVetVoltaRS_sat();
 
-        //k_means(instancia);
-        //return 0;
+
+
+/*            vector<int> vetSatAtendCliente(instancia.numNos, -1);
+            vector<int> satUtilizado(instancia.numSats+1, 0);
+
+            //for(int i=0; i < 10; ++i)
+            k_means(instancia, vetSatAtendCliente, satUtilizado, true);
+            return 0;*/
+
+
+            //calculaRaioSatSeedK_means(instancia);
+            //return 0;
 
         ParametrosGrasp parametrosGrasp;
         setParamGrasp(instancia, parametrosGrasp);

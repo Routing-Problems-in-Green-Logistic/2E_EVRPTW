@@ -53,8 +53,9 @@ namespace N_k_means
     };
 
     void converteClientes(Instance &instancia, std::vector<Ponto> &vetPonto);
-    void k_means(Instance &instancia);
+    void k_means(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, bool seed);
     void printVetPonto(const std::vector<Ponto> &vetPonto);
+    std::vector<double> calculaRaioSatSeedK_means(Instance &instance);
 
 }
 
