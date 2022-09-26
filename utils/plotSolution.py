@@ -128,7 +128,7 @@ for i in range(len(nodeId)):
         continue
 
     #if nodeId[i] >= numSat:
-    plt.annotate(nodeId[i], (x[i], y[i]), color='r', zorder=10)
+    #plt.annotate(nodeId[i], (x[i], y[i]), color='r', zorder=10)
         
     print(nodeId[i], ": ", x[i], " ", y[i])
 
