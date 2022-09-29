@@ -18,8 +18,13 @@ for i in range(len(dados.index)):
     no = int(dados.loc[i,'i'])
     tipo = str(dados.loc[i,'tipo'])
     tipo = tipo.replace(" ", "")   
+    
+    if dados.loc[i, 'cluster'] != -1:
+        color = satColors[dados.loc[i, 'cluster']]
         
-    color = satColors[dados.loc[i, 'cluster']]
+    else:
+        color = "#000000"
+        
     print(no, ': ', tipo, ' ', tipo)
     
     #if(tipo != 'X'):

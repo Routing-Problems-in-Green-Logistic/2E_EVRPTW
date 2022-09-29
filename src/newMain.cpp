@@ -54,12 +54,12 @@ int main(int argc, char* argv[])
 
 
 
-/*            vector<int> vetSatAtendCliente(instancia.numNos, -1);
+            vector<int> vetSatAtendCliente(instancia.numNos, -1);
             vector<int> satUtilizado(instancia.numSats+1, 0);
 
             //for(int i=0; i < 10; ++i)
-            k_means(instancia, vetSatAtendCliente, satUtilizado, true);
-            return 0;*/
+            k_means(instancia, vetSatAtendCliente, satUtilizado, false);
+            return 0;
 
 
             //calculaRaioSatSeedK_means(instancia);

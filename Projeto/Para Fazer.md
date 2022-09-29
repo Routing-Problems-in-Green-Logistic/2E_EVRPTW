@@ -96,3 +96,13 @@ s-
 	- Symmetry
 - 
 
+ Veja em: [[ACO]]
+ 
+
+Texto:
+
+[[A Classification of Hyper-heuristic Approaches.pdf]]
+
+
+
+

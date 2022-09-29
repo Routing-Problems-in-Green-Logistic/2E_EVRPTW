@@ -242,7 +242,6 @@ void N_k_means::k_means(Instance &instancia, vector<int> &vetSatAtendCliente, ve
         }
     }
 
-
     for(int cli=instancia.getFirstClientIndex(); cli <= instancia.getEndClientIndex(); ++cli)
         encontraClusterParaCli(cli, vetDistCluster);
 
@@ -257,18 +256,96 @@ void N_k_means::k_means(Instance &instancia, vector<int> &vetSatAtendCliente, ve
         satUtilizado[sat] = 1;
     }
 
-/*    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+
+    // ********************************************************************************************
+    std::vector<double> mediaIntraCluster(instancia.numNos, 0.0);
+    std::vector<double> mediaInterCluster(instancia.numNos, DOUBLE_INF);
+    std::vector<int>    clusterMinInterCluster(instancia.numNos, -1);
+
+
+    ublas::matrix<int> matCluster(instancia.numNos, numSats, 0.0);      //cluster: [0, numSat)
+    std::vector<int> vetNumElemPorCluster(instancia.numSats, 0);        //cluster: [0, numSat)
+
+    // Prenche matCluster com os elementos de cada cluster
+    for(int i=1; i < instancia.numNos; ++i)
+    {
+        int cluster = clienteCluster[i];
+        int prox = vetNumElemPorCluster[cluster];
+        matCluster(prox, cluster) = i;
+        vetNumElemPorCluster[cluster] += 1;
+    }
+
+    for(int i=1; i < instancia.numNos; ++i)
+    {
+        if(!(i >= instancia.getFirstSatIndex() && i <= instancia.getEndSatIndex()))
+        {
+            int cluster = clienteCluster[i];
+
+            for(int j=0; j < vetNumElemPorCluster[cluster]; ++j)
+            {
+                int cliente = matCluster(j, cluster);
+                mediaIntraCluster[i] += instancia.getDistance(i, cliente);
+            }
+
+            mediaIntraCluster[i] /= vetNumElemPorCluster[cluster]-1;
+
+            for(int clus=0; clus < numSats; ++clus)
+            {
+                if(clus != cluster)
+                {
+                    double media = 0.0;
+                    for(int j=0; j < vetNumElemPorCluster[clus]; ++j)
+                        media += instancia.getDistance(i, matCluster(j, clus));
+
+                    media /= vetNumElemPorCluster[clus];
+                    if(media < mediaInterCluster[i])
+                    {
+                        mediaInterCluster[i] = media;
+                        clusterMinInterCluster[i] = clus;
+                    }
+                }
+            }
+        }
+    }
+
+    std::vector<double> vetSilhouette(instancia.numNos, 0.0);
+
+    for(int i=1; i < instancia.numNos; ++i)
+    {
+        if(!(i >= instancia.getFirstSatIndex() && i <= instancia.getEndSatIndex()))
+        {
+            const double b = mediaInterCluster[i];
+            const double a = mediaIntraCluster[i];
+
+            vetSilhouette[i] = (b-a)/max(a,b);
+            cout<<"Silhouette("<<i<<"): "<<vetSilhouette[i]<<"\n";
+        }
+    }
+    cout<<"\n\n";
+
+    // ********************************************************************************************
+
+
+
+    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
     {
         cout << i << " " << clienteCluster[i]<<"; "<<vetSatAtendCliente[i]<<"\n";
     }
-    cout<<"\n\n";*/
 
-/*    cout<<"\n\nCENTROIDE:\n";
+    cout<<"\n\n";
+
+    cout<<"\n\nCENTROIDE:\n";
 
     for(int sat=0; sat < numSats; ++sat)
         cout<<sat<<": "<<centroide[sat]<<"\n";
 
     cout<<"\n\nPONTOS: \n\n";
+
+    for(int i=instancia.getEndSatIndex()+1; i < instancia.numNos; ++i)
+    {
+        if(vetSilhouette[i] < 0.6)
+            clienteCluster[i] = -1;
+    }
 
 
     cout<<"i, x, y, cluster, tipo\n";
@@ -290,7 +367,10 @@ void N_k_means::k_means(Instance &instancia, vector<int> &vetSatAtendCliente, ve
     }
 
     for(int i=0; i < instancia.numSats; ++i)
-        cout<<(i+instancia.numNos)<<", "<<centroide[i].x<<", "<<centroide[i].y<<", "<<i<<", X\n";*/
+        cout<<(i+instancia.numNos)<<", "<<centroide[i].x<<", "<<centroide[i].y<<", "<<i<<", X\n";
+
+
+
 
 }
 
