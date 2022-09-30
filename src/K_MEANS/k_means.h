@@ -56,6 +56,7 @@ namespace N_k_means
     ublas::matrix<int> k_means(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, bool seed);
     void printVetPonto(const std::vector<Ponto> &vetPonto);
     std::vector<double> calculaRaioSatSeedK_means(Instance &instance);
+    void converteMatClusterMatSat(const ublas::matrix<int> &matEntrada, ublas::matrix<int> &matSaida, Instance &instancia);
 
 }
 

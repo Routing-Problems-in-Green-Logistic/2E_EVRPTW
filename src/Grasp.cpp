@@ -25,7 +25,7 @@ using namespace NS_vnd;
 
 const float fator = 0.1;
 
-Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol)
+Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat)
 {
 
     Solucao *solBest = new Solucao(instance);
@@ -49,7 +49,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
     // Solucao para inicializar reativo
     Solucao gul(instance);
 
-    construtivo(gul, instance, 0.0, 0.0, vetSatAtendCliente, satUtilizado);
+    construtivo(gul, instance, 0.0, 0.0, matClienteSat);
     const double gulCusto = getDistMaisPenalidade(gul, instance);
     double custoBest = gulCusto;
 
@@ -136,7 +136,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
 
         Solucao sol(instance);
         //setSatParaCliente(instance, vetSatAtendCliente, satUtilizado, parametros);
-        N_k_means::k_means(instance, vetSatAtendCliente, satUtilizado, true);
+        //N_k_means::k_means(instance, vetSatAtendCliente, satUtilizado, true);
 
 
         if(i == parametros.iteracoesCalProb && instance.shortestPath) //&& (i%parametros.iteracoesCalProb)==0)
@@ -267,7 +267,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
         vetorFrequencia[posAlfa] += 1;
 
         solTemp.copia(sol);
-        construtivo(sol, instance, alfa, alfa, vetSatAtendCliente, satUtilizado);
+        construtivo(sol, instance, alfa, alfa, matClienteSat);
 
         // Add 1 se o cliente t nao foi atendido
         if(!sol.viavel && parametros.iteracoesCalProb > 0 && instance.shortestPath)

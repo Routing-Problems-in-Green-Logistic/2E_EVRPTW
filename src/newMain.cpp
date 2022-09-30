@@ -54,14 +54,29 @@ int main(int argc, char* argv[])
 
 
 
-            vector<int> vetSatAtendCliente(instancia.numNos, -1);
+/*            vector<int> vetSatAtendCliente(instancia.numNos, -1);
             vector<int> satUtilizado(instancia.numSats+1, 0);
 
-            //for(int i=0; i < 10; ++i)
-            const ublas::matrix<int> matClienteCluster =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
-            cout<<matClienteCluster(0,0)<<"\n";
+            const ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
 
-            return 0;
+            cout<<"\t";
+            for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+                cout<<sat<<"\t";
+
+            cout<<"\n\n";
+
+            for(int i=instancia.getEndSatIndex()+1; i < instancia.numNos; ++i)
+            {
+                cout<<i<<":\t";
+                for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+                {
+                    cout<<matClienteSat(i, sat)<<"\t";
+                }
+
+                cout<<"\n";
+            }
+
+            return 0;*/
 
 
             //calculaRaioSatSeedK_means(instancia);
@@ -132,7 +147,12 @@ void grasp(Instance &instancia, Parametros &parametros, Solucao &best)
     setParamGrasp(instancia, parametrosGrasp);
     Estatisticas estatisticas;
 
-    Solucao *solGrasp = grasp(instancia, parametrosGrasp, estatisticas, false);
+
+    vector<int> vetSatAtendCliente(instancia.numNos, -1);
+    vector<int> satUtilizado(instancia.numSats+1, 0);
+    const ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
+
+    Solucao *solGrasp = grasp(instancia, parametrosGrasp, estatisticas, false, matClienteSat);
     best.copia(*solGrasp);
     delete solGrasp;
 

@@ -30,7 +30,7 @@ ublas::matrix<int> N_k_means::k_means(Instance &instancia, vector<int> &vetSatAt
 
     static bool staticStart = false;
 
-    if(instancia.numSats == 1)
+    if(instancia.numSats <= 2)
     {
         std::fill((vetSatAtendCliente.begin()+instancia.getFirstClientIndex()),
                   (vetSatAtendCliente.begin()+instancia.getEndClientIndex()+1), instancia.getFirstSatIndex());
@@ -381,7 +381,10 @@ ublas::matrix<int> N_k_means::k_means(Instance &instancia, vector<int> &vetSatAt
         }
     }
 
-    return matSaida;
+    ublas::matrix<int> mat;
+    converteMatClusterMatSat(matSaida, mat, instancia);
+
+    return mat;
 
 
 /*    cout<<"\t";
@@ -518,4 +521,17 @@ std::vector<double>N_k_means::calculaRaioSatSeedK_means(Instance &instancia)
     }
 
     return std::move(raioSat);
+}
+
+void N_k_means::converteMatClusterMatSat(const ublas::matrix<int> &matEntrada, ublas::matrix<int> &matSaida, Instance &instancia)
+{
+    matSaida = ublas::matrix<int>(instancia.numNos, instancia.numNos, 0);
+    const int fistSat = instancia.getFirstSatIndex();
+
+    for(int i=instancia.getEndSatIndex()+1; i < instancia.numNos; ++i)
+    {
+        for(int c=0; c < instancia.numSats; ++c)
+            matSaida(i, (c+fistSat)) = matEntrada(i,c);
+    }
+
 }

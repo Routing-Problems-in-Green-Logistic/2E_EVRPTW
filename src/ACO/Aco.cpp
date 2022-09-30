@@ -13,6 +13,7 @@
 #include "../greedyAlgorithm.h"
 #include "../mersenne-twister.h"
 #include "../greedyAlgorithm.h"
+#include "../K_MEANS/k_means.h"
 #include <iostream>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/format.hpp>
@@ -817,6 +818,8 @@ bool N_Aco::acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &
     vector<double> cargaPorSat(instancia.numSats+1, 0);
 
 
+    const ublas::matrix<int> matClienteSat =  N_k_means::k_means(instancia, vetSatAtendCliente, satUtilizado, false);
+
     for(int sol = 0; sol < acoPar.numSol; ++sol)
     {
 
@@ -824,7 +827,7 @@ bool N_Aco::acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &
         Solucao solucao(instancia);
 
         GreedyAlgNS::setSatParaCliente(instancia, vetSatAtendCliente, satUtilizado, param);
-        Solucao *solGrasp = NameS_Grasp::grasp(instancia, param, est, true);
+        Solucao *solGrasp = NameS_Grasp::grasp(instancia, param, est, true, matClienteSat);
 
 /*        if(solGrasp->viavel)
             cout<<"SOL GRASP VIAVEL\n";*/

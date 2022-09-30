@@ -89,7 +89,7 @@ namespace NameS_Grasp
         }
     };*/
 
-    Solucao *grasp(Instance &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol);
+    Solucao *grasp(Instance &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat);
     double getDistMaisPenalidade(Solucao &sol, Instance &instancia);
     double getPenalidade(Solucao &sol, Instance &instancia, float f);
     void inicializaSol(Solucao &sol, Instance &instance);
