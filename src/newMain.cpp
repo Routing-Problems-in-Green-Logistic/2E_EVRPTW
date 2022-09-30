@@ -58,7 +58,9 @@ int main(int argc, char* argv[])
             vector<int> satUtilizado(instancia.numSats+1, 0);
 
             //for(int i=0; i < 10; ++i)
-            k_means(instancia, vetSatAtendCliente, satUtilizado, false);
+            const ublas::matrix<int> matClienteCluster =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
+            cout<<matClienteCluster(0,0)<<"\n";
+
             return 0;
 
 

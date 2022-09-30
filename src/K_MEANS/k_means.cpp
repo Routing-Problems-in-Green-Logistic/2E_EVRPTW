@@ -23,7 +23,7 @@ void N_k_means::converteClientes(Instance &instancia, std::vector<Ponto> &vetPon
     }
 }
 
-void N_k_means::k_means(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, bool seed)
+ublas::matrix<int> N_k_means::k_means(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, bool seed)
 {
     static std::vector<Ponto> vetPonto;
     static std::vector<double> vetRaioSat;
@@ -36,7 +36,8 @@ void N_k_means::k_means(Instance &instancia, vector<int> &vetSatAtendCliente, ve
                   (vetSatAtendCliente.begin()+instancia.getEndClientIndex()+1), instancia.getFirstSatIndex());
 
         satUtilizado[instancia.getFirstSatIndex()] = 1;
-        return;
+        ublas::matrix<int> matSaida(instancia.numNos, instancia.numSats, 1);
+        return matSaida;
     }
     else
     {
@@ -256,6 +257,9 @@ void N_k_means::k_means(Instance &instancia, vector<int> &vetSatAtendCliente, ve
         satUtilizado[sat] = 1;
     }
 
+    ublas::matrix<int> matSaida(instancia.numNos, numSats, 0);      // Para uma posicao: mat(clienteI, cluster_0) = 0,1: indica se o clienteI pode ser atendido pelo sat cluster_0 + sat_0_id
+
+    // Preenche matSaida
 
     // ********************************************************************************************
     std::vector<double> mediaIntraCluster(instancia.numNos, 0.0);
@@ -263,7 +267,7 @@ void N_k_means::k_means(Instance &instancia, vector<int> &vetSatAtendCliente, ve
     std::vector<int>    clusterMinInterCluster(instancia.numNos, -1);
 
 
-    ublas::matrix<int> matCluster(instancia.numNos, numSats, 0.0);      //cluster: [0, numSat)
+    ublas::matrix<int> matCluster(instancia.numNos, numSats, 0);      //cluster: [0, numSat)
     std::vector<int> vetNumElemPorCluster(instancia.numSats, 0);        //cluster: [0, numSat)
 
     // Prenche matCluster com os elementos de cada cluster
@@ -308,7 +312,7 @@ void N_k_means::k_means(Instance &instancia, vector<int> &vetSatAtendCliente, ve
         }
     }
 
-    std::vector<double> vetSilhouette(instancia.numNos, 0.0);
+/*    std::vector<double> vetSilhouette(instancia.numNos, 0.0);
 
     for(int i=1; i < instancia.numNos; ++i)
     {
@@ -318,16 +322,89 @@ void N_k_means::k_means(Instance &instancia, vector<int> &vetSatAtendCliente, ve
             const double a = mediaIntraCluster[i];
 
             vetSilhouette[i] = (b-a)/max(a,b);
-            cout<<"Silhouette("<<i<<"): "<<vetSilhouette[i]<<"\n";
+            cout<<"Silhouette("<<i<<"): "<<vetSilhouette[i]<<"; CLUSTER MAIS PROX: "<<clusterMinInterCluster[i]<<"\n";
         }
     }
-    cout<<"\n\n";
+    cout<<"\n\n";*/
+
+    // Preenche matSaida
+    for(int i=1; i < instancia.numNos; ++i)
+    {
+        if(!(i >= instancia.getFirstSatIndex() && i <= instancia.getEndSatIndex()))
+        {
+            int cluster = clienteCluster[i];
+            matSaida(i, cluster) = 1;
+
+            cluster = clusterMinInterCluster[i];
+            matSaida(i, cluster) = 1;
+        }
+    }
+
+
+    for(int c=0; c < instancia.numSats; ++c)
+    {
+        std::vector<DistCluster> vetCluste(instancia.numSats-1, DistCluster());
+        int prox = 0;
+
+        for(int c1=0; c1 < instancia.numSats; ++c1)
+        {
+            if(c1 != c)
+            {
+                vetCluste[prox].cluster = c1;
+                vetCluste[prox].dist = instancia.getDistance((c+instancia.getFirstSatIndex()), (c1+instancia.getFirstSatIndex()));
+                prox += 1;
+            }
+        }
+
+
+        std::sort(vetCluste.begin(), vetCluste.end());
+
+
+/*        cout<<c<<": ";
+        for(int t=0; t < instancia.numSats-1; ++t)
+        {
+            cout<<vetCluste[t].cluster<<" ";
+        }
+
+        cout<<"\n";*/
+
+        for(int i=instancia.getEndSatIndex()+1; i < instancia.numNos; ++i)
+        {
+            //cout<<"clienteCluste["<<i<<"]("<<clienteCluster[i]<<" == "<<c<<"\n";
+            if(clienteCluster[i] == c)
+            {
+                for(int t=0; t < 3; ++t)
+                    matSaida(i, vetCluste[t].cluster) = 1;
+
+                //cout<<"OK\n";
+            }
+        }
+    }
+
+    return matSaida;
+
+
+/*    cout<<"\t";
+    for(int i=0; i < instancia.numSats; ++i)
+        cout<<i<<"\t";
+
+    cout<<"\n";
+
+    for(int i=instancia.getEndSatIndex()+1; i < instancia.numNos; ++i)
+    {
+        cout<<i<<"; "<<clienteCluster[i]<<":\t";
+
+        for(int c=0; c < instancia.numSats; ++c)
+            cout<<matSaida(i, c)<<"\t";
+        cout<<"\n";
+    }*/
+
 
     // ********************************************************************************************
 
 
 
-    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+/*    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
     {
         cout << i << " " << clienteCluster[i]<<"; "<<vetSatAtendCliente[i]<<"\n";
     }
@@ -341,35 +418,50 @@ void N_k_means::k_means(Instance &instancia, vector<int> &vetSatAtendCliente, ve
 
     cout<<"\n\nPONTOS: \n\n";
 
-    for(int i=instancia.getEndSatIndex()+1; i < instancia.numNos; ++i)
-    {
-        if(vetSilhouette[i] < 0.6)
-            clienteCluster[i] = -1;
-    }
-
 
     cout<<"i, x, y, cluster, tipo\n";
+
+    const int clusterPrint = -1;
+
     for(int i=instancia.getFirstSatIndex(); i <= instancia.getEndSatIndex(); ++i)
     {
-        cout<<i<<", "<<vetPonto[i]<<", "<<clienteCluster[i]<<", D"<<"\n";
+        if((clusterPrint >= 0 && clusterPrint == clienteCluster[i]) || clusterPrint < 0)
+            cout<<i<<", "<<vetPonto[i]<<", "<<clienteCluster[i]<<", D"<<"\n";
     }
 
 
     for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
     {
-        cout<<i<<", "<<vetPonto[i]<<", "<<clienteCluster[i]<<", o"<<"\n";
+        if((clusterPrint >= 0 && clusterPrint == clienteCluster[i]) || clusterPrint < 0)
+            cout<<i<<", "<<vetPonto[i]<<", "<<clienteCluster[i]<<", o"<<"\n";
     }
 
 
     for(int i=instancia.getFirstRS_index(); i <= instancia.getEndRS_index(); ++i)
     {
-        cout<<i<<", "<<vetPonto[i]<<", "<<clienteCluster[i]<<", ^"<<"\n";
+        if((clusterPrint >= 0 && clusterPrint == clienteCluster[i]) || clusterPrint < 0)
+            cout<<i<<", "<<vetPonto[i]<<", "<<clienteCluster[i]<<", ^"<<"\n";
     }
 
     for(int i=0; i < instancia.numSats; ++i)
         cout<<(i+instancia.numNos)<<", "<<centroide[i].x<<", "<<centroide[i].y<<", "<<i<<", X\n";
 
 
+    cout<<"\n\n";
+
+    for(int i=0; i < instancia.numNos; ++i)
+    {
+        if(!(i >= instancia.getFirstSatIndex() && i <= instancia.getEndSatIndex()))
+        {
+            if((clusterPrint >= 0 && clusterPrint == clienteCluster[i]) || clusterPrint < 0)
+            {
+                int j = clusterMinInterCluster[i];
+                Ponto ponto = centroide[j];
+
+                cout<<vetPonto[i]<<", "<<ponto<<"\n";
+            }
+        }
+    }*/
 
 
 }
