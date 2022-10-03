@@ -17,6 +17,8 @@ using namespace boost::numeric;
 // Roteamento dos veiculos eletricos
 bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const float alpha, const ublas::matrix<int> &matClienteSat)
 {
+    //cout<<"size1: "<<matClienteSat.size1()<<"\nsize2: "<<matClienteSat.size2()<<"\n\n";
+
     if(sol.numEv == sol.numEvMax)
         return false;
 
@@ -47,6 +49,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
 
     std::fill(matCandidato.begin(), matCandidato.end(), ublas::zero_matrix<CandidatoEV*>(numLinhasMat, numColMat));
 
+    const int fistSat = instance.getFirstSatIndex();
 //    int satId = sat;
 
     // Cria um candidato para cada cliente e armazena em matCandidato
@@ -61,7 +64,8 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
             for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); ++satId)
             {
 
-                if(matClienteSat(clientId, satId) != 1)
+                //cout<<clientId<<", "<<satId<<"\n";
+                if(matClienteSat(clientId, (satId)) != 1)
                     continue;
 
                 Satelite *sat = sol.getSatelite(satId);

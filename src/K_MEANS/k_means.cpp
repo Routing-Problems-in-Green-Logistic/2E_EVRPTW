@@ -36,7 +36,7 @@ ublas::matrix<int> N_k_means::k_means(Instance &instancia, vector<int> &vetSatAt
                   (vetSatAtendCliente.begin()+instancia.getEndClientIndex()+1), instancia.getFirstSatIndex());
 
         satUtilizado[instancia.getFirstSatIndex()] = 1;
-        ublas::matrix<int> matSaida(instancia.numNos, instancia.numSats, 1);
+        ublas::matrix<int> matSaida(instancia.numNos, instancia.numNos, 1);
         return matSaida;
     }
     else
