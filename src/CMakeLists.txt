@@ -4,7 +4,7 @@ project(2E_EVRP)
 
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-set(CMAKE_CXX_FLAGS_RELEASE, "-march=native")
+#set(CMAKE_CXX_FLAGS_RELEASE "-march=native")
 
 #set(CMAKE_CXX_FLAGS_RELEASE "-g3")
 #set(CMAKE_CXX_FLAGS_RELEASE "-ggdb")

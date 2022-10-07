@@ -357,6 +357,7 @@ void Solucao::copia(Solucao &solution)
     distancia = solution.distancia;
     viavel = solution.viavel;
     numEv = solution.numEv;
+    ultimaA = solution.ultimaA;
 
     for(int s=0; s <= solution.getNSatelites(); ++s)
         satelites.at(s).copia(solution.satelites[s]);

@@ -462,14 +462,13 @@ void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, c
 
 EvRoute& ShortestPathSatCli::getEvRoute(int cliente)
 {
-    static const int fist = fistCliente;
-    cout<<cliente<<" "<<fistCliente<<"\n";
-    return vetEvRoute.at(cliente-fist);
+    //static const int fist = fistCliente;
+    //cout<<cliente<<" "<<fist<<"\n";
+    return vetEvRoute.at(cliente-fistCliente);
 }
 
 int N_PreProcessamento::getPaiMinHeap(int pos)
 {
-
     if((pos%2) == 0)
         return (pos-2)/2;
     else

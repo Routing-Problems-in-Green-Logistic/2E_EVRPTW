@@ -604,10 +604,12 @@ ParametrosSaida NS_parametros::getParametros()
     parametrosSaida.mapNoSaida["dist"] = NoSaida("dist");
     parametrosSaida.mapNoSaida["t(s)"] = NoSaida("t(s)");
     parametrosSaida.mapNoSaida["sem"] = NoSaida("sem");
+    parametrosSaida.mapNoSaida["ultimaA"] = NoSaida("ultimaA", SAIDA_TIPO_INT);
 
     parametrosSaida.mapNoSaida["dist"].addSaida(SAIDA_EXEC_VAL);
     parametrosSaida.mapNoSaida["t(s)"].addSaida(SAIDA_EXEC_VAL);
     parametrosSaida.mapNoSaida["sem"].addSaida(SAIDA_EXEC_SEM);
+    parametrosSaida.mapNoSaida["ultimaA"].addSaida(SAIDA_EXEC_VAL);
 
     return std::move(parametrosSaida);
 }

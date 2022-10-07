@@ -41,6 +41,7 @@ public:
     std::vector<int8_t> vetClientesAtend;
 
     bool solInicializada = false;
+    int ultimaA = -1;
 
 };
 #endif //INC_2E_EVRP_SOLUCAO_H

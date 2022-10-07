@@ -336,8 +336,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
                     for(int sat=instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
                     {
                         if(matClienteSat(t,sat) == 1)
-                        {
-                            const EvRoute &evRouteAux = instance.shortestPath[vetSatAtendCliente[t]].getEvRoute(t);
+                        {   // ERRO vetSatAtendCliente NAO Guarda mais o sat que atende o cliente t
+                            const EvRoute &evRouteAux = instance.shortestPath[sat].getEvRoute(t);
 
                             if(evRouteAux.routeSize > 2)
                             {
@@ -384,7 +384,9 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
                     solBest->copia(sol);
 
                     if(retPrimeiraSol)
+                    {   solBest->ultimaA = i;
                         return solBest;
+                    }
 
                     //string fileBestAntes = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/solBestAntes.txt";
                     //escreveSol(fileBestAntes, *solBest, instance);
@@ -463,6 +465,9 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
             }
         }
 
+        if(solBest->viavel && (i-solBest->ultimaA) >= 400)
+            break;
+
         if(!sol.viavel)
             solucaoAcumulada[posAlfa] += sol.distancia + getPenalidade(sol, instance, fator);
         else
@@ -496,6 +501,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
 
         //PRINT_DEBUG("\t", "checkSolution end");
     }
+    solBest->ultimaA = estat.ultimaAtualizacaoBest;
     return solBest;
 
 }

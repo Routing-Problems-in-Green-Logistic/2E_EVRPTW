@@ -151,7 +151,6 @@ void grasp(Instance &instancia, Parametros &parametros, Solucao &best)
     vector<int> vetSatAtendCliente(instancia.numNos, -1);
     vector<int> satUtilizado(instancia.numSats+1, 0);
     const ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
-
     Solucao *solGrasp = grasp(instancia, parametrosGrasp, estatisticas, false, matClienteSat);
     best.copia(*solGrasp);
     delete solGrasp;

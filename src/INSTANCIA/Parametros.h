@@ -77,6 +77,12 @@ namespace NS_parametros
             listVal.push_back(val);
         }
 
+
+        void operator ()(int val)
+        {
+            listVal.push_back(val);
+        }
+
         void addSemente(uint64_t sem_)
         {
             semente = sem_;
@@ -295,6 +301,7 @@ namespace NS_parametros
 
         parametrosSaida.mapNoSaida["dist"](best.distancia);
         parametrosSaida.mapNoSaida["t(s)"](parametrosSaida.tempo);
+        parametrosSaida.mapNoSaida["ultimaA"](best.ultimaA);
         parametrosSaida.mapNoSaida["sem"].addSemente(parametros.semente);
     }
 }
