@@ -33,7 +33,7 @@ class Instance():
         self.points = []
         #Archive with probem data#
         self.archive = archive
-        self.readFile(self.archive,archiveType)
+        self.readFile(self.archive, archiveType)#, archiveType)
         
     def angleWithDepot(self,local,depot):
         bearing = 0
@@ -47,6 +47,7 @@ class Instance():
             with open(archive) as arq:
                 lines = arq.readlines()
             line = lines[0].split()
+            print(line)
             n = int(line[0])
             self.fuelCapacity = float(line[1])
             self.loadCapacity = float(line[2])

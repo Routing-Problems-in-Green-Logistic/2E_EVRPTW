@@ -30,7 +30,7 @@ ublas::matrix<int> N_k_means::k_means(Instance &instancia, vector<int> &vetSatAt
 
     static bool staticStart = false;
 
-    if(instancia.numSats <= 2)
+    if(instancia.numSats > 0)
     {
         std::fill((vetSatAtendCliente.begin()+instancia.getFirstClientIndex()),
                   (vetSatAtendCliente.begin()+instancia.getEndClientIndex()+1), instancia.getFirstSatIndex());

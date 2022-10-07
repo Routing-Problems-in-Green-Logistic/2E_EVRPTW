@@ -25,6 +25,15 @@ using namespace NS_vnd;
 
 const float fator = 0.1;
 
+/**
+ *
+ * @param instance
+ * @param parametros
+ * @param estat
+ * @param retPrimeiraSol
+ * @param matClienteSat         Para uma posicao: matClienteSat(clienteI, sat_0) = 0,1: indica se o clienteI pode ser atendido pelo sat_0
+ * @return
+ */
 Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat)
 {
 
@@ -131,8 +140,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
 
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
-        //if(i>0 && (i%100)==0)
-        //cout<<"ITERACAO: "<<i<<"\n";
+/*        if(i>0 && (i%100)==0)
+            cout<<"ITERACAO: "<<i<<"\n";*/
 
         Solucao sol(instance);
         //setSatParaCliente(instance, vetSatAtendCliente, satUtilizado, parametros);
@@ -198,6 +207,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
             if(vetQuantCliente[0].prob != 100)
             {
 
+                std::vector<int> vetSatRotaInicializada(1+(instance.numSats*instance.numEv), 0);
+
                 do
                 {
                     if(vetQuantCliente[t].prob != 100)
@@ -208,12 +219,53 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
                         {
 
                             int cliente = vetQuantCliente[t].cliente;
-                            const int pos = vetSatAtendCliente[cliente];
 
+                            int sat = rand_u32()%instance.numSats;
+                            const int satIni = sat;
+
+                            do
+                            {
+                                int satId = sat+instance.getFirstSatIndex();
+                                int evEscolhido = 0;
+
+                                if(matClienteSat(t, satId) == 1)
+                                {
+                                    for(int ev = 0; ev < instance.numEv; ++ev)
+                                    {
+                                        if(vetSatRotaInicializada[1+(satId-1)*instance.numEv+ev] == 0)
+                                        {
+                                            evEscolhido = ev;
+                                            break;
+                                        }
+                                    }
+
+                                    if(vetSatRotaInicializada[1+(satId-1)*instance.numEv+evEscolhido] == 0)
+                                    {
+                                        EvRoute &evRouteSP = instance.shortestPath[satId].getEvRoute(cliente);
+                                        auto shortestPath = instance.shortestPath[satId].getShortestPath(cliente);
+
+                                        if(shortestPath.distIdaVolta < DOUBLE_INF)
+                                        {
+
+                                            addRotaCliente(sol, instance, evRouteSP, cliente);
+                                            clientesAdd += 1;
+                                            vetSatRotaInicializada[1 + (satId-1)*instance.numEv + evEscolhido] = 1;
+                                            break;
+                                        }
+                                    }
+
+                                }
+
+                                sat += 1;
+                                sat = sat%instance.numSats;
+
+                            }while(sat != satIni);
+
+                            /*const int pos = vetSatAtendCliente[cliente];
                             if(pos >= 0)
                             {
 
-                                clienteAdd = cliente;
+                                //clienteAdd = cliente;
                                 //cout<<"cliente: "<<cliente<<": "<<vetSatAtendCliente[cliente]<<"\n";
                                 EvRoute &evRouteSP = instance.shortestPath[pos].getEvRoute(cliente);
                                 auto shortestPath = instance.shortestPath[pos].getShortestPath(cliente);
@@ -230,7 +282,9 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
                                 }
 
                                 add = true;
-                            }
+                            }*/
+
+
                         }
 
                         if(clientesAdd >= parametros.numMaxClie)
@@ -242,7 +296,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
                 }while(t != inicio);
 
             }
-
         }
 
         somaProb = 0.0;
@@ -279,18 +332,22 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
                 {
 
                     quantCliInv += 1;
-                    //cout<<"\tCLI: "<<t<<"\n";
 
-                    cout<<vetSatAtendCliente[t]<<"\n";
-                    const EvRoute &evRouteAux = instance.shortestPath[vetSatAtendCliente[t]].getEvRoute(t);
-                    if(evRouteAux.routeSize > 2)
+                    for(int sat=instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
                     {
-                        vetQuantCliente[convIndClienteVet(t)].add1Quant();
-                    }
+                        if(matClienteSat(t,sat) == 1)
+                        {
+                            const EvRoute &evRouteAux = instance.shortestPath[vetSatAtendCliente[t]].getEvRoute(t);
 
+                            if(evRouteAux.routeSize > 2)
+                            {
+                                vetQuantCliente[convIndClienteVet(t)].add1Quant();
+                                break;
+                            }
+                        }
+                    }
                 }
             }
-
         }
 
 
