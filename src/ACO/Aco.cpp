@@ -66,18 +66,22 @@ cout<<"sol grasp inviavel\n";
 
     // Inicializa o feromonio com a sol do grasp:
 
-    const double feromIni = 1.0/solGrasp->satelites[sateliteId].distancia;
-
-    for(const EvRoute &evRoute: solGrasp->satelites[sateliteId].vetEvRoute)
+    if(solGrasp)
     {
-        if(evRoute.routeSize > 2)
+        const double feromIni = 1.0 / solGrasp->satelites[sateliteId].distancia;
+
+        for(const EvRoute &evRoute: solGrasp->satelites[sateliteId].vetEvRoute)
         {
+            if(evRoute.routeSize > 2)
+            {
 
-            for(int i = 0; i < (evRoute.routeSize - 1); ++i)
-                matFeromonio(evRoute.route[i].cliente, evRoute.route[i + 1].cliente) += feromIni;
+                for(int i = 0; i < (evRoute.routeSize - 1); ++i)
+                    matFeromonio(evRoute.route[i].cliente, evRoute.route[i + 1].cliente) += feromIni;
 
+            }
         }
     }
+
 
 
     auto printMatFerom = [&](int it)
@@ -826,14 +830,74 @@ bool N_Aco::acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &
         //cout<<"SOL "<<sol<<"\n\n";
         Solucao solucao(instancia);
 
-        GreedyAlgNS::setSatParaCliente(instancia, vetSatAtendCliente, satUtilizado, param);
+        //GreedyAlgNS::setSatParaCliente(instancia, vetSatAtendCliente, satUtilizado, param);
         Solucao *solGrasp = NameS_Grasp::grasp(instancia, param, est, true, matClienteSat);
+
+        if(!solGrasp->viavel)
+        {
+                std::vector<int> vetClienteAtend(instancia.numNos, 0);
+
+                for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+                {
+                    Satelite &satelite = solGrasp->satelites[sat];
+                    for(EvRoute &evRoute:satelite.vetEvRoute)
+                    {
+                        if(evRoute.routeSize > 2)
+                        {
+                            for(int i=1; i < (evRoute.routeSize-1); ++i)
+                                vetClienteAtend[evRoute[i].cliente] = 1;
+                        }
+                    }
+                }
+
+                for(int cli=instancia.getFirstClientIndex(); cli <= instancia.getEndClientIndex(); ++cli)
+                {
+                    if(vetClienteAtend[cli] == 0)
+                    {
+                        int sat = 1 + (rand_u32()%instancia.numSats);
+                        const int satIni = sat;
+                        do
+                        {
+                            if(matClienteSat(cli, sat) == 1)
+                                break;
+
+                            sat = (sat+1);
+                            if(sat > instancia.numSats)
+                                sat = 1;
+
+                        }while(sat != satIni);
+
+                        vetSatAtendCliente[cli] = sat;
+                        //cout<<"cli("<<cli<<") para sat: "<<sat<<"\n";
+                    }
+                }
+
+
+            //continue;
+        }
 
 /*        if(solGrasp->viavel)
             cout<<"SOL GRASP VIAVEL\n";*/
 
         std::fill(numEvPorSat.begin(), numEvPorSat.end(), 0);
         std::fill(cargaPorSat.begin(), cargaPorSat.end(), 0.0);
+
+        for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+        {
+            Satelite &satelite = solGrasp->satelites[sat];
+
+            for(EvRoute &evRoute:satelite.vetEvRoute)
+            {
+                if(evRoute.routeSize > 2)
+                {
+                    for(int i=1; i < (evRoute.routeSize-1); ++i)
+                    {
+                        vetSatAtendCliente[evRoute[i].cliente] = sat;
+                        satUtilizado[sat] = 1;
+                    }
+                }
+            }
+        }
 
         for(int cli=instancia.getFirstClientIndex(); cli <= instancia.getEndClientIndex(); ++cli)
         {
@@ -905,7 +969,7 @@ bool N_Aco::acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &
             if(satUtilizado[sat] >= 1)
             {
 
-                bool temp = aco(instancia, acoPar, acoEst, sat, solucao.satelites[sat], vetSatAtendCliente, param, est, solGrasp, numEvPorSat[sat]);
+                bool temp = aco(instancia, acoPar, acoEst, sat, solucao.satelites[sat], vetSatAtendCliente, param, est, nullptr, numEvPorSat[sat]);
                 satViavel *= temp;
                 solucao.distancia += solucao.satelites[sat].distancia;
 
@@ -940,8 +1004,13 @@ bool N_Aco::acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &
                     cout<<"SOL INVIAVEL!\n";
                 else
                 {
+                    //cout<<"SOL VIAVEL\n";
+
                     if(solucao.distancia < best.distancia)
+                    {
                         best.copia(solucao);
+                        best.ultimaA = sol;
+                    }
                 }
             }
 
@@ -952,6 +1021,11 @@ bool N_Aco::acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &
         //cout<<"\n\n**********************************************************************************************************************************\n\n";
 
         delete solGrasp;
+
+        if(best.viavel && (sol!=best.ultimaA))
+        {   cout<<"break: "<<sol<<"\n";
+            break;
+        }
     }
 
     if(best.viavel)
