@@ -341,7 +341,7 @@ ublas::matrix<int> N_k_means::k_means(Instance &instancia, vector<int> &vetSatAt
     }
 
 
-    for(int c=0; c < instancia.numSats; ++c)
+/*    for(int c=0; c < instancia.numSats; ++c)
     {
         std::vector<DistCluster> vetCluste(instancia.numSats-1, DistCluster());
         int prox = 0;
@@ -360,26 +360,18 @@ ublas::matrix<int> N_k_means::k_means(Instance &instancia, vector<int> &vetSatAt
         std::sort(vetCluste.begin(), vetCluste.end());
 
 
-/*        cout<<c<<": ";
-        for(int t=0; t < instancia.numSats-1; ++t)
-        {
-            cout<<vetCluste[t].cluster<<" ";
-        }
-
-        cout<<"\n";*/
-
         for(int i=instancia.getEndSatIndex()+1; i < instancia.numNos; ++i)
         {
             //cout<<"clienteCluste["<<i<<"]("<<clienteCluster[i]<<" == "<<c<<"\n";
             if(clienteCluster[i] == c)
             {
-                for(int t=0; t < 3; ++t)
+                for(int t=0; t < 2; ++t)
                     matSaida(i, vetCluste[t].cluster) = 1;
 
                 //cout<<"OK\n";
             }
         }
-    }
+    }*/
 
     ublas::matrix<int> mat;
     converteMatClusterMatSat(matSaida, mat, instancia);

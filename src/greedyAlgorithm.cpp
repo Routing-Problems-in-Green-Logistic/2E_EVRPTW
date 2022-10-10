@@ -196,24 +196,24 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
 
                     for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); satId++)
                     {
-
-                        bool routeEmpty = false;
-
-                        for(int routeId = instance.getFirstEvIndex(); routeId <= instance.getEndEvIndex(); routeId++)
+                        if(matClienteSat(clientId, satId) == 1)
                         {
-                            Satelite *satAux = sol.getSatelite(satId);
-                            EvRoute &route = satAux->getRoute(transformaIdEv(routeId));
+                            bool routeEmpty = false;
 
+                            for(int routeId = instance.getFirstEvIndex(); routeId <= instance.getEndEvIndex(); routeId++)
+                            {
+                                Satelite *satAux = sol.getSatelite(satId);
+                                EvRoute &route = satAux->getRoute(transformaIdEv(routeId));
 
-                            if(route.routeSize <= 2 && (routeEmpty || numEVsMax))
-                                continue;
+                                if(route.routeSize <= 2 && (routeEmpty || numEVsMax))
+                                    continue;
 
-                            canInsert(route, clientId, instance, candidatoEv, satId, vetTempoSaida.at(satId), evRouteAux);
+                                canInsert(route, clientId, instance, candidatoEv, satId, vetTempoSaida.at(satId), evRouteAux);
 
+                                if(route.routeSize <= 2 && !routeEmpty)
+                                    routeEmpty = true;
 
-                            if(route.routeSize <= 2 && !routeEmpty)
-                                routeEmpty = true;
-
+                            }
                         }
 
                     }
@@ -262,29 +262,34 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
 
                     if(candidatoEvPtrAux)
                     {
-                        CandidatoEV candCopia = *candidatoEvPtrAux;
-
-                        const int satIdTemp = topItem->satId;
-                        const int routeId = topItem->routeId;
-
-                        bool resultado = canInsert(sol.satelites.at(satIdTemp).getRoute(transformaIdEv(routeId)), clientId, instance,
-                                                   *candidatoEvPtrAux, candidatoEvPtrAux->satId, vetTempoSaida.at(satIdTemp), evRouteAux);
-
-                        EvRoute &evRouteTemp = sol.satelites.at(satIdTemp).getRoute(transformaIdEv(routeId));
-
-                        if(evRouteTemp.routeSize <= 2)
-                        {
-                            PRINT_DEBUG("", "evRouteTemp eh VAZIO\n");
-                            throw "ERRO";
-                        }
-
-                        if(resultado)
+                        if(matClienteSat(clientId, topItem->satId) == 1)
                         {
 
-                            matCandidato.at(candCopia.satId)(transformaIdEv(candCopia.routeId), transformaIdCliente(candCopia.clientId)) = nullptr;
-                            matCandidato.at(satIdTemp)(transformaIdEv(candidatoEvPtrAux->routeId), transformaIdCliente(candidatoEvPtrAux->clientId)) = candidatoEvPtrAux;
-                        }
+                            CandidatoEV candCopia = *candidatoEvPtrAux;
 
+                            const int satIdTemp = topItem->satId;
+                            const int routeId = topItem->routeId;
+
+                            bool resultado = canInsert(sol.satelites.at(satIdTemp).getRoute(transformaIdEv(routeId)),
+                                                       clientId, instance, *candidatoEvPtrAux, candidatoEvPtrAux->satId,
+                                                       vetTempoSaida.at(satIdTemp), evRouteAux);
+
+                            EvRoute &evRouteTemp = sol.satelites.at(satIdTemp).getRoute(transformaIdEv(routeId));
+
+                            if(evRouteTemp.routeSize <= 2)
+                            {
+                                PRINT_DEBUG("", "evRouteTemp eh VAZIO\n");
+                                throw "ERRO";
+                            }
+
+                            if(resultado)
+                            {
+
+                                matCandidato.at(candCopia.satId)(transformaIdEv(candCopia.routeId), transformaIdCliente(candCopia.clientId)) = nullptr;
+                                matCandidato.at(satIdTemp)(transformaIdEv(candidatoEvPtrAux->routeId),
+                                        transformaIdCliente(candidatoEvPtrAux->clientId)) = candidatoEvPtrAux;
+                            }
+                        }
                     }
                 }
             }
@@ -301,28 +306,30 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
 
             while(itCliente != clientesSemCandidato.end())
             {
-                cliente = *itCliente;
-                CandidatoEV candidatoEv;
-
-                const int satId = topItem->satId;
-                const int routeId = topItem->routeId;
-
-                bool resultado = canInsert(sol.satelites.at(satId).getRoute(transformaIdEv(routeId)), cliente, instance,
-                                           candidatoEv, satId, vetTempoSaida.at(satId), evRouteAux);
-
-                if(resultado)
+                if(matClienteSat((*itCliente), candEvPtr->satId) == 1)
                 {
+                    cliente = *itCliente;
+                    CandidatoEV candidatoEv;
 
-                    listaCandidatos.push_back(candidatoEv);
-                    CandidatoEV *candPtr = &listaCandidatos.back();
-                    matCandidato.at(satId)(transformaIdEv(routeId), transformaIdCliente(cliente)) = candPtr;
-                    vetCandPtr.at(transformaIdCliente(cliente)) = candPtr;
-                    ++itCliente;
-                    clientesSemCandidato.remove(cliente);
+                    const int satId = topItem->satId;
+                    const int routeId = topItem->routeId;
+
+                    bool resultado = canInsert(sol.satelites.at(satId).getRoute(transformaIdEv(routeId)), cliente,
+                                               instance, candidatoEv, satId, vetTempoSaida.at(satId), evRouteAux);
+
+                    if(resultado)
+                    {
+
+                        listaCandidatos.push_back(candidatoEv);
+                        CandidatoEV *candPtr = &listaCandidatos.back();
+                        matCandidato.at(satId)(transformaIdEv(routeId), transformaIdCliente(cliente)) = candPtr;
+                        vetCandPtr.at(transformaIdCliente(cliente)) = candPtr;
+                        ++itCliente;
+                        clientesSemCandidato.remove(cliente);
+                    } else
+                        ++itCliente;
+
                 }
-                else
-                    ++itCliente;
-
             }
         }
 

@@ -465,7 +465,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
             }
         }
 
-        if(solBest->viavel && (i-solBest->ultimaA) >= 400)
+        if(solBest->viavel && i >= 500 && (i-solBest->ultimaA) >= 400)
             break;
 
         if(!sol.viavel)

@@ -53,7 +53,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 157.5
+    "width": 197.5
   },
   "right": {
     "id": "ac69dc52e8ed5e47",
@@ -92,15 +92,17 @@
       }
     ],
     "direction": "horizontal",
-    "width": 147.5
+    "width": 100,
+    "collapsed": true
   },
   "active": "56021f17ee824fa6",
   "lastOpenFiles": [
+    "Geração de Colunas.md",
     "Para Fazer.md",
-    "PDF/A Classification of Hyper-heuristic Approaches.pdf",
     "ACO.md",
     "IMG/Screenshot_20220927_011631.png",
     "IMG/Screenshot_20220925_114928.png",
+    "PDF/A Classification of Hyper-heuristic Approaches.pdf",
     "home/igor/Documentos/Mestrado/2022 2/ML/Seminário/A Classification of Hyper-heuristic Approaches.pdf.md",
     "home/igor/Documentos/Mestrado/2022 2/ML/Seminário/A/ Classification/ of/ Hyper-heuristic/ Approaches.pdf 1.md",
     "home/igor/Documentos/Mestrado/2022 2/ML/Seminário/A/ Classification/ of/ Hyper-heuristic/ Approaches.pdf.md",

@@ -5,30 +5,32 @@ s-
 
 ***
 
-# 03/10 
+# 09/10 
 
-- [ ] Corrigir sol iniciais Grasp
 - [ ] ACO Marcos
 - [ ] APA
 
 
 
-
-***
-
-***
-
-# Erros Construtivo:
-
-- Atualização de vetQuantCliente
+---
+---
 
 
+# Min-Max Ant System
 
-
+![[min-max Ant.png]]
+- avg = 50
 
 
 ---
 ---
+
+
+
+
+
+
+
 
 # Gurobi
 - Parâmetros:
@@ -42,7 +44,3 @@ s-
 Texto:
 
 [[A Classification of Hyper-heuristic Approaches.pdf]]
-
-
-
-
