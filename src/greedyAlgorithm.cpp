@@ -174,11 +174,9 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
 
                 CandidatoEV *candidatoEvPtrAux = matCandidato.at(sat->sateliteId)(transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId));
 
-                if(numEVsMax && instance.getNSats() > 1 && candidatoEvPtrAux)
+                if(numEVsMax && candidatoEvPtrAux)
                 {
                     // Se numEvMax=True e evRouteTemp eh VAZIO, entao eh necessario reavaliar o cliente em todas as rotas
-
-//cout<<"cliente: "<<candidatoEvPtrAux->clientId<<"\n";
 
                     EvRoute &evRouteTemp = sat->getRoute(transformaIdEv(candidatoEvPtrAux->routeId));
                     if(evRouteTemp.routeSize <= 2)
@@ -257,9 +255,8 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
                 // 3º Os candidatos que nao estao na mesma rota so precisao ser reavaliados na rota que houve mudanca
                 else if((!visitedClients[clientId]) && !candidatoEvPtrAux && clientId != topItem->clientId)
                 {
+
                     candidatoEvPtrAux = vetCandPtr.at(transformaIdCliente(clientId));
-
-
                     if(candidatoEvPtrAux)
                     {
                         if(matClienteSat(clientId, topItem->satId) == 1)
@@ -270,9 +267,8 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
                             const int satIdTemp = topItem->satId;
                             const int routeId = topItem->routeId;
 
-                            bool resultado = canInsert(sol.satelites.at(satIdTemp).getRoute(transformaIdEv(routeId)),
-                                                       clientId, instance, *candidatoEvPtrAux, candidatoEvPtrAux->satId,
-                                                       vetTempoSaida.at(satIdTemp), evRouteAux);
+                            bool resultado = canInsert(sol.satelites.at(satIdTemp).getRoute(transformaIdEv(routeId)), clientId, instance,
+                                                       *candidatoEvPtrAux, candidatoEvPtrAux->satId, vetTempoSaida.at(satIdTemp), evRouteAux);
 
                             EvRoute &evRouteTemp = sol.satelites.at(satIdTemp).getRoute(transformaIdEv(routeId));
 
@@ -340,16 +336,9 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
 
         if(listaCandidatos.empty())
         {
-
             break;
         }
 
-/*cout<<"LISTA DE CAND.: ";
-for(auto &cand:listaCandidatos)
-{
-    cout<<cand.clientId<<"("<<cand.routeId<<") ";
-}
-cout<<"\n";*/
 
     } // while(!visitAllClientes)
 
@@ -772,10 +761,6 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
     double bestIncremento = candidatoEv.incrP;
     bool viavel = false;
 
-    //cout<<"func: canInsert\n";
-
-//    EvRoute evRouteAux(satelite, evRoute.idRota, evRoute.routeSizeMax, instance);
-
     evRouteAux.satelite = satelite;
     evRouteAux.idRota = evRoute.idRota;
     evRouteAux.routeSizeMax = evRoute.routeSizeMax;
@@ -785,22 +770,15 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
 
 
     if((evRoute.getDemand() + demand) > instance.getEvCap(evRoute.idRota))
-    {
-
         return false;
-    }
 
-
-    //std::copy(evRoute.route.begin(), evRoute.route.begin()+evRoute.routeSize, evRouteAux.route.begin());
 
     copiaVector(evRoute.route, evRouteAux.route, evRoute.routeSize);
     shiftVectorDir(evRouteAux.route, 1, 1, evRoute.routeSize);
     evRouteAux.routeSize = evRoute.routeSize+1;
-
     evRouteAux[0].bateriaRestante = instance.getEvBattery(evRoute.idRota);
     evRouteAux[0].tempoSaida = tempoSaidaSat;
 
-    //evRouteAux.print(instance, true);
 
     double distanciaRota  = 0.0;
     if(evRoute.routeSize > 2)
@@ -848,12 +826,12 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
                 candidatoEv = CandidatoEV(pos, node, distanceAux, demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, {});
 
                 // Se evRoute eh uma nova rota, eh adicionado uma penalidade para cria-la
-                if(evRoute.routeSize == 2)
+/*                if(evRoute.routeSize == 2)
                 {
                     candidatoEv.atualizaPenalidade(instance.penalizacaoDistEv);
                     bestIncremento += instance.penalizacaoDistEv;
                 }
-                else
+                else*/
                 {
                     candidatoEv.penalidade = 0.0;
                     candidatoEv.atualizaPenalidade();
@@ -866,6 +844,7 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
             {
 
                 double insertionCost = insercaoEstacao.distanciaRota - distanciaRota;
+
                 if(evRoute.routeSize == 2)
                     insertionCost += instance.penalizacaoDistEv;
 
@@ -880,9 +859,9 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
                     candidatoEv = CandidatoEV(pos, node, (insercaoEstacao.distanciaRota - distanciaRota), demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, insercaoEstacao);
 
                     // Se evRoute eh uma nova rota, eh adicionado uma penalidade para cria-la
-                    if(evRoute.routeSize == 2)
+/*                    if(evRoute.routeSize == 2)
                         candidatoEv.atualizaPenalidade(instance.penalizacaoDistEv);
-                    else
+                    else*/
                     {
                         candidatoEv.atualizaPenalidade(0.0);
                     }
@@ -899,11 +878,11 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
 
     if(viavel)
     {
-        if(evRoute.routeSize == 2)
+/*        if(evRoute.routeSize == 2)
         {
             candidatoEv.atualizaPenalidade(instance.penalizacaoDistEv);
         }
-        else
+        else*/
             candidatoEv.atualizaPenalidade(0.0);
     }
 

@@ -1023,7 +1023,7 @@ bool N_Aco::acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &
         delete solGrasp;
 
         if(best.viavel && (sol!=best.ultimaA))
-        {   cout<<"break: "<<sol<<"\n";
+        {   //cout<<"break: "<<sol<<"\n";
             break;
         }
     }

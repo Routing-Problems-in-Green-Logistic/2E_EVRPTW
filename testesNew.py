@@ -16,7 +16,8 @@ tamanhoInst = ['5', '10', '15', '100_0']
 #tamanhoInst = ['100_0']
 numExecucoes = 10
 caminhoDir = str(sys.argv[1])
-parametros = " --pasta '" + caminhoDir +"' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --execAtual "
+metodo = "G"
+parametros = " --pasta '" + caminhoDir+ "' --mt '"+str(metodo) +"' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --execAtual "
 
 
 diretorioIni = 'instancias/2e-vrp-tw/'

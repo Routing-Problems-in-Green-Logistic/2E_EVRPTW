@@ -350,7 +350,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
             }
         }
 
-
         if(sol.viavel)
         {
             string erro;
@@ -374,7 +373,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
                 throw "ERRO";
             } else
             {
-
 
                 rvnd(sol, instance);
 
@@ -426,10 +424,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
 
             }
 
-
-
-
-
             if(sol.viavel)
             {
 
@@ -480,6 +474,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
     }
     // END FOR GRASP
 
+    solBest->ultimaA = estat.ultimaAtualizacaoBest;
 
     if(solBest->viavel)
     {
@@ -498,10 +493,11 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
             return nullptr;
         }
 
+        //PRINT_DEBUG("", "ULTIMA ATUALIZACAO: "<<solBest->ultimaA);
 
         //PRINT_DEBUG("\t", "checkSolution end");
     }
-    solBest->ultimaA = estat.ultimaAtualizacaoBest;
+
     return solBest;
 
 }

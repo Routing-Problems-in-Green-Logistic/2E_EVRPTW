@@ -7,7 +7,9 @@ s-
 
 # 09/10 
 
-- [ ] ACO Marcos
+- [ ] Construtivo
+- [ ] shifit intra rota
+- [ ] ACO
 - [ ] APA
 
 
@@ -27,9 +29,15 @@ s-
 
 
 
+# ERRO
 
+INSTANCIA: C104_21x     SEMENTE: 1665442589
 
+INSTANCIA: C104_21x     SEMENTE: 1665442655
+COMMITE: ddcc4500b5e3daf3fa00681c2f6886ab4abce33c
 
+---
+---
 
 
 # Gurobi
