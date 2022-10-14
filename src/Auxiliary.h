@@ -166,10 +166,6 @@ namespace NS_Auxiliary
 
     inline bool menor(double x, double y)
     {
-/*        if(x < y)
-            return true;
-
-        else */
         if((x-y) < -TOLERANCIA_DIF_ROTAS)
             return true;
 

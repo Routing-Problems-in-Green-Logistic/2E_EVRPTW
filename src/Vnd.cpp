@@ -46,49 +46,12 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
 
     EvRoute evRouteAux(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
 
-    //while(mvEvSwapIntraRota(solution, instance, evRouteAux))
-/*    while(mvEv2opt(solution, instance, evRouteAux))
-    {
-        string erro;
-        if(!solution.checkSolution(erro, instance))
-        {
-            PRINT_DEBUG("", "ERRO. mvEvSwapIntraRota:\n");
-            cout<<erro<<"\n";
-            exit(-1);
-        }
-
-        //cout<<"#######################################################################\n\n";
-    }*/
-
-//cout<<"***************************************************************************\n\n";
-
     int i=0;
     bool valEsp = false;
     while(i < NUM_MV)
     {
         bool aplicacao = false;
         double val = solution.distancia;
-
-        if(i==0)
-        {
-            //cout << "\t\tVAL: " << val << "\n";
-            static double valRef;
-
-            if(!valEsp)
-            {
-                valEsp = true;
-                valRef = val;
-
-            }
-            else if(valEsp && !NS_Auxiliary::menor(val, valRef))
-            {
-                cout<<"VAL("<<val<<") >= "<<valRef<<"\n";
-                throw("ERRO");
-            }
-            else if(valEsp)
-                valRef = val;
-
-        }
 
         switch(vetMv[i])
         {
@@ -113,8 +76,7 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
 
         if(aplicacao)
         {
-            //cout<<"\t\t\tAPLICACAO MV: "<<vetMv[i]<<"; VAL: "<<solution.distancia<<"\n";
-            //solution.recalculaDist();
+
             string erro;
             if(!solution.checkSolution(erro, instance))
             {
@@ -128,56 +90,7 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
         else
             i += 1;
 
-        //cout<<"#######################\n";
+
     }
 
-    //cout<<"\n#################################################\n";
-    //cout<<"\tRVND FIM\n\n";
-
-
 }
-
-/*
-  double valOrig = sol.distancia;
-
-            while(mvEvShifitIntraRota(sol, instance, evRoute, SELECAO_PRIMEIRO) && mv)
-            {
-                mv = true;
-
-                //PRINT_DEBUG("\t", "checkSolution");
-
-                if(!sol.checkSolution(erro, instance))
-                {
-                    cout << "MV SHIFIT\n";
-
-                    cout << "\n\nSOLUCAO:\n\n";
-                    sol.print(instance);
-
-                    cout << erro
-                         << "\n****************************************************************************************\n\n";
-
-                    mv = false;
-                    sol.viavel = false;
-                    delete solBest;
-                    throw "ERRO";
-                }
-                else
-                {
-                    //cout<<"MV SHIFIT ATUALIZACAO!!\n\n";
-
-                    if((sol.distancia < solBest->distancia || !solBest->viavel) && mv)
-                    {
-                        solBest->copia(sol);
-                        custoBest = solBest->distancia;
-                        estat.ultimaAtualizacaoBest = i;
-
-                        //solBest->print(instance);
-                        //cout<<"i: "<<i<<"\n";
-
-                    }
-
-                }
-
-                //PRINT_DEBUG("\t", "END");
-            }
- */

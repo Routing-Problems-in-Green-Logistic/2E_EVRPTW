@@ -31,7 +31,7 @@ void setParamGrasp(Instance &instancia, ParametrosGrasp &parametrosGrasp);
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    string commite = "ddcc4500b5e3daf3fa00681c2f6886ab4abce33c";
+    string commite = "a25930f0745e3d20ecae5736aafba25ebaf42c28";
     parametros.commit = commite;
 
     try
@@ -48,39 +48,8 @@ int main(int argc, char* argv[])
         caregaParametros(parametros, argc-1, &argv[1]);
         Instance instancia(parametros.instancia, parametros.nomeInstancia);
 
-
         dijkstraSatCli(instancia);
         instancia.calculaVetVoltaRS_sat();
-
-
-
-/*            vector<int> vetSatAtendCliente(instancia.numNos, -1);
-            vector<int> satUtilizado(instancia.numSats+1, 0);
-
-            const ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
-
-            cout<<"\t";
-            for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
-                cout<<sat<<"\t";
-
-            cout<<"\n\n";
-
-            for(int i=instancia.getEndSatIndex()+1; i < instancia.numNos; ++i)
-            {
-                cout<<i<<":\t";
-                for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
-                {
-                    cout<<matClienteSat(i, sat)<<"\t";
-                }
-
-                cout<<"\n";
-            }
-
-            return 0;*/
-
-
-            //calculaRaioSatSeedK_means(instancia);
-            //return 0;
 
         ParametrosGrasp parametrosGrasp;
         setParamGrasp(instancia, parametrosGrasp);

@@ -339,20 +339,6 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instance &instancia, 
                                     }
                                 #endif
 
-/*                                else
-                                {
-
-                                    string strRota;
-                                    string strRotaNova;
-
-                                    evRoute.print(strRota, instance, true);
-                                    evRouteAux.print(strRotaNova, instance, true);
-
-                                    PRINT_DEBUG("", "ERRO NOVA ROTA EH MAIOR. ROTA ORIGINAL "<<(evRoute.distancia)<<"; NOVA ROTA: "<<distNovaRota<<"\nROTA ORIGINAL: "<<strRota<<"\nNOVA ROTA: "<<strRotaNova<<"\ni: "<<i<<"; pos: "<<pos);
-                                    throw "ERRO";
-                                }*/
-
-
                             }
                         }
                     }
@@ -786,15 +772,6 @@ bool NS_LocalSearch::mvEv2opt(Solucao &solucao, Instance &instancia, EvRoute &ev
         // copia ate posI - 1
         std::copy(evRoute.route.begin(), evRoute.route.begin()+posI, evRouteAux.route.begin());
 
-        /*
-        cout<<"\t\t\t\tAte (posI-1)("<<posI-1<<"): ";
-        string rotaStr;
-        for(int i=0; i < posI; ++i)
-            rotaStr += to_string(evRouteAux[i].cliente) + " ";
-        cout<<rotaStr<<"\n";
-        cout<<"\t\t\t\tDE (posJ, clienteJ)("<<posJ<<", "<<evRoute.route[posJ].cliente<<") ATE (posI, clienteI)("<<posI<<", "<<evRoute.route[posI].cliente<<"):\n\t\t\t\t\t";
-        */
-
         // copia de posJ ate posI
         for(; posEvRoute >= posI; )
         {
@@ -812,8 +789,6 @@ bool NS_LocalSearch::mvEv2opt(Solucao &solucao, Instance &instancia, EvRoute &ev
         //cout<<"\n\n";
 
         // copia de posJ+1 ate o fim
-        //std::copy(evRoute.route.begin()+posJ+1, evRoute.route.begin()+evRoute.routeSize, evRouteAux.route.begin()+posEvRouteAux);
-
         posEvRoute = posJ+1;
         for(; posEvRoute < evRoute.routeSize; ++posEvRoute)
         {
@@ -908,10 +883,6 @@ cout<<" ROTA: "<<strRota<<"\n";
                         // Calcula a nova distancia
                         double novaDist = evRoute.distancia;
 
-                        /*novaDist += -instancia.getDistance(clienteI_menos1, clienteI) -instancia.getDistance(clienteI, clienteI_mais1) +
-                                    -instancia.getDistance(clienteJ_menos1, clienteJ) -instancia.getDistance(clienteJ, clienteJ_mais1) +
-                                    +instancia.getDistance(clienteI_menos1, clienteJ) +instancia.getDistance(clienteJ, clienteI_mais1) +
-                                    +instancia.getDistance(clienteJ_menos1, clienteI) +instancia.getDistance(clienteI, clienteJ_mais1);*/
                         novaDist += -instancia.getDistance(clienteI_menos1, clienteI) +
                                     -instancia.getDistance(clienteJ, clienteJ_mais1)  +
                                     +instancia.getDistance(clienteI_menos1, clienteJ) +
@@ -1064,44 +1035,15 @@ cout<<"\t\t\tDIST REAL EH MAIOR!!\n";
  **
  ************************************************************************************************************
  ************************************************************************************************************/
+
 bool NS_LocalSearch::mvEvShifitInterRotas(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, const bool interSat)
 {
 
-    auto geraSequecia = [&](const EvRoute &evRouteRef, EvRoute &evRoute, const int pos, const int clienteAdd = -1)
-    {
-        const int fistCliente = instancia.getFirstClientIndex();
-
-        if(clienteAdd >= instancia.getFirstClientIndex() && evRouteRef.route[pos].cliente != clienteAdd)
-        {
-            PRINT_DEBUG("", "ERRO, cliente(pos("<<pos<<"), "<<evRouteRef.route[pos].cliente<<"),  != clienteAdd("<<clienteAdd<<")");
-            throw "ERRO";
-        }
-
-        // Copia evRouteRef para evRoute ate pos-1
-        evRoute.copiaN(evRouteRef, pos, true, &instancia);
-        int posProxEvRoute = pos;
-
-        // Copia pos
-        if(clienteAdd >= fistCliente)
-        {
-            evRoute[pos] = evRouteRef.route[pos];
-            evRoute.distancia += instancia.getDistance(evRoute[pos-1].cliente, evRoute[pos].cliente);
-            posProxEvRoute += 1;
-            evRoute[posProxEvRoute].cliente = clienteAdd;
-            posProxEvRoute += 1;
-            evRoute.demanda += instancia.getDemand(clienteAdd);
-            evRoute.distancia += instancia.getDistance(evRoute[pos].cliente, evRoute[pos+1].cliente);
-        }
-
-        if(clienteAdd >= instancia.getFirstClientIndex())
-        {
-
-        }
-        else
-        {
-
-        }
-    };
+    /* **************************************************************************************
+     * **************************************************************************************
+     *
+     * **************************************************************************************
+     * **************************************************************************************/
 
     for(int sat0=instancia.getFirstSatIndex(); sat0 <= instancia.getEndSatIndex(); ++sat0)
     {
@@ -1118,18 +1060,95 @@ bool NS_LocalSearch::mvEvShifitInterRotas(Solucao &solucao, Instance &instancia,
 
             for(int evSat0=0; evSat0 < instancia.getN_Evs(); ++evSat0)
             {
+                EvRoute &evRouteSat0 = solucao.satelites[sat0].vetEvRoute[evSat0];
+
                 for(int evSat1=0; evSat1 < instancia.getN_Evs(); ++evSat1)
                 {
                     if(!interSat && evSat0==evSat1)
                         continue;
 
-                    /* **************************************************************************************
-                     * **************************************************************************************
-                     *
-                     * **************************************************************************************
-                     * **************************************************************************************/
+                    EvRoute &evRouteSat1 = solucao.satelites[sat1].vetEvRoute[evSat1];
 
                     // Selecionar as posicoes das rotas
+
+                    for(int posEvSat0=0; posEvSat0 < (evSat0-1); ++posEvSat0)
+                    {
+
+                         for(int posEvSat1=0; posEvSat1 < (evSat0-1); ++posEvSat1)
+                         {
+
+                             /* ******************************************************************************************
+                              * ******************************************************************************************
+                              *  1º
+                              *     O cliente na posicao (posEvSat0+1) do ev evSat0 ira para a posicao (posEvSat1+1)
+                              *   evSat0 nao pode estar vazio,  cliente nao pode ser rs, verificar a nova carga de evSat1
+                              *
+                              *  2º
+                              *     O cliente na posicao (posEvSat1+1) do ev evSat1 ira para a posicao (posEvSat0+1)
+                              *   evSat1 nao pode estar vazio, e cliente nao pode ser rs, verificar a nova carga de evSat0
+                              *
+                              * ********************************************************************************************
+                              * ********************************************************************************************/
+
+                             auto realizaMv=[](Instance &instancia, EvRoute &evRoute0, int posEvRoute0, EvRoute &evRoute1, int posEvRoute1,
+                                               EvRoute &evRouteAux0, EvRoute &evRouteAux1, const double tempoSaidaSat)
+                             {
+
+                                 // cliente em (posEvRoute0+1) ira para (posEvRoute1+1) da rota evRoute1
+                                 // evRoute nao pode ser vazio e verificar nova carga de evRoute1
+
+                                 if((evRoute0.routeSize <= 2) || instancia.isRechargingStation(evRoute0[(posEvRoute0+1)].cliente))
+                                     return false;
+
+                                 const int cliente = evRoute0[posEvRoute0+1].cliente;
+
+                                 // Verifica carga de evRoute1
+                                 if((evRoute1.demanda+instancia.getDemand(cliente)) > instancia.vectVeiculo[evRoute1.idRota].capacidade)
+                                     return false;
+
+
+                                 // Calcula distancia
+                                 const double distOrig = evRoute0.distancia+evRoute1.distancia;
+
+                                 // Calcula nova distancia
+                                 double novaDist = distOrig;
+
+                                 novaDist += -(instancia.getDistance(evRoute0[posEvRoute0].cliente, cliente)+
+                                               instancia.getDistance(cliente, evRoute0[posEvRoute0+2].cliente));
+                                 novaDist += -(instancia.getDistance(evRoute1[posEvRoute1].cliente, evRoute1[posEvRoute1+1].cliente));
+                                 novaDist +=   instancia.getDistance(evRoute1[posEvRoute1].cliente, cliente);
+                                 novaDist +=   instancia.getDistance(cliente, evRoute1[posEvRoute1+1].cliente);
+
+                                 // Verifica se novaDist < distOrig
+                                 if(menor(novaDist,distOrig))
+                                 {
+                                     // Copia evRoute1 para evRouteAux1 e add cliente
+                                     evRouteAux1.copia(evRoute1, false, &instancia);
+                                     shiftVectorClienteDir(evRouteAux1.route, (posEvRoute1+1), 1, evRouteAux1.routeSize);
+                                     evRouteAux1[posEvRoute1+1].cliente = cliente;
+                                     evRouteAux1.routeSize += 1;
+
+                                     double distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia, false, tempoSaidaSat, 0, nullptr);
+
+                                     // Verifica se a nova rota eh viavel
+                                     if(distNovaRota1 <= 0.0)
+                                     {
+                                         InsercaoEstacao insercaoEstacao;
+                                         viabilizaRotaEv(evRouteAux1, instancia, false, insercaoEstacao, , false, tempoSaidaSat);
+                                     }
+
+
+
+                                 }
+
+                             };
+
+                             realizaMv(instancia, evRouteSat0, posEvSat0, evRouteSat1, posEvSat1, evRouteAux0, evRouteAux1);
+                             realizaMv(instancia, evRouteSat1, posEvSat1, evRouteSat0, posEvSat0, evRouteAux0, evRouteAux1);
+
+                         }
+
+                    } // End for(posEvSat0)
 
                 } // End for(evSat1)
 

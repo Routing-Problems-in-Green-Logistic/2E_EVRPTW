@@ -7,7 +7,7 @@ s-
 
 # 09/10 
 
-- [ ] Construtivo
+- [x] Construtivo
 - [ ] shifit intra rota
 - [ ] ACO
 - [ ] APA
@@ -19,6 +19,8 @@ s-
 
 
 # Min-Max Ant System
+
+^a49622
 
 ![[min-max Ant.png]]
 - avg = 50
@@ -52,3 +54,9 @@ COMMITE: ddcc4500b5e3daf3fa00681c2f6886ab4abce33c
 Texto:
 
 [[A Classification of Hyper-heuristic Approaches.pdf]]
+
+
+
+---
+---
+
