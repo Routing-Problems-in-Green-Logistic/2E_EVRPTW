@@ -1038,6 +1038,8 @@ cout<<"\t\t\tDIST REAL EH MAIOR!!\n";
 
 bool NS_LocalSearch::mvEvShifitInterRotas(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, const bool interSat)
 {
+    //cout<<"mvEvShifitInterRotas\n";
+
     if(interSat)
     {
         PRINT_DEBUG("", "INTER SATELITES AINDA NAO FOI IMPLEMENTADO!\n");
@@ -1076,10 +1078,10 @@ bool NS_LocalSearch::mvEvShifitInterRotas(Solucao &solucao, Instance &instancia,
 
                     // Selecionar as posicoes das rotas
 
-                    for(int posEvSat0=0; posEvSat0 < (evSat0-1); ++posEvSat0)
+                    for(int posEvSat0=0; posEvSat0 < (evSat0-2); ++posEvSat0)
                     {
 
-                         for(int posEvSat1=0; posEvSat1 < (evSat0-1); ++posEvSat1)
+                         for(int posEvSat1=0; posEvSat1 < (evSat0-2); ++posEvSat1)
                          {
 
                              /* ******************************************************************************************
@@ -1118,6 +1120,8 @@ bool NS_LocalSearch::mvEvShifitInterRotas(Solucao &solucao, Instance &instancia,
                                  // Calcula nova distancia
                                  double novaDist = distOrig;
 
+cout<<"evRoute0[posEvRoute0+2].cliente: "<<evRoute0[posEvRoute0+2].cliente<<"\n";
+
                                  novaDist += -(instancia.getDistance(evRoute0[posEvRoute0].cliente, cliente)+
                                                instancia.getDistance(cliente, evRoute0[posEvRoute0+2].cliente));
                                  novaDist += instancia.getDistance(evRoute0[posEvRoute0].cliente, evRoute0[posEvRoute0+2].cliente);
@@ -1133,10 +1137,19 @@ bool NS_LocalSearch::mvEvShifitInterRotas(Solucao &solucao, Instance &instancia,
                                      shiftVectorClienteDir(evRouteAux1.route, (posEvRoute1+1), 1, evRouteAux1.routeSize);
                                      evRouteAux1[posEvRoute1+1].cliente = cliente;
                                      evRouteAux1.routeSize += 1;
+string strRota1;
+evRoute1.print(strRota1, instancia, true);
+cout<<"evRoute1: "<<strRota1<<"\n";
+
+strRota1 = "";
+evRouteAux1.print(strRota1, instancia, true);
+cout<<"nova evRoute1: "<<strRota1<<"\n";
+
 
                                      double distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia, false, tempoSaidaSat, 0, nullptr);
                                      InsercaoEstacao insercaoEstacao;
                                      bool novaRota1Viavel = true;
+                                     bool rotaViabilizada = false;
 
                                      // Verifica se a nova rota eh viavel
                                      if(distNovaRota1 <= 0.0)
@@ -1161,17 +1174,35 @@ bool NS_LocalSearch::mvEvShifitInterRotas(Solucao &solucao, Instance &instancia,
 
 
                                         novaRota1Viavel = viabilizaRotaEv(evRouteAux1, instancia, false, insercaoEstacao, limNovaDist1, false, tempoSaidaSat);
+                                        if(novaRota1Viavel)
+                                        {
+                                            distNovaRota1 = insercaoEstacao.distanciaRota;
+                                            rotaViabilizada = true;
+                                        }
 
+                                     }
+                                     else
+                                     {
+                                         distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia, true, tempoSaidaSat, 0, nullptr);
+                                         evRouteAux1.distancia = distNovaRota1;
                                      }
 
                                      if(novaRota1Viavel)
                                      {
+string strRota;
+evRoute0.print(strRota, instancia, false);
+cout<<"evRoute0: "<<strRota<<"\n";
+
                                          evRouteAux0.copia(evRoute0, true, &instancia);
                                          shiftVectorClienteEsq(evRouteAux0.route, posEvRoute0+1, evRouteAux0.routeSize);
-                                         evRoute0.routeSize -= 1;
+                                         evRouteAux0.routeSize -= 1;
+
+strRota="";
+evRouteAux0.print(strRota, instancia, false);
+cout<<"nova evRoute0: "<<strRota<<"\n\n";
 
                                          double distNovaRota0 = testaRota(evRouteAux0, evRouteAux0.routeSize, instancia, true, tempoSaidaSat, 0, nullptr);
-
+                                         evRouteAux0.distancia = distNovaRota0;
 
                                          // Verifica Viabilidade
                                          if(distNovaRota0 <= 0.0)
@@ -1180,28 +1211,35 @@ bool NS_LocalSearch::mvEvShifitInterRotas(Solucao &solucao, Instance &instancia,
                                              return false;
                                          }
 
-                                         if(menor((distNovaRota0+insercaoEstacao.distanciaRota), distOrig))
+                                         if(menor((distNovaRota0+distNovaRota1), distOrig))
                                          {
-                                             evRoute0.copia(evRouteAux0, false, nullptr);
+                                             evRoute0.copia(evRouteAux0, true, &instancia);
 
-                                             try
+                                             if(rotaViabilizada)
                                              {
-                                                 insereEstacaoRota(evRouteAux1, insercaoEstacao, instancia, tempoSaidaSat);
+                                                 try
+                                                 {
+                                                     insereEstacaoRota(evRouteAux1, insercaoEstacao, instancia, tempoSaidaSat);
+                                                 } catch(const char *erro)
+                                                 {
+                                                     PRINT_DEBUG("",
+                                                                 "ERRO ROTRA JA FOI TESTADA COM RESULTADO TRUE, ...");
+                                                     return false;
+                                                 }
                                              }
-                                             catch(const char *erro)
-                                             {
-                                                 PRINT_DEBUG("", "ERRO ROTRA JA FOI TESTADA COM RESULTADO TRUE, ...");
-                                                 return false;
-                                             }
+
 
                                              evRoute1.copia(evRouteAux1, true, &instancia);
                                              return true;
 
                                          }
 
-                                         else false;
+                                         else
+                                             return false;
                                      }
                                  }
+
+                                 return false;
                              };
 
                              const double distOrig = evRouteSat0.distancia+evRouteSat1.distancia;
@@ -1215,6 +1253,7 @@ bool NS_LocalSearch::mvEvShifitInterRotas(Solucao &solucao, Instance &instancia,
                                  double novaDist = evRouteSat0.distancia+evRouteSat1.distancia;
                                  solucao.distancia += -distOrig + novaDist;
                                  solucao.satelites[sat0].distancia += -distOrig + novaDist;
+                                 cout<<"MV UPDATE\n";
                                  return true;
                              }
 
@@ -1229,5 +1268,7 @@ bool NS_LocalSearch::mvEvShifitInterRotas(Solucao &solucao, Instance &instancia,
         } // End for(sat1)
 
     } // End for(sat0)
+
+    return false;
 
 }

@@ -7,19 +7,20 @@
 using namespace NS_vnd;
 using namespace NS_LocalSearch;
 
-#define MV_EV_SHIFIT_INTRA_ROTA 0
-#define MV_EV_SWAP_INTRA_ROTA   1
-#define MV_EV_2OPT              2
+#define MV_EV_SHIFIT_INTRA_ROTA     0
+#define MV_EV_SWAP_INTRA_ROTA       1
+#define MV_EV_2OPT                  2
+#define MV_EV_SHIFIT_INTER_ROTAS    3
 
-#define NUM_MV 3
+#define NUM_MV 1
 
 void NS_vnd::rvnd(Solucao &solution, Instance &instance)
 {
     //cout<<"\tRVND INICIO\n";
 
-    static int vetMv[NUM_MV];
+    static int vetMv[NUM_MV] = {3};
 
-    for(int i=0; i < NUM_MV; ++i)
+/*    for(int i=0; i < NUM_MV; ++i)
     {
         vetMv[i] = rand_u32()%NUM_MV;
         bool invalido = true;
@@ -41,10 +42,11 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
                 invalido = false;
 
         }
-    }
+    }*/
 
 
     EvRoute evRouteAux(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
+    EvRoute evRouteAux1(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
 
     int i=0;
     bool valEsp = false;
@@ -65,6 +67,10 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
 
             case MV_EV_2OPT:
                 aplicacao = mvEv2opt(solution, instance, evRouteAux);
+                break;
+
+            case MV_EV_SHIFIT_INTER_ROTAS:
+                aplicacao = mvEvShifitInterRotas(solution, instance, evRouteAux, evRouteAux1, false);
                 break;
 
             default:
