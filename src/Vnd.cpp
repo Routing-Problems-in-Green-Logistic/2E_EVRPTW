@@ -12,15 +12,15 @@ using namespace NS_LocalSearch;
 #define MV_EV_2OPT                  2
 #define MV_EV_SHIFIT_INTER_ROTAS    3
 
-#define NUM_MV 1
+#define NUM_MV 4
 
 void NS_vnd::rvnd(Solucao &solution, Instance &instance)
 {
     //cout<<"\tRVND INICIO\n";
 
-    static int vetMv[NUM_MV] = {3};
+    static int vetMv[NUM_MV];
 
-/*    for(int i=0; i < NUM_MV; ++i)
+    for(int i=0; i < NUM_MV; ++i)
     {
         vetMv[i] = rand_u32()%NUM_MV;
         bool invalido = true;
@@ -42,7 +42,7 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
                 invalido = false;
 
         }
-    }*/
+    }
 
 
     EvRoute evRouteAux(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
@@ -96,7 +96,10 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
         else
             i += 1;
 
+        //cout<<"#############################################################\n\n";
 
     }
+
+    //cout<<"//////////////////////////////////////////////////////////////////\n\n";
 
 }

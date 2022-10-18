@@ -1046,9 +1046,12 @@ bool NS_LocalSearch::mvEvShifitInterRotas(Solucao &solucao, Instance &instancia,
         throw "ERRO";
     }
 
+    if(instancia.numSats == 1 && instancia.numEv == 1)
+        return false;
+
     /* **************************************************************************************
      * **************************************************************************************
-     *
+     * ./run ../../instancias/2e-vrp-tw/Customer_15/C103_C15x.txt --execTotal 10 --pasta 'resultados' --resulCSV 'resultados.csv' --execAtual 0 --seed 1666043081
      * **************************************************************************************
      * **************************************************************************************/
 
@@ -1074,14 +1077,15 @@ bool NS_LocalSearch::mvEvShifitInterRotas(Solucao &solucao, Instance &instancia,
                     if(!interSat && evSat0==evSat1)
                         continue;
 
+//cout<<"ev0: "<<evSat0<<"; ev1: "<<evSat1<<"\n";
+
                     EvRoute &evRouteSat1 = solucao.satelites[sat1].vetEvRoute[evSat1];
 
                     // Selecionar as posicoes das rotas
-
-                    for(int posEvSat0=0; posEvSat0 < (evSat0-2); ++posEvSat0)
+                    for(int posEvSat0=0; posEvSat0 < (evRouteSat0.routeSize-1); ++posEvSat0)
                     {
 
-                         for(int posEvSat1=0; posEvSat1 < (evSat0-2); ++posEvSat1)
+                         for(int posEvSat1=0; posEvSat1 < (evRouteSat1.routeSize-1); ++posEvSat1)
                          {
 
                              /* ******************************************************************************************
@@ -1101,10 +1105,34 @@ bool NS_LocalSearch::mvEvShifitInterRotas(Solucao &solucao, Instance &instancia,
                                                EvRoute &evRouteAux0, EvRoute &evRouteAux1, const double tempoSaidaSat)
                              {
 
+/*PRINT_DEBUG("", "");
+
+string strRota;
+evRoute0.print(strRota, instancia, true);
+cout<<"evRoute0: "<<strRota<<"\n";
+cout<<"posEvRoute0: "<<posEvRoute0<<"\n\n";
+
+strRota = "";
+evRoute1.print(strRota, instancia, true);
+cout<<"evRoute1: "<<strRota<<"\n";
+cout<<"posEvRooute1: "<<posEvRoute1<<"\n\n";
+
+cout<<"********************************************\n********************************************\n\n";*/
+
+
                                  // cliente em (posEvRoute0+1) ira para (posEvRoute1+1) da rota evRoute1
                                  // evRoute nao pode ser vazio e verificar nova carga de evRoute1
 
                                  if((evRoute0.routeSize <= 2) || instancia.isRechargingStation(evRoute0[(posEvRoute0+1)].cliente))
+                                     return false;
+
+                                 if(evRoute1.routeSize <=2 && posEvRoute1 != 0)
+                                     return false;
+
+                                 if(evRoute0.routeSize == 3 && evRoute1.routeSize == 2)
+                                     return false;
+
+                                 if(!(posEvRoute0 < (evRoute0.routeSize-3)))
                                      return false;
 
                                  const int cliente = evRoute0[posEvRoute0+1].cliente;
@@ -1120,7 +1148,7 @@ bool NS_LocalSearch::mvEvShifitInterRotas(Solucao &solucao, Instance &instancia,
                                  // Calcula nova distancia
                                  double novaDist = distOrig;
 
-cout<<"evRoute0[posEvRoute0+2].cliente: "<<evRoute0[posEvRoute0+2].cliente<<"\n";
+//cout<<"evRoute0[posEvRoute0+2].cliente: "<<evRoute0[posEvRoute0+2].cliente<<"\n";
 
                                  novaDist += -(instancia.getDistance(evRoute0[posEvRoute0].cliente, cliente)+
                                                instancia.getDistance(cliente, evRoute0[posEvRoute0+2].cliente));
@@ -1132,11 +1160,14 @@ cout<<"evRoute0[posEvRoute0+2].cliente: "<<evRoute0[posEvRoute0+2].cliente<<"\n"
                                  // Verifica se novaDist < distOrig
                                  if(menor(novaDist,distOrig))
                                  {
+//cout<<"novaDist("<<novaDist<<") < distOrig("<<distOrig<<")!\n";
+
                                      // Copia evRoute1 para evRouteAux1 e add cliente
                                      evRouteAux1.copia(evRoute1, true, &instancia);
                                      shiftVectorClienteDir(evRouteAux1.route, (posEvRoute1+1), 1, evRouteAux1.routeSize);
                                      evRouteAux1[posEvRoute1+1].cliente = cliente;
                                      evRouteAux1.routeSize += 1;
+/*
 string strRota1;
 evRoute1.print(strRota1, instancia, true);
 cout<<"evRoute1: "<<strRota1<<"\n";
@@ -1144,7 +1175,7 @@ cout<<"evRoute1: "<<strRota1<<"\n";
 strRota1 = "";
 evRouteAux1.print(strRota1, instancia, true);
 cout<<"nova evRoute1: "<<strRota1<<"\n";
-
+*/
 
                                      double distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia, false, tempoSaidaSat, 0, nullptr);
                                      InsercaoEstacao insercaoEstacao;
@@ -1189,17 +1220,17 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
 
                                      if(novaRota1Viavel)
                                      {
-string strRota;
+/*string strRota;
 evRoute0.print(strRota, instancia, false);
-cout<<"evRoute0: "<<strRota<<"\n";
+cout<<"evRoute0: "<<strRota<<"\n";*/
 
                                          evRouteAux0.copia(evRoute0, true, &instancia);
                                          shiftVectorClienteEsq(evRouteAux0.route, posEvRoute0+1, evRouteAux0.routeSize);
                                          evRouteAux0.routeSize -= 1;
 
-strRota="";
+/*strRota="";
 evRouteAux0.print(strRota, instancia, false);
-cout<<"nova evRoute0: "<<strRota<<"\n\n";
+cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
 
                                          double distNovaRota0 = testaRota(evRouteAux0, evRouteAux0.routeSize, instancia, true, tempoSaidaSat, 0, nullptr);
                                          evRouteAux0.distancia = distNovaRota0;
@@ -1207,7 +1238,7 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";
                                          // Verifica Viabilidade
                                          if(distNovaRota0 <= 0.0)
                                          {
-                                             PRINT_DEBUG("", "ERRO, ROTA0 DEVERIA SER VIAVEL!");
+                                             //PRINT_DEBUG("", "ERRO, ROTA0 DEVERIA SER VIAVEL!");
                                              return false;
                                          }
 
@@ -1222,14 +1253,16 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";
                                                      insereEstacaoRota(evRouteAux1, insercaoEstacao, instancia, tempoSaidaSat);
                                                  } catch(const char *erro)
                                                  {
-                                                     PRINT_DEBUG("",
-                                                                 "ERRO ROTRA JA FOI TESTADA COM RESULTADO TRUE, ...");
+                                                     PRINT_DEBUG("", "ERRO ROTRA JA FOI TESTADA COM RESULTADO TRUE, ...");
                                                      return false;
                                                  }
                                              }
 
 
                                              evRoute1.copia(evRouteAux1, true, &instancia);
+                                             evRoute0.atualizaParametrosRota(instancia);
+                                             evRoute1.atualizaParametrosRota(instancia);
+
                                              return true;
 
                                          }
@@ -1253,7 +1286,7 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";
                                  double novaDist = evRouteSat0.distancia+evRouteSat1.distancia;
                                  solucao.distancia += -distOrig + novaDist;
                                  solucao.satelites[sat0].distancia += -distOrig + novaDist;
-                                 cout<<"MV UPDATE\n";
+                                 //cout<<"MV UPDATE\n";
                                  return true;
                              }
 
