@@ -60,6 +60,7 @@ namespace NS_LocalSearch
     bool mvEv2opt(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux);
 
     bool mvEvShifitInterRotas(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, const bool interSat = false);
+    void removeRS_Repetido(EvRoute &evRoute);
 
 }
 

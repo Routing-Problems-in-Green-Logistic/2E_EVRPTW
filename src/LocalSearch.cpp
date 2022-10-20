@@ -224,7 +224,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instance &instancia, 
                                 }
 
                                 // Verifica viabilidade da nova rota
-                                double distNovaRota = testaRota(evRouteAux, evRouteAux.routeSize, instancia, false, solucao.satTempoChegMax[satId], min - 1, nullptr);
+                                double distNovaRota = testaRota(evRouteAux, evRouteAux.routeSize, instancia, false, solucao.satTempoChegMax[satId], 0, nullptr);
                                 bool exit = false;
 
                                 if(distNovaRota < 0.0)
@@ -310,14 +310,14 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instance &instancia, 
                                         if(insercaoEstacao.pos != -1)
                                         {
                                             insereEstacaoRota(evRouteAux, insercaoEstacao, instancia, solucao.satTempoChegMax[satId]);
-                                            evRoute.copia(evRouteAux, false, nullptr);
+                                            evRoute.copia(evRouteAux, true, &instancia);
                                             evRoute.vetRecarga[insercaoEstacao.estacao - instancia.getFirstRS_index()].utilizado += 1;
 
                                             return true;
                                         }
                                         else
                                         {
-                                            evRoute.copia(evRouteAux, false, nullptr);
+                                            evRoute.copia(evRouteAux, true, &instancia);
                                         }
 
                                         evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instancia, true, solucao.satTempoChegMax[satId], 0, nullptr);
@@ -453,6 +453,7 @@ void NS_LocalSearch::insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::Inserca
     shiftVectorClienteDir(evRoute.route, insercaoEstacao.pos+1, 1, evRoute.routeSize);
     evRoute[insercaoEstacao.pos+1].cliente = insercaoEstacao.estacao;
     evRoute.routeSize += 1;
+    removeRS_Repetido(evRoute);
     evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaida, 0, nullptr);
 
     if(evRoute.distancia < 0.0)
@@ -645,8 +646,7 @@ cout<<"SWAP ROTA: "<<strRota<<"\n";
                                 if(menor(novaDist, evRoute.distancia))
                                 {
                                     // Testa nova rota:
-                                    double distReal = testaRota(evRouteAux, evRouteAux.routeSize, instancia, false,
-                                                                evRoute[0].tempoSaida, ultimoValIndice, nullptr);
+                                    double distReal = testaRota(evRouteAux, evRouteAux.routeSize, instancia, false, evRoute[0].tempoSaida, ultimoValIndice, nullptr);
 
                                     // Verifica se a nova rota eh viavel
                                     //if(distReal > 0.0 && ((distReal+10E-2) < evRoute.distancia))
@@ -674,6 +674,10 @@ cout<<"SWAP ROTA: "<<strRota<<"\n";
                                         satelite.distancia -= evRoute.distancia;
                                         solucao.distancia -= evRoute.distancia;
                                         evRouteAux.distancia = distReal;
+
+                                        //cout<<"EV ROUTE ANTES: \n";
+                                        //evRoute.print(instancia, true);
+
                                         evRoute.copia(evRouteAux, true, &instancia);
 
 
@@ -711,6 +715,7 @@ cout<<"SWAP ROTA: "<<strRota<<"\n";
                                                 satelite.distancia -= evRoute.distancia;
                                                 evRoute.copia(evRouteAux, true, &instancia);
                                                 evRoute.vetRecarga[insereEstacao.estacao - instancia.getFirstRS_index()].utilizado += 1;
+                                                evRoute.atualizaParametrosRota(instancia);
 
                                                 solucao.distancia += evRoute.distancia;
                                                 satelite.distancia += evRoute.distancia;
@@ -1167,6 +1172,8 @@ cout<<"********************************************\n***************************
                                      shiftVectorClienteDir(evRouteAux1.route, (posEvRoute1+1), 1, evRouteAux1.routeSize);
                                      evRouteAux1[posEvRoute1+1].cliente = cliente;
                                      evRouteAux1.routeSize += 1;
+
+
 /*
 string strRota1;
 evRoute1.print(strRota1, instancia, true);
@@ -1227,6 +1234,7 @@ cout<<"evRoute0: "<<strRota<<"\n";*/
                                          evRouteAux0.copia(evRoute0, true, &instancia);
                                          shiftVectorClienteEsq(evRouteAux0.route, posEvRoute0+1, evRouteAux0.routeSize);
                                          evRouteAux0.routeSize -= 1;
+                                         removeRS_Repetido(evRouteAux0);
 
 /*strRota="";
 evRouteAux0.print(strRota, instancia, false);
@@ -1275,7 +1283,8 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
                                  return false;
                              };
 
-                             const double distOrig = evRouteSat0.distancia+evRouteSat1.distancia;
+                             const double distOrig    = evRouteSat0.distancia+evRouteSat1.distancia;
+                             const double demandaOrig = evRouteSat0.demanda+evRouteSat1.demanda;
 
                              bool resutado = realizaMv(instancia, evRouteSat0, posEvSat0, evRouteSat1, posEvSat1, evRouteAux0, evRouteAux1, evRouteSat0[0].tempoSaida);
                              if(!resutado)
@@ -1287,6 +1296,15 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
                                  solucao.distancia += -distOrig + novaDist;
                                  solucao.satelites[sat0].distancia += -distOrig + novaDist;
                                  //cout<<"MV UPDATE\n";
+
+                                 double novaDemanda = evRouteSat0.demanda+evRouteSat1.demanda;
+                                 if(novaDemanda != demandaOrig)
+                                 {
+                                     PRINT_DEBUG("","");
+                                     cout<<"ERRO! NOVA DEMANDA("<<novaDemanda<<") != DEMANDA ORIGINAL("<<demandaOrig<<")\n";
+                                     throw "ERRO";
+                                 }
+
                                  return true;
                              }
 
@@ -1303,5 +1321,24 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
     } // End for(sat0)
 
     return false;
+
+}
+
+void NS_LocalSearch::removeRS_Repetido(EvRoute &evRoute)
+{
+
+    if(evRoute.routeSize <= 2)
+        return;
+
+    for(int i=2; i < (evRoute.routeSize-1); )
+    {
+        if(evRoute[i].cliente == evRoute[i-1].cliente)
+        {
+            shiftVectorClienteEsq(evRoute.route, i, evRoute.routeSize);
+            evRoute.routeSize -= 1;
+        }
+        else
+            i += 1;
+    }
 
 }

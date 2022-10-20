@@ -16,7 +16,6 @@ using namespace NS_LocalSearch;
 
 void NS_vnd::rvnd(Solucao &solution, Instance &instance)
 {
-    //cout<<"\tRVND INICIO\n";
 
     static int vetMv[NUM_MV];
 
@@ -48,56 +47,73 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
     EvRoute evRouteAux(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
     EvRoute evRouteAux1(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
 
-    int i=0;
-    bool valEsp = false;
-    while(i < NUM_MV)
+    int i = 0;
+
+    try
     {
-        bool aplicacao = false;
-        double val = solution.distancia;
 
-        switch(vetMv[i])
+        bool valEsp = false;
+        while(i < NUM_MV)
         {
-            case MV_EV_SHIFIT_INTRA_ROTA:
-                aplicacao = mvEvShifitIntraRota(solution, instance, evRouteAux, SELECAO_PRIMEIRO);
-                break;
+            bool aplicacao = false;
+            double val = solution.distancia;
+            //cout << "\t\tMV: " << vetMv[i] << "\n";
 
-            case MV_EV_SWAP_INTRA_ROTA:
-                aplicacao = mvEvSwapIntraRota(solution, instance, evRouteAux);
-                break;
-
-            case MV_EV_2OPT:
-                aplicacao = mvEv2opt(solution, instance, evRouteAux);
-                break;
-
-            case MV_EV_SHIFIT_INTER_ROTAS:
-                aplicacao = mvEvShifitInterRotas(solution, instance, evRouteAux, evRouteAux1, false);
-                break;
-
-            default:
-                cout<<"ERRO: MV("<<i<<") NAO EXISTE\n";
-                throw "ERRO";
-                break;
-
-        }
-
-        if(aplicacao)
-        {
-
-            string erro;
-            if(!solution.checkSolution(erro, instance))
+            switch(vetMv[i])
             {
-                PRINT_DEBUG("", "ERRO. MV: "<<i<<"\n");
-                cout<<erro<<"\n";
-                exit(-1);
+                case MV_EV_SHIFIT_INTRA_ROTA:
+                    aplicacao = mvEvShifitIntraRota(solution, instance, evRouteAux, SELECAO_PRIMEIRO);
+                    break;
+
+                case MV_EV_SWAP_INTRA_ROTA:
+                    aplicacao = mvEvSwapIntraRota(solution, instance, evRouteAux);
+                    break;
+
+                case MV_EV_2OPT:
+                    aplicacao = mvEv2opt(solution, instance, evRouteAux);
+                    break;
+
+                case MV_EV_SHIFIT_INTER_ROTAS:
+                    aplicacao = mvEvShifitInterRotas(solution, instance, evRouteAux, evRouteAux1, false);
+                    break;
+
+                default:
+                    cout << "ERRO: MV(" << i << ") NAO EXISTE\n";
+                    throw "ERRO";
+                    break;
+
             }
 
-            i = 0;
+            if(aplicacao)
+            {
+
+                string erro;
+                if(!solution.checkSolution(erro, instance))
+                {
+                    PRINT_DEBUG("", "ERRO. MV: " << i << "\n");
+                    cout << erro << "\n\n";
+                    solution.print(instance);
+
+                    throw "ERRO";
+                }
+
+                i = 0;
+            } else
+                i += 1;
+
+            //cout<<"#############################################################\n\n";
+
         }
-        else
-            i += 1;
 
-        //cout<<"#############################################################\n\n";
+    }
+    catch(const char *erro)
+    {
 
+        PRINT_DEBUG("", "ERRO. MV: " << i << "\n");
+        cout << erro << "\n\n";
+        solution.print(instance);
+
+        throw "ERRO";
     }
 
     //cout<<"//////////////////////////////////////////////////////////////////\n\n";
