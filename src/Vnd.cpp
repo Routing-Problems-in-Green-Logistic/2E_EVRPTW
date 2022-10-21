@@ -74,7 +74,7 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
                     break;
 
                 case MV_EV_SHIFIT_INTER_ROTAS:
-                    aplicacao = mvEvShifitInterRotas(solution, instance, evRouteAux, evRouteAux1, false);
+                    aplicacao = mvEvShifitInterRotasIntraSat(solution, instance, evRouteAux, evRouteAux1);
                     break;
 
                 default:

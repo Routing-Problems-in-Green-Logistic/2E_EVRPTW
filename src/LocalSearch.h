@@ -51,6 +51,29 @@ namespace NS_LocalSearch
     };
 
 
+    class SatN_evCarga
+    {
+
+    public:
+
+        int sat          = -1;
+        int nEv          = -1;
+        double cargaUtil = 0.0;
+
+        SatN_evCarga()=default;
+        SatN_evCarga(int sat_, int nEv_, double cargaUtil_)
+        {
+            sat = sat_;
+            nEv = nEv_;
+            cargaUtil = cargaUtil_;
+        }
+
+        bool operator < (SatN_evCarga &outro) const
+        {
+            return cargaUtil < outro.cargaUtil;
+        }
+
+    };
 
     bool mvEvShifitIntraRota(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux, const int selecao);
     int setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRouteAux, int i, int pos, Instance &instancia);
@@ -59,7 +82,9 @@ namespace NS_LocalSearch
     bool mvEvSwapIntraRota(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux);
     bool mvEv2opt(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux);
 
-    bool mvEvShifitInterRotas(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, const bool interSat = false);
+    bool mvEvShifitInterRotasIntraSat(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1);
+    bool mvEvShifitInterRotasInterSats(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1);
+
     void removeRS_Repetido(EvRoute &evRoute);
 
 }

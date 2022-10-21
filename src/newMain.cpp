@@ -31,7 +31,7 @@ void setParamGrasp(Instance &instancia, ParametrosGrasp &parametrosGrasp);
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    string commite = "a25930f0745e3d20ecae5736aafba25ebaf42c28";
+    string commite = "7e9f3d364a5a75928db0392fe8e2b5b137873b1d";
     parametros.commit = commite;
 
     try
