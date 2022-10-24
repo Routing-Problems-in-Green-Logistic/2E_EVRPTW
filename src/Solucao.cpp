@@ -43,6 +43,42 @@ Solucao::Solucao(Instance &Inst)
 
 }
 
+
+void Solucao::resetaPrimeiroNivel(Instance &instancia)
+{
+    primeiroNivel = std::vector<Route>();
+
+    primeiroNivel.reserve(numTrucksMax);
+
+    for(int i=0; i < numTrucksMax; ++i)
+        primeiroNivel.emplace_back(instancia);
+
+    distancia = 0.0;
+
+    for(Satelite &sat:satelites)
+        distancia += sat.distancia;
+
+}
+
+void Solucao::recalculaDistSat(Instance &instancia)
+{
+    for(Satelite &sat:satelites)
+    {
+        sat.recalculaDemanda();
+        sat.recalculaDist();
+    }
+}
+
+double Solucao::distSat()
+{
+    double dist = 0.0;
+
+    for(Satelite &sat:satelites)
+        dist += sat.distancia;
+
+    return dist;
+}
+
 void Solucao::atualizaVetSatTempoChegMax(Instance &instance)
 {
 
@@ -372,6 +408,35 @@ void Solucao::copia(Solucao &solution)
     //cout<<"Tempo de chegada 4º arg: "<<solution.satTempoChegMax[4]<<"; Tempo de chegada 4º copia: "<<satTempoChegMax[4]<<"\n\n";
 
 
+}
+
+
+int Solucao::numSatVazios()
+{
+    int num = 0;
+
+    for(int i=1; i < satelites.size(); ++i)
+    {
+        Satelite &sat = satelites.at(i);
+
+        num += int(sat.vazio());
+    }
+
+    return num;
+
+}
+
+int Solucao::getNumEvNaoVazios()
+{
+
+    int num = 0;
+
+    for(Satelite &sat:satelites)
+    {
+        num += sat.numEv();
+    }
+
+    return num;
 }
 
 void Solucao::inicializaVetClientesAtend(Instance &instance)

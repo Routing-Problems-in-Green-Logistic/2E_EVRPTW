@@ -83,9 +83,20 @@ namespace NS_LocalSearch
     bool mvEv2opt(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux);
 
     bool mvEvShifitInterRotasIntraSat(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1);
-    bool mvEvShifitInterRotasInterSats(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1);
+    bool mvEvShifitInterRotasInterSats(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, const float beta);
 
     void removeRS_Repetido(EvRoute &evRoute);
+
+/*    bool satN_evCargaMenor(const SatN_evCarga &primeiro, const SatN_evCarga &segundo)
+    {
+        return primeiro.cargaUtil < segundo.cargaUtil;
+    }
+
+
+    bool satN_evCargaMaior(const SatN_evCarga &primeiro, const SatN_evCarga &segundo)
+    {
+        return primeiro.cargaUtil >= segundo.cargaUtil;
+    }*/
 
 }
 

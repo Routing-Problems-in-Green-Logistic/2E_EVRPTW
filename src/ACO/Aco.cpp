@@ -831,7 +831,7 @@ bool N_Aco::acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &
         Solucao solucao(instancia);
 
         //GreedyAlgNS::setSatParaCliente(instancia, vetSatAtendCliente, satUtilizado, param);
-        Solucao *solGrasp = NameS_Grasp::grasp(instancia, param, est, true, matClienteSat);
+        Solucao *solGrasp = nullptr;//NameS_Grasp::grasp(instancia, param, est, true, matClienteSat, )
 
         if(!solGrasp->viavel)
         {

@@ -117,7 +117,8 @@ void Satelite::print(const Instance &instance)
 
 void Satelite::copia(Satelite &satelite)
 {
-    for(int i=0; i < tamVetEvRoute; ++i)
+    //cout<<"tamVetEvRoute: "<<tamVetEvRoute<<"  "<<vetEvRoute.size()<<"\n";
+    for(int i=0; i < vetEvRoute.size(); ++i)
     {
 
         vetEvRoute.at(i).copia(satelite.vetEvRoute[i], false, nullptr);
@@ -134,10 +135,54 @@ void Satelite::recalculaDist()
 
     distancia = 0.0;
 
-    for(auto &ev:vetEvRoute)
+    for(int i=0; i < vetEvRoute.size(); ++i)
     {
-        if(ev.routeSize > 2)
-            distancia += ev.distancia;
+        EvRoute &evRoute = vetEvRoute.at(i);
+        if(evRoute.routeSize > 2)
+            distancia += evRoute.distancia;
+
     }
 
+}
+
+bool Satelite::vazio()
+{
+
+    bool resultado = true;
+
+    for(int i=0; i < vetEvRoute.size(); ++i)
+    {
+        EvRoute &evRoute = vetEvRoute.at(i);
+        //cout<<"evRoute.routeSize: "<<evRoute.routeSize<<"\n";
+        if(evRoute.routeSize > 2)
+           return false;
+    }
+
+    return true;
+}
+
+int Satelite::numEv()
+{
+    int num=0;
+    for(int i=0; i < vetEvRoute.size(); ++i)
+    {
+        EvRoute &evRoute = vetEvRoute.at(i);
+        if(evRoute.routeSize > 2)
+            num += 1;
+    }
+
+    return num;
+}
+
+
+void Satelite::recalculaDemanda()
+{
+    demanda = 0.0;
+
+    for(int i=0; i < vetEvRoute.size(); ++i)
+    {
+        EvRoute &evRoute = vetEvRoute.at(i);
+        if(evRoute.routeSize > 2)
+            demanda += evRoute.demanda;
+    }
 }

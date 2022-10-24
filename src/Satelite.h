@@ -48,6 +48,9 @@ public:
     void print(const Instance &instance);
     void copia(Satelite &satelite);
     void recalculaDist();
+    void recalculaDemanda();        // Parte do principio de que as cargas nas rotas estao corretas
+    bool vazio();
+    int numEv();
 
     std::vector<EvRoute> vetEvRoute;
 
@@ -58,7 +61,7 @@ public:
 
     int tamVetEvRoute = -1;
     int sateliteId = -1;
-    float demanda = 0.0;
+    double demanda = 0.0;
     double distancia = 0.0;
     int primeiroEv = -1;
 };

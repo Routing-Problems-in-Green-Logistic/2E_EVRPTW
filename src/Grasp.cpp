@@ -34,8 +34,10 @@ const float fator = 0.1;
  * @param matClienteSat         Para uma posicao: matClienteSat(clienteI, sat_0) = 0,1: indica se o clienteI pode ser atendido pelo sat_0
  * @return
  */
-Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat)
+Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat, std::vector<MvValor> &vetMvValor)
 {
+
+
 
     Solucao *solBest = new Solucao(instance);
     solBest->distancia = DOUBLE_MIN;
@@ -137,11 +139,14 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
     int addRotaClienteProbIgual = 0;
     int clienteAdd = -1;
 
+    vetMvValor = std::vector<MvValor>(NUM_MV);
+    for(int i=0; i < NUM_MV; ++i)
+        vetMvValor[i].mv = i;
 
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
-/*        if(i>0 && (i%100)==0)
-            cout<<"ITERACAO: "<<i<<"\n";*/
+        //if(i>0 && (i%100)==0)
+        //    cout<<"ITERACAO: "<<i<<"\n";
 
         Solucao sol(instance);
         //setSatParaCliente(instance, vetSatAtendCliente, satUtilizado, parametros);
@@ -374,7 +379,7 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
             } else
             {
 
-                rvnd(sol, instance);
+                rvnd(sol, instance, alfa, vetMvValor);
 
                 if(sol.distancia < solBest->distancia || !solBest->viavel)
                 {

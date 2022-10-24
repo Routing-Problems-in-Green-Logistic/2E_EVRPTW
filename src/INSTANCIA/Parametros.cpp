@@ -14,11 +14,11 @@
 #include "Parametros.h"
 #include "../mersenne-twister.h"
 #include <fstream>
-
 #include <bits/stdc++.h>
 #include <iostream>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "../Vnd.h"
 
 using namespace std;
 using namespace NS_parametros;
@@ -250,7 +250,7 @@ void NS_parametros::consolidaResultados(Parametros &paramEntrada, ParametrosSaid
                         paramConsol.mapNoSaida[param].tipo = SAIDA_TIPO_INT;
                     else
                     {
-                        if(param != "t(s)")
+                        if(param == "dist")
                         {
                             paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_MIN);
                             paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_STD);
@@ -363,13 +363,12 @@ void NS_parametros::consolidaResultados(Parametros &paramEntrada, ParametrosSaid
 
                             if(param == "ultimaA")
                                 paramConsol.mapNoSaida[param].tipo = SAIDA_TIPO_INT;
-                            else
+                            else if(param == "dist")
                             {
-                                if(param != "t(s)")
-                                {
-                                    paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_MIN);
-                                    paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_STD);
-                                }
+
+                                paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_MIN);
+                                paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_STD);
+
                             }
                         }
                     }
@@ -605,11 +604,22 @@ ParametrosSaida NS_parametros::getParametros()
     parametrosSaida.mapNoSaida["t(s)"] = NoSaida("t(s)");
     parametrosSaida.mapNoSaida["sem"] = NoSaida("sem");
     parametrosSaida.mapNoSaida["ultimaA"] = NoSaida("ultimaA", SAIDA_TIPO_INT);
+    parametrosSaida.mapNoSaida["numSatVazios"] = NoSaida("numSatVazios");
+    parametrosSaida.mapNoSaida["numEV"] = NoSaida("numEV");
+
+    for(int k=0; k < NUM_MV; ++k)
+    {
+        string nome = "mv_"+ to_string(k);
+        parametrosSaida.mapNoSaida[nome] = NoSaida(nome);
+        parametrosSaida.mapNoSaida[nome].addSaida(SAIDA_EXEC_VAL);
+    }
 
     parametrosSaida.mapNoSaida["dist"].addSaida(SAIDA_EXEC_VAL);
     parametrosSaida.mapNoSaida["t(s)"].addSaida(SAIDA_EXEC_VAL);
     parametrosSaida.mapNoSaida["sem"].addSaida(SAIDA_EXEC_SEM);
     parametrosSaida.mapNoSaida["ultimaA"].addSaida(SAIDA_EXEC_VAL);
+    parametrosSaida.mapNoSaida["numSatVazios"].addSaida(SAIDA_EXEC_VAL);
+    parametrosSaida.mapNoSaida["numEV"].addSaida(SAIDA_EXEC_VAL);
 
     return std::move(parametrosSaida);
 }

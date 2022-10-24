@@ -1345,12 +1345,13 @@ void NS_LocalSearch::removeRS_Repetido(EvRoute &evRoute)
  ** @param instancia        Nao modificado
  ** @param evRouteAux0      Rota aux; modificado
  ** @param evRouteAux1      Rota aux; modificado
+ *  @param beta             Parametro beta para a heuristica do primeiro nivel
  ** @return                 true se encontou sol melhor, false caso contrario
  **
  ************************************************************************************************************
  ************************************************************************************************************/
 
-bool NS_LocalSearch::mvEvShifitInterRotasInterSats(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1)
+bool NS_LocalSearch::mvEvShifitInterRotasInterSats(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, const float beta)
 {
     //cout<<"mvEvShifitInterRotas\n";
 
@@ -1359,9 +1360,37 @@ bool NS_LocalSearch::mvEvShifitInterRotasInterSats(Solucao &solucao, Instance &i
     if(instancia.numSats == 1)
         return false;
 
+    Solucao solucaoAux(instancia);
+    solucaoAux.copia(solucao);
+
+
+    // Vetor de vetor com ~ev que atendem sat
+/*    std::vector<std::vector<SatN_evCarga>> vetSatVetN_ev(instancia.numSats);
+
+    for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+    {
+        vetSatVetN_ev[sat].reserve(instancia.getN_Trucks());
+
+
+        for(int i=0; i < instancia.getN_Trucks(); ++i)
+        {
+
+            if(solucao.primeiroNivel[i].satelliteDemand[sat] > 0.0)
+            {
+                vetSatVetN_ev[sat].push_back(SatN_evCarga(sat, i, solucao.primeiroNivel[i].satelliteDemand[sat]));
+            }
+        }
+
+    }*/
+
 
     for(int sat0=instancia.getFirstSatIndex(); sat0 <= instancia.getEndSatIndex(); ++sat0)
     {
+        // Vetor com ~ev que atendem sat
+
+/*        std::vector<SatN_evCarga> &sat0N_EvCarga = vetSatVetN_ev[sat0];
+        std::sort(sat0N_EvCarga.begin(), sat0N_EvCarga.end(), satN_evCargaMenor);
+*/
 
         for(int sat1=instancia.getFirstSatIndex(); sat1 <= instancia.getEndSatIndex(); ++sat1)
         {
@@ -1369,20 +1398,63 @@ bool NS_LocalSearch::mvEvShifitInterRotasInterSats(Solucao &solucao, Instance &i
             if(sat0 == sat1)
                 continue;
 
+/*
+            std::vector<SatN_evCarga> &sat1N_EvCarga = vetSatVetN_ev[sat1];
+            std::sort(sat1N_EvCarga.begin(), sat1N_EvCarga.end(), satN_evCargaMaior);
+*/
+
             for(int evSat0=0; evSat0 < instancia.getN_Evs(); ++evSat0)
             {
-                EvRoute &evRouteSat0 = solucao.satelites[sat0].vetEvRoute[evSat0];
+                EvRoute &evRouteSat0 = solucaoAux.satelites[sat0].vetEvRoute[evSat0];
 
                 for(int evSat1=0; evSat1 < instancia.getN_Evs(); ++evSat1)
                 {
 
 //cout<<"ev0: "<<evSat0<<"; ev1: "<<evSat1<<"\n";
 
-                    EvRoute &evRouteSat1 = solucao.satelites[sat1].vetEvRoute[evSat1];
+                    EvRoute &evRouteSat1 = solucaoAux.satelites[sat1].vetEvRoute[evSat1];
 
                     // Selecionar as posicoes das rotas
                     for(int posEvSat0=0; posEvSat0 < (evRouteSat0.routeSize-1); ++posEvSat0)
                     {
+
+                        // Verificar se existem veiculos para retirar a carga
+/*                        const double cargaCliente = instancia.vectCliente[evRouteSat0[posEvSat0+1].cliente].demanda;
+                        int quantSat0 = 0;
+                        double cargaSat0Falta = cargaCliente;
+
+                        int i=0;
+                        for(const SatN_evCarga &aux:sat0N_EvCarga)
+                        {
+                            if((aux.cargaUtil-cargaSat0Falta) == 0)
+                            {
+                                quantSat0 = i;
+                                cargaSat0Falta = 0;
+                                break;
+                            }
+                            else
+                            {
+                                cargaSat0Falta -= aux.cargaUtil;
+                                if(cargaSat0Falta < 0)
+                                {
+                                    cargaSat0Falta = 0.0;
+                                    quantSat0 -= 1;
+                                    break;
+                                }
+                                else
+                                {
+                                    quantSat0 = i;
+                                }
+                            }
+
+                            i += 1;
+                        }
+
+                        bool menosN_ev = quantSat0 < 0;
+                        double incremN_ev = 0.0;*/
+
+
+
 
                         for(int posEvSat1=0; posEvSat1 < (evRouteSat1.routeSize-1); ++posEvSat1)
                         {
@@ -1566,9 +1638,7 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
                                             evRoute1.atualizaParametrosRota(instancia);
 
                                             return true;
-
                                         }
-
                                         else
                                             return false;
                                     }
@@ -1586,20 +1656,24 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
 
                             if(resutado)
                             {
-                                double novaDist = evRouteSat0.distancia+evRouteSat1.distancia;
-                                solucao.distancia += -distOrig + novaDist;
-                                solucao.satelites[sat0].distancia += -distOrig + novaDist;
-                                //cout<<"MV UPDATE\n";
+                                solucaoAux.recalculaDistSat(instancia);
+                                solucaoAux.resetaPrimeiroNivel(instancia);
+                                firstEchelonGreedy(solucaoAux, instancia, beta);
 
-                                double novaDemanda = evRouteSat0.demanda+evRouteSat1.demanda;
-                                if(novaDemanda != demandaOrig)
+                                if(solucaoAux.viavel)
                                 {
-                                    PRINT_DEBUG("","");
-                                    cout<<"ERRO! NOVA DEMANDA("<<novaDemanda<<") != DEMANDA ORIGINAL("<<demandaOrig<<")\n";
-                                    throw "ERRO";
+                                    if(menor(solucaoAux.distancia, solucao.distancia))
+                                    {
+                                        //cout<<"ATUALIZACAO: "<<solucaoAux.distancia<<" "<<solucao.distancia<<"\n";
+                                        solucao.copia(solucaoAux);
+                                        return true;
+                                    }
+                                    else
+                                    {
+                                        solucaoAux.copia(solucao);
+                                    }
                                 }
 
-                                return true;
                             }
 
                         } // End for(posEvSat1)
@@ -1614,6 +1688,6 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
 
     } // End for(sat0)
 
-    return false;
 
+    return false;
 }

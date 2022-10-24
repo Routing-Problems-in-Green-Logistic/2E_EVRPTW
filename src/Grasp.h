@@ -11,6 +11,7 @@
 
 #include "Instance.h"
 #include "Solucao.h"
+#include "Vnd.h"
 
 namespace NameS_Grasp
 {
@@ -89,7 +90,7 @@ namespace NameS_Grasp
         }
     };*/
 
-    Solucao *grasp(Instance &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat);
+    Solucao *grasp(Instance &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat, std::vector<NS_vnd::MvValor> &vetMvValor);
     double getDistMaisPenalidade(Solucao &sol, Instance &instancia);
     double getPenalidade(Solucao &sol, Instance &instancia, float f);
     void inicializaSol(Solucao &sol, Instance &instance);

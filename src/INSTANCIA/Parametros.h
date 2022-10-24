@@ -14,6 +14,7 @@
 #include <utility>
 #include <map>
 #include "../Solucao.h"
+#include "../Vnd.h"
 
 using namespace std;
 
@@ -292,7 +293,7 @@ namespace NS_parametros
     ParametrosSaida getParametros();
 
     template <typename T>
-    void setParametrosSaida(ParametrosSaida &parametrosSaida, const Parametros &parametros, Solucao &best, T start, T end)
+    void setParametrosSaida(ParametrosSaida &parametrosSaida, const Parametros &parametros, Solucao &best, T start, T end, std::vector<NS_vnd::MvValor> vetMvValor)
     {
 
         parametrosSaida.setTempo(start, end);
@@ -303,6 +304,20 @@ namespace NS_parametros
         parametrosSaida.mapNoSaida["t(s)"](parametrosSaida.tempo);
         parametrosSaida.mapNoSaida["ultimaA"](best.ultimaA);
         parametrosSaida.mapNoSaida["sem"].addSemente(parametros.semente);
+        parametrosSaida.mapNoSaida["numSatVazios"](best.numSatVazios());
+        parametrosSaida.mapNoSaida["numEV"](best.getNumEvNaoVazios());
+
+
+
+        for(int k=0; k < NUM_MV; ++k)
+        {
+            string nome = "mv_"+ to_string(k);
+            parametrosSaida.mapNoSaida[nome](vetMvValor[k].getMedia());
+
+        }
+
+
+        //  numSatVazios numEV
     }
 }
 

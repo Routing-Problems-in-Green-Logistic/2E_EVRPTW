@@ -7,14 +7,8 @@
 using namespace NS_vnd;
 using namespace NS_LocalSearch;
 
-#define MV_EV_SHIFIT_INTRA_ROTA     0
-#define MV_EV_SWAP_INTRA_ROTA       1
-#define MV_EV_2OPT                  2
-#define MV_EV_SHIFIT_INTER_ROTAS    3
 
-#define NUM_MV 4
-
-void NS_vnd::rvnd(Solucao &solution, Instance &instance)
+void NS_vnd::rvnd(Solucao &solution, Instance &instance, const float beta, std::vector<MvValor> &vetMvValor)
 {
 
     static int vetMv[NUM_MV];
@@ -53,8 +47,12 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
     {
 
         bool valEsp = false;
+        double valOrig = 0.0;
         while(i < NUM_MV)
         {
+            if(i == 0)
+                valOrig = solution.distancia;
+
             bool aplicacao = false;
             double val = solution.distancia;
             //cout << "\t\tMV: " << vetMv[i] << "\n";
@@ -73,9 +71,14 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
                     aplicacao = mvEv2opt(solution, instance, evRouteAux);
                     break;
 
-                case MV_EV_SHIFIT_INTER_ROTAS:
+                case MV_EV_SHIFIT_INTER_ROTAS_INTRA_SAT:
                     aplicacao = mvEvShifitInterRotasIntraSat(solution, instance, evRouteAux, evRouteAux1);
                     break;
+
+                case MV_EV_SHIFIT_INTER_ROTAS_INTER_SAT:
+                    aplicacao = mvEvShifitInterRotasInterSats(solution, instance, evRouteAux, evRouteAux1, beta);
+                    break;
+
 
                 default:
                     cout << "ERRO: MV(" << i << ") NAO EXISTE\n";
@@ -86,6 +89,7 @@ void NS_vnd::rvnd(Solucao &solution, Instance &instance)
 
             if(aplicacao)
             {
+                vetMvValor[vetMv[i]].add(valOrig, solution.distancia);
 
                 string erro;
                 if(!solution.checkSolution(erro, instance))

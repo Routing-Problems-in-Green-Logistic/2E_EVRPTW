@@ -23,6 +23,12 @@ public:
     double getDist1Nivel();
     double getDist2Nivel();
     void recalculaDist();
+    void resetaPrimeiroNivel(Instance &instancia);  // Recalcula distancia com somente a dist dos satelites!
+    void recalculaDistSat(Instance &instancia);
+    double distSat();
+    int numSatVazios();
+    int getNumEvNaoVazios();
+
 
     // Possui numSat + 1 !!
     std::vector<Satelite> satelites;
@@ -42,6 +48,7 @@ public:
 
     bool solInicializada = false;
     int ultimaA = -1;
+
 
 };
 #endif //INC_2E_EVRP_SOLUCAO_H

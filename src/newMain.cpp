@@ -16,6 +16,7 @@
 #include "Aco.h"
 #include "PreProcessamento.h"
 #include "k_means.h"
+#include "Vnd.h"
 
 using namespace std;
 using namespace NS_parametros;
@@ -27,6 +28,11 @@ using namespace N_k_means;
 void aco(Instance &instancia, Parametros &parametros, ParametrosGrasp &parm, Solucao &best);
 void grasp(Instance &instancia, Parametros &parametros, Solucao &best);
 void setParamGrasp(Instance &instancia, ParametrosGrasp &parametrosGrasp);
+
+namespace N_gamb
+{
+    std::vector<NS_vnd::MvValor> vetMvValor;
+}
 
 int main(int argc, char* argv[])
 {
@@ -75,7 +81,7 @@ int main(int argc, char* argv[])
         auto end = std::chrono::high_resolution_clock::now();
 
         ParametrosSaida parametrosSaida = getParametros();
-        setParametrosSaida(parametrosSaida, parametros, best, start, end);
+        setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor);
         saida(parametros, parametrosSaida, best, instancia);
 
 
@@ -120,8 +126,9 @@ void grasp(Instance &instancia, Parametros &parametros, Solucao &best)
     vector<int> vetSatAtendCliente(instancia.numNos, -1);
     vector<int> satUtilizado(instancia.numSats+1, 0);
     const ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
-    Solucao *solGrasp = grasp(instancia, parametrosGrasp, estatisticas, false, matClienteSat);
+    Solucao *solGrasp = grasp(instancia, parametrosGrasp, estatisticas, false, matClienteSat, N_gamb::vetMvValor);
     best.copia(*solGrasp);
+
     delete solGrasp;
 
 }
