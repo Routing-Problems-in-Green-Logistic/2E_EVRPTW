@@ -34,10 +34,8 @@ const float fator = 0.1;
  * @param matClienteSat         Para uma posicao: matClienteSat(clienteI, sat_0) = 0,1: indica se o clienteI pode ser atendido pelo sat_0
  * @return
  */
-Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat, std::vector<MvValor> &vetMvValor)
+Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat, std::vector<MvValor> &vetMvValor)
 {
-
-
 
     Solucao *solBest = new Solucao(instance);
     solBest->distancia = DOUBLE_MIN;
@@ -48,7 +46,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
     vector<int> vetSatAtendCliente(instance.numNos, -1);
     vector<int> satUtilizado(instance.numSats+1, 0);
 
-//cout<<"&vetSatAntendCliente: "<<&vetSatAtendCliente<<"\n&satUtilizado: "<<&satUtilizado<<"\n\n";
 
     estat.numSol = 0.0;
     estat.numIte = parametros.numIteGrasp;
@@ -266,30 +263,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
 
                             }while(sat != satIni);
 
-                            /*const int pos = vetSatAtendCliente[cliente];
-                            if(pos >= 0)
-                            {
-
-                                //clienteAdd = cliente;
-                                //cout<<"cliente: "<<cliente<<": "<<vetSatAtendCliente[cliente]<<"\n";
-                                EvRoute &evRouteSP = instance.shortestPath[pos].getEvRoute(cliente);
-                                auto shortestPath = instance.shortestPath[pos].getShortestPath(cliente);
-
-
-                                if(shortestPath.distIdaVolta < DOUBLE_INF)
-                                {
-
-                                    addRotaCliente(sol, instance, evRouteSP, cliente);
-                                    clientesAdd += 1;
-
-                                    if(clientesAdd == sol.numEvMax)
-                                        break;
-                                }
-
-                                add = true;
-                            }*/
-
-
                         }
 
                         if(clientesAdd >= parametros.numMaxClie)
@@ -391,38 +364,8 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
                         return solBest;
                     }
 
-                    //string fileBestAntes = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/solBestAntes.txt";
-                    //escreveSol(fileBestAntes, *solBest, instance);
-
                     custoBest = solBest->distancia;
                     estat.ultimaAtualizacaoBest = i;
-                    //solBest->print(instance);
-                    //cout<<"i: "<<i<<"\n";
-
-/*                    if(i == 17)
-                    {
-                        PRINT_DEBUG("", "ULTIMA ATUALIZACAO");
-                        cout<<"!ULTIMA ATUALILZACAO\n";
-
-                        cout<<"checkSolution: "<<sol.checkSolution(erro, instance)<<"\n";
-                        if(!erro.empty())
-                            cout<<"ERRO: "<<erro<<"\n";
-
-                        erro = "";
-
-                        cout<<"checkSolution best: "<<solBest->checkSolution(erro, instance)<<"\n";
-
-                        string file  = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/sol.txt";
-                        string file2 = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/solBest.txt";
-
-                        escreveSol(file, sol, instance);
-                        escreveSol(file2, *solBest, instance);
-
-                        if(!erro.empty())
-                            cout<<"ERRO: "<<erro<<"\n";
-
-                        throw "ULTIMA ATUALIZACAO";
-                    }*/
 
                 }
 
@@ -437,9 +380,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
             }
 
 
-            //if(mv)
-            //    cout<<"\tMV VIAVEL: Incr: "<<sol.distancia-valOrig<<"\n\n";
-
         }
         else if(!solBest->viavel && !sol.viavel)
         {
@@ -452,15 +392,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
                 double aux = sol.distancia + getPenalidade(sol, instance, fator);
                 if(aux < custoBest)
                     custoBest = aux;
-
-/*                cout<<"\n\n***************************************************************************\n";
-                sol.print(instance);
-                solBest->print(instance);
-                cout<<"\n\n***************************************************************************!!\n";*/
-
-
-
-
             }
         }
 
@@ -485,9 +416,6 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
     {
         estat.erro = "";
 
-        //cout<<"ULTIMA ATUALIZACAO: "<<estat.ultimaAtualizacaoBest<<"\n\n";
-        //PRINT_DEBUG("\n\t", "checkSolution best");
-
         if(!solBest->checkSolution(estat.erro, instance))
         {
             cout<<"\n\nSOLUCAO:\n\n";
@@ -497,17 +425,13 @@ Solucao * NameS_Grasp::grasp(Instance &instance, ParametrosGrasp &parametros, Es
             delete solBest;
             return nullptr;
         }
-
-        //PRINT_DEBUG("", "ULTIMA ATUALIZACAO: "<<solBest->ultimaA);
-
-        //PRINT_DEBUG("\t", "checkSolution end");
     }
 
     return solBest;
 
 }
 
-double NameS_Grasp::getPenalidade(Solucao &sol, Instance &instancia, float f)
+double NameS_Grasp::getPenalidade(Solucao &sol, Instancia &instancia, float f)
 {
     static double penalidade = 1.2*instancia.penalizacaoDistEv;
 
@@ -525,7 +449,7 @@ double NameS_Grasp::getPenalidade(Solucao &sol, Instance &instancia, float f)
     return f*num*penalidade;
 }
 
-double NameS_Grasp::getDistMaisPenalidade(Solucao &sol, Instance &instancia)
+double NameS_Grasp::getDistMaisPenalidade(Solucao &sol, Instancia &instancia)
 {
     static double penalidade = 1.2*instancia.penalizacaoDistEv;// + instancia.penalizacaoDistComb;
 
@@ -542,7 +466,7 @@ double NameS_Grasp::getDistMaisPenalidade(Solucao &sol, Instance &instancia)
     return sol.distancia + num*penalidade;
 }
 
-void NameS_Grasp::inicializaSol(Solucao &sol, Instance &instance)
+void NameS_Grasp::inicializaSol(Solucao &sol, Instancia &instance)
 {
 
     std::vector<EstDist> vetEstDist(instance.getN_RechargingS());
@@ -572,8 +496,6 @@ void NameS_Grasp::inicializaSol(Solucao &sol, Instance &instance)
         do
         {
             evRoute[1].cliente = vetEstDist[p].estacao;
-
-
             if(vetEstDist[p].distancia * instance.vectVeiculo[instance.getFirstEvIndex()].taxaConsumoDist < instance.vectVeiculo[instance.getFirstEvIndex()].capacidadeBateria)
             {
 
@@ -586,7 +508,7 @@ void NameS_Grasp::inicializaSol(Solucao &sol, Instance &instance)
 
 }
 
-void NameS_Grasp::addRotaCliente(Solucao &sol, Instance &instancia, const EvRoute &evRoute, const int cliente)
+void NameS_Grasp::addRotaCliente(Solucao &sol, Instancia &instancia, const EvRoute &evRoute, const int cliente)
 {
 
     if(evRoute.routeSize <= 2)
@@ -625,8 +547,6 @@ void NameS_Grasp::addRotaCliente(Solucao &sol, Instance &instancia, const EvRout
     sol.satelites[sat].distancia += dist;
     sol.distancia += dist;
     sol.satelites[sat].demanda   += instancia.vectCliente[cliente].demanda;
-
-    //
 
     sol.satelites[sat].tamVetEvRoute += 1;
     sol.vetClientesAtend[cliente] = 1;

@@ -11,7 +11,7 @@
 
 using namespace N_k_means;
 
-void N_k_means::converteClientes(Instance &instancia, std::vector<Ponto> &vetPonto)
+void N_k_means::converteClientes(Instancia &instancia, std::vector<Ponto> &vetPonto)
 {
     vetPonto = std::vector<Ponto>(instancia.numNos);
     vetPonto[0].set(-1.0, -1.0);
@@ -23,7 +23,7 @@ void N_k_means::converteClientes(Instance &instancia, std::vector<Ponto> &vetPon
     }
 }
 
-ublas::matrix<int> N_k_means::k_means(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, bool seed)
+ublas::matrix<int> N_k_means::k_means(Instancia &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, bool seed)
 {
     static std::vector<Ponto> vetPonto;
     static std::vector<double> vetRaioSat;
@@ -483,7 +483,7 @@ void N_k_means::printVetPonto(const std::vector<Ponto> &vetPonto)
  */
 
 
-std::vector<double>N_k_means::calculaRaioSatSeedK_means(Instance &instancia)
+std::vector<double>N_k_means::calculaRaioSatSeedK_means(Instancia &instancia)
 {
     // Calcula a excentricidade de cada vertice
     std::vector<double> vetExcentricidadeNos(instancia.numNos, DOUBLE_MIN);
@@ -515,7 +515,7 @@ std::vector<double>N_k_means::calculaRaioSatSeedK_means(Instance &instancia)
     return std::move(raioSat);
 }
 
-void N_k_means::converteMatClusterMatSat(const ublas::matrix<int> &matEntrada, ublas::matrix<int> &matSaida, Instance &instancia)
+void N_k_means::converteMatClusterMatSat(const ublas::matrix<int> &matEntrada, ublas::matrix<int> &matSaida, Instancia &instancia)
 {
     matSaida = ublas::matrix<int>(instancia.numNos, instancia.numNos, 0);
     const int fistSat = instancia.getFirstSatIndex();

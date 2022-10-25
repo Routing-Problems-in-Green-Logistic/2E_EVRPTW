@@ -69,11 +69,12 @@ struct DistSatelite
 
 };
 
-class Instance{
+class Instancia
+{
 public:
-    Instance(const std::string &file, const std::string &nome_);
-    Instance()=default;
-    ~Instance();
+    Instancia(const std::string &file, const std::string &nome_);
+    Instancia()=default;
+    ~Instancia();
     double getDemand(int node) const; // the const means that the method promises not to alter any members of the class.
     double getDistance(int n1, int n2) const;
 

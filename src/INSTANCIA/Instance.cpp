@@ -1,7 +1,7 @@
 // Considerando dist(i,j) == dist(j,i) !!
 
 #include <cmath>
-#include "Instance.h"
+#include "Instancia.h"
 #include <fstream>
 #include <boost/format.hpp>
 #include "../Auxiliary.h"
@@ -10,51 +10,20 @@
 
 using namespace std;
 
-/*
-Instance::Instance(std::vector<std::vector<double>> &distMat, float truckCap, float evCap, float evBattery, int nSats,
-                   int nClients, int nRS, std::vector<std::pair<float, float>> &coordinates,
-                   std::vector<float> &demands) {
-    this->demands = demands;
-    this->coordinates = coordinates;
-    this->distMat = distMat;
-    this->truckCap = truckCap;
-    this->evCap = evCap;
-    this->evBattery = evBattery;
-    this->nRechargingS = nRS;
-    this->nClients = nClients;
-    this->nSats = nSats;
-    this->evCost = 0;
-    this->truckCost = 0;
-
-
-    float sumDemands = 0.0;
-    for(auto demand:demands)
-        sumDemands += demand;
-
-    int div = int(ceil(sumDemands/evCap));
-    numEv = div + int(ceil(div * 0.1));
-
-    div =  int(ceil(sumDemands/truckCap));
-    numTruck = div + int(ceil(div * 0.2));
-}
-*/
-
-
-
 // Getters and Setters
-double Instance::getDemand(int node) const {
+double Instancia::getDemand(int node) const {
     return vectCliente[node].demanda;
 }
 
-double Instance::getTruckCap(const int id) const {
+double Instancia::getTruckCap(const int id) const {
     return vectVeiculo[id].capacidade;
 }
 
-double Instance::getEvCap(const int id) const {
+double Instancia::getEvCap(const int id) const {
     return vectVeiculo[id].capacidade;
 }
 
-double Instance::getEvBattery(const int id) const {
+double Instancia::getEvBattery(const int id) const {
 
     if(vectVeiculo[id].capacidadeBateria < 0.0)
     {
@@ -65,7 +34,7 @@ double Instance::getEvBattery(const int id) const {
         return vectVeiculo[id].capacidadeBateria;
 }
 
-double Instance::getEvTaxaConsumo(const int id) const
+double Instancia::getEvTaxaConsumo(const int id) const
 {
     if(vectVeiculo[id].taxaConsumoDist < 0.0)
     {
@@ -77,85 +46,85 @@ double Instance::getEvTaxaConsumo(const int id) const
         return vectVeiculo[id].taxaConsumoDist;
 }
 
-int Instance::getNSats() const {
+int Instancia::getNSats() const {
     return numSats;
 }
 
-int Instance::getNClients() const {
+int Instancia::getNClients() const {
     return numClients;
 }
 
-int Instance::getN_RechargingS() const {
+int Instancia::getN_RechargingS() const {
     return numRechargingS;
 }
 
 
-int Instance::getN_Evs() const
+int Instancia::getN_Evs() const
 {
     return numEv;
 }
 
-int Instance::getN_Trucks() const
+int Instancia::getN_Trucks() const
 {
 
     return numTruck;
 }
 
-inline double Instance::getDistance(int n1, int n2) const {
+inline double Instancia::getDistance(int n1, int n2) const {
 
     return matDist(n1,n2);
 }
 
-inline int Instance::getFirstClientIndex() const {
+inline int Instancia::getFirstClientIndex() const {
     return 1 + numSats + numRechargingS;
 
 }
-int Instance::getEndClientIndex() const
+int Instancia::getEndClientIndex() const
 {
     return getFirstClientIndex()+getNClients()-1;
 }
 
-int Instance::getFirstRS_index() const {
+int Instancia::getFirstRS_index() const {
     return 1 + numSats;
 }
 
-int Instance::getEndRS_index() const
+int Instancia::getEndRS_index() const
 {
     return getFirstRS_index() + numRechargingS - 1;
 }
 
-int Instance::getFirstSatIndex() const {
+int Instancia::getFirstSatIndex() const {
     return 1;
 }
 
-int Instance::getEndSatIndex() const
+int Instancia::getEndSatIndex() const
 {
     return numSats;
 }
 
-bool Instance::isClient(int node) const {
+bool Instancia::isClient(int node) const {
     return node >= this->getFirstClientIndex() && node < (this->getFirstClientIndex() + this->getNClients());
 }
 
-bool Instance::isRechargingStation(int node) const {
+bool Instancia::isRechargingStation(int node) const {
     return node >= this->getFirstRS_index() && node < this->getFirstRS_index() +
                                                       this->getN_RechargingS();
 }
 
-bool Instance::isSatelite(int node) const {
+bool Instancia::isSatelite(int node) const {
     return node >= this->getFirstSatIndex() && node < this->getFirstSatIndex() + this->getNSats();
 }
 
-bool Instance::isDepot(int node) const {
+bool Instancia::isDepot(int node) const {
     return node == 0;
 }
 
-int Instance::getNNodes() const {
+int Instancia::getNNodes() const {
     return numNos;
 }
 
 
-Instance::Instance(const std::string &str, const std::string &nome_)
+Instancia::Instancia(const std::string &str, const std::string &nome_)
 {
     nome = nome_;
 
@@ -332,7 +301,7 @@ Instance::Instance(const std::string &str, const std::string &nome_)
 
 }
 
-void Instance::calculaVetVoltaRS_sat()
+void Instancia::calculaVetVoltaRS_sat()
 {
 
     const int tamVet = (numSats)*numRechargingS;
@@ -358,7 +327,7 @@ void Instance::calculaVetVoltaRS_sat()
     }
 }
 
-Instance::~Instance()
+Instancia::~Instancia()
 {
 
     for(int i= getFirstRS_index(); i <= getEndClientIndex(); ++i)
@@ -374,12 +343,12 @@ Instance::~Instance()
         delete []shortestPath;
 }
 
-int Instance::getIndiceVetVoltaRS_sat(int sat, int rs)
+int Instancia::getIndiceVetVoltaRS_sat(int sat, int rs)
 {
     return (sat-1)*numRechargingS + (rs-getFirstRS_index());
 }
 
-void Instance::print() const
+void Instancia::print() const
 {
     cout<<"INSTANCIA "<<nome<<":\n";
     cout<<"\tnum satelites: "<<numSats<<"\n";
@@ -430,7 +399,7 @@ void Instance::print() const
     cout<<"\n\n";
 }
 
-int* Instance::getEstacoes(const int clienteI, const int clienteJ)
+int* Instancia::getEstacoes(const int clienteI, const int clienteJ)
 {
     if(clienteI < clienteJ)
         return matEstacao(clienteJ, clienteI);
@@ -438,7 +407,7 @@ int* Instance::getEstacoes(const int clienteI, const int clienteJ)
         return matEstacao(clienteI, clienteJ);
 }
 
-double Instance::calculaPenalizacaoDistEv()
+double Instancia::calculaPenalizacaoDistEv()
 {
 
     double dist = 0.0;
@@ -452,7 +421,7 @@ double Instance::calculaPenalizacaoDistEv()
     return dist*1.12;
 }
 
-double Instance::calculaPenalizacaoDistComb()
+double Instancia::calculaPenalizacaoDistComb()
 {
 
     double dist = 0.0;
@@ -467,7 +436,7 @@ double Instance::calculaPenalizacaoDistComb()
 }
 
 // true se tempoCheg <= fim janela de tempo, false caso contrario
-bool Instance::verificaJanelaTempo(double tempoCheg, int cliente) const
+bool Instancia::verificaJanelaTempo(double tempoCheg, int cliente) const
 {
 //    cout<<"\t\tFIM JANELA TEMPO("<<cliente<<"): "<<vectCliente[cliente].fimJanelaTempo<<"\n";
     return ((tempoCheg <= vectCliente[cliente].fimJanelaTempo) || (abs(tempoCheg - vectCliente[cliente].fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO));

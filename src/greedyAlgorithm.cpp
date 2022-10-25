@@ -15,7 +15,7 @@ using namespace boost::numeric;
 
 
 // Roteamento dos veiculos eletricos
-bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const float alpha, const ublas::matrix<int> &matClienteSat)
+bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const float alpha, const ublas::matrix<int> &matClienteSat)
 {
     //cout<<"size1: "<<matClienteSat.size1()<<"\nsize2: "<<matClienteSat.size2()<<"\n\n";
 
@@ -349,7 +349,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instance &instance, const fl
 
 // run ../instancias/2e-vrp-tw/Customer_5/C101_C5x.txt 1652454289
 
-bool GreedyAlgNS::visitAllClientes(std::vector<int8_t> &visitedClients, const Instance &instance)
+bool GreedyAlgNS::visitAllClientes(std::vector<int8_t> &visitedClients, const Instancia &instance)
 {
 
     int i=instance.getFirstClientIndex();
@@ -366,7 +366,7 @@ bool GreedyAlgNS::visitAllClientes(std::vector<int8_t> &visitedClients, const In
 }
 
 
-void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, Instance &instance, const float beta)
+void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, Instancia &instance, const float beta)
 {
 
     // Cria o vetor com a demanda de cada satellite
@@ -558,7 +558,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, Instance &instance, const flo
  */
 
 // Com o tempo de chegada ao satelite, eh verificado se as rotas dos EV's podem sair apos o tempo de chegada do veic a combustao
-bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelite &satelite, const Instance &instance, const bool modificaSatelite)
+bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelite &satelite, const Instancia &instance, const bool modificaSatelite)
 {
 
     bool viavel = true;
@@ -696,7 +696,7 @@ bool GreedyAlgNS::existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendi
     return false;
 }
 
-void GreedyAlgNS::setSatParaCliente(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, ParametrosGrasp &param)
+void GreedyAlgNS::setSatParaCliente(Instancia &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, ParametrosGrasp &param)
 {
     std::fill(satUtilizado.begin()+1, satUtilizado.end(), 0);
     std::fill(vetSatAtendCliente.begin()+1, vetSatAtendCliente.end(), -1);
@@ -740,7 +740,7 @@ void GreedyAlgNS::setSatParaCliente(Instance &instancia, vector<int> &vetSatAten
     }
 }
 
-void GreedyAlgNS::construtivo(Solucao &Sol, Instance &instancia, const float alpha, const float beta,  const ublas::matrix<int> &matClienteSat)
+void GreedyAlgNS::construtivo(Solucao &Sol, Instancia &instancia, const float alpha, const float beta,  const ublas::matrix<int> &matClienteSat)
 {
 
     bool primeiroNivel = secondEchelonGreedy(Sol, instancia, alpha, matClienteSat);
@@ -755,7 +755,7 @@ void GreedyAlgNS::construtivo(Solucao &Sol, Instance &instancia, const float alp
 
 
 
-bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux)
+bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instancia &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux)
 {
     double demand = instance.getDemand(node);
     double bestIncremento = candidatoEv.incrP;
@@ -890,7 +890,7 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instance &instance, Cand
 
 }
 
-std::vector<double> GreedyAlgNS::calculaTempoSaidaInicialSat(const Instance &instance)
+std::vector<double> GreedyAlgNS::calculaTempoSaidaInicialSat(const Instancia &instance)
 {
    vector<double> vetTempoSaida;
    vetTempoSaida.reserve(instance.getNSats()+1);
@@ -909,7 +909,7 @@ std::vector<double> GreedyAlgNS::calculaTempoSaidaInicialSat(const Instance &ins
 
 }
 
-bool GreedyAlgNS::insert(EvRoute &evRoute, CandidatoEV &insertion, const Instance &instance, const double tempoSaidaSat, Solucao &sol)
+bool GreedyAlgNS::insert(EvRoute &evRoute, CandidatoEV &insertion, const Instancia &instance, const double tempoSaidaSat, Solucao &sol)
 {
     //cout<<"EV ROUTE ID: "<<evRoute.idRota<<"\n";
     //evRoute.print(instance, true);

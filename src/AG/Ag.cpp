@@ -9,7 +9,7 @@
 #include "Ag.h"
 #include "../mersenne-twister.h"
 
-NS_Ag::RandomKey::RandomKey(Instance &instancia)
+NS_Ag::RandomKey::RandomKey(Instancia &instancia)
 {
 
     int tam   = instancia.numClients + instancia.numRechargingS*instancia.numUtilEstacao*instancia.numEv;
@@ -87,7 +87,7 @@ bool NS_Ag::atendeTodosOsClientes(const std::vector<int> &vetClienteAtend)
  ** ******************************************************************************
  ** ******************************************************************************/
 
-void NS_Ag::decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat, const vector<int> &vetSatAtendCliente, const double tempoSaidaSat)
+void NS_Ag::decodificaSol(Instancia &instancia, RandomKey &randKey, Satelite &sat, const vector<int> &vetSatAtendCliente, const double tempoSaidaSat)
 {
 
     /* *************************************************************************************************************************************

@@ -1,65 +1,11 @@
 #ifndef EV_ROUTE_H
 #define EV_ROUTE_H
 
-#include "Instance.h"
+#include "Instancia.h"
 #include "Route.h"
 #include <list>
 #include "Auxiliary.h"
 
-/*
-class Recharge {
-public:
-    int pos = -1;
-    int id = -1;
-    float remainingBattery = 0.0;
-    Recharge() = default;
-    Recharge(int pos, int id, float remainingBattery)
-        : pos(pos), id(id), remainingBattery(remainingBattery){};
-};
-
-struct PosicaoEstacao
-{
-    int pos = -1;
-    int rechargingStationId = -1;
-
-    friend bool operator < (const PosicaoEstacao &posRouteRechSId0, const PosicaoEstacao &posRouteRechSId1)
-    {
-        return posRouteRechSId0.rechargingStationId < posRouteRechSId1.rechargingStationId;
-    }
-
-
-    friend bool operator > (const PosicaoEstacao &posRouteRechSId0, const PosicaoEstacao &posRouteRechSId1)
-    {
-        return posRouteRechSId0.rechargingStationId > posRouteRechSId1.rechargingStationId;
-    }
-
-    friend bool operator == (const PosicaoEstacao &posRouteRechSId0, const PosicaoEstacao &posRouteRechSId1)
-    {
-        return posRouteRechSId0.rechargingStationId == posRouteRechSId1.rechargingStationId;
-    }
-};
-
-struct PosRota0Rota1Estacao
-{
-
-    int posRoute0 = -1;
-    int posRoute1 = -1;
-    int rechargingStationId = -1;
-
-    friend bool operator <(const PosRota0Rota1Estacao &aux0, const PosRota0Rota1Estacao &aux1)
-    {
-        return aux0.rechargingStationId < aux1.rechargingStationId;
-    }
-
-    void swapPos()
-    {
-        int aux = posRoute0;
-        posRoute0 = posRoute1;
-        posRoute1 = aux;
-    }
-
-};
-*/
 
 class EvRecarga
 {
@@ -107,7 +53,8 @@ public:
 
 };
 
-class EvRoute{
+class EvRoute
+{
 public:
 
     int size() const;
@@ -115,19 +62,19 @@ public:
 
     EvRoute(const EvRoute &evRoute);
 
-    EvRoute(int satelite, int idRota, int RouteSizeMax, const Instance &instance);
+    EvRoute(int satelite, int idRota, int RouteSizeMax, const Instancia &instance);
 
-    void print(const Instance &instance, const bool somenteNo) const;
-    void print(std::string &strRota, const Instance &instance, const bool somenteNo) const;
-    std::string getRota(const Instance &instance, const bool somenteNo);
-    bool checkRoute(std::string &erro, const Instance &instance) const;
-    void atualizaParametrosRota(const Instance &instance);
+    void print(const Instancia &instance, const bool somenteNo) const;
+    void print(std::string &strRota, const Instancia &instance, const bool somenteNo) const;
+    std::string getRota(const Instancia &instance, const bool somenteNo);
+    bool checkRoute(std::string &erro, const Instancia &instance) const;
+    void atualizaParametrosRota(const Instancia &instance);
     double getCurrentTime();
-    bool alteraTempoSaida(double novoTempoSaida, const Instance &instance);
+    bool alteraTempoSaida(double novoTempoSaida, const Instancia &instance);
 
     void copiaCliente(const EvRoute &outro);
-    void copia(const EvRoute &evRoute, const bool calculaDemanda, Instance *instancia);
-    void copiaN(const EvRoute &evRoute, int n, bool calculaDemanda, Instance *instance);
+    void copia(const EvRoute &evRoute, const bool calculaDemanda, Instancia *instancia);
+    void copiaN(const EvRoute &evRoute, int n, bool calculaDemanda, Instancia *instance);
     void copiaParametros(const EvRoute &outro);
 
     EvNo & operator [](int pos)

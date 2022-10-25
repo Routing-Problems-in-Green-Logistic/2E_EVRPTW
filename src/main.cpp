@@ -12,7 +12,7 @@
 
 
 #include <iostream>
-#include "Instance.h"
+#include "Instancia.h"
 #include "Solucao.h"
 #include <fstream>
 #include <sstream>

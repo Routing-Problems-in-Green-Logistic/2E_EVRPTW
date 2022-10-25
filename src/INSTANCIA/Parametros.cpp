@@ -23,7 +23,7 @@
 using namespace std;
 using namespace NS_parametros;
 
-void NS_parametros::escreveSolCompleta(Parametros &paramEntrada, Solucao &sol, Instance &instancia)
+void NS_parametros::escreveSolCompleta(Parametros &paramEntrada, Solucao &sol, Instancia &instancia)
 {
 
 
@@ -73,7 +73,7 @@ void NS_parametros::escreveSolCompleta(Parametros &paramEntrada, Solucao &sol, I
 
 }
 
-void NS_parametros::escreveSolParaPrint(Parametros &paramEntrada, Solucao &solution, Instance &instance)
+void NS_parametros::escreveSolParaPrint(Parametros &paramEntrada, Solucao &solution, Instancia &instance)
 {
 
 
@@ -400,7 +400,7 @@ void NS_parametros::consolidaResultados(Parametros &paramEntrada, ParametrosSaid
 
 }
 
-void NS_parametros::saida(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol, Instance &instancia)
+void NS_parametros::saida(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol, Instancia &instancia)
 {
 
 

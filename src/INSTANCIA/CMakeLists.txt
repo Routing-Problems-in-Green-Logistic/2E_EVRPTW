@@ -19,7 +19,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Wconversion")
 
 
 
-target_sources(run PUBLIC Instance.h Instance.cpp Parametros.h Parametros.cpp)
+target_sources(run PUBLIC Instancia.h Instance.cpp Parametros.h Parametros.cpp)
 
 target_include_directories(run PUBLIC "../ACO" )
 add_subdirectory("../ACO" ACO)

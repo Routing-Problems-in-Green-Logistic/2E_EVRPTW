@@ -7,7 +7,7 @@
 
 
 
-Route::Route(const Instance &instance)
+Route::Route(const Instancia &instance)
 {
 
     //routeSizeMax = instance.getNSats() + 1;
@@ -61,7 +61,7 @@ void Route::print(std::string &str)
     str += "\nDISTANCIA: "+to_string(totalDistence) +"\n";
 }
 
-bool Route::checkDistence(const Instance &instance, double *dist, string &str)
+bool Route::checkDistence(const Instancia &instance, double *dist, string &str)
 {
 
     *dist = 0.0;

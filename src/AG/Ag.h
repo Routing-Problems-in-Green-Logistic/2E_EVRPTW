@@ -10,7 +10,7 @@
 #define PLOTSOLUTION_PRIMEIRO_NIVEL_PY_AG_H
 
 #include <vector>
-#include "Instance.h"
+#include "Instancia.h"
 #include "../Solucao.h"
 
 namespace NS_Ag
@@ -33,14 +33,14 @@ namespace NS_Ag
         std::vector<RandomNo> vetDecod;
         double val = 0.0;
 
-        explicit RandomKey(Instance &instancia);
+        explicit RandomKey(Instancia &instancia);
         void geraRandoKey();
         void ordenaVetDecod();
         void printVetDecod(string &str);
 
     };
 
-    void decodificaSol(Instance &instancia, RandomKey &randKey, Satelite &sat, const vector<int> &vetSatAtendCliente, const double tempoSaida);
+    void decodificaSol(Instancia &instancia, RandomKey &randKey, Satelite &sat, const vector<int> &vetSatAtendCliente, const double tempoSaida);
     bool atendeTodosOsClientes(const std::vector<int> &vetClienteAtend);
 }
 

@@ -3,7 +3,7 @@
 
 
 
-Satelite::Satelite(const Instance& instance, const int _satId)
+Satelite::Satelite(const Instancia& instance, const int _satId)
 {
 
     const int max = instance.getEvRouteSizeMax();
@@ -45,7 +45,7 @@ EvRoute &Satelite::getRoute(int i)
     return this->vetEvRoute.at(i);
 }
 
-bool Satelite::checkSatellite(std::string &erro, const Instance &Inst)
+bool Satelite::checkSatellite(std::string &erro, const Instancia &Inst)
 {
     double demandaAux = 0.0;
     double distanciaAux = 0.0;
@@ -84,7 +84,7 @@ bool Satelite::checkSatellite(std::string &erro, const Instance &Inst)
     return true;
 }
 
-void Satelite::print(std::string &str, const Instance &instance)
+void Satelite::print(std::string &str, const Instancia &instance)
 {
     str += "SATELLITE ID: "+ std::to_string(sateliteId)+"\n\n";
     int i=0;
@@ -99,7 +99,7 @@ void Satelite::print(std::string &str, const Instance &instance)
     str += "\n\n";
 }
 
-void Satelite::print(const Instance &instance)
+void Satelite::print(const Instancia &instance)
 {
 
     std::cout<<"SATELLITE ID: "<<sateliteId<<"\n\n";

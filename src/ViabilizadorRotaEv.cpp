@@ -42,7 +42,7 @@ static int num_G = 0;
  */
 
 
-bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const bool best, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, double custoInserMax,
+bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instancia &instance, const bool best, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, double custoInserMax,
                                      const bool construtivo, const double tempoSaidaSat)
 {
 
@@ -275,7 +275,7 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instance &instance, const
  * Verifica se a rota atende a somente a janela de tempo, desconsiderando a bateria
  * Se @posIni > 0, entao, considera-se que a rota esta correta ate @posIni
  * *********************************************************************************** */
-double NameViabRotaEv::testaRotaTempo(EvRoute &evRoute, const int tamRoute, const Instance &instance, const bool escrita, const double tempoSaidaSat, const int posIni)
+double NameViabRotaEv::testaRotaTempo(EvRoute &evRoute, const int tamRoute, const Instancia &instance, const bool escrita, const double tempoSaidaSat, const int posIni)
 {
 
     double bateriaRestante = instance.getEvBattery(evRoute.idRota);
@@ -370,7 +370,7 @@ double NameViabRotaEv::testaRotaTempo(EvRoute &evRoute, const int tamRoute, cons
  * Verifica se a rota atende as restricoes de bateria e tempo
  * Se @posIni > 0, entao, considera-se que a rota esta correta ate @posIni
  * *********************************************************************************** */
-double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Instance &instance, const bool escrita, const double tempoSaidaSat,
+double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Instancia &instance, const bool escrita, const double tempoSaidaSat,
                                  const int posIni, string *rotaBtDebug)
 {
 

@@ -1,5 +1,5 @@
 #include "Solucao.h"
-#include "Instance.h"
+#include "Instancia.h"
 
 #ifndef INC_2E_EVRP_VND_H
 #define INC_2E_EVRP_VND_H
@@ -10,8 +10,9 @@
 #define MV_EV_2OPT                          2
 #define MV_EV_SHIFIT_INTER_ROTAS_INTRA_SAT  3
 #define MV_EV_SHIFIT_INTER_ROTAS_INTER_SAT  4
+#define MV_EV_SWAP_INTER_ROTAS_INTRA_SAT    5
 
-#define NUM_MV 5
+#define NUM_MV 6
 
 namespace NS_vnd
 {
@@ -41,7 +42,7 @@ namespace NS_vnd
 
     };
 
-    void rvnd(Solucao &solution, Instance &instance, const float beta, std::vector<MvValor> &vetMvValor);
+    void rvnd(Solucao &solution, Instancia &instance, const float beta, std::vector<MvValor> &vetMvValor);
 }
 
 #endif //INC_2E_EVRP_VND_H

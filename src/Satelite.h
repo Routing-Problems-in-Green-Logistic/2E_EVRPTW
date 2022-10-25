@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "EvRoute.h"
-#include "Instance.h"
+#include "Instancia.h"
 
 
 class TempoSaidaEvRoute
@@ -38,14 +38,14 @@ class Satelite
 {
 public:
 
-    Satelite(const Instance&, int _satId);
+    Satelite(const Instancia&, int _satId);
     //Satelite(const Satelite &satelite)
 
     int getNRoutes() const;
     EvRoute& getRoute(int i);
-    bool checkSatellite(std::string &erro, const Instance &Inst);
-    void print(std::string &str, const Instance &instance);
-    void print(const Instance &instance);
+    bool checkSatellite(std::string &erro, const Instancia &Inst);
+    void print(std::string &str, const Instancia &instance);
+    void print(const Instancia &instance);
     void copia(Satelite &satelite);
     void recalculaDist();
     void recalculaDemanda();        // Parte do principio de que as cargas nas rotas estao corretas

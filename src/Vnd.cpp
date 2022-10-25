@@ -1,5 +1,3 @@
-
-
 #include "Vnd.h"
 #include "mersenne-twister.h"
 #include "LocalSearch.h"
@@ -8,7 +6,7 @@ using namespace NS_vnd;
 using namespace NS_LocalSearch;
 
 
-void NS_vnd::rvnd(Solucao &solution, Instance &instance, const float beta, std::vector<MvValor> &vetMvValor)
+void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, std::vector<MvValor> &vetMvValor)
 {
 
     static int vetMv[NUM_MV];

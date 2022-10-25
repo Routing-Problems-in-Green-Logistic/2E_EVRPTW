@@ -75,15 +75,17 @@ namespace NS_LocalSearch
 
     };
 
-    bool mvEvShifitIntraRota(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux, const int selecao);
-    int setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRouteAux, int i, int pos, Instance &instancia);
+    bool mvEvShifitIntraRota(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux, const int selecao);
+    int setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRouteAux, int i, int pos, Instancia &instancia);
     void getMov(int movId, string &mov);
-    void insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, Instance &instance, double tempoSaida);
-    bool mvEvSwapIntraRota(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux);
-    bool mvEv2opt(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux);
+    void insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, Instancia &instance, double tempoSaida);
+    bool mvEvSwapIntraRota(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux);
+    bool mvEv2opt(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux);
 
-    bool mvEvShifitInterRotasIntraSat(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1);
-    bool mvEvShifitInterRotasInterSats(Solucao &solucao, Instance &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, const float beta);
+    bool mvEvShifitInterRotasIntraSat(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1);
+    bool mvEvShifitInterRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, const float beta);
+
+    bool mvEvSwapInterRotasIntraSat(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1);
 
     void removeRS_Repetido(EvRoute &evRoute);
 

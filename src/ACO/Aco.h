@@ -8,7 +8,7 @@
 
 #ifndef INC_2E_EVRP_ACO_H
 #define INC_2E_EVRP_ACO_H
-#include "Instance.h"
+#include "Instancia.h"
 #include "../Solucao.h"
 #include <boost/numeric/ublas/matrix.hpp>
 #include <algorithm>
@@ -59,13 +59,13 @@ namespace N_Aco
         bool viavel = false;
         int clientesNaoAtend = 0;
 
-        Ant(Instance &instance, int satId, bool _vazia=false): satelite(Satelite(instance, satId))
+        Ant(Instancia &instance, int satId, bool _vazia=false): satelite(Satelite(instance, satId))
         {
             vetNosAtend = vector<int8_t>(instance.numNos, 0);
             vazia = _vazia;
         }
 
-        Ant(Ant &antOutra, Instance &instancia, int satId):satelite(instancia, satId)
+        Ant(Ant &antOutra, Instancia &instancia, int satId):satelite(instancia, satId)
         {
             satelite.copia(antOutra.satelite);
             vetNosAtend = antOutra.vetNosAtend;
@@ -123,7 +123,7 @@ namespace N_Aco
     };
 
 
-    inline bool existeClienteNaoVisitado(Ant &ant, Instance &instancia, const vector<int> &vetSatAtendCliente)
+    inline bool existeClienteNaoVisitado(Ant &ant, Instancia &instancia, const vector<int> &vetSatAtendCliente)
     {
 
         //return std::find((ant.vetNosAtend.begin()+instancia.getFirstClientIndex()), (ant.vetNosAtend.begin()+instancia.getEndClientIndex()+1), 0) == true;
@@ -141,15 +141,15 @@ namespace N_Aco
         return satelite.distancia;
     }
 
-    bool aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
+    bool aco(Instancia &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
              const vector<int> &vetSatAtendCliente, ParametrosGrasp &param, NameS_Grasp::Estatisticas &est, const Solucao *solGrasp, const int numEVs);
-    bool acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &acoEst, ParametrosGrasp &param,
+    bool acoSol(Instancia &instancia, AcoParametros &acoPar, AcoEstatisticas &acoEst, ParametrosGrasp &param,
                 NameS_Grasp::Estatisticas &est, Solucao &best);
     void atualizaFeromonio(ublas::matrix<double> &matFeromonio, ublas::matrix<double> &matAtualFeromonio,
-                           Instance &instancia, const AcoParametros &acoParam, const Ant &antBest, const vector<Ant> &vetAnt);
-    void evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instance &instancia, const AcoParametros &acoParam, const double feromMin);
-    bool clienteJValido(Instance &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat, const double tempoSaidaI);
-    void atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance, Ant &ant);
+                           Instancia &instancia, const AcoParametros &acoParam, const Ant &antBest, const vector<Ant> &vetAnt);
+    void evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instancia &instancia, const AcoParametros &acoParam, const double feromMin);
+    bool clienteJValido(Instancia &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat, const double tempoSaidaI);
+    void atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instancia &instance, Ant &ant);
 
 }
 

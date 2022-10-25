@@ -145,13 +145,13 @@ namespace N_PreProcessamento
         PreDecessorNo(int pre, double b, double d){preDecessor=pre; bateria=b; dist=d;}
     };
 
-    void dijkstraSatCli(Instance &instancia);
-    void dijkstra(Instance &instancia, const int clienteSorce, const int veicId, double bateria,
+    void dijkstraSatCli(Instancia &instancia);
+    void dijkstra(Instancia &instancia, const int clienteSorce, const int veicId, double bateria,
                   std::vector<DijkstraNo> &minHeap, std::vector<PreDecessorNo> &preDecessor,
                   const std::vector<bool> &excluidos, const bool clienteCliente, std::vector<int> &vetIndiceMinHeap,
                   std::vector<int8_t> &vetFechados, const double tempoSaida, const double minBtCli);
 
-    void calculaMinBtCliente(Instance &instance, std::vector<ublas::matrix<double>> &matMinBat);
+    void calculaMinBtCliente(Instancia &instance, std::vector<ublas::matrix<double>> &matMinBat);
 
     int getPaiMinHeap(int pos);
     int shifitUpMinHeap(std::vector<DijkstraNo> &minHeap, int pos, std::vector<int> &vetIndice);
@@ -176,10 +176,10 @@ public:
     std::vector<EvRoute> vetEvRoute;
 
 
-    explicit ShortestPathSatCli(Instance &instancia);
+    explicit ShortestPathSatCli(Instancia &instancia);
     ShortestPathSatCli()=default;
 
-    void start(Instance &instance);
+    void start(Instancia &instance);
 
     N_PreProcessamento::ShortestPathNo& getShortestPath(int cliente);
     EvRoute& getEvRoute(int cliente);

@@ -283,11 +283,11 @@ namespace NS_parametros
         }
     };
 
-    void escreveSolCompleta(Parametros &paramEntrada, Solucao &sol, Instance &instancia);
-    void escreveSolParaPrint(Parametros &paramEntrada, Solucao &sol, Instance &instancia);
+    void escreveSolCompleta(Parametros &paramEntrada, Solucao &sol, Instancia &instancia);
+    void escreveSolParaPrint(Parametros &paramEntrada, Solucao &sol, Instancia &instancia);
     void escreveResultadosAcumulados(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol);
     void consolidaResultados(Parametros &paramEntrada, ParametrosSaida &paramSaida);
-    void saida(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol, Instance &instancia);
+    void saida(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol, Instancia &instancia);
     string getNomeInstancia(string str);
     void caregaParametros(Parametros &paramEntrada, int argc, char* argv[]);
     ParametrosSaida getParametros();

@@ -9,7 +9,7 @@
 #ifndef INC_2E_EVRP_GRASP_H
 #define INC_2E_EVRP_GRASP_H
 
-#include "Instance.h"
+#include "Instancia.h"
 #include "Solucao.h"
 #include "Vnd.h"
 
@@ -90,13 +90,13 @@ namespace NameS_Grasp
         }
     };*/
 
-    Solucao *grasp(Instance &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat, std::vector<NS_vnd::MvValor> &vetMvValor);
-    double getDistMaisPenalidade(Solucao &sol, Instance &instancia);
-    double getPenalidade(Solucao &sol, Instance &instancia, float f);
-    void inicializaSol(Solucao &sol, Instance &instance);
+    Solucao *grasp(Instancia &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat, std::vector<NS_vnd::MvValor> &vetMvValor);
+    double getDistMaisPenalidade(Solucao &sol, Instancia &instancia);
+    double getPenalidade(Solucao &sol, Instancia &instancia, float f);
+    void inicializaSol(Solucao &sol, Instancia &instance);
 
     // Adiciona uma rota da forma: sat ... EST ... CLIENTE ... EST ... sat
-    void addRotaCliente(Solucao &sol, Instance &instancia, const EvRoute &evRoute, const int cliente);
+    void addRotaCliente(Solucao &sol, Instancia &instancia, const EvRoute &evRoute, const int cliente);
 
 }
 

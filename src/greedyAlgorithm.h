@@ -84,20 +84,20 @@ namespace GreedyAlgNS
     };
 
 
-    bool secondEchelonGreedy(Solucao &sol, Instance &instance, const float alpha, const ublas::matrix<int> &matClienteSat);
-    void firstEchelonGreedy(Solucao &Sol, Instance &instance, const float beta);
-    void construtivo(Solucao &Sol, Instance &instancia, const float alpha, const float beta, const ublas::matrix<int> &matClienteSat);
-    bool visitAllClientes(std::vector<int8_t> &visitedClients, const Instance &instance);
+    bool secondEchelonGreedy(Solucao &sol, Instancia &instance, const float alpha, const ublas::matrix<int> &matClienteSat);
+    void firstEchelonGreedy(Solucao &Sol, Instancia &instance, const float beta);
+    void construtivo(Solucao &Sol, Instancia &instancia, const float alpha, const float beta, const ublas::matrix<int> &matClienteSat);
+    bool visitAllClientes(std::vector<int8_t> &visitedClients, const Instancia &instance);
     bool existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendida);
     bool insereEstacao(int rotaId, int satId);
 
-    bool canInsert(EvRoute &evRoute, int node, Instance &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux);
-    bool canInsertSemBateria(EvRoute &evRoute, int node, const Instance &Instance, CandidatoEV &insertion);
-    bool insert(EvRoute &evRoute, CandidatoEV & insertion, const Instance &instance, const double tempoSaidaSat, Solucao &sol);
-    bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instance &instance, bool modficaSatelite);
+    bool canInsert(EvRoute &evRoute, int node, Instancia &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux);
+    bool canInsertSemBateria(EvRoute &evRoute, int node, const Instancia &Instance, CandidatoEV &insertion);
+    bool insert(EvRoute &evRoute, CandidatoEV & insertion, const Instancia &instance, const double tempoSaidaSat, Solucao &sol);
+    bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instancia &instance, bool modficaSatelite);
 
-    std::vector<double> calculaTempoSaidaInicialSat(const Instance &instance);
-    void setSatParaCliente(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, ParametrosGrasp &param);
+    std::vector<double> calculaTempoSaidaInicialSat(const Instancia &instance);
+    void setSatParaCliente(Instancia &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, ParametrosGrasp &param);
 
 
 }

@@ -21,12 +21,12 @@ using namespace NameViabRotaEv;
 #define PRINT_DIJSTRA       FALSE
 #define PRINT_DIJSTRA_CLIEN FALSE
 
-ShortestPathSatCli::ShortestPathSatCli(Instance &instancia)//:fistCliente(instancia.getFirstClientIndex())
+ShortestPathSatCli::ShortestPathSatCli(Instancia &instancia)//:fistCliente(instancia.getFirstClientIndex())
 {
     start(instancia);
 }
 
-void ShortestPathSatCli::start(Instance &instancia)
+void ShortestPathSatCli::start(Instancia &instancia)
 {
 
     fistCliente = instancia.getFirstClientIndex();
@@ -50,7 +50,7 @@ ShortestPathNo &ShortestPathSatCli::getShortestPath(int cliente)
 }
 
 
-void N_PreProcessamento::dijkstraSatCli(Instance &instancia)
+void N_PreProcessamento::dijkstraSatCli(Instancia &instancia)
 {
     instancia.shortestPath = new ShortestPathSatCli[instancia.getNSats()+1];
 
@@ -284,7 +284,7 @@ void N_PreProcessamento::dijkstraSatCli(Instance &instancia)
  * @param minBtCli          Bateria minima para chegada ao cliente
  */
 
-void N_PreProcessamento::dijkstra(Instance &instancia, const int clienteSorce, const int veicId, double bateria,
+void N_PreProcessamento::dijkstra(Instancia &instancia, const int clienteSorce, const int veicId, double bateria,
                                   std::vector<DijkstraNo> &minHeap, std::vector<PreDecessorNo> &preDecessor,
                                   const std::vector<bool> &excluidos, const bool clienteCliente,
                                   std::vector<int> &vetIndiceMinHeap, std::vector<int8_t> &vetFechados,
@@ -607,7 +607,7 @@ void N_PreProcessamento::removeTopo(std::vector<DijkstraNo> &minHeap, int *tam, 
  * @param instance
  * @param matMinBat
  */
-void N_PreProcessamento::calculaMinBtCliente(Instance &instance, std::vector<ublas::matrix<double>> &matMinBat)
+void N_PreProcessamento::calculaMinBtCliente(Instancia &instance, std::vector<ublas::matrix<double>> &matMinBat)
 {
 
 }

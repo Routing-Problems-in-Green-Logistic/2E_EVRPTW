@@ -18,7 +18,7 @@
 
 //#include "PreProcessamento.h"
 
-class Instance;
+class Instancia;
 class EvRoute;
 class ShortestPathSatCli;
 

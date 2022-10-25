@@ -6,7 +6,7 @@
 #define INC_2E_EVRP_TESTE_H
 
 #include "Auxiliary.h"
-#include "Instance.h"
+#include "Instancia.h"
 #include <boost/format.hpp>
 
 namespace NameTeste
@@ -58,7 +58,7 @@ namespace NameTeste
 
     };
 
-    void testeMovimentos(string &saida, const Instance &instance, long semente, int k);
+    void testeMovimentos(string &saida, const Instancia &instance, long semente, int k);
 
 }
 

@@ -9,7 +9,7 @@
 #ifndef INC_2E_EVRP_K_MEANS_H
 #define INC_2E_EVRP_K_MEANS_H
 
-#include "Instance.h"
+#include "Instancia.h"
 
 namespace N_k_means
 {
@@ -52,11 +52,11 @@ namespace N_k_means
         }
     };
 
-    void converteClientes(Instance &instancia, std::vector<Ponto> &vetPonto);
-    ublas::matrix<int> k_means(Instance &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, bool seed);
+    void converteClientes(Instancia &instancia, std::vector<Ponto> &vetPonto);
+    ublas::matrix<int> k_means(Instancia &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, bool seed);
     void printVetPonto(const std::vector<Ponto> &vetPonto);
-    std::vector<double> calculaRaioSatSeedK_means(Instance &instance);
-    void converteMatClusterMatSat(const ublas::matrix<int> &matEntrada, ublas::matrix<int> &matSaida, Instance &instancia);
+    std::vector<double> calculaRaioSatSeedK_means(Instancia &instance);
+    void converteMatClusterMatSat(const ublas::matrix<int> &matEntrada, ublas::matrix<int> &matSaida, Instancia &instancia);
 
 }
 

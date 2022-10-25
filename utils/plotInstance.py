@@ -5,7 +5,8 @@ import random
 import math
 from glob import glob
 
-satColors = ['#2ff3e0', '#f8d210', '#fa26a0', '#f51720']
+#satColors = ['#2ff3e0', '#f8d210', '#fa26a0', '#f51720']
+satColors = ['#2ff3e0', '#f8d210', '#fa26a0', '#f51720', '#e1ad01', '#909090', '#ff7538', '#00a500', '#004953', '#aa6c39']
 
 def mean(p1, p2):
     return ((p1[0] + p2[0])/2, (p1[1] + p2[1])/2)
@@ -25,6 +26,8 @@ ax = fig.gca()
 
 plt.grid(visible=True, alpha=0.3)
 
+print('len(sys.argv): ', len(sys.argv))
+
 path = sys.argv[1]
 if not path:
     exit(255)
@@ -36,29 +39,29 @@ print(coord)
 #   the type ((D)epot, (S)at, (C)lient, (F)Recharging Station
 #   the number (id)
 #   the x, y and the demand
-print(coord['code'].values)
-print(coord['x'].values)
-print(coord['y'].values)
-print(coord['demand'].values)
+#print(coord['code'].values)
+#print(coord['x'].values)
+#print(coord['y'].values)
+#print(coord['demand'].values)
 nodeId = [int(x) for x in coord['index'].values]
 
-print("nodeId: ", nodeId)
+#print("nodeId: ", nodeId)
 
 nodeType = [x for x in coord['code'].values]
 #nodeType = coord['code'].values[:-3]
 x = [float(x) for x in coord['x'].values]
 y = [float(x) for x in coord['y'].values]
 demand = [float(x) for x in coord['demand'].values]
-print("nodeId", ' ')
-print(nodeId)
-print("nodeType", ' ')
-print(nodeType)
-print("x", ' ')
-print(x)
-print("y", ' ')
-print(y)
-print("demand", ' ')
-print(demand)
+#print("nodeId", ' ')
+#print(nodeId)
+#print("nodeType", ' ')
+#print(nodeType)
+#print("x", ' ')
+#print(x)
+#print("y", ' ')
+#print(y)
+#print("demand", ' ')
+#print(demand)
 
 #could have converted to float on the go, but...
 
@@ -66,8 +69,9 @@ for i in range(len(nodeId)):
     
     if i == 0:
         continue
-
-    plt.annotate(int(nodeId[i]), (x[i], y[i]), color='r')
+    
+    if len(sys.argv) == 2:
+        plt.annotate(int(nodeId[i]), (x[i], y[i]), color='r')
 
     color = ''
     marker = ''

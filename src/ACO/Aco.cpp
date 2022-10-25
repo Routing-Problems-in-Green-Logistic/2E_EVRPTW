@@ -9,7 +9,7 @@
  * ****************************************/
 
 #include "Aco.h"
-#include "Instance.h"
+#include "Instancia.h"
 #include "../greedyAlgorithm.h"
 #include "../mersenne-twister.h"
 #include "../greedyAlgorithm.h"
@@ -36,7 +36,7 @@ using namespace boost::numeric;
  * ******************************************************************************************************
  * ******************************************************************************************************
  */
-bool N_Aco::aco(Instance &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
+bool N_Aco::aco(Instancia &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
                 const vector<int> &vetSatAtendCliente, ParametrosGrasp &param, NameS_Grasp::Estatisticas &est, const Solucao *solGrasp, const int numEVs)
 {
 
@@ -533,7 +533,7 @@ cout<<"ANT BEST EH INVIAVEL\n";*/
     return false;
 }
 
-void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instance &instance, Ant &ant)
+void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instancia &instance, Ant &ant)
 {
 
     //cout<<"ADD CLIENTE("<<clienteJ<<") AO EV("<<evRoute.idRota<<")\n\n";
@@ -594,7 +594,7 @@ void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ
  * @param tempoSaidaI
  * @return
  */
-bool N_Aco::clienteJValido(Instance &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat, const double tempoSaidaI)
+bool N_Aco::clienteJValido(Instancia &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat, const double tempoSaidaI)
 {
 
     // TEMPO ??
@@ -709,7 +709,7 @@ cout<<j<<": ok\n";
 }
 
 
-void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, ublas::matrix<double> &matAtualFeromonio, Instance &instancia, const AcoParametros &acoParam,
+void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, ublas::matrix<double> &matAtualFeromonio, Instancia &instancia, const AcoParametros &acoParam,
                               const Ant &antBest, const vector<Ant> &vetAnt)
 {
 
@@ -785,7 +785,7 @@ cout<<"FEROMONIO MAX: "<<feromMax<<"\n";
 
 }
 
-void N_Aco::evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instance &instancia, const AcoParametros &acoParam, const double feromMin)
+void N_Aco::evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instancia &instancia, const AcoParametros &acoParam, const double feromMin)
 {
 
     static const double ro_1 = 1.0-acoParam.ro;
@@ -807,7 +807,7 @@ cout<<"ferm min: "<<feromMin<<"\n\n";
 
 }
 
-bool N_Aco::acoSol(Instance &instancia, AcoParametros &acoPar, AcoEstatisticas &acoEst, ParametrosGrasp &param, NameS_Grasp::Estatisticas &est, Solucao &best)
+bool N_Aco::acoSol(Instancia &instancia, AcoParametros &acoPar, AcoEstatisticas &acoEst, ParametrosGrasp &param, NameS_Grasp::Estatisticas &est, Solucao &best)
 {
 
     //Solucao best(instancia);

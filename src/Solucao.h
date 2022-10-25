@@ -6,25 +6,25 @@
 class Solucao
 {
 public:
-    Solucao(Instance& Inst);
+    Solucao(Instancia& Inst);
     Solucao(const Solucao &solution);
     void copia(Solucao &solution);
 
     int getNSatelites() const;
     int findSatellite(int id) const;
     Satelite* getSatelite(int index);
-    bool checkSolution(std::string &erro, Instance &inst);
-    void print(std::string &saida, const Instance &instance);
-    void print(const Instance& Inst);
-    double calcCost(const Instance&);
+    bool checkSolution(std::string &erro, Instancia &inst);
+    void print(std::string &saida, const Instancia &instance);
+    void print(const Instancia& Inst);
+    double calcCost(const Instancia&);
     float getDistanciaTotal();
-    void atualizaVetSatTempoChegMax( Instance &instance);
-    void inicializaVetClientesAtend(Instance &instance);
+    void atualizaVetSatTempoChegMax( Instancia &instance);
+    void inicializaVetClientesAtend(Instancia &instance);
     double getDist1Nivel();
     double getDist2Nivel();
     void recalculaDist();
-    void resetaPrimeiroNivel(Instance &instancia);  // Recalcula distancia com somente a dist dos satelites!
-    void recalculaDistSat(Instance &instancia);
+    void resetaPrimeiroNivel(Instancia &instancia);  // Recalcula distancia com somente a dist dos satelites!
+    void recalculaDistSat(Instancia &instancia);
     double distSat();
     int numSatVazios();
     int getNumEvNaoVazios();

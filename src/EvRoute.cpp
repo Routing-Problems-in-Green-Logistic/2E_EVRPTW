@@ -12,7 +12,7 @@ using namespace GreedyAlgNS;
 
 
 
-EvRoute::EvRoute(const int _satellite, const int _idRota, const int RouteSizeMax, const Instance &instance):firstRechargingSIndex(
+EvRoute::EvRoute(const int _satellite, const int _idRota, const int RouteSizeMax, const Instancia &instance):firstRechargingSIndex(
         instance.getFirstRS_index())
 {
     satelite = _satellite;
@@ -92,7 +92,7 @@ EvRoute::EvRoute(const EvRoute &evRoute):firstRechargingSIndex(evRoute.firstRech
     copia(evRoute, false, nullptr);
 }
 
-void EvRoute::copia(const EvRoute &evRoute, const bool calculaDemanda, Instance *instancia)
+void EvRoute::copia(const EvRoute &evRoute, const bool calculaDemanda, Instancia *instancia)
 {
     satelite = evRoute.satelite;
     routeSize = evRoute.routeSize;
@@ -136,7 +136,7 @@ void EvRoute::copia(const EvRoute &evRoute, const bool calculaDemanda, Instance 
 
 }
 
-void EvRoute::copiaN(const EvRoute &evRoute, const int n, bool calculaDemanda, Instance *instancia)
+void EvRoute::copiaN(const EvRoute &evRoute, const int n, bool calculaDemanda, Instancia *instancia)
 {
 
     satelite = evRoute.satelite;
@@ -214,7 +214,7 @@ int EvRoute::size() const{
 }
 
 
-void EvRoute::print(const Instance &instance, const bool somenteNo) const
+void EvRoute::print(const Instancia &instance, const bool somenteNo) const
 {
     cout<<"Ev id: "<<idRota<<";  ";
     for(int i=0; i < routeSize; ++i)
@@ -269,7 +269,7 @@ bool EvRoute::setUtilizacaoRecarga(const int id, const int utilizacao)
     }
 }
 
-bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
+bool EvRoute::checkRoute(std::string &erro, const Instancia &instance) const
 {
 
     if(routeSize < 2)
@@ -436,7 +436,7 @@ bool EvRoute::checkRoute(std::string &erro, const Instance &instance) const
     return true;
 }
 
-void EvRoute::print(std::string &strRota, const Instance &instance, const bool somenteNo) const
+void EvRoute::print(std::string &strRota, const Instancia &instance, const bool somenteNo) const
 {
     strRota += "!idRota: " + to_string(idRota) + ";  ";
     for(int i=0; i < routeSize; ++i)
@@ -467,7 +467,7 @@ void EvRoute::print(std::string &strRota, const Instance &instance, const bool s
 
 }
 
-void EvRoute::atualizaParametrosRota(const Instance &instance)
+void EvRoute::atualizaParametrosRota(const Instancia &instance)
 {
 
     if(routeSize > 2)
@@ -513,7 +513,7 @@ void EvRoute::atualizaParametrosRota(const Instance &instance)
     }
 }
 
-bool EvRoute::alteraTempoSaida(const double novoTempoSaida, const Instance &instance)
+bool EvRoute::alteraTempoSaida(const double novoTempoSaida, const Instancia &instance)
 {
 
 
@@ -595,7 +595,7 @@ double EvRoute::getCurrentTime()
     return route[routeSize-1].tempoCheg;
 }
 
-std::string EvRoute::getRota(const Instance &instance, const bool somenteNo)
+std::string EvRoute::getRota(const Instancia &instance, const bool somenteNo)
 {
     string str;
 

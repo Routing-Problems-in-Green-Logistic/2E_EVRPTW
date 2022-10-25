@@ -4,7 +4,7 @@
 
 
 
-Solucao::Solucao(Instance &Inst)
+Solucao::Solucao(Instancia &Inst)
 {
     satelites.reserve(Inst.getNSats()+1);
 
@@ -44,7 +44,7 @@ Solucao::Solucao(Instance &Inst)
 }
 
 
-void Solucao::resetaPrimeiroNivel(Instance &instancia)
+void Solucao::resetaPrimeiroNivel(Instancia &instancia)
 {
     primeiroNivel = std::vector<Route>();
 
@@ -60,7 +60,7 @@ void Solucao::resetaPrimeiroNivel(Instance &instancia)
 
 }
 
-void Solucao::recalculaDistSat(Instance &instancia)
+void Solucao::recalculaDistSat(Instancia &instancia)
 {
     for(Satelite &sat:satelites)
     {
@@ -79,7 +79,7 @@ double Solucao::distSat()
     return dist;
 }
 
-void Solucao::atualizaVetSatTempoChegMax(Instance &instance)
+void Solucao::atualizaVetSatTempoChegMax(Instancia &instance)
 {
 
     // Inicializa vetor
@@ -96,7 +96,7 @@ void Solucao::atualizaVetSatTempoChegMax(Instance &instance)
             {
                 const RouteNo &routeNo = route.rota[i];
 
-                if(routeNo.satellite != Instance::getDepotIndex())
+                if(routeNo.satellite != Instancia::getDepotIndex())
                 {
                     if(routeNo.tempoChegada > satTempoChegMax[routeNo.satellite])
                     {
@@ -122,7 +122,7 @@ Satelite* Solucao::getSatelite(int index) {
 }
 
 // Retorna true se a solucao eh vialvel
-bool Solucao::checkSolution(std::string &erro, Instance &inst)
+bool Solucao::checkSolution(std::string &erro, Instancia &inst)
 {
     double distanciaAux = 0.0;
 
@@ -299,7 +299,7 @@ bool Solucao::checkSolution(std::string &erro, Instance &inst)
 
 }
 
-void Solucao::print(std::string &saida, const Instance &instance)
+void Solucao::print(std::string &saida, const Instancia &instance)
 {
 /*    saida += "satTempoChegMax: ";
 
@@ -329,7 +329,7 @@ void Solucao::print(std::string &saida, const Instance &instance)
 
 }
 
-void Solucao::print(const Instance& Inst)
+void Solucao::print(const Instancia& Inst)
 {
 
     std::cout<<"2º NIVEL:\n";
@@ -353,7 +353,7 @@ void Solucao::print(const Instance& Inst)
 
 }*/
 
-double Solucao::calcCost(const Instance& Inst) {
+double Solucao::calcCost(const Instancia& Inst) {
     double cost  = 0.0;
 
     for(int t = 0; t < this->primeiroNivel.size(); t++)
@@ -439,7 +439,7 @@ int Solucao::getNumEvNaoVazios()
     return num;
 }
 
-void Solucao::inicializaVetClientesAtend(Instance &instance)
+void Solucao::inicializaVetClientesAtend(Instancia &instance)
 {
 
     vetClientesAtend = std::vector<int8_t>(1 + instance.getNSats() + instance.getN_RechargingS() + instance.getNClients());

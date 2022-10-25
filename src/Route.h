@@ -1,7 +1,7 @@
 #ifndef ROUTE_H
 #define ROUTE_H
 
-#include "Instance.h"
+#include "Instancia.h"
 #include <vector>
 #include <iostream>
 
@@ -17,13 +17,13 @@ class Route
 {
 
 public:
-    Route(const Instance &instance);
+    Route(const Instancia &instance);
     int getSize() const {return routeSize;}
     float getDemand() const {return totalDemand;}
     float getCost() const {return totalDistence;}
     void print();
     void print(std::string &str);
-    bool checkDistence(const Instance &instance, double *dist, std::string &str);
+    bool checkDistence(const Instancia &instance, double *dist, std::string &str);
 
     void copia(Route &route);
 
