@@ -458,7 +458,8 @@ double Solucao::getDist1Nivel()
 
     for(const auto& rota:primeiroNivel)
     {
-        dist += rota.totalDistence;
+        if(rota.routeSize > 2)
+            dist += rota.totalDistence;
     }
 
     return dist;

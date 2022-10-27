@@ -9,7 +9,7 @@ using namespace NS_LocalSearch;
 void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, std::vector<MvValor> &vetMvValor)
 {
 
-    static int vetMv[NUM_MV] = {MV_EV_SWAP_INTER_ROTAS_INTRA_SAT};
+    static int vetMv[NUM_MV] = {MV_EV_SWAP_INTER_ROTAS_INTER_SAT};
 
     /*for(int i=0; i < NUM_MV; ++i)
     {
@@ -78,6 +78,11 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, std:
 
                 case MV_EV_SWAP_INTER_ROTAS_INTRA_SAT:
                     aplicacao = mvEvSwapInterRotasIntraSat(solution, instance, evRouteAux, evRouteAux1);
+                    break;
+
+
+                case MV_EV_SWAP_INTER_ROTAS_INTER_SAT:
+                    aplicacao = mvEvSwapInterRotasInterSats(solution, instance, evRouteAux, evRouteAux1, beta);
                     break;
 
 

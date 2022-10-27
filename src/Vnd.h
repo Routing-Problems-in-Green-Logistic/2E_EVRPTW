@@ -8,12 +8,15 @@
 #define MV_EV_SHIFIT_INTRA_ROTA             0
 #define MV_EV_SWAP_INTRA_ROTA               1
 #define MV_EV_2OPT                          2
+
 #define MV_EV_SHIFIT_INTER_ROTAS_INTRA_SAT  3
 #define MV_EV_SHIFIT_INTER_ROTAS_INTER_SAT  4
-#define MV_EV_SWAP_INTER_ROTAS_INTRA_SAT    5
 
-#define NUM_MV    1
-#define NUM_MV_LS 6
+#define MV_EV_SWAP_INTER_ROTAS_INTRA_SAT    5
+#define MV_EV_SWAP_INTER_ROTAS_INTER_SAT    6
+
+#define NUM_MV                              1
+#define NUM_MV_LS                           7
 
 namespace NS_vnd
 {
