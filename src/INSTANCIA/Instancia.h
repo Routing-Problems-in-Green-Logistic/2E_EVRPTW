@@ -78,7 +78,6 @@ public:
     double getDemand(int node) const; // the const means that the method promises not to alter any members of the class.
     double getDistance(int n1, int n2) const;
 
-    std::pair<float,float> getCoordinate(int node) const;
     static int getDepotIndex() {return 0;}
     int getFirstClientIndex() const;
     int getEndClientIndex() const;
@@ -112,16 +111,7 @@ public:
 
     int getNNodes() const;
     const ClienteInst& getClient(int clientId) const { return this->vectCliente.at(clientId);}
-
     void print() const;
-
-    double tempoRecarga(const int idRota, const double bat) const
-    {
-        if(bat > 0)
-            return vectVeiculo[idRota].taxaRecarga * (vectVeiculo[idRota].capacidadeBateria-bat);
-        else
-            return vectVeiculo[idRota].taxaRecarga * vectVeiculo[idRota].capacidadeBateria;
-    }
 
     double getInicioJanelaTempoCliente(int id) const {return vectCliente[id].inicioJanelaTempo;}
     double getFimJanelaTempoCliente(int id) const {return vectCliente[id].fimJanelaTempo;}
