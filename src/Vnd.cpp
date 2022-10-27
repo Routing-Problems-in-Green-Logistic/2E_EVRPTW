@@ -9,9 +9,9 @@ using namespace NS_LocalSearch;
 void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, std::vector<MvValor> &vetMvValor)
 {
 
-    static int vetMv[NUM_MV];
+    static int vetMv[NUM_MV] = {MV_EV_SWAP_INTER_ROTAS_INTRA_SAT};
 
-    for(int i=0; i < NUM_MV; ++i)
+    /*for(int i=0; i < NUM_MV; ++i)
     {
         vetMv[i] = rand_u32()%NUM_MV;
         bool invalido = true;
@@ -33,7 +33,7 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, std:
                 invalido = false;
 
         }
-    }
+    }*/
 
 
     EvRoute evRouteAux(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
@@ -43,8 +43,6 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, std:
 
     try
     {
-
-        bool valEsp = false;
         double valOrig = 0.0;
         while(i < NUM_MV)
         {
@@ -75,6 +73,11 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, std:
 
                 case MV_EV_SHIFIT_INTER_ROTAS_INTER_SAT:
                     aplicacao = mvEvShifitInterRotasInterSats(solution, instance, evRouteAux, evRouteAux1, beta);
+                    break;
+
+
+                case MV_EV_SWAP_INTER_ROTAS_INTRA_SAT:
+                    aplicacao = mvEvSwapInterRotasIntraSat(solution, instance, evRouteAux, evRouteAux1);
                     break;
 
 

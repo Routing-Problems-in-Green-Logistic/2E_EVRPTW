@@ -607,11 +607,16 @@ ParametrosSaida NS_parametros::getParametros()
     parametrosSaida.mapNoSaida["numSatVazios"] = NoSaida("numSatVazios");
     parametrosSaida.mapNoSaida["numEV"] = NoSaida("numEV");
 
-    for(int k=0; k < NUM_MV; ++k)
+    for(int k=0; k < NUM_MV_LS; ++k)
     {
-        string nome = "mv_"+ to_string(k);
+        string nome  = "mv_"+ to_string(k);
+        string nome1 = nome+"_num";
+
         parametrosSaida.mapNoSaida[nome] = NoSaida(nome);
+        parametrosSaida.mapNoSaida[nome1] = NoSaida(nome1);
+
         parametrosSaida.mapNoSaida[nome].addSaida(SAIDA_EXEC_VAL);
+        parametrosSaida.mapNoSaida[nome1].addSaida(SAIDA_EXEC_VAL);
     }
 
     parametrosSaida.mapNoSaida["dist"].addSaida(SAIDA_EXEC_VAL);

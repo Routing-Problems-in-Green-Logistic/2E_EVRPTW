@@ -309,10 +309,13 @@ namespace NS_parametros
 
 
 
-        for(int k=0; k < NUM_MV; ++k)
+        for(int k=0; k < NUM_MV_LS; ++k)
         {
-            string nome = "mv_"+ to_string(k);
+            string nome  = "mv_"+ to_string(k);
+            string nome1 = nome+"_num";
+
             parametrosSaida.mapNoSaida[nome](vetMvValor[k].getMedia());
+            parametrosSaida.mapNoSaida[nome1](vetMvValor[k].quant);
 
         }
 

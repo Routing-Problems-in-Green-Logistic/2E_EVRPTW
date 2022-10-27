@@ -136,8 +136,8 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     int addRotaClienteProbIgual = 0;
     int clienteAdd = -1;
 
-    vetMvValor = std::vector<MvValor>(NUM_MV);
-    for(int i=0; i < NUM_MV; ++i)
+    vetMvValor = std::vector<MvValor>(NUM_MV_LS);
+    for(int i=0; i < NUM_MV_LS; ++i)
         vetMvValor[i].mv = i;
 
     for(int i=0; i < parametros.numIteGrasp; ++i)

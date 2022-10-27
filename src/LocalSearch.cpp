@@ -1690,9 +1690,6 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
 bool NS_LocalSearch::mvEvSwapInterRotasIntraSat(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1)
 {
 
-
-    cout<<"mvEvSwapInterRotasIntraSat\n";
-
     const bool interSat = false;
 
     if(instancia.numSats == 1 && instancia.numEv == 1)
@@ -1708,7 +1705,7 @@ bool NS_LocalSearch::mvEvSwapInterRotasIntraSat(Solucao &solucao, Instancia &ins
             if(evRoute0.routeSize <= 2)
                 continue;
 
-            for(int ev1 = 0; ev1 < instancia.getN_Evs(); ++ev1)
+            for(int ev1 = (ev0+1); ev1 < instancia.getN_Evs(); ++ev1)
             {
                 if(ev0 == ev1)
                     continue;
@@ -1718,14 +1715,19 @@ bool NS_LocalSearch::mvEvSwapInterRotasIntraSat(Solucao &solucao, Instancia &ins
                 EvRoute &evRoute1 = solucao.satelites[sat].vetEvRoute[ev1];
                 if(evRoute1.routeSize <= 2)
                     continue;
+                // 0 1 2  3  4  5
+                // 1 9 10 11 12 1
+
+                // tam = 6
+                //
 
                 // Selecionar as posicoes das rotas
-                for(int posEv0 = 0; posEv0 < (evRoute0.routeSize - 1); ++posEv0)
+                for(int posEv0 = 0; posEv0 < (evRoute0.routeSize-2); ++posEv0)
                 {
                     if(instancia.isRechargingStation(evRoute0[posEv0+1].cliente))
                         continue;
 
-                    for(int posEv1 = 0; posEv1 < (evRoute1.routeSize - 1); ++posEv1)
+                    for(int posEv1 = 0; posEv1 < (evRoute1.routeSize-2); ++posEv1)
                     {
 
                         if(instancia.isRechargingStation(evRoute1[posEv1+1].cliente))
@@ -1884,8 +1886,7 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                             if(!rota1Viabilizada)
                                                 return false;       // Nao existem outras opcoes
 
-                                            else if(!menor(inserEstRota0.distanciaRota+inserEstRota1.distanciaRota, distOrig))
-                                                return false;
+                                            novaDist = inserEstRota0.distanciaRota+inserEstRota1.distanciaRota;
 
                                         }
                                         else
@@ -1906,14 +1907,22 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                         rota0Viabilizada = viabilizaRotaEv(evRouteAux0, instancia, false, inserEstRota0, distOrig-distNovaRota1, false, tempoSaidaSat);
                                         if(!rota0Viabilizada)
                                             return false;
+
+                                        novaDist = distNovaRota1 + inserEstRota0.distanciaRota;
                                     }
                                     else
                                     {
                                         rota1Viabilizada = viabilizaRotaEv(evRouteAux1, instancia, false, inserEstRota1, distOrig-distNovaRota0, false, tempoSaidaSat);
                                         if(!rota1Viabilizada)
                                             return false;
+
+                                        novaDist = distNovaRota0 + inserEstRota1.distanciaRota;
                                     }
                                 }
+
+
+                                if(!menor(novaDist, distOrig))
+                                    return false;
 
 
                                 if(novaRota0Viavel)
@@ -1994,6 +2003,7 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                             solucao.distancia += -distOrig + novaDist;
                             solucao.satelites[sat].distancia += -distOrig + novaDist;
                             //cout<<"MV UPDATE\n";
+                            //cout<<distOrig<<" : "<<novaDist<<"\n\n";
 
                             double novaDemanda = evRoute0.demanda + evRoute1.demanda;
                             if(novaDemanda != demandaOrig)

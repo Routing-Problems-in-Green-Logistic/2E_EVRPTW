@@ -12,7 +12,8 @@
 #define MV_EV_SHIFIT_INTER_ROTAS_INTER_SAT  4
 #define MV_EV_SWAP_INTER_ROTAS_INTRA_SAT    5
 
-#define NUM_MV 6
+#define NUM_MV    1
+#define NUM_MV_LS 6
 
 namespace NS_vnd
 {
