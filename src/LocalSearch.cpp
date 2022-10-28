@@ -2408,3 +2408,54 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
 
     return false;
 }
+
+/**
+ *
+ * @param solucao
+ * @param sat0Temp
+ * @param novaCargaSat0Temp         Incremento de carga no sat0
+ * @param sat1Temp
+ * @param novaCargaSat1Temp         Incremento de carga no sat0
+ * @return
+ */
+bool NS_LocalSearch::conserta1Nivel(Solucao &solucao, const int sat0Temp, const double novaCargaSat0Temp, const int sat1Temp, const double novaCargaSat1Temp)
+{
+
+    if(sat1Temp == sat0Temp)
+    {
+        PRINT_DEBUG("", "ERRO, SAT0("<<sat0Temp<<") == SAT1("<<sat1Temp<<")");
+        return false;
+    }
+
+    /* ********************************************************************
+     * ********************************************************************
+     *
+     *  sat0 tem incremento positivo, sat1 tem incremento negativo
+     *
+     * ********************************************************************
+     * ********************************************************************/
+
+     int sat0, sat1;
+     sat0=sat1=-1;
+
+     double novaCargaSat0, novaCargaSat1;
+     novaCargaSat0=novaCargaSat1=0.0;
+
+     if(novaCargaSat0Temp > 0.0)
+     {
+         sat0 = sat0Temp;
+         sat1 = sat1Temp;
+
+         novaCargaSat0 = novaCargaSat0Temp;
+         novaCargaSat1 = novaCargaSat1Temp;
+     }
+     else
+     {
+         sat0 = sat1Temp;
+         sat1 = sat0Temp;
+
+         novaCargaSat0 = novaCargaSat1Temp;
+         novaCargaSat1 = novaCargaSat0Temp;
+     }
+
+}

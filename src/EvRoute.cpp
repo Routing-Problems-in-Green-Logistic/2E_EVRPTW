@@ -538,8 +538,11 @@ bool EvRoute::alteraTempoSaida(const double novoTempoSaida, const Instancia &ins
 
         double tempo = route[i].tempoSaida + dist;
 
-        if(!TESTE_JANELA_TEMPO(tempo, route[i+1].cliente, instance))
+        if(!(TESTE_JANELA_TEMPO(tempo, route[i+1].cliente, instance)))
         {
+            cout<<"tempo <= cliente.fimJanelaTempo: "<<(tempo <= instance.vectCliente[route[i+1].cliente].fimJanelaTempo)<<"\n";
+            cout<<"abs(tempo - cliente.fimJanelaTempo): "<<(abs(tempo - instance.vectCliente[route[i + 1].cliente].fimJanelaTempo) <= 1e-4)<<"\n\n";
+
             cout<<"Tempo Saida: "<<novoTempoSaida<<"; i: "<<i<<"\n";
             cout<<"Chegada: "<<tempo<<"; TW FIM: "<<instance.vectCliente[route[i+1].cliente].fimJanelaTempo<<"\n";
             cout<<"No: "<<route[i+1].cliente<<"\n";

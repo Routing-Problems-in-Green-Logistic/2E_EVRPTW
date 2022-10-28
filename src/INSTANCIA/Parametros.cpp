@@ -64,6 +64,7 @@ void NS_parametros::escreveSolCompleta(Parametros &paramEntrada, Solucao &sol, I
     {
         outfile<<"INSTANCIA: "<<paramEntrada.nomeInstancia<<"\nDATA: "<<paramEntrada.data<<"\n\n";
         outfile<<saida<<"\n\n";
+        outfile<<"VIAVEL: "<<sol.viavel<<"\n";
         outfile.close();
     }
     else

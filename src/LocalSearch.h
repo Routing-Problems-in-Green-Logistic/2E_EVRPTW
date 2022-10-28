@@ -88,6 +88,7 @@ namespace NS_LocalSearch
     bool mvEvSwapInterRotasIntraSat(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1);
     bool mvEvSwapInterRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, const float beta);
 
+    bool conserta1Nivel(Solucao &solucao, const int sat0, const double novaCargaSat0, const int sat1, const double novaCargaSat1);
 
     void removeRS_Repetido(EvRoute &evRoute);
 
