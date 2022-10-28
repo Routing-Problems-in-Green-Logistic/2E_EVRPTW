@@ -34,8 +34,13 @@ const float fator = 0.1;
  * @param matClienteSat         Para uma posicao: matClienteSat(clienteI, sat_0) = 0,1: indica se o clienteI pode ser atendido pelo sat_0
  * @return
  */
-Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat, std::vector<MvValor> &vetMvValor)
+Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat,
+                             std::vector<MvValor> &vetMvValor, std::vector<MvValor> &vetMvValor1Nivel)
 {
+    vetMvValor1Nivel = std::vector<MvValor>(2);
+
+    vetMvValor1Nivel[0].mv = MV_EV_SHIFIT_INTER_ROTAS_INTER_SAT;
+    vetMvValor1Nivel[1].mv = MV_EV_SWAP_INTER_ROTAS_INTER_SAT;
 
     Solucao *solBest = new Solucao(instance);
     solBest->distancia = DOUBLE_MIN;
@@ -352,7 +357,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             } else
             {
 
-                rvnd(sol, instance, alfa, vetMvValor);
+                rvnd(sol, instance, alfa, vetMvValor, vetMvValor1Nivel);
 
                 if(sol.distancia < solBest->distancia || !solBest->viavel)
                 {

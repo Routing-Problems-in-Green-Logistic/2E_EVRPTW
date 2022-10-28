@@ -619,6 +619,17 @@ ParametrosSaida NS_parametros::getParametros()
         parametrosSaida.mapNoSaida[nome1].addSaida(SAIDA_EXEC_VAL);
     }
 
+    parametrosSaida.mapNoSaida["mv_4_1Nivel"] = NoSaida("mv_4_1Nivel");
+    parametrosSaida.mapNoSaida["mv_4_1Nivel"].addSaida(SAIDA_EXEC_VAL);
+    parametrosSaida.mapNoSaida["mv_6_1Nivel"] = NoSaida("mv_6_1Nivel");
+    parametrosSaida.mapNoSaida["mv_6_1Nivel"].addSaida(SAIDA_EXEC_VAL);
+
+
+    parametrosSaida.mapNoSaida["mv_4_1Nivel_num"] = NoSaida("mv_4_1Nivel_num");
+    parametrosSaida.mapNoSaida["mv_4_1Nivel_num"].addSaida(SAIDA_EXEC_VAL);
+    parametrosSaida.mapNoSaida["mv_6_1Nivel_num"] = NoSaida("mv_6_1Nivel_num");
+    parametrosSaida.mapNoSaida["mv_6_1Nivel_num"].addSaida(SAIDA_EXEC_VAL);
+
     parametrosSaida.mapNoSaida["dist"].addSaida(SAIDA_EXEC_VAL);
     parametrosSaida.mapNoSaida["t(s)"].addSaida(SAIDA_EXEC_VAL);
     parametrosSaida.mapNoSaida["sem"].addSaida(SAIDA_EXEC_SEM);

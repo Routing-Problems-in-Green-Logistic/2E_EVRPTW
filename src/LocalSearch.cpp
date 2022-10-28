@@ -1666,6 +1666,8 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
                                     else
                                     {
                                         solucaoAux.copia(solucao);
+                                        evRouteSat1.copia(solucaoAux.satelites[sat1].vetEvRoute[evSat1], true, &instancia);
+                                        evRouteSat0.copia(solucaoAux.satelites[sat0].vetEvRoute[evSat0], true, &instancia);
                                     }
                                 }
 

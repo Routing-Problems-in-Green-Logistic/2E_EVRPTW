@@ -5,13 +5,21 @@
 using namespace NS_vnd;
 using namespace NS_LocalSearch;
 
+/**
+ *
+ * @param solution
+ * @param instance
+ * @param beta
+ * @param vetMvValor
+ * @param vetMvValor1Nivel      0: MV_EV_SHIFIT_INTER_ROTAS_INTER_SAT; 1: MV_EV_SWAP_INTER_ROTAS_INTER_SAT
+ */
 
-void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, std::vector<MvValor> &vetMvValor)
+void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, std::vector<MvValor> &vetMvValor, std::vector<MvValor> &vetMvValor1Nivel)
 {
 
-    static int vetMv[NUM_MV] = {MV_EV_SWAP_INTER_ROTAS_INTER_SAT};
+    static int vetMv[NUM_MV];//= {MV_EV_SWAP_INTER_ROTAS_INTER_SAT};
 
-    /*for(int i=0; i < NUM_MV; ++i)
+    for(int i=0; i < NUM_MV; ++i)
     {
         vetMv[i] = rand_u32()%NUM_MV;
         bool invalido = true;
@@ -33,7 +41,7 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, std:
                 invalido = false;
 
         }
-    }*/
+    }
 
 
     EvRoute evRouteAux(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
@@ -43,11 +51,16 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, std:
 
     try
     {
-        double valOrig = 0.0;
+        double valOrig   = 0.0;
+        double val1Nivel = 0.0;
+
         while(i < NUM_MV)
         {
             if(i == 0)
-                valOrig = solution.distancia;
+            {
+                valOrig   = solution.distancia;
+                val1Nivel = solution.getDist1Nivel();
+            }
 
             bool aplicacao = false;
             double val = solution.distancia;
@@ -96,6 +109,15 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, std:
             if(aplicacao)
             {
                 vetMvValor[vetMv[i]].add(valOrig, solution.distancia);
+
+                if(NS_Auxiliary::menor(solution.getDist1Nivel(), val1Nivel))
+                {
+
+                    if(vetMv[i] == MV_EV_SWAP_INTER_ROTAS_INTER_SAT)
+                        vetMvValor1Nivel[1].add(val1Nivel, solution.getDist1Nivel());
+                    else if(vetMv[i] == MV_EV_SHIFIT_INTER_ROTAS_INTER_SAT)
+                        vetMvValor1Nivel[0].add(val1Nivel, solution.getDist1Nivel());
+                }
 
                 string erro;
                 if(!solution.checkSolution(erro, instance))

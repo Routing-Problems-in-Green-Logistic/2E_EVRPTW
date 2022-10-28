@@ -15,7 +15,7 @@
 #define MV_EV_SWAP_INTER_ROTAS_INTRA_SAT    5
 #define MV_EV_SWAP_INTER_ROTAS_INTER_SAT    6
 
-#define NUM_MV                              1
+#define NUM_MV                              7
 #define NUM_MV_LS                           7
 
 namespace NS_vnd
@@ -46,7 +46,8 @@ namespace NS_vnd
 
     };
 
-    void rvnd(Solucao &solution, Instancia &instance, const float beta, std::vector<MvValor> &vetMvValor);
+    void rvnd(Solucao &solution, Instancia &instance, const float beta, std::vector<MvValor> &vetMvValor,
+              std::vector<MvValor> &vetMvValor1Nivel);
 }
 
 #endif //INC_2E_EVRP_VND_H

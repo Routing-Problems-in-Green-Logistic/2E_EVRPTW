@@ -293,7 +293,7 @@ namespace NS_parametros
     ParametrosSaida getParametros();
 
     template <typename T>
-    void setParametrosSaida(ParametrosSaida &parametrosSaida, const Parametros &parametros, Solucao &best, T start, T end, std::vector<NS_vnd::MvValor> vetMvValor)
+    void setParametrosSaida(ParametrosSaida &parametrosSaida, const Parametros &parametros, Solucao &best, T start, T end, std::vector<NS_vnd::MvValor> &vetMvValor, std::vector<NS_vnd::MvValor> &vetMvValor1Nivel)
     {
 
         parametrosSaida.setTempo(start, end);
@@ -309,6 +309,7 @@ namespace NS_parametros
 
 
 
+
         for(int k=0; k < NUM_MV_LS; ++k)
         {
             string nome  = "mv_"+ to_string(k);
@@ -316,8 +317,15 @@ namespace NS_parametros
 
             parametrosSaida.mapNoSaida[nome](vetMvValor[k].getMedia());
             parametrosSaida.mapNoSaida[nome1](vetMvValor[k].quant);
-
         }
+
+
+        parametrosSaida.mapNoSaida["mv_4_1Nivel"](vetMvValor1Nivel[0].getMedia());
+        parametrosSaida.mapNoSaida["mv_4_1Nivel_num"](vetMvValor1Nivel[0].quant);
+
+
+        parametrosSaida.mapNoSaida["mv_6_1Nivel"](vetMvValor1Nivel[1].getMedia());
+        parametrosSaida.mapNoSaida["mv_6_1Nivel_num"](vetMvValor1Nivel[1].quant);
 
 
         //  numSatVazios numEV

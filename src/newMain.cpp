@@ -32,12 +32,13 @@ void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp);
 namespace N_gamb
 {
     std::vector<NS_vnd::MvValor> vetMvValor;
+    std::vector<NS_vnd::MvValor> vetMvValor1Nivel;
 }
 
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    string commite = "ff4e3900a975497d5f9011a403c3d198e9553954";
+    string commite = "2232777be04a2a6c6d68d2d89697a5acdfe0d36a";
     parametros.commit = commite;
 
     try
@@ -81,7 +82,7 @@ int main(int argc, char* argv[])
         auto end = std::chrono::high_resolution_clock::now();
 
         ParametrosSaida parametrosSaida = getParametros();
-        setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor);
+        setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
         saida(parametros, parametrosSaida, best, instancia);
 
 
@@ -126,7 +127,7 @@ void grasp(Instancia &instancia, Parametros &parametros, Solucao &best)
     vector<int> vetSatAtendCliente(instancia.numNos, -1);
     vector<int> satUtilizado(instancia.numSats+1, 0);
     const ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
-    Solucao *solGrasp = grasp(instancia, parametrosGrasp, estatisticas, false, matClienteSat, N_gamb::vetMvValor);
+    Solucao *solGrasp = grasp(instancia, parametrosGrasp, estatisticas, false, matClienteSat, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
     best.copia(*solGrasp);
 
     delete solGrasp;
