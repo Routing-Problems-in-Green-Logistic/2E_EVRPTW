@@ -17,6 +17,8 @@
 #include "PreProcessamento.h"
 #include "k_means.h"
 #include "Vnd.h"
+#include "VetorHash.h"
+#include "HASH/Hash.h"
 
 using namespace std;
 using namespace NS_parametros;
@@ -24,6 +26,8 @@ using namespace NameS_Grasp;
 using namespace N_PreProcessamento;
 using namespace N_Aco;
 using namespace N_k_means;
+using namespace NS_VetorHash;
+using namespace NS_Hash;
 
 void aco(Instancia &instancia, Parametros &parametros, ParametrosGrasp &parm, Solucao &best);
 void grasp(Instancia &instancia, Parametros &parametros, Solucao &best);
@@ -84,6 +88,40 @@ int main(int argc, char* argv[])
         ParametrosSaida parametrosSaida = getParametros();
         setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
         saida(parametros, parametrosSaida, best, instancia);
+
+        if(best.viavel)
+        {
+            Hash<VetorHash, true> hash(100);
+
+            for(Satelite &satelite:best.satelites)
+            {
+                for(EvRoute &evRoute:satelite.vetEvRoute)
+                {
+                    if(evRoute.routeSize > 2)
+                    {
+                        evRoute.print(instancia, true);
+                        hash.add(new VetorHash(evRoute));
+                        evRoute.print(instancia, true);
+                        cout<<"\n\n";
+                    }
+                }
+            }
+
+            cout<<"\n\n*****************************************\n\n";
+
+
+/*            for(Satelite &satelite:best.satelites)
+            {
+                for(EvRoute &evRoute:satelite.vetEvRoute)
+                {
+                    if(evRoute.routeSize > 2)
+                    {
+                        const VetorHash *ptrVetHash = hash.getPrimeiro(new VetorHash(evRoute));
+                        ptrVetHash->print();
+                    }
+                }
+            }*/
+        }
 
 
     }

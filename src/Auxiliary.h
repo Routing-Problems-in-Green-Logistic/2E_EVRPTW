@@ -173,7 +173,6 @@ namespace NS_Auxiliary
             return false;
     }
 
-
 }
 
 #endif //INC_2E_EVRP_AUXILIARY_H
