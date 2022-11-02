@@ -62,7 +62,7 @@ namespace NS_VetorHash
 
         bool tipoRota = true;   // Se falso, entao eh uma solucao completa
         std::vector<int> vet;   // Vetor guarda a rota ou a solucao
-        uint64_t valHash = 0;
+        std::size_t valHash = 0;
 
         explicit VetorHash(Solucao &solucao, Instancia &instancia)
         {
@@ -102,25 +102,27 @@ namespace NS_VetorHash
 
                 calculaValHash();
             }
+
         }
 
-        explicit VetorHash(EvRoute &evRoute)
+        explicit VetorHash(const EvRoute &evRoute)
         {
 
             vet = std::vector<int>(evRoute.routeSize);
 
             for(int i=0; i < evRoute.routeSize; ++i)
-                vet[i] = evRoute[i].cliente;
+                vet[i] = evRoute.route[i].cliente;
 
             calculaValHash();
         }
+
+        VetorHash()=default;
 
         void calculaValHash()
         {
             // Funcao retirada de: https://cseweb.ucsd.edu/~kube/cls/100/Lectures/lec16/lec16-16.html
 
             valHash = 0;
-
             for(int i=0; i < vet.size(); ++i)
             {
                 valHash = (valHash<<4) + vet[i];
@@ -131,19 +133,13 @@ namespace NS_VetorHash
             }
         }
 
-        uint64_t hash() const
-        {
-            return valHash;
-        }
 
-        bool print() const
+        void print() const
         {
-            cout<<"valHash: "<<valHash<<"\n\n";
             if(valHash == 0)
             {
                 cout<<"vet vazio\n";
-                return false;
-
+                return;
             }
 
             cout<<"vetSize: "<<vet.size()<<"\n";
@@ -151,11 +147,10 @@ namespace NS_VetorHash
             for(int t:vet)
                 cout<<t<<" ";
 
-            cout<<"\n\n";
-            cout<<"HASH: "<<hash()<<"\n\n";
+            cout<<"\nHASH: "<<valHash<<"\n\n";
         }
 
-        bool operator ==(const VetorHash &vetorHash)
+        bool operator ==(const VetorHash &vetorHash) const
         {
             if(tipoRota != vetorHash.tipoRota)
             {
@@ -178,6 +173,16 @@ namespace NS_VetorHash
 
             return true;
         }
+
+        class HashFunc
+        {
+        public:
+
+            size_t operator()(const VetorHash &vetorHash) const
+            {
+                return vetorHash.valHash;
+            }
+        };
 
     };
 }

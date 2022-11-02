@@ -14,7 +14,9 @@
 #include "PreProcessamento.h"
 #include "Vnd.h"
 #include <fstream>
+#include <unordered_set>
 #include "k_means.h"
+#include "VetorHash.h"
 
 #define NUM_EST_INI 3
 
@@ -22,6 +24,7 @@ using namespace GreedyAlgNS;
 using namespace NameS_Grasp;
 using namespace NS_LocalSearch;
 using namespace NS_vnd;
+using namespace NS_VetorHash;
 
 const float fator = 0.1;
 
@@ -34,8 +37,10 @@ const float fator = 0.1;
  * @param matClienteSat         Para uma posicao: matClienteSat(clienteI, sat_0) = 0,1: indica se o clienteI pode ser atendido pelo sat_0
  * @return
  */
-Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat,
-                             std::vector<MvValor> &vetMvValor, std::vector<MvValor> &vetMvValor1Nivel)
+Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, Estatisticas &estat,
+                             const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat,
+                             std::vector<NS_vnd::MvValor> &vetMvValor, std::vector<NS_vnd::MvValor> &vetMvValor1Nivel,
+                             NS_parametros::ParametrosSaida &parametrosSaida)
 {
     vetMvValor1Nivel = std::vector<MvValor>(2);
 
@@ -144,6 +149,12 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     vetMvValor = std::vector<MvValor>(NUM_MV_LS);
     for(int i=0; i < NUM_MV_LS; ++i)
         vetMvValor[i].mv = i;
+
+    std::unordered_set<VetorHash, VetorHash::HashFunc> hashRotaSet;
+    std::unordered_set<VetorHash, VetorHash::HashFunc> hashSolSet;
+
+    int numSolGeradas   = 0;
+    int numRotasGeradas = 0;
 
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
@@ -338,6 +349,22 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             string erro;
             bool mv = true;
 
+            for(Satelite &satelite:sol.satelites)
+            {
+                for(EvRoute &evRoute:satelite.vetEvRoute)
+                {
+                    if(evRoute.routeSize > 2)
+                    {
+                        hashRotaSet.insert(VetorHash(evRoute));
+                        numRotasGeradas += 1;
+                    }
+                }
+            }
+
+
+            hashSolSet.insert(VetorHash(sol, instance));
+            numSolGeradas += 1;
+
             if(!sol.checkSolution(erro, instance))
             {
 
@@ -417,6 +444,14 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
     solBest->ultimaA = estat.ultimaAtualizacaoBest;
 
+    parametrosSaida.mapNoSaida["rotas"] = NS_parametros::NoSaida("rotas");
+    parametrosSaida.mapNoSaida["sol"] = NS_parametros::NoSaida("sol");
+
+
+    parametrosSaida.mapNoSaida["rotas"].addSaida(SAIDA_EXEC_VAL);
+    parametrosSaida.mapNoSaida["sol"].addSaida(SAIDA_EXEC_VAL);
+
+
     if(solBest->viavel)
     {
         estat.erro = "";
@@ -430,6 +465,13 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             delete solBest;
             return nullptr;
         }
+
+        //cout<<"ROTAS GERADAS: "<<numRotasGeradas<<"\nROTAS UNICAS GERADAS: "<<hashRotaSet.size()<<":  "<<(double(hashRotaSet.size())/numRotasGeradas)<<"\n\n";
+        //cout<<"SOL GERADAS: "<<numSolGeradas<<"\nSOL UNICAS GERADAS: "<<hashSolSet.size()<<":  "<<(double(hashSolSet.size())/numSolGeradas)<<"\n";
+
+        parametrosSaida.mapNoSaida["rotas"](double(hashRotaSet.size())/numRotasGeradas);
+        parametrosSaida.mapNoSaida["sol"](double(hashSolSet.size())/numSolGeradas);
+
     }
 
     return solBest;

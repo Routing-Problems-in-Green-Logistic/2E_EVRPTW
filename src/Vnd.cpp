@@ -16,6 +16,7 @@ using namespace NS_LocalSearch;
 
 void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, std::vector<MvValor> &vetMvValor, std::vector<MvValor> &vetMvValor1Nivel)
 {
+    return;
 
     static int vetMv[NUM_MV];//= {MV_EV_SWAP_INTER_ROTAS_INTER_SAT};
 

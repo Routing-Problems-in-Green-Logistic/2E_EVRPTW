@@ -13,6 +13,7 @@
 #include <iostream>
 #include <utility>
 #include <map>
+#include <chrono>
 #include "../Solucao.h"
 #include "../Vnd.h"
 
@@ -43,6 +44,7 @@ namespace NS_parametros
         string caminhoPasta    = "resultados";      // --pasta caminhoPasta/
         int numExecucoesTotais = 0;                 // --execTotal num
         int execucaoAtual      = -1;                // --execAtual 0 ; 0, ..., num-1
+        int numItTotal         = 1000;              // --numItTotal
         string resultadoCSV    = "resultados.csv";  // --resulCSV
         string instancia;
         string nomeInstancia;

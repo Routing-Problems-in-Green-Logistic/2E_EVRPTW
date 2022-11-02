@@ -464,6 +464,8 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
                 {
                     paramEntrada.execucaoAtual = atoi(argv[i + 1]);
                 }
+                else if(opcao == "--numItTotal")
+                    paramEntrada.numItTotal = atoi(argv[i+1]);
                 else if(opcao == "--resulCSV")
                     paramEntrada.resultadoCSV = string(argv[i+1]);
                 else if(opcao == "--mt")
@@ -644,6 +646,6 @@ ParametrosSaida NS_parametros::getParametros()
 string NS_parametros::Parametros::getParametros()
 {
     string saida = "OPCOES VALIDAS: \n\t--seed: semente \n\t--pasta: pasta onde os resultados serao guardados \n\t--execTotal: numero de execucoes totais"
-                   "  \n\t--execAtual: execucao atual \n\t--resulCSV: nome do arquivo csv para escrever os resultados consolidados \n\t --mt: metodo((Grasp ou G) para GRASP, (ACO)\n\n";
+                   "  \n\t--execAtual: execucao atual \n\t--resulCSV: nome do arquivo csv para escrever os resultados consolidados \n\t --mt: metodo((Grasp ou G) para GRASP, (ACO)\n\t --numItTotal: numero total de iteracoes\n\n";
     return saida;
 }

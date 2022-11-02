@@ -12,6 +12,7 @@
 #include "Instancia.h"
 #include "Solucao.h"
 #include "Vnd.h"
+#include "Parametros.h"
 
 namespace NameS_Grasp
 {
@@ -92,7 +93,9 @@ namespace NameS_Grasp
 
     Solucao *grasp(Instancia &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol,
                    const ublas::matrix<int> &matClienteSat, std::vector<NS_vnd::MvValor> &vetMvValor,
-                   std::vector<NS_vnd::MvValor> &vetMvValor1Nivel);
+                   std::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida);
+
+
     double getDistMaisPenalidade(Solucao &sol, Instancia &instancia);
     double getPenalidade(Solucao &sol, Instancia &instancia, float f);
     void inicializaSol(Solucao &sol, Instancia &instance);

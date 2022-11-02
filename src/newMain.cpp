@@ -11,6 +11,8 @@
 
 #include <iostream>
 #include <chrono>
+#include <limits>
+#include <unordered_set>
 #include "Parametros.h"
 #include "Instancia.h"
 #include "Aco.h"
@@ -19,6 +21,7 @@
 #include "Vnd.h"
 #include "VetorHash.h"
 #include "HASH/Hash.h"
+#include "Grasp.h"
 
 using namespace std;
 using namespace NS_parametros;
@@ -30,8 +33,8 @@ using namespace NS_VetorHash;
 using namespace NS_Hash;
 
 void aco(Instancia &instancia, Parametros &parametros, ParametrosGrasp &parm, Solucao &best);
-void grasp(Instancia &instancia, Parametros &parametros, Solucao &best);
-void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp);
+void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida);
+void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const Parametros &parametros);
 
 namespace N_gamb
 {
@@ -63,8 +66,10 @@ int main(int argc, char* argv[])
         instancia.calculaVetVoltaRS_sat();
 
         ParametrosGrasp parametrosGrasp;
-        setParamGrasp(instancia, parametrosGrasp);
+        setParamGrasp(instancia, parametrosGrasp, parametros);
         Solucao best(instancia);
+
+        ParametrosSaida parametrosSaida = getParametros();
 
         auto start = std::chrono::high_resolution_clock::now();
 
@@ -75,7 +80,7 @@ int main(int argc, char* argv[])
                 break;
 
             case METODO_GRASP:
-                grasp(instancia, parametros, best);
+                grasp(instancia, parametros, best, parametrosSaida);
                 break;
             default:
                 cout<<"METODO: "<<parametros.metodo<<" NAO EXISTE\n"<<parametros.getParametros()<<"\n\n";
@@ -85,43 +90,9 @@ int main(int argc, char* argv[])
 
         auto end = std::chrono::high_resolution_clock::now();
 
-        ParametrosSaida parametrosSaida = getParametros();
         setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
         saida(parametros, parametrosSaida, best, instancia);
 
-        if(best.viavel)
-        {
-            Hash<VetorHash, true> hash(100);
-
-            for(Satelite &satelite:best.satelites)
-            {
-                for(EvRoute &evRoute:satelite.vetEvRoute)
-                {
-                    if(evRoute.routeSize > 2)
-                    {
-                        evRoute.print(instancia, true);
-                        hash.add(new VetorHash(evRoute));
-                        evRoute.print(instancia, true);
-                        cout<<"\n\n";
-                    }
-                }
-            }
-
-            cout<<"\n\n*****************************************\n\n";
-
-
-/*            for(Satelite &satelite:best.satelites)
-            {
-                for(EvRoute &evRoute:satelite.vetEvRoute)
-                {
-                    if(evRoute.routeSize > 2)
-                    {
-                        const VetorHash *ptrVetHash = hash.getPrimeiro(new VetorHash(evRoute));
-                        ptrVetHash->print();
-                    }
-                }
-            }*/
-        }
 
 
     }
@@ -146,38 +117,38 @@ void aco(Instancia &instancia, Parametros &parametros, ParametrosGrasp &parm, So
 
     AcoParametros acoParm;
     AcoEstatisticas acoEst;
-    Estatisticas est;
 
-    N_Aco::acoSol(instancia, acoParm, acoEst, parm, est, best);
+    N_Aco::acoSol(instancia, acoParm, acoEst, parm, best);
 
 
 }
 
-void grasp(Instancia &instancia, Parametros &parametros, Solucao &best)
+void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida)
 {
     //cout<<"GRASP\n\n";
 
     ParametrosGrasp parametrosGrasp;
-    setParamGrasp(instancia, parametrosGrasp);
+    setParamGrasp(instancia, parametrosGrasp, parametros);
     Estatisticas estatisticas;
 
 
     vector<int> vetSatAtendCliente(instancia.numNos, -1);
     vector<int> satUtilizado(instancia.numSats+1, 0);
     const ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
-    Solucao *solGrasp = grasp(instancia, parametrosGrasp, estatisticas, false, matClienteSat, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
+    Solucao *solGrasp = grasp(instancia, parametrosGrasp, estatisticas, false, matClienteSat, N_gamb::vetMvValor,
+                              N_gamb::vetMvValor1Nivel, parametrosSaida);
     best.copia(*solGrasp);
 
     delete solGrasp;
 
 }
 
-void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp)
+void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const Parametros &parametros)
 {
     const std::vector<float> vetAlfa{0.01, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.6, 0.7, 0.9};
     int num = min(instancia.getN_Evs() / 2, 8);
     if(num == 0)
         num = 1;
 
-    parametrosGrasp = ParametrosGrasp(1000, 260, vetAlfa, 250, num, 0.1);
+    parametrosGrasp = ParametrosGrasp(parametros.numItTotal, 260, vetAlfa, 250, num, 0.1);
 }

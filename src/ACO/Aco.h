@@ -12,7 +12,7 @@
 #include "../Solucao.h"
 #include <boost/numeric/ublas/matrix.hpp>
 #include <algorithm>
-#include "../Grasp.h"
+
 
 namespace N_Aco
 {
@@ -142,9 +142,9 @@ namespace N_Aco
     }
 
     bool aco(Instancia &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
-             const vector<int> &vetSatAtendCliente, ParametrosGrasp &param, NameS_Grasp::Estatisticas &est, const Solucao *solGrasp, const int numEVs);
-    bool acoSol(Instancia &instancia, AcoParametros &acoPar, AcoEstatisticas &acoEst, ParametrosGrasp &param,
-                NameS_Grasp::Estatisticas &est, Solucao &best);
+             const vector<int> &vetSatAtendCliente, ParametrosGrasp &param, const Solucao *solGrasp, const int numEVs);
+    bool
+    acoSol(Instancia &instancia, AcoParametros &acoPar, AcoEstatisticas &acoEst, ParametrosGrasp &param, Solucao &best);
     void atualizaFeromonio(ublas::matrix<double> &matFeromonio, ublas::matrix<double> &matAtualFeromonio,
                            Instancia &instancia, const AcoParametros &acoParam, const Ant &antBest, const vector<Ant> &vetAnt);
     void evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instancia &instancia, const AcoParametros &acoParam, const double feromMin);
