@@ -156,8 +156,15 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     int numSolGeradas   = 0;
     int numRotasGeradas = 0;
 
+    std::unordered_set<VetorHash, VetorHash::HashFunc> hashRotasIncluidas;
+    std::unordered_set<VetorHash, VetorHash::HashFunc> hashRotasExcluidas;
+
+    bool iniRS = false;
+
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
+        hashRotasIncluidas.clear();
+
         //if(i>0 && (i%100)==0)
         //    cout<<"ITERACAO: "<<i<<"\n";
 
@@ -210,8 +217,10 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
         Solucao solTemp(instance);
 
+
         // Insere  rotas da forama: sat cliente sat
-        if(i >= parametros.iteracoesCalProb && parametros.iteracoesCalProb > 0 && instance.shortestPath)
+        if(i >= parametros.iteracoesCalProb && parametros.iteracoesCalProb > 0 && instance.shortestPath &&
+                (i < parametros.numIteGrasp/2 || (i > parametros.numIteGrasp/2 && instance.nivel2Viavel)) && !iniRS)
         {
             int clientesAdd = 0;
 
@@ -264,11 +273,21 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
                                         if(shortestPath.distIdaVolta < DOUBLE_INF)
                                         {
+                                            //auto it = hashRotasExcluidas.find(VetorHash(evRouteSP));
+                                            //if(it == hashRotasExcluidas.end())
+                                            {
 
-                                            addRotaCliente(sol, instance, evRouteSP, cliente);
-                                            clientesAdd += 1;
-                                            vetSatRotaInicializada[1 + (satId-1)*instance.numEv + evEscolhido] = 1;
-                                            break;
+                                                addRotaCliente(sol, instance, evRouteSP, cliente);
+                                                string saida;
+                                                evRouteSP.print(saida, instance, true);
+                                                //cout << "INICIANDO SOL COM: " << saida << "\n";
+
+                                                hashRotasIncluidas.insert(VetorHash(evRouteSP));
+
+                                                clientesAdd += 1;
+                                                vetSatRotaInicializada[1+(satId-1)*instance.numEv+evEscolhido] = 1;
+                                                break;
+                                            }
                                         }
                                     }
 
@@ -290,6 +309,92 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                 }while(t != inicio);
 
             }
+        }
+        else if((!instance.nivel2Viavel && i >= parametros.numIteGrasp/2) || iniRS)
+        {
+
+            iniRS = true;
+
+            std::vector<int> vetRS_uti(instance.getEndSatIndex()+1, 0);
+            std::fill(vetRS_uti.begin(), vetRS_uti.begin()+instance.getFirstRS_index(), -1);
+
+            ublas::matrix<int> matrixSatEv(instance.numSats+1, instance.numEv, 0);
+
+            int numRs = 0;
+
+
+            while(numRs < parametros.numMaxClie)
+            {
+                bool inserRS = false;
+
+                if(numRs == instance.numEv)
+                    break;
+
+                // Encontra um estacao de recarga nao utilizada
+
+                int rs = instance.getFirstRS_index()+(rand_u32()%instance.numRechargingS);
+
+                while(vetRS_uti[rs] == 1)
+                    rs = instance.getFirstRS_index()+((rs+1)%instance.numRechargingS);
+
+                // Encontra um sat
+
+                const int satIni = instance.getFirstSatIndex() + (rand_u32()%instance.numSats);
+                int sat = satIni;
+
+                // Percorre os sat
+                // Inicio while(sat)
+                do
+                {
+
+
+                    // Percorre as rotas
+                    for(int ev=0; ev < instance.numEv; ++ev)
+                    {
+
+                        if(matrixSatEv(sat,ev) == 0)
+                        {
+
+                            EvRoute evRouteAux(sol.satelites[sat].vetEvRoute[ev]);
+
+                            evRouteAux[1].cliente = evRouteAux[2].cliente = rs;
+                            evRouteAux[3].cliente = sat;
+
+                            evRouteAux.routeSize = 4;
+
+                            double dist = NameViabRotaEv::testaRota(evRouteAux, evRouteAux.routeSize, instance, false,
+                                                                    evRouteAux[0].tempoSaida, 0, nullptr);
+                            if(dist > 0.0)
+                            {
+                                evRouteAux.distancia = dist;
+                                sol.satelites[sat].vetEvRoute[ev].copia(evRouteAux, true, &instance);
+                                sol.satelites[sat].distancia += dist;
+                                sol.distancia += dist;
+                                matrixSatEv(sat,ev) = 1;
+                                numRs += 1;
+                                inserRS = true;
+
+                                if(numRs >= parametros.numMaxClie || numRs >= instance.numEv)
+                                    break;
+                            }
+                        }
+
+                        if(numRs >= parametros.numMaxClie || numRs >= instance.numEv)
+                            break;
+
+                        sat = instance.getFirstSatIndex() + ((sat + 1) % instance.numSats);
+                    }
+
+                    if(numRs >= parametros.numMaxClie || numRs >= instance.numEv)
+                        break;
+
+                }
+                while(sat != satIni);
+
+                if(!inserRS)
+                    break;
+            } // END whili(numRs)
+
         }
 
         somaProb = 0.0;
@@ -390,11 +495,10 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                 {
 
                     solBest->copia(sol);
+                    solBest->ultimaA = i;
 
                     if(retPrimeiraSol)
-                    {   solBest->ultimaA = i;
                         return solBest;
-                    }
 
                     custoBest = solBest->distancia;
                     estat.ultimaAtualizacaoBest = i;
@@ -417,9 +521,29 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         {
 
 
+/*            for(int s=1; s <= instance.numSats; ++s)
+            {
+                for(int ev=0; ev < instance.numEv; ++ev)
+                {
+                    VetorHash vetorHash(sol.satelites[s].vetEvRoute[ev]);
+
+                    if(hashRotasIncluidas.find(vetorHash) != hashRotasIncluidas.end())
+                    {
+                        hashRotasExcluidas.insert(vetorHash);
+
+                        string saida;
+                        sol.satelites[s].vetEvRoute[ev].print(saida, instance, true);
+                        cout<<"EXCLUINDO ROTA: "<<saida<<"\n";
+                    }
+                }
+            }*/
+
             {
                 //cout<<"ATUAL\n";
                 solBest->copia(sol);
+
+                //cout<<"seg: "<<sol.segundoNivelViav<<"\n";
+                //cout<<"seg: "<<solBest->segundoNivelViav<<"\n\n";
 
                 double aux = sol.distancia + getPenalidade(sol, instance, fator);
                 if(aux < custoBest)
@@ -428,7 +552,11 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         }
 
         if(solBest->viavel && i >= 500 && (i-solBest->ultimaA) >= 400)
+        {
+            //cout<<"break i: "<<i<<"\n";
+            //cout<<"UltimaA: "<<solBest->ultimaA<<"\n";
             break;
+        }
 
         if(!sol.viavel)
             solucaoAcumulada[posAlfa] += sol.distancia + getPenalidade(sol, instance, fator);
@@ -439,18 +567,21 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             atualizaProb();
 
 
+        //if(iniRS) cout<<"\n*********************************************\n";
+
     }
     // END FOR GRASP
+
 
     solBest->ultimaA = estat.ultimaAtualizacaoBest;
 
     parametrosSaida.mapNoSaida["rotas"] = NS_parametros::NoSaida("rotas");
     parametrosSaida.mapNoSaida["sol"] = NS_parametros::NoSaida("sol");
-
+    parametrosSaida.mapNoSaida["numSol"] = NS_parametros::NoSaida("numSol");
 
     parametrosSaida.mapNoSaida["rotas"].addSaida(SAIDA_EXEC_VAL);
     parametrosSaida.mapNoSaida["sol"].addSaida(SAIDA_EXEC_VAL);
-
+    parametrosSaida.mapNoSaida["numSol"].addSaida(SAIDA_EXEC_VAL);
 
     if(solBest->viavel)
     {
@@ -471,6 +602,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
         parametrosSaida.mapNoSaida["rotas"](double(hashRotaSet.size())/numRotasGeradas);
         parametrosSaida.mapNoSaida["sol"](double(hashSolSet.size())/numSolGeradas);
+        parametrosSaida.mapNoSaida["numSol"](double(numSolGeradas));
 
     }
 

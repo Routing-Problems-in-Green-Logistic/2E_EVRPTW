@@ -12,15 +12,16 @@ if(len(sys.argv) < 2 and len(sys.argv) > 3):
 print("PID: ",os.getpid())
 print("\n")
 
-tamanhoInst = ['5', '10', '15', '100_0', '100_1', '100_2']
+#tamanhoInst = ['5', '10', '15']
 #tamanhoInst = ['15', '100_0']
-#tamanhoInst = ['100_1']
+tamanhoInst = ['100_0']
 #tamanhoInst = ['100_2']
 numExecucoes = 10
 caminhoDir = str(sys.argv[1])
 metodo = "G"
-parametros = " --pasta '" + caminhoDir+ "' --mt '"+str(metodo) +"' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --numItTotal 200 --execAtual "
+parametros = " --pasta '" + caminhoDir+ "' --mt '"+str(metodo) +"' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --numItTotal 1000 --execAtual "
 
+print("PARAMETROS: \n", parametros, "\n")
 
 diretorioIni = 'instancias/2e-vrp-tw/'
 instanciasVet = []

@@ -194,7 +194,8 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instancia &instance, cons
                         string strRotaBt;
 
                         //const double distTemp  = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, 0, &strRotaBt);
-                        const double dist = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, i, nullptr);
+                        const double dist = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat,
+                                                      i, nullptr);
 
                         string str;
                         evRouteSta.print(str, instance, true);
@@ -370,8 +371,8 @@ double NameViabRotaEv::testaRotaTempo(EvRoute &evRoute, const int tamRoute, cons
  * Verifica se a rota atende as restricoes de bateria e tempo
  * Se @posIni > 0, entao, considera-se que a rota esta correta ate @posIni
  * *********************************************************************************** */
-double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Instancia &instance, const bool escrita, const double tempoSaidaSat,
-                                 const int posIni, string *rotaBtDebug)
+double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Instancia &instance, const bool escrita,
+                                 const double tempoSaidaSat, const int posIni, string *rotaBtDebug)
 {
 
     double bateriaRestante = 0.0;

@@ -158,6 +158,7 @@ public:
     int getIndiceVetVoltaRS_sat(int sat, int rs);
 
     string nome;
+    bool nivel2Viavel = false;
 
     void calculaVetVoltaRS_sat();
 

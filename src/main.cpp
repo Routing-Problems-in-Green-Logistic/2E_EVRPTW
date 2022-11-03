@@ -47,12 +47,12 @@ using namespace N_Aco;
 
 void routine(char** filenames, int nFileNames);
 float distance(std::pair<float, float> p1, std::pair<float,float> p2);
-Instance* getInstanceFromFile(std::string &fileName);
+Instancia* getInstanceFromFile(std::string &fileName);
 void saveSolutionToFile(const Solucao& Sol, const std::string& fileName="solution.txt");
 string getNomeInstancia2(string str);
-void escreveInstancia(const Instance &instance, string file);
-void escreveSolucao(Solucao &solution, Instance &instance, string &file);
-void leSolucao(Solucao &solucao, Instance &instancia, string &file);
+void escreveInstancia(const Instancia &instance, string file);
+void escreveSolucao(Solucao &solution, Instancia &instance, string &file);
+void leSolucao(Solucao &solucao, Instancia &instancia, string &file);
 
 #define NUM_EXEC 1000
 
@@ -66,7 +66,7 @@ void leSolucao(Solucao &solucao, Instance &instancia, string &file);
 
 //#define MAIN MAIN_METODO_2
 //#define MAIN MAIN_ACO
-#define MAIN MAIN_ACO_SOL
+#define MAIN MAIN_DIST
 
 #define PRINT_RESULT FALSE
 
@@ -805,10 +805,10 @@ int main(int argc, char* argv[])
         return -1;
     }
     string file(argv[1]);
-    string strInst = getNomeInstancia(file);
+    string strInst = getNomeInstancia2(file);
     cout<<"INSTANCIA: "<<strInst<<"\n\n";
 
-    Instance instance(file, strInst);
+    Instancia instance(file, strInst);
     EvRoute evRoute(1, instance.getFirstEvIndex(), instance.getEvRouteSizeMax(), instance);
     Route route(instance);
 
@@ -980,7 +980,7 @@ int main(int argc, char* argv[])
 
 #endif
 
-void leSolucao(Solucao &solucao, Instance &instancia, string &file)
+void leSolucao(Solucao &solucao, Instancia &instancia, string &file)
 {
     std::ifstream inFile;
     inFile.open(file, std::ios_base::in);
@@ -994,7 +994,7 @@ void leSolucao(Solucao &solucao, Instance &instancia, string &file)
 
 }
 
-void escreveSolucao(Solucao &solution, Instance &instance, string &file)
+void escreveSolucao(Solucao &solution, Instancia &instance, string &file)
 {
 
     //solution.print(instance);
@@ -1053,7 +1053,7 @@ void escreveSolucao(Solucao &solution, Instance &instance, string &file)
     }
 }
 
-void escreveInstancia(const Instance &instance, string file)
+void escreveInstancia(const Instancia &instance, string file)
 {
     std::ofstream outfile;
     outfile.open(file, std::ios_base::out);

@@ -344,6 +344,9 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const f
 
 
     sol.viavel = visitAllClientes(visitedClients, instance);
+    if(!instance.nivel2Viavel && sol.viavel)
+        instance.nivel2Viavel = true;
+
     return sol.viavel;
 }
 
@@ -743,11 +746,12 @@ void GreedyAlgNS::setSatParaCliente(Instancia &instancia, vector<int> &vetSatAte
 void GreedyAlgNS::construtivo(Solucao &Sol, Instancia &instancia, const float alpha, const float beta,  const ublas::matrix<int> &matClienteSat)
 {
 
-    bool primeiroNivel = secondEchelonGreedy(Sol, instancia, alpha, matClienteSat);
+    bool segundoNivel = secondEchelonGreedy(Sol, instancia, alpha, matClienteSat);
 
-    if(primeiroNivel)
+    if(segundoNivel)
+    {
         firstEchelonGreedy(Sol, instancia, beta);
-
+    }
     else
         Sol.viavel = false;
 
