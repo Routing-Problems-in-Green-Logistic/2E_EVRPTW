@@ -145,11 +145,10 @@ void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, Parametr
 
 void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const Parametros &parametros)
 {
-    const std::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99, 1.0};
-    cout<<"NUM ALFAS: "<<vetAlfa.size()<<"\n";
+    const std::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
     int num = min(instancia.getN_Evs() / 2, 8);
     if(num == 0)
         num = 1;
 
-    parametrosGrasp = ParametrosGrasp(parametros.numItTotal, 500, vetAlfa, 400, num, 0.1);
+    parametrosGrasp = ParametrosGrasp(parametros.numItTotal, 260, vetAlfa, 250, num, 0.1);
 }

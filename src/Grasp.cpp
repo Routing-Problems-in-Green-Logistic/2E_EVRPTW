@@ -26,7 +26,7 @@ using namespace NS_LocalSearch;
 using namespace NS_vnd;
 using namespace NS_VetorHash;
 
-const float fator = 0.1;
+const float fator = 0.1344;
 
 /**
  *
@@ -107,10 +107,11 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         for(int i = 0; i< tamAlfa; ++i)
         {
             vetorProbabilidade[i] = 100.0 * (proporcao[i] / somaProporcoes);
-            cout<<parametros.vetAlfa[i]<<": "<<vetorProbabilidade[i]<<"\n";
+            //cout<<parametros.vetAlfa[i]<<": "<<vetorProbabilidade[i]<<"\n";
         }
 
-        cout<<"\n*****************************\n\n";
+        //cout<<"\n*****************************\n\n";
+
         //cout<<"vet prob: \n";
         //string vet = NS_Auxiliary::printVector(vetorProbabilidade, int64_t(vetorProbabilidade.size()));
 
@@ -569,7 +570,6 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
         if(i>0 && (i%parametros.numAtualProbReativo)==0)
         {
-            cout<<"i: "<<i<<"\n";
             atualizaProb();
         }
 
@@ -619,7 +619,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
 double NameS_Grasp::getPenalidade(Solucao &sol, Instancia &instancia, float f)
 {
-    static double penalidade = 1.2*instancia.penalizacaoDistEv;
+    static double penalidade = instancia.penalizacaoDistEv;
 
 
     if(sol.viavel)

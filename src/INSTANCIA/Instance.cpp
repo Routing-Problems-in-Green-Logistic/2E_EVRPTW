@@ -418,7 +418,7 @@ double Instancia::calculaPenalizacaoDistEv()
             dist += 2.0* getDistance(sat, j);
     }
 
-    return dist*1.12;
+    return dist;
 }
 
 double Instancia::calculaPenalizacaoDistComb()
