@@ -113,10 +113,11 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const f
 
     while(!visitAllClientes(visitedClients, instance) && !listaCandidatos.empty())
     {
-
-        int randIndex = rand_u32()%(int(alpha * listaCandidatos.size() + 1));
+        const int size = max(int(alpha*listaCandidatos.size()), 1);
+        int randIndex = rand_u32()%size;
         listaCandidatos.sort();
 
+        //cout<<"size(lista): "<<listaCandidatos.size()<<"; size*alfa: "<<size<<"; rand: "<<randIndex<<"\n";
 
         auto topItem = std::next(listaCandidatos.begin(), randIndex);
         CandidatoEV *candEvPtr = &(*topItem);
@@ -493,7 +494,8 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, Instancia &instance, const fl
             listaCandidatos.sort();
 
             // Escolhe o candidado da lista restrita
-            int tam = int(beta * listaCandidatos.size()) + 1;
+            const int size = max(int(beta * listaCandidatos.size()), 1);
+            int tam = size;
             int escolhido = rand_u32() % tam;
             auto it = listaCandidatos.begin();
 

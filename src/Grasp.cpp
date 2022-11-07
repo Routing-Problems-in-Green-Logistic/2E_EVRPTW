@@ -105,8 +105,12 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
         //Calcula probabilidade
         for(int i = 0; i< tamAlfa; ++i)
-            vetorProbabilidade[i] = 100.0*(proporcao[i]/somaProporcoes);
+        {
+            vetorProbabilidade[i] = 100.0 * (proporcao[i] / somaProporcoes);
+            cout<<parametros.vetAlfa[i]<<": "<<vetorProbabilidade[i]<<"\n";
+        }
 
+        cout<<"\n*****************************\n\n";
         //cout<<"vet prob: \n";
         //string vet = NS_Auxiliary::printVector(vetorProbabilidade, int64_t(vetorProbabilidade.size()));
 
@@ -551,12 +555,12 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             }
         }
 
-        if(solBest->viavel && i >= 500 && (i-solBest->ultimaA) >= 400)
+/*        if(solBest->viavel && i >= 500 && (i-solBest->ultimaA) >= 400)
         {
             //cout<<"break i: "<<i<<"\n";
             //cout<<"UltimaA: "<<solBest->ultimaA<<"\n";
             break;
-        }
+        }*/
 
         if(!sol.viavel)
             solucaoAcumulada[posAlfa] += sol.distancia + getPenalidade(sol, instance, fator);
@@ -564,7 +568,10 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             solucaoAcumulada[posAlfa] += sol.distancia;
 
         if(i>0 && (i%parametros.numAtualProbReativo)==0)
+        {
+            cout<<"i: "<<i<<"\n";
             atualizaProb();
+        }
 
 
         //if(iniRS) cout<<"\n*********************************************\n";
