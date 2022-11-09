@@ -43,12 +43,17 @@ namespace NameS_Grasp
 
         int cliente = -1;
         int quant   =  0;
-        int prob    =  0;
+        int prob    =  0;       // Probabilidade do cliente nao estar na solucao
 
         QuantCliente()=default;
         QuantCliente(int cliente_, int quant_){cliente=cliente_; quant=quant_;}
         void add1Quant(){quant += 1;}
-        void calculaProb(int total){prob = 100-int(100.0*(quant/float(total)));}
+        void calculaProb(int total)
+        {
+            //cout<<"quant: "<<quant<<"\n";
+            prob = 100-int(100.0*(quant/float(total)));
+
+        }
 
         bool operator < (const QuantCliente &outro) const
         {

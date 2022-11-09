@@ -183,30 +183,26 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
             for(int t=0; t < instance.getNClients(); ++t)
             {
-                //cout<<"t: "<<t<<"\n";
-                //cout<<"conv(t): "<<convClienteIndVet(t)<<"\n";
 
-                const int sat = vetSatAtendCliente[convClienteIndVet(t)];
+                for(int sat=instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
+                {
 
-                if(sat < 0)
-                    continue;
+                    const EvRoute &evRouteAux = instance.shortestPath[sat].getEvRoute(convClienteIndVet(t));
 
-                //cout<<"vetSatAtendCliente: "<<sat<<"\n";
+                    if(evRouteAux.routeSize > 2)
+                    {
+                        vetQuantCliente.at(t).calculaProb(i);
 
-                const EvRoute &evRouteAux = instance.shortestPath[sat].getEvRoute(convClienteIndVet(t));
+                        if(vetQuantCliente.at(t).prob >= 90)
+                            vetQuantCliente[t].prob = 90;
 
-//cout<<"evRouteAux.routeSize="<<evRouteAux.routeSize<<"\n";
-
-                vetQuantCliente.at(t).calculaProb(i);
-                if(vetQuantCliente.at(t).prob == 0 && evRouteAux.routeSize > 2)
-                    addRotaClienteProbIgual += 1;
-
-                else if(vetQuantCliente.at(t).prob >= 90 && evRouteAux.routeSize > 2)
-                    vetQuantCliente[t].prob = 90;
-
-                else if(evRouteAux.routeSize <= 2)
-                    vetQuantCliente[t].prob = 100;
+                        //cout << (t+instance.getFirstClientIndex()) << ": " << vetQuantCliente.at(t).prob << "\n";
+                        break;
+                    }
+                }
             }
+
+            //cout<<"\n\n";
 
             std::sort(vetQuantCliente.begin(), vetQuantCliente.end());
 
@@ -440,7 +436,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                     for(int sat=instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
                     {
                         if(matClienteSat(t,sat) == 1)
-                        {   // ERRO vetSatAtendCliente NAO Guarda mais o sat que atende o cliente t
+                        {
                             const EvRoute &evRouteAux = instance.shortestPath[sat].getEvRoute(t);
 
                             if(evRouteAux.routeSize > 2)
