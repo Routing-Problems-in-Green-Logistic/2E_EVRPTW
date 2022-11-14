@@ -102,11 +102,20 @@ namespace NameS_Grasp
 
 
     double getDistMaisPenalidade(Solucao &sol, Instancia &instancia);
-    double getPenalidade(Solucao &sol, Instancia &instancia, float f);
+    double getPenalidade2Nivel(Solucao &sol, Instancia &instancia, float f);
+    double getPenalidade1Nivel(Solucao &sol, Instancia &instance, float f);
+
     void inicializaSol(Solucao &sol, Instancia &instance);
 
     // Adiciona uma rota da forma: sat ... EST ... CLIENTE ... EST ... sat
     void addRotaCliente(Solucao &sol, Instancia &instancia, const EvRoute &evRoute, const int cliente);
+
+
+
+
+    std::string converteDouble(double num, int numCasas);
+    std::string converteFloat(float num, int numCasas);
+
 
 }
 

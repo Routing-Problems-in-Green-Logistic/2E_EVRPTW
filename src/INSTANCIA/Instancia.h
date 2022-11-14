@@ -9,6 +9,8 @@
 #include <boost/numeric/ublas/triangular.hpp>
 #include "../Auxiliary.h"
 #include "../common.h"
+#include <boost/format.hpp>
+
 //#include "PreProcessamento.h"
 
 using namespace boost::numeric;
@@ -188,5 +190,6 @@ public:
         paramFuncSetSatParaCliente  = paramFuncSetSatParaCliente_;
     }
 };
+
 
 #endif

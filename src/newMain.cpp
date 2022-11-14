@@ -45,7 +45,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    string commite = "36c8c90a792f245a5158f7c5ad6a97da4df1c906";
+    string commite = "92fd2047b948bc0418c9f14a9fd8301136646ff3";
     parametros.commit = commite;
 
     try
@@ -145,10 +145,10 @@ void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, Parametr
 
 void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const Parametros &parametros)
 {
-    const std::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0};
+    const std::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 1.0};
     int num = min(instancia.getN_Evs() / 2, 8);
     if(num == 0)
         num = 1;
 
-    parametrosGrasp = ParametrosGrasp(parametros.numItTotal, 260, vetAlfa, 250, num, 0.1);
+    parametrosGrasp = ParametrosGrasp(parametros.numItTotal, 500, vetAlfa, 400, num, 0.1);
 }
