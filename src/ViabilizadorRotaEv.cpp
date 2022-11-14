@@ -423,17 +423,18 @@ double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Ins
 
         }
 
-        if(rotaBtDebug)
-            (*rotaBtDebug) = to_string(evRoute[i+1].cliente) + "("+ to_string(bateriaRestante)+", "+ to_string(tempo) +") ";
+        //if(rotaBtDebug)
+        //    (*rotaBtDebug) = to_string(evRoute[i+1].cliente) + "("+ to_string(bateriaRestante)+", "+ to_string(tempo) +") ";
 
         if(!((tempo <= clienteInstProx.fimJanelaTempo) || (abs(tempo-clienteInstProx.fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO)))
         {
-            if(escrita)
+            if(escrita && rotaBtDebug)
             {
 
-                cout << "JANELA DE TEMPO\n";
-                cout<<"cliente: "<<evRoute[i+1].cliente<<"\n";
-                cout<<"tempo chegada: "<<tempo<<"\nfinal janela de tempo: "<<clienteInstProx.fimJanelaTempo<<"\n";
+                (*rotaBtDebug) += "JANELA DE TEMPO\n";
+                (*rotaBtDebug) += "cliente: "+ to_string(evRoute[i+1].cliente)+"\n";
+                (*rotaBtDebug) += "tempo chegada: " + to_string(tempo)+"\nfinal janela de tempo: "+
+                                  to_string(clienteInstProx.fimJanelaTempo)+"\n";
 
             }
 
@@ -458,9 +459,9 @@ double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Ins
 
         if(bateriaRestante < -TOLERANCIA_BATERIA)
         {
-            if(escrita)
+            if(escrita && rotaBtDebug)
             {
-                cout << "BATERIA!\n"<<bateriaRestante<<"\ncliente: "<<evRoute[i+1].cliente<<"\n\n";
+                (*rotaBtDebug) += "BATERIA!\n" + to_string(bateriaRestante) + "\ncliente: " + to_string(evRoute[i+1].cliente)+"\n\n";
 
             }
 

@@ -166,6 +166,9 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
     bool iniRS = false;
 
+    // Guarda os ev que sao inicializados com RS RS
+    ublas::matrix<int> matrixSatEv(instance.numSats+1, instance.numEv, 0);
+
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
         hashRotasIncluidas.clear();
@@ -217,11 +220,10 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         }
 
         Solucao solTemp(instance);
-
+        bool segundaEst = false;
 
         // Insere  rotas da forama: sat cliente sat
-        if(i >= parametros.iteracoesCalProb && parametros.iteracoesCalProb > 0 && instance.shortestPath &&
-                (i < parametros.numIteGrasp/2 || (i > parametros.numIteGrasp/2 && instance.nivel2Viavel)) && !iniRS)
+        if(i >= parametros.iteracoesCalProb && parametros.iteracoesCalProb > 0 && instance.shortestPath && (i%2)==0)
         {
             int clientesAdd = 0;
 
@@ -239,7 +241,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
                 do
                 {
-                    if(vetQuantCliente[t].prob != 100)
+                    if(vetQuantCliente[t].prob != 100 && vetQuantCliente[t].prob >= parametros.probCorte)
                     {
 
                         int rand = rand_u32() % 100;
@@ -311,21 +313,25 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
             }
         }
-        else if((!instance.nivel2Viavel && i >= parametros.numIteGrasp/2) || iniRS)
+        else if(i >= parametros.iteracoesCalProb && parametros.iteracoesCalProb > 0 && ((i%2)==1) || instance.shortestPath == nullptr)
         {
 
-            iniRS = true;
+            //cout<<"SEGUNDA ESTRATEGIA, i: "<<i<<"\n";
 
-            std::vector<int> vetRS_uti(instance.getEndSatIndex()+1, 0);
+            segundaEst = true;
+
+            std::vector<int> vetRS_uti(instance.getEndRS_index()+1, 0);
             std::fill(vetRS_uti.begin(), vetRS_uti.begin()+instance.getFirstRS_index(), -1);
 
-            ublas::matrix<int> matrixSatEv(instance.numSats+1, instance.numEv, 0);
+            matrixSatEv = ublas::zero_matrix<int>(instance.numSats+1, instance.numEv);
 
             int numRs = 0;
 
 
             while(numRs < parametros.numMaxClie)
             {
+
+
                 bool inserRS = false;
 
                 if(numRs == instance.numEv)
@@ -334,9 +340,11 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                 // Encontra um estacao de recarga nao utilizada
 
                 int rs = instance.getFirstRS_index()+(rand_u32()%instance.numRechargingS);
+                const int rsFist = rs;
 
-                while(vetRS_uti[rs] == 1)
+                do
                     rs = instance.getFirstRS_index()+((rs+1)%instance.numRechargingS);
+                while(vetRS_uti[rs]==1 && rs != rsFist);
 
                 // Encontra um sat
 
@@ -348,7 +356,6 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                 do
                 {
 
-
                     // Percorre as rotas
                     for(int ev=0; ev < instance.numEv; ++ev)
                     {
@@ -359,25 +366,32 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                             EvRoute evRouteAux(sol.satelites[sat].vetEvRoute[ev]);
 
                             evRouteAux[1].cliente = evRouteAux[2].cliente = rs;
-                            evRouteAux[3].cliente = sat;
+                            evRouteAux[3].cliente = evRouteAux[0].cliente = sat;
 
                             evRouteAux.routeSize = 4;
 
-                            double dist = NameViabRotaEv::testaRota(evRouteAux, evRouteAux.routeSize, instance, false,
-                                                                    evRouteAux[0].tempoSaida, 0, nullptr);
+                            double dist = NameViabRotaEv::testaRota(evRouteAux, evRouteAux.routeSize, instance, true,
+                                                                    instance.vetTempoSaida[sat], 0, nullptr);
                             if(dist > 0.0)
                             {
                                 evRouteAux.distancia = dist;
+                                evRouteAux.atualizaParametrosRota(instance);
                                 sol.satelites[sat].vetEvRoute[ev].copia(evRouteAux, true, &instance);
                                 sol.satelites[sat].distancia += dist;
                                 sol.distancia += dist;
                                 matrixSatEv(sat,ev) = 1;
                                 numRs += 1;
                                 inserRS = true;
+                                vetRS_uti[rs] = 1;
+
+                                //string strRota;
+                                //evRouteAux.print(strRota, instance, false);
 
                                 if(numRs >= parametros.numMaxClie || numRs >= instance.numEv)
                                     break;
                             }
+
+
                         }
 
                         if(numRs >= parametros.numMaxClie || numRs >= instance.numEv)
@@ -394,6 +408,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
                 if(!inserRS)
                     break;
+
             } // END whili(numRs)
 
         }
@@ -421,6 +436,54 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
         solTemp.copia(sol);
         construtivo(sol, instance, alfa, alfa, matClienteSat);
+
+        if(segundaEst)
+        {
+            for(int sat=instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
+            {
+                for(int ev=0; ev < instance.numEv; ++ev)
+                {
+                    if(matrixSatEv(sat, ev) == 1)
+                    {
+                        Satelite &satelite = sol.satelites[sat];
+                        EvRoute &evRoute = satelite.vetEvRoute[ev];
+                        if(evRoute.routeSize == 4)
+                        {
+                            if(instance.isRechargingStation(evRoute[1].cliente) && instance.isRechargingStation(evRoute[2].cliente))
+                            {
+
+                                satelite.distancia -= evRoute.distancia;
+                                sol.distancia -=  evRoute.distancia;
+
+                                evRoute = EvRoute(sat, evRoute.idRota, evRoute.routeSizeMax, instance);
+
+                            }
+                            else
+                            {
+                                cout<<"ERRO, NAO DEVERIA ENTRAR AQUI\t\t ????\n\n";
+                                PRINT_DEBUG("", "");
+                                throw "ERRO";
+                            }
+                        }
+                        else
+                        {
+                            removeRS_Repetido(evRoute, instance, true);
+                            sol.distancia -= evRoute.distancia;
+                            sol.satelites[sat].distancia -= evRoute.distancia;
+
+                            NameViabRotaEv::testaRota(evRoute, evRoute.routeSize, instance, true, evRoute[0].tempoSaida, 0, nullptr);
+
+
+                            sol.distancia += evRoute.distancia;
+                            sol.satelites[sat].distancia += evRoute.distancia;
+
+                        }
+
+
+                    }
+                }
+            }
+        }
 
         // Add 1 se o cliente t nao foi atendido
         if(!sol.viavel && parametros.iteracoesCalProb > 0 && instance.shortestPath)

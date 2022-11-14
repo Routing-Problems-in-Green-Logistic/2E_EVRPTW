@@ -176,6 +176,7 @@ public:
     int numAtualProbReativo             = 50;        // Numero de iteracoes para atualizar a probabilidade do reativo
     int numMaxClie                      = 0;         // Numero maximo de clientes(que NAO conseguem ser inseridos com heur) adicionados a solucao
     float paramFuncSetSatParaCliente    = 0.1;       // Percentual de sat a ser considerados na funcao GreedyAlgNS::setSatParaCliente
+    int probCorte                     = 45;          // Probabilidade de corte para add rota sat <est> cliente <est> sat
     ParametrosGrasp()=default;
     ParametrosGrasp(int numIteGrasp_, int iteracoesCalProb_, const std::vector<float> &vetAlfa_, int numAtualProbReativo_, int numMaxClie_, float paramFuncSetSatParaCliente_)
     {

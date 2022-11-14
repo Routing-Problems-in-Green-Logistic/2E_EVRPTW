@@ -90,7 +90,7 @@ namespace NS_LocalSearch
 
     bool conserta1Nivel(Solucao &solucao, const int sat0, const double novaCargaSat0, const int sat1, const double novaCargaSat1);
 
-    void removeRS_Repetido(EvRoute &evRoute);
+    void removeRS_Repetido(EvRoute &evRoute, Instancia &instancia, bool atualizaParam);
 
 /*    bool satN_evCargaMenor(const SatN_evCarga &primeiro, const SatN_evCarga &segundo)
     {

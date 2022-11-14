@@ -455,7 +455,7 @@ void NS_LocalSearch::insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::Inserca
     shiftVectorClienteDir(evRoute.route, insercaoEstacao.pos+1, 1, evRoute.routeSize);
     evRoute[insercaoEstacao.pos+1].cliente = insercaoEstacao.estacao;
     evRoute.routeSize += 1;
-    removeRS_Repetido(evRoute);
+    removeRS_Repetido(evRoute, instance, false);
     evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaida, 0, nullptr);
 
     if(evRoute.distancia < 0.0)
@@ -1232,7 +1232,7 @@ cout<<"evRoute0: "<<strRota<<"\n";*/
                                          evRouteAux0.copia(evRoute0, true, &instancia);
                                          shiftVectorClienteEsq(evRouteAux0.route, posEvRoute0+1, evRouteAux0.routeSize);
                                          evRouteAux0.routeSize -= 1;
-                                         removeRS_Repetido(evRouteAux0);
+                                         removeRS_Repetido(evRouteAux0, instancia, false);
 
 /*strRota="";
 evRouteAux0.print(strRota, instancia, false);
@@ -1323,7 +1323,7 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
 
 }
 
-void NS_LocalSearch::removeRS_Repetido(EvRoute &evRoute)
+void NS_LocalSearch::removeRS_Repetido(EvRoute &evRoute, Instancia &instancia, bool atualizaParam)
 {
 
     if(evRoute.routeSize <= 2)
@@ -1340,6 +1340,9 @@ void NS_LocalSearch::removeRS_Repetido(EvRoute &evRoute)
             i += 1;
     }
 
+
+    if(atualizaParam)
+        evRoute.atualizaParametrosRota(instancia);
 }
 
 /************************************************************************************************************
@@ -1606,7 +1609,7 @@ cout<<"evRoute0: "<<strRota<<"\n";*/
                                         evRouteAux0.copia(evRoute0, true, &instancia);
                                         shiftVectorClienteEsq(evRouteAux0.route, posEvRoute0+1, evRouteAux0.routeSize);
                                         evRouteAux0.routeSize -= 1;
-                                        removeRS_Repetido(evRouteAux0);
+                                        removeRS_Repetido(evRouteAux0, instancia, false);
 
 /*strRota="";
 evRouteAux0.print(strRota, instancia, false);
