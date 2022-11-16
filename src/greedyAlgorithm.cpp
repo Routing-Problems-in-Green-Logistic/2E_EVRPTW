@@ -27,7 +27,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const f
     std::vector<int8_t> &visitedClients = sol.vetClientesAtend;
 
     const int FistIdClient  = instance.getFirstClientIndex();
-    const int LastIdClient  = FistIdClient + instance.getNClients()-1;
+    const int LastIdClient  = instance.getEndClientIndex();
     const auto ItEnd        = visitedClients.begin() + instance.getNSats() + instance.getNClients();
     const std::vector<double> &vetTempoSaida = instance.vetTempoSaida;
     EvRoute evRouteAux(-1, -1, instance.getEvRouteSizeMax(), instance);
@@ -55,7 +55,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const f
     // Cria um candidato para cada cliente e armazena em matCandidato
     for(int clientId = FistIdClient; clientId <= LastIdClient; ++clientId)
     {
-        if(visitedClients.at(clientId) != 1)
+        if(visitedClients.at(clientId) == int8_t(0))
         {
 
             CandidatoEV candidatoEv;
@@ -358,10 +358,10 @@ bool GreedyAlgNS::visitAllClientes(std::vector<int8_t> &visitedClients, const In
 
     int i=instance.getFirstClientIndex();
 
-    for(; i < visitedClients.size(); ++i)
+    for(; i <= instance.getEndClientIndex(); ++i)
     {
 
-        if(visitedClients.at(i) == 0)
+        if(visitedClients.at(i) != int8_t(1))
             return false;
     }
 

@@ -405,6 +405,8 @@ void Solucao::copia(Solucao &solution)
     //satTempoChegMax = solution.satTempoChegMax;
     satTempoChegMax = solution.satTempoChegMax;
 
+    vetClientesAtend = solution.vetClientesAtend;
+
     //cout<<"Tempo de chegada 4º arg: "<<solution.satTempoChegMax[4]<<"; Tempo de chegada 4º copia: "<<satTempoChegMax[4]<<"\n\n";
 
 
@@ -495,4 +497,19 @@ void Solucao::recalculaDist()
         if(rota.routeSize > 2)
             distancia += rota.totalDistence;
     }
+}
+
+bool Solucao::viavel2Nivel(Instancia &instancia)
+{
+
+    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+    {
+        if(vetClientesAtend[i] == int8_t(0))
+        {
+            cout<<"CLIENTE "<<i<<" NAO ATENDIDO\n";
+            return false;
+        }
+    }
+
+    return true;
 }

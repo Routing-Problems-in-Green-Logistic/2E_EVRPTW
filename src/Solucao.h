@@ -28,7 +28,7 @@ public:
     double distSat();
     int numSatVazios();
     int getNumEvNaoVazios();
-
+    bool viavel2Nivel(Instancia &instancia);
 
     // Possui numSat + 1 !!
     std::vector<Satelite> satelites;

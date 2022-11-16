@@ -26,8 +26,8 @@ using namespace NS_LocalSearch;
 using namespace NS_vnd;
 using namespace NS_VetorHash;
 
-const float fator       = 0.05;//0.1344;
-const float fator1Nivel = 1.01;//0;01
+const float fator       = 1.4;//0.1344;
+const float fator1Nivel = 1.1;//0;01
 
 /**
  *
@@ -84,18 +84,18 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
     const double gulCusto1Nivel = temp;
 
-    double custoBest = gulCusto2Nivel;
+    double custoBest = gulCusto2Nivel+gulCusto1Nivel;
     double custoBest1Nivel = gulCusto1Nivel;
 
     //Vetores para o reativo
     std::vector<double> vetorProbabilidade2Nivel(tamAlfa, 100.0/tamAlfa);
     std::vector<double> vetorProbabilidade1Nivel(tamAlfa, 100.0/tamAlfa);
 
-    std::vector<int>    vetorFrequencia2Nivel(tamAlfa, 1);
-    std::vector<int>    vetorFrequencia1Nivel(tamAlfa, 1);
+    std::vector<int>    vetorFrequencia2Nivel(tamAlfa, 0);
+    std::vector<int>    vetorFrequencia1Nivel(tamAlfa, 0);
 
-    std::vector<double> solucaoAcumulada2Nivel(tamAlfa, gulCusto2Nivel);
-    std::vector<double> solucaoAcumulada1Nivel(tamAlfa, gulCusto2Nivel);
+    std::vector<double> solucaoAcumulada2Nivel(tamAlfa, 0.0);
+    std::vector<double> solucaoAcumulada1Nivel(tamAlfa, 0.0);
 
     std::vector<double> vetorMedia2Nivel(tamAlfa, 0.0);
     std::vector<double> vetorMedia1Nivel(tamAlfa, 0.0);
@@ -105,6 +105,11 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
     auto atualizaProb = [&]()
     {
+
+        double penalidade1Nivel = getPenalidade1Nivel(*solBest, instance, fator1Nivel);
+        custoBest = solBest->distancia + getPenalidade2Nivel(*solBest, instance, fator) + penalidade1Nivel;
+        custoBest1Nivel = solBest->getDist1Nivel() + penalidade1Nivel;
+
         double somaProporcoes2Nivel = 0.0;
         double somaProporcoes1Nivel = 0.0;
 
@@ -133,28 +138,79 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         }
 
 
-        cout<<"BEST: "<<custoBest<<"; 1NIVEL: "<<custoBest1Nivel<<"\n\n";
+       // cout<<solBest->viavel2Nivel(instance)<<": 2NIVEL\n";
+        //cout<<solBest->viavel<<": sol\n";
 
-        for(int i = 0; i< tamAlfa; ++i)
+        //cout<<"2NIVEL VIAVEL: "<<(getPenalidade2Nivel(*solBest, instance, fator))<<"\n";
+        //cout<<"1NIVEL VIAVEL: "<<(getPenalidade1Nivel(*solBest, instance, fator1Nivel))<<"\n";
+
+        //cout<<"BEST: "<<custoBest<<"; \n1NIVEL: "<<custoBest1Nivel<<"\n\n";
+
+        //cout<<"SOL_BEST: "<<solBest->distancia<<"\n";
+
+/*        for(int i = 0; i< tamAlfa; ++i)
         {
             cout<<parametros.vetAlfa[i]<<" \t ";
-        }
+        }*/
 
-        cout<<"\n";
+        //cout<<"\n1º:\n";
 
-        for(int i = 0; i< tamAlfa; ++i)
+
+/*        for(int i = 0; i< tamAlfa; ++i)
         {
             cout<<converteDouble(vetorProbabilidade1Nivel[i], 1)<<" \t ";
+        }*/
+
+        //cout<<"\n";
+/*
+
+        for(int i = 0; i < tamAlfa; ++i)
+        {
+            cout<<vetorMedia1Nivel[i]<<" \t ";
         }
 
         cout<<"\n";
+
+        for(int i=0; i < tamAlfa; ++i)
+        {
+            cout<<vetorFrequencia1Nivel[i]<<" \t ";
+        }
+*/
+
+
+       /*
+        cout<<"\nPROB.; SOL ACUM.; MEDIA; FREQ.\n\n";
+
+        cout<<"\n\n2º:\n";
 
         for(int i = 0; i< tamAlfa; ++i)
         {
             cout<<converteDouble(vetorProbabilidade2Nivel[i], 1)<<" \t ";
         }
 
+        cout<<"\n";
+
+        for(int i = 0; i< tamAlfa; ++i)
+            cout<<converteDouble(solucaoAcumulada2Nivel[i],1)<<" \t ";
+
+
+        cout<<"\n";
+
+        for(int i = 0; i < tamAlfa; ++i)
+        {
+            cout<<vetorMedia2Nivel[i]<<" \t ";
+        }
+        cout<<"\n";
+
+
+        for(int i=0; i < tamAlfa; ++i)
+        {
+            cout<<vetorFrequencia2Nivel[i]<<" \t ";
+        }
+
         cout<<"\n\n";
+        cout<<"************************************************************\n\n";
+*/
 
     };
 
@@ -346,6 +402,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
             }
         }
+        // Insere rotas da forma: sat RS RS sat
         else if(i >= parametros.iteracoesCalProb && parametros.iteracoesCalProb > 0 && ((i%2)==1) || instance.shortestPath == nullptr)
         {
 
@@ -449,28 +506,37 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         somaProb = 0.0;
         posAlfa = 0;
 
-        valAleatorio = rand_u32() % 100;
+        valAleatorio = rand_u32()%100;
+        int jIni = rand_u32()%tamAlfa;
+        int j=jIni;
 
-        for(int j=0;somaProb < valAleatorio; ++j)
+        do
         {
-
-            if(j >= tamAlfa)
-            {
-                break;
-            }
-
             somaProb+= (vetorProbabilidade2Nivel[j]);
             posAlfa = j;
-        }
+
+            j = (j+1)%tamAlfa;
+
+        }while((somaProb < valAleatorio) && (j!=jIni));
 
         alfa = parametros.vetAlfa[posAlfa];
 
         somaProb = 0.0;
         valAleatorio = rand_u32()%100;
+        jIni = rand_u32()%tamAlfa;
+        j=jIni;
         int posBeta = 0;
 
+        do
+        {
+            somaProb+= (vetorProbabilidade1Nivel[j]);
+            posBeta = j;
 
-        for(int j=0;somaProb < valAleatorio; ++j)
+            j = (j+1)%tamAlfa;
+
+        }while((somaProb < valAleatorio) && (j!=jIni));
+
+        /*for(int j=0;somaProb < valAleatorio; ++j)
         {
 
             if(j >= tamAlfa)
@@ -480,11 +546,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
             somaProb+= (vetorProbabilidade1Nivel[j]);
             posBeta = j;
-        }
-
-
-        vetorFrequencia2Nivel[posAlfa] += 1;
-        vetorFrequencia2Nivel[posBeta] += 1;
+        }*/
 
         float beta = parametros.vetAlfa[posBeta];
 
@@ -546,7 +608,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             int quantCliInv = 0;
             for(int t=instance.getFirstClientIndex(); t <= instance.getEndClientIndex(); ++t)
             {
-                if(sol.vetClientesAtend[t] == 0)
+                if(sol.vetClientesAtend[t] == int8_t(0))
                 {
 
                     quantCliInv += 1;
@@ -570,6 +632,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
         if(sol.viavel)
         {
+            //cout<<"SOL VIAVEL\n\n";
             string erro;
             bool mv = true;
 
@@ -620,7 +683,10 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                         return solBest;
 
                     custoBest = solBest->distancia;
-                    custoBest1Nivel = solBest->getDist1Nivel();
+                    double aux = solBest->getDist1Nivel();
+                    if(aux < custoBest1Nivel)
+                        custoBest1Nivel = aux;
+
                     estat.ultimaAtualizacaoBest = i;
 
                 }
@@ -640,30 +706,52 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         else if(!solBest->viavel && !sol.viavel)
         {
 
+            double penal1Nivel = getPenalidade1Nivel(sol, instance, fator1Nivel);
 
             //cout<<"ATUAL\n";
-            solBest->copia(sol);
+            //solBest->copia(sol);
 
-            double aux = sol.distancia + getPenalidade2Nivel(sol, instance, fator);
+            double aux = sol.distancia + getPenalidade2Nivel(sol, instance, fator)+penal1Nivel;
             if(aux < custoBest)
+            {
+                //cout<<"ATUAL. BEST("<<converteDouble(custoBest,1)<<") ATUALI.("<<converteDouble(aux,1)<<")\n\n";
                 custoBest = aux;
-
-            aux = sol.getDist1Nivel() + getPenalidade1Nivel(sol, instance, fator1Nivel);
-            if(aux < custoBest1Nivel)
-                custoBest1Nivel = aux;
+                solBest->copia(sol);
+                custoBest1Nivel = solBest->getDist1Nivel()+penal1Nivel;
+            }
 
 
         }
 
         if(!sol.viavel)
         {
-            solucaoAcumulada2Nivel[posAlfa] += sol.distancia + getPenalidade2Nivel(sol, instance, fator);
-            solucaoAcumulada1Nivel[posBeta] += sol.getDist2Nivel() + getPenalidade1Nivel(sol, instance, fator1Nivel);
+            double penal1Nivel = getPenalidade1Nivel(sol, instance, fator1Nivel);
+
+            double aux = sol.distancia + getPenalidade2Nivel(sol, instance, fator)+penal1Nivel;
+
+            //if(posAlfa == 0)
+            //    cout<<aux<<"\n";
+
+            solucaoAcumulada2Nivel[posAlfa] += aux;
+            vetorFrequencia2Nivel[posAlfa] += 1;
+
+            aux = sol.getDist1Nivel() + penal1Nivel;
+            //cout<<aux<<"\n\n";
+            solucaoAcumulada1Nivel[posBeta] += aux;
+            vetorFrequencia1Nivel[posBeta] += 1;
         }
         else
         {
             solucaoAcumulada2Nivel[posAlfa] += sol.distancia;
+            vetorFrequencia2Nivel[posAlfa] += 1;
+
             solucaoAcumulada1Nivel[posBeta] += sol.getDist1Nivel();
+            vetorFrequencia1Nivel[posBeta] += 1;
+        }
+
+        if(i >= parametros.numIteGrasp/2 && solBest->viavel && (i-solBest->ultimaA)>= parametros.numItSemMelhora)
+        {
+            break;
         }
 
         if(i>0 && (i%parametros.numAtualProbReativo)==0)
@@ -730,18 +818,24 @@ double NameS_Grasp::getPenalidade2Nivel(Solucao &sol, Instancia &instancia, floa
 {
     static double penalidade = instancia.penalizacaoDistEv;
 
-
     if(sol.viavel)
         return 0.0;
 
     int num = 0;
     for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
     {
-        if(sol.vetClientesAtend[i] == 0)
+        if(sol.vetClientesAtend[i] == int8_t(0))
             num += 1;
     }
 
-    return f*num*penalidade;
+
+    if(num == 0)
+        return 0.0;
+    else
+    {
+        //cout<<"2º NIVEL INVIAVEL\n";
+        return f * num * penalidade;
+    }
 }
 
 
@@ -755,12 +849,15 @@ double NameS_Grasp::getPenalidade1Nivel(Solucao &sol, Instancia &instance, float
 
     int num = 0;
 
+    if(sol.viavel)
+        return 0.0;
+
     //if(!calcPenal)
     {
 
         for(int i=instance.getFirstClientIndex(); i <= instance.getEndClientIndex(); ++i)
         {
-            if(sol.vetClientesAtend[i] == 0)
+            if(sol.vetClientesAtend[i] == int8_t(0))
                 num += 1;
         }
 
@@ -777,7 +874,7 @@ double NameS_Grasp::getPenalidade1Nivel(Solucao &sol, Instancia &instance, float
 
         if(num > 0)
         {
-            cout<<"2º NIVEL INVIAVEL\n";
+            //cout<<"2º NIVEL INVIAVEL\n";
             return penalidade*f;
         }
         else
@@ -804,6 +901,8 @@ double NameS_Grasp::getPenalidade1Nivel(Solucao &sol, Instancia &instance, float
              */
 
             //cout<<"CARGA SAT: "<<cargaSat<<"; CARGA VEIC: "<<cargaVeic<<"\n\n";
+
+
             double dist = ((cargaSat-cargaVeic) * dist1Nivel)/cargaVeic;
             return dist*f;
 
@@ -822,7 +921,7 @@ double NameS_Grasp::getDistMaisPenalidade(Solucao &sol, Instancia &instancia)
     int num = 0;
     for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
     {
-        if(sol.vetClientesAtend[i] == 0)
+        if(sol.vetClientesAtend[i] == int8_t(0))
             num += 1;
     }
 
@@ -912,7 +1011,7 @@ void NameS_Grasp::addRotaCliente(Solucao &sol, Instancia &instancia, const EvRou
     sol.satelites[sat].demanda   += instancia.vectCliente[cliente].demanda;
 
     sol.satelites[sat].tamVetEvRoute += 1;
-    sol.vetClientesAtend[cliente] = 1;
+    sol.vetClientesAtend[cliente] = int8_t(1);
     sol.solInicializada = true;
 
 }
