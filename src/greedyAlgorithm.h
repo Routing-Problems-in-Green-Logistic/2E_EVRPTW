@@ -84,9 +84,12 @@ namespace GreedyAlgNS
     };
 
 
-    bool secondEchelonGreedy(Solucao &sol, Instancia &instance, const float alpha, const ublas::matrix<int> &matClienteSat);
-    void firstEchelonGreedy(Solucao &Sol, Instancia &instance, const float beta);
-    void construtivo(Solucao &Sol, Instancia &instancia, const float alpha, const float beta, const ublas::matrix<int> &matClienteSat);
+    bool
+    secondEchelonGreedy(Solucao &sol, Instancia &instance, const float alpha, const ublas::matrix<int> &matClienteSat,
+                        bool listaRestTam);
+    void firstEchelonGreedy(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam);
+    void construtivo(Solucao &Sol, Instancia &instancia, const float alpha, const float beta,
+                     const ublas::matrix<int> &matClienteSat, bool listaRestTam);
     bool visitAllClientes(std::vector<int8_t> &visitedClients, const Instancia &instance);
     bool existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendida);
     bool insereEstacao(int rotaId, int satId);

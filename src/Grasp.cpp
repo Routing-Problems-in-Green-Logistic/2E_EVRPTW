@@ -29,6 +29,8 @@ using namespace NS_VetorHash;
 const float fator       = 1.4;//0.1344;
 const float fator1Nivel = 1.1;//0;01
 
+const bool ListaRestTam = false;
+
 /**
  *
  * @param instance
@@ -68,7 +70,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     // Solucao para inicializar reativo
     Solucao gul(instance);
 
-    construtivo(gul, instance, 0.0, 0.0, matClienteSat);
+    construtivo(gul, instance, 0.0, 0.0, matClienteSat, ListaRestTam);
     const double gulCusto2Nivel = getDistMaisPenalidade(gul, instance);
     double temp = gul.getDist1Nivel();
     if(!gul.viavel)
@@ -551,7 +553,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         float beta = parametros.vetAlfa[posBeta];
 
         solTemp.copia(sol);
-        construtivo(sol, instance, alfa, beta, matClienteSat);
+        construtivo(sol, instance, alfa, beta, matClienteSat, ListaRestTam);
 
         // Remove rotas sat RS RS sat que nao foram utilizadas
         if(segundaEst)

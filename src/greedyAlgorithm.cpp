@@ -15,14 +15,16 @@ using namespace boost::numeric;
 
 
 // Roteamento dos veiculos eletricos
-bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const float alpha, const ublas::matrix<int> &matClienteSat)
+bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const float alpha,
+                                      const ublas::matrix<int> &matClienteSat, bool listaRestTam)
 {
     //cout<<"size1: "<<matClienteSat.size1()<<"\nsize2: "<<matClienteSat.size2()<<"\n\n";
 
     if(sol.numEv == sol.numEvMax)
         return false;
 
-//cout<<"**********************************************CONSTRUTIVO SAT("<<satId<<")*****************************************\n\n";
+    //cout<<"**********************************************CONSTRUTIVO**********************************************\n\n";
+    //cout<<"\tALFA: "<<alpha<<"\n\n";
 
     std::vector<int8_t> &visitedClients = sol.vetClientesAtend;
 
@@ -113,13 +115,47 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const f
 
     while(!visitAllClientes(visitedClients, instance) && !listaCandidatos.empty())
     {
-        const int size = max(int(alpha*listaCandidatos.size()), 1);
-        int randIndex = rand_u32()%size;
         listaCandidatos.sort();
+        int size = listaCandidatos.size();
+
+        if(listaRestTam)
+        {
+            size = max(int(alpha * listaCandidatos.size()), 1);
+        }
+        else
+        {
+            double limite = (1.0+alpha)*(listaCandidatos.begin()->incrP);
+            auto candIt = listaCandidatos.begin();
+            int temp = 0;
+
+            while(candIt->incrP <= limite && candIt != listaCandidatos.end())
+            {
+                //cout<<candIt->clientId<<"\n";
+                ++candIt;
+                temp += 1;
+            }
+
+            size = max(temp, 1);
+        }
+
+        /*
+
+        cout<<"\tLIMITE: "<<(1.0+alpha)*(listaCandidatos.begin()->incrP)<<"\n";
+        cout<<"\tSIZE LISTA: "<<size<<"\n";
+        cout<<"\tLISTA DE CAND:  ";
+        for(auto cand:listaCandidatos)
+            cout<<cand.clientId<<";"<<cand.incrP<<" ";
+
+        cout<<"\n";
+
+        */
+
+        int randIndex = rand_u32()%size;
 
         //cout<<"size(lista): "<<listaCandidatos.size()<<"; size*alfa: "<<size<<"; rand: "<<randIndex<<"\n";
 
         auto topItem = std::next(listaCandidatos.begin(), randIndex);
+        //cout<<"\tESCOLHIDO: "<<topItem->clientId<<";"<<topItem->incrP<<"\n\n";
         CandidatoEV *candEvPtr = &(*topItem);
         visitedClients.at(topItem->clientId) = 1;
         sol.vetClientesAtend.at(topItem->clientId) = 1;
@@ -370,7 +406,7 @@ bool GreedyAlgNS::visitAllClientes(std::vector<int8_t> &visitedClients, const In
 }
 
 
-void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, Instancia &instance, const float beta)
+void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam)
 {
 
     // Cria o vetor com a demanda de cada satellite
@@ -494,7 +530,27 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, Instancia &instance, const fl
             listaCandidatos.sort();
 
             // Escolhe o candidado da lista restrita
-            const int size = max(int(beta * listaCandidatos.size()), 1);
+            int size = listaCandidatos.size();
+
+            if(listaRestTam)
+            {
+                size = max(int(beta * listaCandidatos.size()), 1);
+            }
+            else
+            {
+                double limite = (1.0+beta)*listaCandidatos.begin()->incrementoDistancia;
+                auto candIt = listaCandidatos.begin();
+                int temp = 0;
+
+                while(candIt != listaCandidatos.end() && candIt->incrementoDistancia <= limite)
+                {
+                    ++candIt;
+                    temp += 1;
+                }
+
+                size = max(temp, 1);
+            }
+
             int tam = size;
             int escolhido = rand_u32() % tam;
             auto it = listaCandidatos.begin();
@@ -505,7 +561,6 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, Instancia &instance, const fl
             // Insere candidato na solucao
             Route &route = sol.primeiroNivel.at(candidato.rotaId);
             shiftVectorDir(route.rota, candidato.pos + 1, 1, route.routeSize);
-
 
             route.rota.at(candidato.pos+1).satellite = candidato.satelliteId;
             route.rota.at(candidato.pos+1).tempoChegada = candidato.tempoSaida;
@@ -745,14 +800,16 @@ void GreedyAlgNS::setSatParaCliente(Instancia &instancia, vector<int> &vetSatAte
     }
 }
 
-void GreedyAlgNS::construtivo(Solucao &Sol, Instancia &instancia, const float alpha, const float beta,  const ublas::matrix<int> &matClienteSat)
+void GreedyAlgNS::construtivo(Solucao &Sol, Instancia &instancia, const float alpha, const float beta, const ublas::matrix<int> &matClienteSat,
+                              bool listaRestTam)
 {
 
-    bool segundoNivel = secondEchelonGreedy(Sol, instancia, alpha, matClienteSat);
+    bool segundoNivel = secondEchelonGreedy(Sol, instancia, alpha, matClienteSat, listaRestTam);
 
     if(segundoNivel)
     {
-        firstEchelonGreedy(Sol, instancia, beta);
+        //cout<<"\tVIAVEL\n\n";
+        firstEchelonGreedy(Sol, instancia, beta, listaRestTam);
     }
     else
         Sol.viavel = false;

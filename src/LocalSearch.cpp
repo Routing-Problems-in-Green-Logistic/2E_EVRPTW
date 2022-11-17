@@ -1668,7 +1668,7 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
                             {
                                 solucaoAux.recalculaDistSat(instancia);
                                 solucaoAux.resetaPrimeiroNivel(instancia);
-                                firstEchelonGreedy(solucaoAux, instancia, beta);
+                                firstEchelonGreedy(solucaoAux, instancia, beta, false);
 
                                 if(solucaoAux.viavel)
                                 {
@@ -2377,7 +2377,7 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                 {
                                     solucaoAux.recalculaDistSat(instancia);
                                     solucaoAux.resetaPrimeiroNivel(instancia);
-                                    firstEchelonGreedy(solucaoAux, instancia, beta);
+                                    firstEchelonGreedy(solucaoAux, instancia, beta, false);
 
                                     if(solucaoAux.viavel)
                                     {

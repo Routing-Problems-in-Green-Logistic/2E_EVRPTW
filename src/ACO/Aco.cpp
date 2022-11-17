@@ -998,7 +998,7 @@ bool N_Aco::acoSol(Instancia &instancia, AcoParametros &acoPar, AcoEstatisticas 
             }
 
             //cout << "TODOS OS SAT VIAVEIS\n";
-            GreedyAlgNS::firstEchelonGreedy(solucao, instancia, param.vetAlfa[0]);
+            GreedyAlgNS::firstEchelonGreedy(solucao, instancia, param.vetAlfa[0], false);
 
             if(solucao.viavel)
             {
