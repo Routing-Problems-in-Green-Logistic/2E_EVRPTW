@@ -64,7 +64,12 @@ void NS_parametros::escreveSolCompleta(Parametros &paramEntrada, Solucao &sol, I
     {
         outfile<<"INSTANCIA: "<<paramEntrada.nomeInstancia<<"\nDATA: "<<paramEntrada.data<<"\n\n";
         outfile<<saida<<"\n\n";
-        outfile<<"VIAVEL: "<<sol.viavel<<"\n";
+
+        outfile<<"CARGA POR SAT: ";
+        for(int i=1; i <= instancia.getNSats(); ++i)
+            outfile<<i<<": "<<sol.satelites[i].demanda<<"; ";
+
+        outfile<<"\nVIAVEL: "<<sol.viavel<<"\n";
         outfile<<"SEGUNDO NIVEL VIAVEL: "<<instancia.nivel2Viavel<<"\n";
         outfile.close();
     }

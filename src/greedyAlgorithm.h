@@ -15,12 +15,12 @@ namespace GreedyAlgNS
 
         int rotaId = -1;
         int satelliteId = -1;
-        float demand = 0.0;
+        double demand = 0.0;
         double incrementoDistancia = DOUBLE_MAX;
         int pos = -1;
         double tempoSaida = 0.0;
 
-        CandidatoVeicComb(int _rotaId, int _satelliteId, float _demand, double _incrDist):rotaId(_rotaId), satelliteId(_satelliteId),
+        CandidatoVeicComb(int _rotaId, int _satelliteId, double _demand, double _incrDist):rotaId(_rotaId), satelliteId(_satelliteId),
             demand(_demand), incrementoDistancia(_incrDist){};
 
         bool operator < (const CandidatoVeicComb &candidato) const {return incrementoDistancia < candidato.incrementoDistancia;}
@@ -86,7 +86,7 @@ namespace GreedyAlgNS
 
     bool
     secondEchelonGreedy(Solucao &sol, Instancia &instance, const float alpha, const ublas::matrix<int> &matClienteSat,
-                        bool listaRestTam);
+                        bool listaRestTam, const float beta);
     void firstEchelonGreedy(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam);
     void construtivo(Solucao &Sol, Instancia &instancia, const float alpha, const float beta,
                      const ublas::matrix<int> &matClienteSat, bool listaRestTam);
@@ -99,8 +99,9 @@ namespace GreedyAlgNS
     bool insert(EvRoute &evRoute, CandidatoEV & insertion, const Instancia &instance, const double tempoSaidaSat, Solucao &sol);
     bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instancia &instance, bool modficaSatelite);
 
-    std::vector<double> calculaTempoSaidaInicialSat(const Instancia &instance);
+    std::vector<double> calculaTempoSaidaInicialSat(Instancia &instance, const float beta);
     void setSatParaCliente(Instancia &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, ParametrosGrasp &param);
+
 
 
 }

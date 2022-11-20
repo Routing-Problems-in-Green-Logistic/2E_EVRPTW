@@ -16,7 +16,7 @@ using namespace boost::numeric;
 
 // Roteamento dos veiculos eletricos
 bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const float alpha,
-                                      const ublas::matrix<int> &matClienteSat, bool listaRestTam)
+                                      const ublas::matrix<int> &matClienteSat, bool listaRestTam, const float beta)
 {
     //cout<<"size1: "<<matClienteSat.size1()<<"\nsize2: "<<matClienteSat.size2()<<"\n\n";
 
@@ -31,7 +31,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const f
     const int FistIdClient  = instance.getFirstClientIndex();
     const int LastIdClient  = instance.getEndClientIndex();
     const auto ItEnd        = visitedClients.begin() + instance.getNSats() + instance.getNClients();
-    const std::vector<double> &vetTempoSaida = instance.vetTempoSaida;
+    const std::vector<double> vetTempoSaida = std::move(calculaTempoSaidaInicialSat(instance, beta));
     EvRoute evRouteAux(-1, -1, instance.getEvRouteSizeMax(), instance);
 
     std::list<CandidatoEV> listaCandidatos;
@@ -425,6 +425,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, Instancia &instance, const fl
 
     const int NumSatMaisDep = sol.getNSatelites()+1;
 
+
     // Enquanto existir um satellite com demanda > 0, continua
     while(existeDemandaNaoAtendida(demandaNaoAtendidaSat))
     {
@@ -640,8 +641,8 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
             // Verifica se o tempo de saida do ev eh inconpativel com o tempo de chegada do veic a comb
             if(tempoEv < tempoChegada)
             {
-                string rotaStr;
-                tempoSaidaEv.evRoute->print(rotaStr, instance, true);
+                //string rotaStr;
+                //tempoSaidaEv.evRoute->print(rotaStr, instance, true);
 
                 // Verifica se eh possivel realizar um shift na rota
 
@@ -804,7 +805,7 @@ void GreedyAlgNS::construtivo(Solucao &Sol, Instancia &instancia, const float al
                               bool listaRestTam)
 {
 
-    bool segundoNivel = secondEchelonGreedy(Sol, instancia, alpha, matClienteSat, listaRestTam);
+    bool segundoNivel = secondEchelonGreedy(Sol, instancia, alpha, matClienteSat, listaRestTam, beta);
 
     if(segundoNivel)
     {
@@ -953,22 +954,202 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instancia &instance, Can
 
 }
 
-std::vector<double> GreedyAlgNS::calculaTempoSaidaInicialSat(const Instancia &instance)
+std::vector<double> GreedyAlgNS::calculaTempoSaidaInicialSat(Instancia &instance, const float beta)
 {
-   vector<double> vetTempoSaida;
-   vetTempoSaida.reserve(instance.getNSats()+1);
-   vetTempoSaida.push_back(0.0);
 
-   double dist;
+    //cout<<"calculaTempo\n\n";
 
-    for(int i=instance.getFirstSatIndex(); i <= instance.getEndSatIndex(); ++i)
+   const int NumSatMaisDep = instance.getNSats()+1;
+
+   vector<double> vetTempoSaida(NumSatMaisDep, 0.0);
+   vector<int> vetSatAtendido(NumSatMaisDep, 0);
+
+   auto existeSatNaoAtendido = [&](vector<int> &vetSatAtendido)
+   {
+       for(int i=1; i <= instance.getEndSatIndex(); ++i)
+       {
+           if(vetSatAtendido[i] == 0)
+               return true;
+       }
+
+       return false;
+   };
+
+   Solucao sol(instance);
+
+
+    // Enquanto existir um satellite com demanda > 0, continua
+    while(existeSatNaoAtendido(vetSatAtendido))
     {
+        // Cria a lista de candidatos
+        std::list<CandidatoVeicComb> listaCandidatos;
 
-        dist = instance.getDistance(instance.getDepotIndex(), i);
-        vetTempoSaida.push_back(dist);
+        // Percorre os satellites
+        for(int i=1; i < NumSatMaisDep; ++i)
+        {
+            Satelite &satelite = sol.satelites.at(i);
+
+            // Verifica se a demanda não atendida eh positiva
+            if(vetSatAtendido[i] == 0)
+            {
+
+                // Percorre todas as rotas
+                for(int rotaId = 0; rotaId < sol.primeiroNivel.size(); ++rotaId)
+                {
+                    Route &route = sol.primeiroNivel.at(rotaId);
+
+                    // Verifica se veiculo esta 100% da capacidade
+                    //if(route.totalDemand < instance.getTruckCap(rotaId))
+                    {
+
+                        CandidatoVeicComb candidato(rotaId, i, 0.0, DOUBLE_MAX);
+
+                        // Percorre todas as posicoes da rota
+                        for(int p=0; (p+1) < route.routeSize; ++p)
+                        {
+                            double incrementoDist = 0.0;
+
+                            // Realiza a insercao do satellite entre as posicoes p e p+1 da rota
+                            const RouteNo &clienteP =  route.rota[p];
+                            const RouteNo &clientePP = route.rota[p+1];
+
+                            // Calcula o incremento da distancia (Sempre positivo, desigualdade triangular)
+                            incrementoDist -= instance.getDistance(clienteP.satellite, clientePP.satellite);
+                            incrementoDist = incrementoDist + instance.getDistance(clienteP.satellite, i) + instance.getDistance(i, clientePP.satellite);
+
+                            if(incrementoDist < candidato.incrementoDistancia)
+                            {
+
+                                // Calcula o tempo de chegada e verifica a janela de tempo
+                                const double tempoChegCand = clienteP.tempoChegada + instance.getDistance(clienteP.satellite, i);
+
+                                bool satViavel = true;
+
+                                //if(verificaViabilidadeSatelite(tempoChegCand, satelite, instance, false))
+                                {
+                                    double tempoChegTemp = tempoChegCand + instance.getDistance(i, clientePP.satellite);
+
+/*                                    // Verificar viabilidade dos outros satelites
+                                    for(int t=p+1; (t+1) < (route.routeSize); ++t)
+                                    {
+                                        Satelite &sateliteTemp = sol.satelites.at(route.rota.at(t).satellite);
+
+                                        if(!verificaViabilidadeSatelite(tempoChegTemp, sateliteTemp, instance, false))
+                                        {
+                                            satViavel = false;
+                                            break;
+                                        }
+
+                                        tempoChegTemp += instance.getDistance(route.rota.at(t).satellite, route.rota.at(t+1).satellite);
+
+                                    }*/
+
+                                }
+/*                                else
+                                {
+                                    satViavel = false;
+                                }*/
+
+                                if(satViavel)
+                                {
+
+                                    candidato.incrementoDistancia = incrementoDist;
+                                    candidato.pos = p;
+                                    candidato.tempoSaida = tempoChegCand;
+                                }
+                            }
+                        }
+
+                        if(candidato.pos >= 0)
+                            listaCandidatos.push_back(candidato);
+
+                    }
+                }
+            }
+
+        }
+
+
+        if(!listaCandidatos.empty())
+        {
+
+            listaCandidatos.sort();
+
+            // Escolhe o candidado da lista restrita
+            int size = listaCandidatos.size();
+            size = max(int(beta * listaCandidatos.size()), 1);
+
+
+
+            int tam = size;
+            int escolhido = rand_u32() % tam;
+            auto it = listaCandidatos.begin();
+
+            std::advance(it, escolhido);
+            CandidatoVeicComb &candidato = *it;
+
+            // Insere candidato na solucao
+            Route &route = sol.primeiroNivel.at(candidato.rotaId);
+            shiftVectorDir(route.rota, candidato.pos + 1, 1, route.routeSize);
+
+            route.rota.at(candidato.pos+1).satellite = candidato.satelliteId;
+            route.rota.at(candidato.pos+1).tempoChegada = candidato.tempoSaida;
+            route.routeSize += 1;
+            double tempoSaida = candidato.tempoSaida;
+            vetTempoSaida[candidato.pos] = candidato.tempoSaida;
+
+            for(int i=candidato.pos+1; (i+1) < route.routeSize; ++i)
+            {
+                const int satTemp = route.rota.at(i).satellite;
+                vetTempoSaida[i] = tempoSaida;
+
+                tempoSaida += instance.getDistance(satTemp, route.rota[i + 1].satellite);
+            }
+
+            // Atualiza demanda, vetor de demanda e distancia
+            route.totalDemand += candidato.demand;
+            sol.distancia += candidato.incrementoDistancia;
+            route.satelliteDemand[candidato.satelliteId] = candidato.demand;
+            route.totalDistence += candidato.incrementoDistancia;
+
+            vetSatAtendido[candidato.satelliteId] = 1;
+
+        }
+        else
+        {
+            sol.viavel = false;
+            break;
+        }
     }
 
-    return std::move(vetTempoSaida);
+
+    for(int i=1; i <= instance.getEndSatIndex(); ++i)
+    {
+        if(vetSatAtendido[i] == 0)
+        {
+            vetTempoSaida[i] = instance.getDistance(0, i);
+        }
+    }
+
+    static bool printTempo = false;
+
+    if(!printTempo)
+    {
+        for(int i = 1; i <= instance.getEndSatIndex(); ++i)
+        {
+            cout<<i<<": "<<vetTempoSaida[i]<<"; ";
+        }
+        cout<<"\n\n";
+
+        for(int i = 1; i <= instance.getEndSatIndex(); ++i)
+            cout<<i<<": "<<instance.getDistance(0, i)<<"; ";
+
+        cout<<"\n";
+        printTempo = true;
+
+    }
+
+    return vetTempoSaida;
 
 }
 

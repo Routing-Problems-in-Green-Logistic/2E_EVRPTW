@@ -278,7 +278,7 @@ Instancia::Instancia(const std::string &str, const std::string &nome_)
 
     penalizacaoDistEv   = calculaPenalizacaoDistEv();
     penalizacaoDistComb = calculaPenalizacaoDistComb();
-    vetTempoSaida = std::move(GreedyAlgNS::calculaTempoSaidaInicialSat(*this));
+    vetTempoSaida = std::move(GreedyAlgNS::calculaTempoSaidaInicialSat(*this, 0.1));
 
     vetVetDistClienteSatelite = vector<vector<DistSatelite>>(numNos);
 
