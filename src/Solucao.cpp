@@ -25,7 +25,7 @@ Solucao::Solucao(Instancia &Inst)
         satTempoChegMax.emplace_back(-1.0);
 
     //vetClientesAtend.reserve(1+Inst.getNSats()+Inst.getN_RechargingS()+Inst.getNClients());
-    vetClientesAtend = std::vector<int8_t>(1+Inst.getNSats()+Inst.getN_RechargingS()+Inst.getNClients());
+    vetClientesAtend = BoostC::vector<int8_t>(1+Inst.getNSats()+Inst.getN_RechargingS()+Inst.getNClients());
 
     // Clientes
     std::fill((vetClientesAtend.begin()+Inst.getFirstClientIndex()), vetClientesAtend.end(), 0);
@@ -46,13 +46,7 @@ Solucao::Solucao(Instancia &Inst)
 
 void Solucao::resetaPrimeiroNivel(Instancia &instancia)
 {
-    primeiroNivel = std::vector<Route>();
-
-    primeiroNivel.reserve(numTrucksMax);
-
-    for(int i=0; i < numTrucksMax; ++i)
-        primeiroNivel.emplace_back(instancia);
-
+    primeiroNivel = BoostC::vector<Route>(numTrucksMax, Route(instancia));
     distancia = 0.0;
 
     for(Satelite &sat:satelites)
@@ -63,8 +57,8 @@ void Solucao::resetaPrimeiroNivel(Instancia &instancia)
 
 
 
-    for(int i=instancia.getFirstSatIndex(); i <= instancia.getEndSatIndex(); ++i)
-        primeiroNivel[i].resetaRoute();
+    //for(int i=instancia.getFirstSatIndex(); i <= instancia.getEndSatIndex(); ++i)
+    //    primeiroNivel[i].resetaRoute();
 
 }
 
@@ -191,7 +185,7 @@ bool Solucao::checkSolution(std::string &erro, Instancia &inst)
 
     // Verifica se as demandas dos satelites sao atendidas
 
-    std::vector<double> satelliteDemand;
+    BoostC::vector<double> satelliteDemand;
     satelliteDemand.reserve(inst.getNSats() + 1);
 
     for(int i=0; i < inst.getNSats() + 1; ++i)
@@ -452,7 +446,7 @@ int Solucao::getNumEvNaoVazios()
 void Solucao::inicializaVetClientesAtend(Instancia &instance)
 {
 
-    vetClientesAtend = std::vector<int8_t>(1 + instance.getNSats() + instance.getN_RechargingS() + instance.getNClients());
+    vetClientesAtend = BoostC::vector<int8_t>(1 + instance.getNSats() + instance.getN_RechargingS() + instance.getNClients());
 
     for(int i = 0; i < instance.getFirstClientIndex(); ++i)
         vetClientesAtend[i] = -1;

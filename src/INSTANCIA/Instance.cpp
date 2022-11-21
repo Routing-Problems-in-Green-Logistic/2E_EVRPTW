@@ -231,7 +231,7 @@ Instancia::Instancia(const std::string &str, const std::string &nome_)
 
 
 
-    std::vector<EstMaisProx> vetEstMaisProx(numRechargingS);
+    BoostC::vector<EstMaisProx> vetEstMaisProx(numRechargingS);
 
     for(int i= getFirstRS_index(); i <= getEndClientIndex(); ++i)
     {
@@ -278,7 +278,7 @@ Instancia::Instancia(const std::string &str, const std::string &nome_)
 
     penalizacaoDistEv   = calculaPenalizacaoDistEv();
     penalizacaoDistComb = calculaPenalizacaoDistComb();
-    vetTempoSaida = std::vector<double>(1+numSats, 0.0);
+    vetTempoSaida = BoostC::vector<double>(1+numSats, 0.0);
 
     for(int i=1; i <= getEndSatIndex(); ++i)
         vetTempoSaida[i] = getDistance(0, i);

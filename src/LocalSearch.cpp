@@ -1372,7 +1372,7 @@ bool NS_LocalSearch::mvEvShifitInterRotasInterSats(Solucao &solucao, Instancia &
 
 
     // Vetor de vetor com ~ev que atendem sat
-/*    std::vector<std::vector<SatN_evCarga>> vetSatVetN_ev(instancia.numSats);
+/*    BoostC::vector<BoostC::vector<SatN_evCarga>> vetSatVetN_ev(instancia.numSats);
 
     for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
     {
@@ -1395,7 +1395,7 @@ bool NS_LocalSearch::mvEvShifitInterRotasInterSats(Solucao &solucao, Instancia &
     {
         // Vetor com ~ev que atendem sat
 
-/*        std::vector<SatN_evCarga> &sat0N_EvCarga = vetSatVetN_ev[sat0];
+/*        BoostC::vector<SatN_evCarga> &sat0N_EvCarga = vetSatVetN_ev[sat0];
         std::sort(sat0N_EvCarga.begin(), sat0N_EvCarga.end(), satN_evCargaMenor);
 */
 
@@ -1406,7 +1406,7 @@ bool NS_LocalSearch::mvEvShifitInterRotasInterSats(Solucao &solucao, Instancia &
                 continue;
 
 /*
-            std::vector<SatN_evCarga> &sat1N_EvCarga = vetSatVetN_ev[sat1];
+            BoostC::vector<SatN_evCarga> &sat1N_EvCarga = vetSatVetN_ev[sat1];
             std::sort(sat1N_EvCarga.begin(), sat1N_EvCarga.end(), satN_evCargaMaior);
 */
 

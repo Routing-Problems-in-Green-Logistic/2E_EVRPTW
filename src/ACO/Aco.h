@@ -54,14 +54,14 @@ namespace N_Aco
     {
     public:
         Satelite satelite;                          // Guarda a solucao do satelite
-        vector<int8_t> vetNosAtend;                 // Guarda os vertices que sao atendidos. tam = numNos
+        BoostC::vector<int8_t> vetNosAtend;                 // Guarda os vertices que sao atendidos. tam = numNos
         bool vazia = false;
         bool viavel = false;
         int clientesNaoAtend = 0;
 
         Ant(Instancia &instance, int satId, bool _vazia=false): satelite(Satelite(instance, satId))
         {
-            vetNosAtend = vector<int8_t>(instance.numNos, 0);
+            vetNosAtend = BoostC::vector<int8_t>(instance.numNos, 0);
             vazia = _vazia;
         }
 
@@ -123,7 +123,7 @@ namespace N_Aco
     };
 
 
-    inline bool existeClienteNaoVisitado(Ant &ant, Instancia &instancia, const vector<int> &vetSatAtendCliente)
+    inline bool existeClienteNaoVisitado(Ant &ant, Instancia &instancia, const BoostC::vector<int> &vetSatAtendCliente)
     {
 
         //return std::find((ant.vetNosAtend.begin()+instancia.getFirstClientIndex()), (ant.vetNosAtend.begin()+instancia.getEndClientIndex()+1), 0) == true;
@@ -142,13 +142,13 @@ namespace N_Aco
     }
 
     bool aco(Instancia &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
-             const vector<int> &vetSatAtendCliente, ParametrosGrasp &param, const Solucao *solGrasp, const int numEVs);
+             const BoostC::vector<int> &vetSatAtendCliente, ParametrosGrasp &param, const Solucao *solGrasp, const int numEVs);
     bool
     acoSol(Instancia &instancia, AcoParametros &acoPar, AcoEstatisticas &acoEst, ParametrosGrasp &param, Solucao &best);
     void atualizaFeromonio(ublas::matrix<double> &matFeromonio, ublas::matrix<double> &matAtualFeromonio,
-                           Instancia &instancia, const AcoParametros &acoParam, const Ant &antBest, const vector<Ant> &vetAnt);
-    void evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instancia &instancia, const AcoParametros &acoParam, const double feromMin);
-    bool clienteJValido(Instancia &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat, const double tempoSaidaI);
+                           Instancia &instancia, const AcoParametros &acoParam, const Ant &antBest, const BoostC::vector<Ant> &vetAnt);
+    void evaporaFeromonio(ublas::matrix<double> &matFeromonio, const BoostC::vector<int> &vetSat, Instancia &instancia, const AcoParametros &acoParam, const double feromMin);
+    bool clienteJValido(Instancia &instancia, const int i, const int j, const double bat, const BoostC::vector<int8_t> &vetNosAtend, const int sat, const double tempoSaidaI);
     void atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ, Instancia &instance, Ant &ant);
 
 }

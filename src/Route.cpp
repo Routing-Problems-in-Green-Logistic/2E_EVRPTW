@@ -123,4 +123,5 @@ void Route::resetaRoute()
     rota[1].satellite = rota[1].satellite;
     totalDistence = 0.0;
     totalDemand = 0.0;
+
 }

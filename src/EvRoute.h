@@ -82,7 +82,7 @@ public:
         return route[pos];
     }
 
-    std::vector<EvNo> route;
+    BoostC::vector<EvNo> route;
 
     double distancia = 0.0;
     int routeSize = 2;
@@ -104,7 +104,7 @@ public:
      * **************************************************************
      */
 
-    std::vector<EvRecarga> vetRecarga;
+    BoostC::vector<EvRecarga> vetRecarga;
 
     int numEstRecarga=-1;
     int numMaxUtilizacao=-1;

@@ -65,7 +65,7 @@ namespace NS_parametros
 
         string nome;
         char tipo = SAIDA_TIPO_FLOAT;
-        vector<int> saidaExec;
+        BoostC::vector<int> saidaExec;
         list<double> listVal;
         uint64_t semente=0;
 
@@ -100,7 +100,7 @@ namespace NS_parametros
         {
             nome = outro.nome;
             tipo = outro.tipo;
-            saidaExec = vector<int>(outro.saidaExec);
+            saidaExec = BoostC::vector<int>(outro.saidaExec);
             listVal = list<double>(outro.listVal);
         }
 
@@ -110,7 +110,7 @@ namespace NS_parametros
             tipo = tipo_;
         }
 
-        NoSaida(string nome_, char tipo_, std::vector<int> &saidaExec_)
+        NoSaida(string nome_, char tipo_, BoostC::vector<int> &saidaExec_)
         {
             nome = std::move(nome_);
             tipo = tipo_;
@@ -168,7 +168,7 @@ namespace NS_parametros
         void getVal(string &saidaStr)
         {
 
-            vector<double> vectorSaida(listVal.size());
+            BoostC::vector<double> vectorSaida(listVal.size());
             std::copy(listVal.begin(), listVal.end(), vectorSaida.begin());
             double min = DOUBLE_MAX;
             double max = DOUBLE_MIN;
@@ -295,7 +295,7 @@ namespace NS_parametros
     ParametrosSaida getParametros();
 
     template <typename T>
-    void setParametrosSaida(ParametrosSaida &parametrosSaida, const Parametros &parametros, Solucao &best, T start, T end, std::vector<NS_vnd::MvValor> &vetMvValor, std::vector<NS_vnd::MvValor> &vetMvValor1Nivel)
+    void setParametrosSaida(ParametrosSaida &parametrosSaida, const Parametros &parametros, Solucao &best, T start, T end, BoostC::vector<NS_vnd::MvValor> &vetMvValor, BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel)
     {
 
         parametrosSaida.setTempo(start, end);

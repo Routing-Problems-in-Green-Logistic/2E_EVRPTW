@@ -14,7 +14,7 @@ using namespace NS_LocalSearch;
  * @param vetMvValor1Nivel      0: MV_EV_SHIFIT_INTER_ROTAS_INTER_SAT; 1: MV_EV_SWAP_INTER_ROTAS_INTER_SAT
  */
 
-void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, std::vector<MvValor> &vetMvValor, std::vector<MvValor> &vetMvValor1Nivel)
+void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, BoostC::vector<MvValor> &vetMvValor, BoostC::vector<MvValor> &vetMvValor1Nivel)
 {
 
 

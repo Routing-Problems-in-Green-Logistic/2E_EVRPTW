@@ -11,9 +11,9 @@
 
 using namespace N_k_means;
 
-void N_k_means::converteClientes(Instancia &instancia, std::vector<Ponto> &vetPonto)
+void N_k_means::converteClientes(Instancia &instancia, BoostC::vector<Ponto> &vetPonto)
 {
-    vetPonto = std::vector<Ponto>(instancia.numNos);
+    vetPonto = BoostC::vector<Ponto>(instancia.numNos);
     vetPonto[0].set(-1.0, -1.0);
 
     for(int i=1; i < instancia.numNos; ++i)
@@ -23,10 +23,10 @@ void N_k_means::converteClientes(Instancia &instancia, std::vector<Ponto> &vetPo
     }
 }
 
-ublas::matrix<int> N_k_means::k_means(Instancia &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, bool seed)
+ublas::matrix<int> N_k_means::k_means(Instancia &instancia, BoostC::vector<int> &vetSatAtendCliente, BoostC::vector<int> &satUtilizado, bool seed)
 {
-    static std::vector<Ponto> vetPonto;
-    static std::vector<double> vetRaioSat;
+    static BoostC::vector<Ponto> vetPonto;
+    static BoostC::vector<double> vetRaioSat;
 
     static bool staticStart = false;
 
@@ -55,11 +55,11 @@ ublas::matrix<int> N_k_means::k_means(Instancia &instancia, vector<int> &vetSatA
     }
 
     const int numSats = instancia.numSats;
-    std::vector<Ponto> centroide(numSats, Ponto());
-    std::vector<Ponto> centroideAnt(numSats, Ponto());
+    BoostC::vector<Ponto> centroide(numSats, Ponto());
+    BoostC::vector<Ponto> centroideAnt(numSats, Ponto());
 
     // Clusters [0, numSats)
-    std::vector<int> clienteCluster(instancia.numNos, -1);
+    BoostC::vector<int> clienteCluster(instancia.numNos, -1);
 
     if(!seed)
     {
@@ -139,9 +139,9 @@ ublas::matrix<int> N_k_means::k_means(Instancia &instancia, vector<int> &vetSatA
 
     }
 
-    std::vector<DistCluster> vetDistCluster(numSats);
+    BoostC::vector<DistCluster> vetDistCluster(numSats);
 
-    auto encontraClusterParaCli = [&](const int cli, std::vector<DistCluster> &vetDistCluster)
+    auto encontraClusterParaCli = [&](const int cli, BoostC::vector<DistCluster> &vetDistCluster)
     {
         for(auto &it:vetDistCluster)
             it = DistCluster();
@@ -157,7 +157,7 @@ ublas::matrix<int> N_k_means::k_means(Instancia &instancia, vector<int> &vetSatA
         std::sort(vetDistCluster.begin(), vetDistCluster.end());
     };
 
-    auto calculaCentroide = [&](std::vector<int> &clienteCluster, std::vector<Ponto> &centroide)
+    auto calculaCentroide = [&](BoostC::vector<int> &clienteCluster, BoostC::vector<Ponto> &centroide)
     {
         for(auto &it:centroide)
             it.set(0.0, 0.0);
@@ -262,13 +262,13 @@ ublas::matrix<int> N_k_means::k_means(Instancia &instancia, vector<int> &vetSatA
     // Preenche matSaida
 
     // ********************************************************************************************
-    std::vector<double> mediaIntraCluster(instancia.numNos, 0.0);
-    std::vector<double> mediaInterCluster(instancia.numNos, DOUBLE_INF);
-    std::vector<int>    clusterMinInterCluster(instancia.numNos, -1);
+    BoostC::vector<double> mediaIntraCluster(instancia.numNos, 0.0);
+    BoostC::vector<double> mediaInterCluster(instancia.numNos, DOUBLE_INF);
+    BoostC::vector<int>    clusterMinInterCluster(instancia.numNos, -1);
 
 
     ublas::matrix<int> matCluster(instancia.numNos, numSats, 0);      //cluster: [0, numSat)
-    std::vector<int> vetNumElemPorCluster(instancia.numSats, 0);        //cluster: [0, numSat)
+    BoostC::vector<int> vetNumElemPorCluster(instancia.numSats, 0);        //cluster: [0, numSat)
 
     // Prenche matCluster com os elementos de cada cluster
     for(int i=1; i < instancia.numNos; ++i)
@@ -312,7 +312,7 @@ ublas::matrix<int> N_k_means::k_means(Instancia &instancia, vector<int> &vetSatA
         }
     }
 
-/*    std::vector<double> vetSilhouette(instancia.numNos, 0.0);
+/*    BoostC::vector<double> vetSilhouette(instancia.numNos, 0.0);
 
     for(int i=1; i < instancia.numNos; ++i)
     {
@@ -343,7 +343,7 @@ ublas::matrix<int> N_k_means::k_means(Instancia &instancia, vector<int> &vetSatA
 
 /*    for(int c=0; c < instancia.numSats; ++c)
     {
-        std::vector<DistCluster> vetCluste(instancia.numSats-1, DistCluster());
+        BoostC::vector<DistCluster> vetCluste(instancia.numSats-1, DistCluster());
         int prox = 0;
 
         for(int c1=0; c1 < instancia.numSats; ++c1)
@@ -461,7 +461,7 @@ ublas::matrix<int> N_k_means::k_means(Instancia &instancia, vector<int> &vetSatA
 
 }
 
-void N_k_means::printVetPonto(const std::vector<Ponto> &vetPonto)
+void N_k_means::printVetPonto(const BoostC::vector<Ponto> &vetPonto)
 {
     for(const Ponto &ponto:vetPonto)
         cout<<ponto<<"\n";
@@ -483,10 +483,10 @@ void N_k_means::printVetPonto(const std::vector<Ponto> &vetPonto)
  */
 
 
-std::vector<double>N_k_means::calculaRaioSatSeedK_means(Instancia &instancia)
+BoostC::vector<double>N_k_means::calculaRaioSatSeedK_means(Instancia &instancia)
 {
     // Calcula a excentricidade de cada vertice
-    std::vector<double> vetExcentricidadeNos(instancia.numNos, DOUBLE_MIN);
+    BoostC::vector<double> vetExcentricidadeNos(instancia.numNos, DOUBLE_MIN);
     int centro = -1;
     double eCentro = DOUBLE_MAX;
 
@@ -504,7 +504,7 @@ std::vector<double>N_k_means::calculaRaioSatSeedK_means(Instancia &instancia)
     }
     //cout<<"Centro do grafo: "<<centro<<"\n\n";
 
-    std::vector<double> raioSat(instancia.numSats+1, 0.0);
+    BoostC::vector<double> raioSat(instancia.numSats+1, 0.0);
 
     for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
     {
