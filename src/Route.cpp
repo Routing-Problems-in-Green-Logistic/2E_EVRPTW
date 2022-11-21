@@ -18,11 +18,12 @@ Route::Route(const Instancia &instance)
     this->routeSize = 2;
 
     for(int i=0; i < routeSizeMax; ++i)
-
         rota.push_back({0, 0.0});
 
     for(int i=0; i < instance.numSats+1; ++i)
         satelliteDemand.push_back(0.0);
+
+    //cout<<routeSizeMax<<"\n\n";
 
 }
 
@@ -112,4 +113,14 @@ void Route::copia(Route &route)
       for(int i=0; i < satelliteDemand.size(); ++i)
           satelliteDemand[i] = route.satelliteDemand[i];
     }
+}
+
+void Route::resetaRoute()
+{
+
+    routeSize = 2;
+    cout<<"vet size: "<<rota.size()<<"\n\n";
+    rota[1].satellite = rota[1].satellite;
+    totalDistence = 0.0;
+    totalDemand = 0.0;
 }

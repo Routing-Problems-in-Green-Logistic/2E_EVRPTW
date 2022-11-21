@@ -24,8 +24,8 @@ public:
     void print();
     void print(std::string &str);
     bool checkDistence(const Instancia &instance, double *dist, std::string &str);
-
     void copia(Route &route);
+    void resetaRoute();
 
     std::vector<RouteNo> rota;
     int routeSize = 2;

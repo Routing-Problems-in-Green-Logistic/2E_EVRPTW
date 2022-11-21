@@ -579,9 +579,11 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                             }
                             else
                             {
-                                cout<<"ERRO, NAO DEVERIA ENTRAR AQUI\t\t ????\n\n";
-                                PRINT_DEBUG("", "");
-                                throw "ERRO";
+                                //cout<<"ERRO, NAO DEVERIA ENTRAR AQUI\t\t ????\n\n";
+                                //evRoute.print(instance, true);
+                                //PRINT_DEBUG("", "");
+                                //throw "ERRO";
+                                sol.viavel = false;
                             }
                         }
                         else
@@ -661,8 +663,8 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                 sol.print(instance);
 
                 cout<<"############################################################################################\n\n";
-                cout<<"SOLUCAO INICIAL:\n\n";
-                solTemp.print(instance);
+                //cout<<"SOLUCAO INICIAL:\n\n";
+                //solTemp.print(instance);
 
 
                 cout << erro
@@ -677,6 +679,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
                 if(sol.distancia < solBest->distancia || !solBest->viavel)
                 {
+                    cout<<"UPDATE: "<<sol.distancia<<"\n";
 
                     solBest->copia(sol);
                     solBest->ultimaA = i;

@@ -29,6 +29,8 @@ public:
     int numSatVazios();
     int getNumEvNaoVazios();
     bool viavel2Nivel(Instancia &instancia);
+    void resetaSat(int satId, Instancia &instancia, vector<int> &vetClienteDel);    // Somente o sat eh alterado, 1 nivel nao se altera
+    void reseta1Nivel(Instancia &instancia);
 
     // Possui numSat + 1 !!
     std::vector<Satelite> satelites;

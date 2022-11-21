@@ -58,6 +58,14 @@ void Solucao::resetaPrimeiroNivel(Instancia &instancia)
     for(Satelite &sat:satelites)
         distancia += sat.distancia;
 
+    for(int i = 0; i < instancia.getNSats()+1; i++)
+        satTempoChegMax[i] = -1;
+
+
+
+    for(int i=instancia.getFirstSatIndex(); i <= instancia.getEndSatIndex(); ++i)
+        primeiroNivel[i].resetaRoute();
+
 }
 
 void Solucao::recalculaDistSat(Instancia &instancia)
@@ -512,4 +520,61 @@ bool Solucao::viavel2Nivel(Instancia &instancia)
     }
 
     return true;
+}
+void Solucao::resetaSat(int satId, Instancia &instancia, vector<int> &vetClienteDel)
+{
+
+    if(satId >= 1 && satId <= instancia.getEndSatIndex())
+    {
+        distancia -= satelites[satId].distancia;
+        satelites[satId].distancia = 0.0;
+        satelites[satId].demanda   = 0.0;
+
+        vetClienteDel = vector<int>(instancia.getEndClientIndex()+1, 0);
+
+        Satelite &satelite = satelites[satId];
+
+        for(EvRoute &evRoute:satelite.vetEvRoute)
+        {
+            if(evRoute.routeSize > 2)
+            {
+                for(int i=1; i < (evRoute.routeSize-1); ++i)
+                    vetClienteDel[evRoute.route[i].cliente] = 1;
+
+                evRoute.distancia = 0.0;
+                evRoute[1].cliente = satId;
+                evRoute.routeSize = 2;
+            }
+        }
+
+        for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+        {
+            if(vetClienteDel[i] == 1)
+                vetClientesAtend[i] = int8_t(0);
+        }
+
+        satTempoChegMax[satId] = -1.0;
+
+    }
+    else
+    {
+        PRINT_DEBUG("", "");
+        cout<<"ERRO, SAT ID: "<<satId<<" EH INVIAVEL\n";
+        throw "ERRO";
+    }
+
+}
+
+void Solucao::reseta1Nivel(Instancia &instancia)
+{
+
+    for(Route &route:primeiroNivel)
+    {
+        if(route.routeSize > 2)
+        {
+            distancia -= route.totalDistence;
+            route.resetaRoute();
+        }
+    }
+
 }

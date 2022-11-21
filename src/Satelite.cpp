@@ -107,9 +107,12 @@ void Satelite::print(const Instancia &instance)
 
     for(EvRoute &evRoute:vetEvRoute)
     {
-        std::cout<<"\tROTA ID: "<<evRoute.idRota<<".:  ";
-        evRoute.print(instance, false);
-        std::cout<<"\n";
+        if(evRoute.routeSize > 2)
+        {
+            std::cout << "\tROTA ID: " << evRoute.idRota << ".:  ";
+            evRoute.print(instance, false);
+            std::cout << "\n";
+        }
     }
     cout<<"Demanda: "<<demanda;
     std::cout<<"\n\n";
