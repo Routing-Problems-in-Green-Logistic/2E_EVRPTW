@@ -31,7 +31,8 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const f
     const int FistIdClient  = instance.getFirstClientIndex();
     const int LastIdClient  = instance.getEndClientIndex();
     const auto ItEnd        = visitedClients.begin() + instance.getNSats() + instance.getNClients();
-    const std::vector<double> vetTempoSaida = std::move(calculaTempoSaidaInicialSat(instance, beta));
+    //const std::vector<double> vetTempoSaida = std::move(calculaTempoSaidaInicialSat(instance, beta));
+    const std::vector<double> &vetTempoSaida = instance.vetTempoSaida;
     EvRoute evRouteAux(-1, -1, instance.getEvRouteSizeMax(), instance);
 
     std::list<CandidatoEV> listaCandidatos;

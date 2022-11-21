@@ -29,7 +29,7 @@ using namespace NS_VetorHash;
 const float fator       = 1.4;//0.1344;
 const float fator1Nivel = 1.1;//0;01
 
-const bool ListaRestTam = false;
+const bool ListaRestTam = true;
 
 /**
  *
