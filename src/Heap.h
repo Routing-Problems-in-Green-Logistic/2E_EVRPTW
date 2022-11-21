@@ -13,7 +13,8 @@
 #ifndef INC_2E_EVRP_HEAP_H
 #define INC_2E_EVRP_HEAP_H
 
-#include <vector>
+#include <boost/container/vector.hpp>
+namespace BoostC = boost::container;
 
 namespace N_heap
 {

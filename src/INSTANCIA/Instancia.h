@@ -4,7 +4,8 @@
 #define INSTANCE_H
 
 #include <iostream>
-#include <vector>
+#include <boost/container/vector.hpp>
+namespace BoostC = boost::container;
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/triangular.hpp>
 #include "../Auxiliary.h"
@@ -131,8 +132,8 @@ public:
     // Considerando dist(i,j) == dist(j,i) !!
     ublas::matrix<double> matDist;
 
-    std::vector<VeiculoInst> vectVeiculo;           // veic a combustao + veic EV
-    std::vector<ClienteInst> vectCliente;           // deposito, satellites, estacoes e clientes
+    BoostC::vector<VeiculoInst> vectVeiculo;           // veic a combustao + veic EV
+    BoostC::vector<ClienteInst> vectCliente;           // deposito, satellites, estacoes e clientes
 
     int numSats, numClients, numRechargingS, numEv, numTruck;
     int numNos; // deposito + numSats + numRechargingS + numClients
@@ -145,7 +146,7 @@ public:
     int numEstacoesPorArco=-1;
     double penalizacaoDistEv = 0.0;
     double penalizacaoDistComb = 0.0;
-    std::vector<double> vetTempoSaida;
+    BoostC::vector<double> vetTempoSaida;
     bool bestInsViabRotaEv = false;
 
     // Guarda o menor caminho de cada cliente para todos os sat; tam: numSat+1; shortestPath EH VETOR !! VETOR !!
@@ -174,14 +175,14 @@ public:
 
     int numIteGrasp                     = 0;         // Numero de itracoes para o grasp
     int iteracoesCalProb                = 50;        // Numero de iteracoes para calcular a prob de inserir uma rota: sat ... EST ... CLIENTE ... EST ... sat
-    std::vector<float> vetAlfa;
+    BoostC::vector<float> vetAlfa;
     int numAtualProbReativo             = 50;        // Numero de iteracoes para atualizar a probabilidade do reativo
     int numMaxClie                      = 0;         // Numero maximo de clientes(que NAO conseguem ser inseridos com heur) adicionados a solucao
     float paramFuncSetSatParaCliente    = 0.1;       // Percentual de sat a ser considerados na funcao GreedyAlgNS::setSatParaCliente
     int probCorte                       = 45;        // Probabilidade de corte para add rota sat <est> cliente <est> sat
     int numItSemMelhora                 = 400;       // Numero de iteracoes sem melhora para encerrar a execucao do grasp
     ParametrosGrasp()=default;
-    ParametrosGrasp(int numIteGrasp_, int iteracoesCalProb_, const std::vector<float> &vetAlfa_, int numAtualProbReativo_, int numMaxClie_, float paramFuncSetSatParaCliente_, int numItSemMelhora_)
+    ParametrosGrasp(int numIteGrasp_, int iteracoesCalProb_, const BoostC::vector<float> &vetAlfa_, int numAtualProbReativo_, int numMaxClie_, float paramFuncSetSatParaCliente_, int numItSemMelhora_)
     {
         numIteGrasp                 = numIteGrasp_;
         iteracoesCalProb            = iteracoesCalProb_;

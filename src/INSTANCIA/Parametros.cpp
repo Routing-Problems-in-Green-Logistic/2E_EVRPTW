@@ -355,7 +355,7 @@ void NS_parametros::consolidaResultados(Parametros &paramEntrada, ParametrosSaid
                     std::ifstream lerCap;
                     lerCap.open(paramEntrada.caminhoPasta + "/temp.txt", ios::in);
 
-                    std::vector<string> cabec;
+                    BoostC::vector<string> cabec;
 
                     for(int i=0; i < paramSaida.mapNoSaida.size(); ++i)
                     {

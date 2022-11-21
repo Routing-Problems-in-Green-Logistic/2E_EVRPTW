@@ -37,7 +37,7 @@ using namespace boost::numeric;
  * ******************************************************************************************************
  */
 bool N_Aco::aco(Instancia &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
-                const vector<int> &vetSatAtendCliente, ParametrosGrasp &param, const Solucao *solGrasp,
+                const BoostC::vector<int> &vetSatAtendCliente, ParametrosGrasp &param, const Solucao *solGrasp,
                 const int numEVs)
 {
 
@@ -107,8 +107,8 @@ printMatFerom(-1);
     Ant antBest(instance, sateliteId, true);
     antBest.clientesNaoAtend = instance.numClients;
 
-    vector<Proximo> vetProximo(1+instance.numClients+instance.numRechargingS);
-    vector<Proximo> vetProximoAux(1+instance.numClients+instance.numRechargingS);
+    BoostC::vector<Proximo> vetProximo(1+instance.numClients+instance.numRechargingS);
+    BoostC::vector<Proximo> vetProximoAux(1+instance.numClients+instance.numRechargingS);
 
     for(int iteracao = 0; iteracao < acoPar.numIteracoes; ++iteracao)
     {
@@ -120,7 +120,7 @@ printMatFerom(-1);
 #if PRINT_0 == TRUE
 cout<<"ITE: "<<iteracoes<<"\n";
 #endif
-        std::vector<Ant> vetAnt(acoPar.numAnts, Ant(instance, sateliteId));
+        BoostC::vector<Ant> vetAnt(acoPar.numAnts, Ant(instance, sateliteId));
 
         int antCount = 0;
         for(Ant &ant:vetAnt)
@@ -595,7 +595,7 @@ void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ
  * @param tempoSaidaI
  * @return
  */
-bool N_Aco::clienteJValido(Instancia &instancia, const int i, const int j, const double bat, const vector<int8_t> &vetNosAtend, const int sat, const double tempoSaidaI)
+bool N_Aco::clienteJValido(Instancia &instancia, const int i, const int j, const double bat, const BoostC::vector<int8_t> &vetNosAtend, const int sat, const double tempoSaidaI)
 {
 
     // TEMPO ??
@@ -711,7 +711,7 @@ cout<<j<<": ok\n";
 
 
 void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, ublas::matrix<double> &matAtualFeromonio, Instancia &instancia, const AcoParametros &acoParam,
-                              const Ant &antBest, const vector<Ant> &vetAnt)
+                              const Ant &antBest, const BoostC::vector<Ant> &vetAnt)
 {
 
     double feromMax = 1.0/antBest.satelite.distancia;
@@ -786,7 +786,7 @@ cout<<"FEROMONIO MAX: "<<feromMax<<"\n";
 
 }
 
-void N_Aco::evaporaFeromonio(ublas::matrix<double> &matFeromonio, const vector<int> &vetSat, Instancia &instancia, const AcoParametros &acoParam, const double feromMin)
+void N_Aco::evaporaFeromonio(ublas::matrix<double> &matFeromonio, const BoostC::vector<int> &vetSat, Instancia &instancia, const AcoParametros &acoParam, const double feromMin)
 {
 
     static const double ro_1 = 1.0-acoParam.ro;
@@ -818,10 +818,10 @@ bool N_Aco::acoSol(Instancia &instancia, AcoParametros &acoPar, AcoEstatisticas 
 
     //cout<<"NUM EVs: "<<instancia.numEv<<"\n";
 
-    vector<int> vetSatAtendCliente(instancia.numNos, -1);
-    vector<int> satUtilizado(instancia.numSats+1, 0);
-    vector<int> numEvPorSat(instancia.numSats+1, 0);
-    vector<double> cargaPorSat(instancia.numSats+1, 0);
+    BoostC::vector<int> vetSatAtendCliente(instancia.numNos, -1);
+    BoostC::vector<int> satUtilizado(instancia.numSats+1, 0);
+    BoostC::vector<int> numEvPorSat(instancia.numSats+1, 0);
+    BoostC::vector<double> cargaPorSat(instancia.numSats+1, 0);
 
 
     const ublas::matrix<int> matClienteSat =  N_k_means::k_means(instancia, vetSatAtendCliente, satUtilizado, false);
@@ -837,7 +837,7 @@ bool N_Aco::acoSol(Instancia &instancia, AcoParametros &acoPar, AcoEstatisticas 
 
         if(!solGrasp->viavel)
         {
-                std::vector<int> vetClienteAtend(instancia.numNos, 0);
+                BoostC::vector<int> vetClienteAtend(instancia.numNos, 0);
 
                 for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
                 {

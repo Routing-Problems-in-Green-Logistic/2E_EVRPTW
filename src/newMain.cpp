@@ -38,8 +38,8 @@ void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const
 
 namespace N_gamb
 {
-    std::vector<NS_vnd::MvValor> vetMvValor;
-    std::vector<NS_vnd::MvValor> vetMvValor1Nivel;
+    BoostC::vector<NS_vnd::MvValor> vetMvValor;
+    BoostC::vector<NS_vnd::MvValor> vetMvValor1Nivel;
 }
 
 int main(int argc, char* argv[])
@@ -132,8 +132,8 @@ void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, Parametr
     Estatisticas estatisticas;
 
 
-    vector<int> vetSatAtendCliente(instancia.numNos, -1);
-    vector<int> satUtilizado(instancia.numSats+1, 0);
+    BoostC::vector<int> vetSatAtendCliente(instancia.numNos, -1);
+    BoostC::vector<int> satUtilizado(instancia.numSats+1, 0);
     const ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
     Solucao *solGrasp = grasp(instancia, parametrosGrasp, estatisticas, false, matClienteSat, N_gamb::vetMvValor,
                               N_gamb::vetMvValor1Nivel, parametrosSaida);
@@ -145,8 +145,8 @@ void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, Parametr
 
 void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const Parametros &parametros)
 {
-    const std::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 1.0};
-    //const std::vector<float> vetAlfa{0.1, 0.3, 0.5, 0.9};
+    const BoostC::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 1.0};
+    //const BoostC::vector<float> vetAlfa{0.1, 0.3, 0.5, 0.9};
     int num = min(instancia.getN_Evs() / 2, 8);
     if(num == 0)
         num = 1;

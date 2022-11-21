@@ -13,8 +13,8 @@ NS_Ag::RandomKey::RandomKey(Instancia &instancia)
 {
 
     int tam   = instancia.numClients + instancia.numRechargingS*instancia.numUtilEstacao*instancia.numEv;
-    vetRandom = std::vector<RandomNo>(tam);
-    vetDecod  = std::vector<RandomNo>(tam);
+    vetRandom = BoostC::vector<RandomNo>(tam);
+    vetDecod  = BoostC::vector<RandomNo>(tam);
 
     int vetIndex = 0;
 
@@ -64,7 +64,7 @@ void NS_Ag::RandomKey::printVetDecod(string &str)
     str += "\n";
 }
 
-bool NS_Ag::atendeTodosOsClientes(const std::vector<int> &vetClienteAtend)
+bool NS_Ag::atendeTodosOsClientes(const BoostC::vector<int> &vetClienteAtend)
 {
     for(const int &it:vetClienteAtend)
     {
@@ -87,7 +87,7 @@ bool NS_Ag::atendeTodosOsClientes(const std::vector<int> &vetClienteAtend)
  ** ******************************************************************************
  ** ******************************************************************************/
 
-void NS_Ag::decodificaSol(Instancia &instancia, RandomKey &randKey, Satelite &sat, const vector<int> &vetSatAtendCliente, const double tempoSaidaSat)
+void NS_Ag::decodificaSol(Instancia &instancia, RandomKey &randKey, Satelite &sat, const BoostC::vector<int> &vetSatAtendCliente, const double tempoSaidaSat)
 {
 
     /* *************************************************************************************************************************************
@@ -151,7 +151,7 @@ void NS_Ag::decodificaSol(Instancia &instancia, RandomKey &randKey, Satelite &sa
 
 
     // Seta 0 para o cliente que deve ser atendido por sat e 1 caso contrario. Rs nao sao marcadas nesse vetor
-    vector<int> vetClieAtend(vetSatAtendCliente);
+    BoostC::vector<int> vetClieAtend(vetSatAtendCliente);
 
     for(int &it : vetClieAtend)
     {
@@ -166,7 +166,7 @@ void NS_Ag::decodificaSol(Instancia &instancia, RandomKey &randKey, Satelite &sa
     int pos        = 0;                                                  // Guarda a posicao atual
     int ev         = 0;
     int clienteAnt = sat.sateliteId;
-    static std::vector<bool> vetBackTrack(instancia.numNos*2);        // Indica se a posicao deve ser testada novamente, no mesmo veic
+    static BoostC::vector<bool> vetBackTrack(instancia.numNos*2);        // Indica se a posicao deve ser testada novamente, no mesmo veic
 
      // Incrementa posAnt se vetDecod eh invalido
     auto avancaPosAnt = [&]()

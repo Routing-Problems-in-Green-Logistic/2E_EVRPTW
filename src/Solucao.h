@@ -1,6 +1,7 @@
 #ifndef INC_2E_EVRP_SOLUCAO_H
 #define INC_2E_EVRP_SOLUCAO_H
-#include <vector>
+#include <boost/container/vector.hpp>
+namespace BoostC = boost::container;
 #include "Satelite.h"
 
 class Solucao
@@ -33,20 +34,20 @@ public:
     void reseta1Nivel(Instancia &instancia);
 
     // Possui numSat + 1 !!
-    std::vector<Satelite> satelites;
+    BoostC::vector<Satelite> satelites;
 
     // Guarda o ultimo tempo de chegada do veiculo do 1° nivel
-    std::vector<double> satTempoChegMax;
+    BoostC::vector<double> satTempoChegMax;
     int numTrucksMax = -1;
     int numEvMax     = -1;
     int numEv        = 0;                   // Num Ev utilizados
     bool viavel      = true;
-    std::vector<Route> primeiroNivel;
+    BoostC::vector<Route> primeiroNivel;
     bool mvShiftIntraRota = false;
     bool mvShiftInterRotas = false;
     bool mvCross = false;
     double distancia = 0.0;
-    std::vector<int8_t> vetClientesAtend;
+    BoostC::vector<int8_t> vetClientesAtend;
 
     bool solInicializada = false;
     int ultimaA = -1;

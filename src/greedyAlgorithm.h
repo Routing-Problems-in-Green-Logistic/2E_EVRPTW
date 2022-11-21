@@ -4,7 +4,8 @@
 #include "Solucao.h"
 #include "ViabilizadorRotaEv.h"
 #include <list>
-#include <vector>
+#include <boost/container/vector.hpp>
+namespace BoostC = boost::container;
 
 namespace GreedyAlgNS
 {
@@ -90,8 +91,8 @@ namespace GreedyAlgNS
     void firstEchelonGreedy(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam);
     void construtivo(Solucao &Sol, Instancia &instancia, const float alpha, const float beta,
                      const ublas::matrix<int> &matClienteSat, bool listaRestTam);
-    bool visitAllClientes(std::vector<int8_t> &visitedClients, const Instancia &instance);
-    bool existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendida);
+    bool visitAllClientes(BoostC::vector<int8_t> &visitedClients, const Instancia &instance);
+    bool existeDemandaNaoAtendida(BoostC::vector<double> &demandaNaoAtendida);
     bool insereEstacao(int rotaId, int satId);
 
     bool canInsert(EvRoute &evRoute, int node, Instancia &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux);
@@ -99,7 +100,7 @@ namespace GreedyAlgNS
     bool insert(EvRoute &evRoute, CandidatoEV & insertion, const Instancia &instance, const double tempoSaidaSat, Solucao &sol);
     bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instancia &instance, bool modficaSatelite);
 
-    std::vector<double> calculaTempoSaidaInicialSat(Instancia &instance, const float beta);
+    BoostC::vector<double> calculaTempoSaidaInicialSat(Instancia &instance, const float beta);
     void setSatParaCliente(Instancia &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, ParametrosGrasp &param);
 
 

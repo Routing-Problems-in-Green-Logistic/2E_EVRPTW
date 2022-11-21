@@ -46,8 +46,8 @@ namespace NS_vnd
 
     };
 
-    void rvnd(Solucao &solution, Instancia &instance, const float beta, std::vector<MvValor> &vetMvValor,
-              std::vector<MvValor> &vetMvValor1Nivel);
+    void rvnd(Solucao &solution, Instancia &instance, const float beta, BoostC::vector<MvValor> &vetMvValor,
+              BoostC::vector<MvValor> &vetMvValor1Nivel);
 }
 
 #endif //INC_2E_EVRP_VND_H

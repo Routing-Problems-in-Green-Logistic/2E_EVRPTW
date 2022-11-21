@@ -59,19 +59,19 @@ void N_PreProcessamento::dijkstraSatCli(Instancia &instancia)
         instancia.shortestPath[i].start(instancia);
     }
 
-    std::vector<PreDecessorNo> preDecessorIda(instancia.numNos, PreDecessorNo());
-    std::vector<PreDecessorNo> preDecessorVolta(instancia.numNos, PreDecessorNo());
+    BoostC::vector<PreDecessorNo> preDecessorIda(instancia.numNos, PreDecessorNo());
+    BoostC::vector<PreDecessorNo> preDecessorVolta(instancia.numNos, PreDecessorNo());
 
-    std::vector<bool> excluidos(instancia.numNos, false);
+    BoostC::vector<bool> excluidos(instancia.numNos, false);
 
     // Exclui deposito e satelites
     excluidos[instancia.getDepotIndex()] = true;
     std::fill((excluidos.begin()+instancia.getFirstSatIndex()), (excluidos.begin()+instancia.getEndSatIndex()+1), true);
 
     // Para cada estacao e cliente (possicao) guarda o indice da min heap
-    std::vector<int> vetIndiceMinHeap(1 + instancia.getNSats() + instancia.getN_RechargingS()+instancia.numClients, -1);
+    BoostC::vector<int> vetIndiceMinHeap(1 + instancia.getNSats() + instancia.getN_RechargingS()+instancia.numClients, -1);
 
-    std::vector<int8_t> vetFechados(instancia.numNos);
+    BoostC::vector<int8_t> vetFechados(instancia.numNos);
 
     for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
     {
@@ -87,7 +87,7 @@ void N_PreProcessamento::dijkstraSatCli(Instancia &instancia)
         }
 
         // Inicialmente possui estacao de recarga e clientes
-        std::vector<DijkstraNo> minHeap(instancia.getN_RechargingS()+instancia.numClients+2);
+        BoostC::vector<DijkstraNo> minHeap(instancia.getN_RechargingS()+instancia.numClients+2);
 
         // Encontra o menor caminho viavel de sat ate todos os clientes passando pelas estacoes de recarga
         dijkstra(instancia, sat, instancia.getFirstEvIndex(), 0, minHeap, preDecessorIda, excluidos, false,
@@ -111,7 +111,7 @@ void N_PreProcessamento::dijkstraSatCli(Instancia &instancia)
 
                 auto recuperaRota = [&](bool ida, ShortestPathNo &caminho)
                 {
-                    std::vector<int> rota;
+                    BoostC::vector<int> rota;
                     rota.reserve(10);
 
                     int indice;
@@ -121,7 +121,7 @@ void N_PreProcessamento::dijkstraSatCli(Instancia &instancia)
                     else
                         indice = sat;
 
-                    vector<PreDecessorNo> *vetPreDecessor;
+                    BoostC::vector<PreDecessorNo> *vetPreDecessor;
                     if(ida)
                         vetPreDecessor = &preDecessorIda;
                     else
@@ -142,13 +142,13 @@ void N_PreProcessamento::dijkstraSatCli(Instancia &instancia)
                     if(ida)
                     {
 
-                        caminho.caminhoIda  = std::vector<int>(rota);
+                        caminho.caminhoIda  = BoostC::vector<int>(rota);
                         caminho.distIda     = preDecessorIda[i].dist;
                         caminho.batIda      = preDecessorIda[i].bateria;
                     }
                     else
                     {
-                        caminho.caminhoVolta = std::vector<int>(rota);
+                        caminho.caminhoVolta = BoostC::vector<int>(rota);
                         caminho.distVolta    = preDecessorVolta[sat].dist;
                         caminho.distIdaVolta = caminho.distIda+caminho.distVolta;
                         caminho.batVolta     = preDecessorVolta[sat].bateria;
@@ -198,7 +198,7 @@ void N_PreProcessamento::dijkstraSatCli(Instancia &instancia)
 
     for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
     {
-        instancia.shortestPath[sat].vetEvRoute = vector<EvRoute>(instancia.getNClients(), EvRoute(instancia.getFirstSatIndex(), instancia.getFirstEvIndex(),
+        instancia.shortestPath[sat].vetEvRoute = BoostC::vector<EvRoute>(instancia.getNClients(), EvRoute(instancia.getFirstSatIndex(), instancia.getFirstEvIndex(),
                                                                                                   instancia.getEvRouteSizeMax(), instancia));
 
         for(int i = instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
@@ -285,9 +285,9 @@ void N_PreProcessamento::dijkstraSatCli(Instancia &instancia)
  */
 
 void N_PreProcessamento::dijkstra(Instancia &instancia, const int clienteSorce, const int veicId, double bateria,
-                                  std::vector<DijkstraNo> &minHeap, std::vector<PreDecessorNo> &preDecessor,
-                                  const std::vector<bool> &excluidos, const bool clienteCliente,
-                                  std::vector<int> &vetIndiceMinHeap, std::vector<int8_t> &vetFechados,
+                                  BoostC::vector<DijkstraNo> &minHeap, BoostC::vector<PreDecessorNo> &preDecessor,
+                                  const BoostC::vector<bool> &excluidos, const bool clienteCliente,
+                                  BoostC::vector<int> &vetIndiceMinHeap, BoostC::vector<int8_t> &vetFechados,
                                   const double tempoSaida, const double minBtCli)
 {
 
@@ -475,7 +475,7 @@ int N_PreProcessamento::getPaiMinHeap(int pos)
         return (pos-1)/2;
 }
 
-int N_PreProcessamento::shifitUpMinHeap(std::vector<DijkstraNo> &minHeap, int pos, std::vector<int> &vetIndice)
+int N_PreProcessamento::shifitUpMinHeap(BoostC::vector<DijkstraNo> &minHeap, int pos, BoostC::vector<int> &vetIndice)
 {
 
     int pai = getPaiMinHeap(pos);
@@ -507,7 +507,7 @@ int N_PreProcessamento::shifitUpMinHeap(std::vector<DijkstraNo> &minHeap, int po
 }
 
 
-int N_PreProcessamento::shifitDownMinHeap(std::vector<DijkstraNo> &minHeap, int tam, int pos, std::vector<int> &vetIndice)
+int N_PreProcessamento::shifitDownMinHeap(BoostC::vector<DijkstraNo> &minHeap, int tam, int pos, BoostC::vector<int> &vetIndice)
 {
     int filhoDir = 2*pos+1;
     int filhoEsq = 2*pos+2;
@@ -583,7 +583,7 @@ int N_PreProcessamento::shifitDownMinHeap(std::vector<DijkstraNo> &minHeap, int 
 
 }
 
-void N_PreProcessamento::removeTopo(std::vector<DijkstraNo> &minHeap, int *tam, std::vector<int> &vetIndice)
+void N_PreProcessamento::removeTopo(BoostC::vector<DijkstraNo> &minHeap, int *tam, BoostC::vector<int> &vetIndice)
 {
     if(*tam == 0)
         return;
@@ -607,7 +607,7 @@ void N_PreProcessamento::removeTopo(std::vector<DijkstraNo> &minHeap, int *tam, 
  * @param instance
  * @param matMinBat
  */
-void N_PreProcessamento::calculaMinBtCliente(Instancia &instance, std::vector<ublas::matrix<double>> &matMinBat)
+void N_PreProcessamento::calculaMinBtCliente(Instancia &instance, BoostC::vector<ublas::matrix<double>> &matMinBat)
 {
 
 }

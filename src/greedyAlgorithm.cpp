@@ -27,21 +27,21 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const f
     //cout<<"**********************************************CONSTRUTIVO**********************************************\n\n";
     //cout<<"\tALFA: "<<alpha<<"\n\n";
 
-    std::vector<int8_t> &visitedClients = sol.vetClientesAtend;
+    BoostC::vector<int8_t> &visitedClients = sol.vetClientesAtend;
 
     const int FistIdClient  = instance.getFirstClientIndex();
     const int LastIdClient  = instance.getEndClientIndex();
     const auto ItEnd        = visitedClients.begin() + instance.getNSats() + instance.getNClients();
-    //const std::vector<double> vetTempoSaida = std::move(calculaTempoSaidaInicialSat(instance, beta));
-    const std::vector<double> &vetTempoSaida = instance.vetTempoSaida;
+    //const BoostC::vector<double> vetTempoSaida = std::move(calculaTempoSaidaInicialSat(instance, beta));
+    const BoostC::vector<double> &vetTempoSaida = instance.vetTempoSaida;
     EvRoute evRouteAux(-1, -1, instance.getEvRouteSizeMax(), instance);
 
     std::list<CandidatoEV> listaCandidatos;
     std::list<int> clientesSemCandidato;
     //COLUNAS DA MATRIZ POSSUEM SOMENTE A QUANTIDADE DE CLIENTES!!
-    static std::vector<ublas::matrix<CandidatoEV*>> matCandidato(1 + instance.getNSats());
+    static BoostC::vector<ublas::matrix<CandidatoEV*>> matCandidato(1 + instance.getNSats());
     static bool primeiraChamada = true;
-    std::vector<CandidatoEV*> vetCandPtr(instance.getNClients(), nullptr);
+    BoostC::vector<CandidatoEV*> vetCandPtr(instance.getNClients(), nullptr);
 
     const int numLinhasMat      = instance.getN_Evs();
     const int numColMat         = instance.getNClients();
@@ -391,7 +391,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const f
 
 // run ../instancias/2e-vrp-tw/Customer_5/C101_C5x.txt 1652454289
 
-bool GreedyAlgNS::visitAllClientes(std::vector<int8_t> &visitedClients, const Instancia &instance)
+bool GreedyAlgNS::visitAllClientes(BoostC::vector<int8_t> &visitedClients, const Instancia &instance)
 {
 
     int i=instance.getFirstClientIndex();
@@ -415,7 +415,7 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, Instancia &instance, const fl
 
 
 
-    std::vector<double> demandaNaoAtendidaSat;
+    BoostC::vector<double> demandaNaoAtendidaSat;
     demandaNaoAtendidaSat.reserve(sol.getNSatelites()+1);
     int satId = 1;
     demandaNaoAtendidaSat.push_back(0.0);
@@ -761,7 +761,7 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
 
 
 
-bool GreedyAlgNS::existeDemandaNaoAtendida(std::vector<double> &demandaNaoAtendida)
+bool GreedyAlgNS::existeDemandaNaoAtendida(BoostC::vector<double> &demandaNaoAtendida)
 {
     for(double dem:demandaNaoAtendida)
     {
@@ -1087,17 +1087,17 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instancia &instance, Can
 
 }
 
-std::vector<double> GreedyAlgNS::calculaTempoSaidaInicialSat(Instancia &instance, const float beta)
+BoostC::vector<double> GreedyAlgNS::calculaTempoSaidaInicialSat(Instancia &instance, const float beta)
 {
 
     //cout<<"calculaTempo\n\n";
 
    const int NumSatMaisDep = instance.getNSats()+1;
 
-   vector<double> vetTempoSaida(NumSatMaisDep, 0.0);
-   vector<int> vetSatAtendido(NumSatMaisDep, 0);
+   BoostC::vector<double> vetTempoSaida(NumSatMaisDep, 0.0);
+   BoostC::vector<int> vetSatAtendido(NumSatMaisDep, 0);
 
-   auto existeSatNaoAtendido = [&](vector<int> &vetSatAtendido)
+   auto existeSatNaoAtendido = [&](BoostC::vector<int> &vetSatAtendido)
    {
        for(int i=1; i <= instance.getEndSatIndex(); ++i)
        {

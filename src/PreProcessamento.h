@@ -10,7 +10,8 @@
 #define INC_2E_EVRP_PREPROCESSAMENTO_H
 
 #include <iostream>
-#include <vector>
+#include <boost/container/vector.hpp>
+namespace BoostC = boost::container;
 #pragma once
 //#include "Instance.h"
 #include "common.h"
@@ -28,8 +29,8 @@ namespace N_PreProcessamento
         int satId       = -1;
         int clienteId   = -1;
 
-        std::vector<int> caminhoIda;
-        std::vector<int> caminhoVolta;
+        BoostC::vector<int> caminhoIda;
+        BoostC::vector<int> caminhoVolta;
 
         double distIda   = DOUBLE_INF;
         double batIda    = 0.0;
@@ -45,8 +46,8 @@ namespace N_PreProcessamento
         {
             satId = outro.satId;
             clienteId = outro.clienteId;
-            caminhoIda = std::vector<int>(outro.caminhoIda);
-            caminhoVolta = std::vector<int>(outro.caminhoVolta);
+            caminhoIda = BoostC::vector<int>(outro.caminhoIda);
+            caminhoVolta = BoostC::vector<int>(outro.caminhoVolta);
             distIda = outro.distIda;
             distVolta = outro.distVolta;
             distIdaVolta = outro.distIdaVolta;
@@ -66,8 +67,8 @@ namespace N_PreProcessamento
 
     public:
 
-        std::vector<ShortestPathNo> vetShortestPath;
-        std::vector<EvRoute> vetEvRoute;
+        BoostC::vector<ShortestPathNo> vetShortestPath;
+        BoostC::vector<EvRoute> vetEvRoute;
 
 
         explicit ShortestPathSatCli(Instance &instancia);
@@ -147,16 +148,16 @@ namespace N_PreProcessamento
 
     void dijkstraSatCli(Instancia &instancia);
     void dijkstra(Instancia &instancia, const int clienteSorce, const int veicId, double bateria,
-                  std::vector<DijkstraNo> &minHeap, std::vector<PreDecessorNo> &preDecessor,
-                  const std::vector<bool> &excluidos, const bool clienteCliente, std::vector<int> &vetIndiceMinHeap,
-                  std::vector<int8_t> &vetFechados, const double tempoSaida, const double minBtCli);
+                  BoostC::vector<DijkstraNo> &minHeap, BoostC::vector<PreDecessorNo> &preDecessor,
+                  const BoostC::vector<bool> &excluidos, const bool clienteCliente, BoostC::vector<int> &vetIndiceMinHeap,
+                  BoostC::vector<int8_t> &vetFechados, const double tempoSaida, const double minBtCli);
 
-    void calculaMinBtCliente(Instancia &instance, std::vector<ublas::matrix<double>> &matMinBat);
+    void calculaMinBtCliente(Instancia &instance, BoostC::vector<ublas::matrix<double>> &matMinBat);
 
     int getPaiMinHeap(int pos);
-    int shifitUpMinHeap(std::vector<DijkstraNo> &minHeap, int pos, std::vector<int> &vetIndice);
-    int shifitDownMinHeap(std::vector<DijkstraNo> &minHeap, int tam, int pos, std::vector<int> &vetIndice);
-    void removeTopo(std::vector<DijkstraNo> &minHeap, int *tam, std::vector<int> &vetIndice);
+    int shifitUpMinHeap(BoostC::vector<DijkstraNo> &minHeap, int pos, BoostC::vector<int> &vetIndice);
+    int shifitDownMinHeap(BoostC::vector<DijkstraNo> &minHeap, int tam, int pos, BoostC::vector<int> &vetIndice);
+    void removeTopo(BoostC::vector<DijkstraNo> &minHeap, int *tam, BoostC::vector<int> &vetIndice);
 
 }
 
@@ -172,8 +173,8 @@ private:
 
 public:
 
-    std::vector<N_PreProcessamento::ShortestPathNo> vetShortestPath;
-    std::vector<EvRoute> vetEvRoute;
+    BoostC::vector<N_PreProcessamento::ShortestPathNo> vetShortestPath;
+    BoostC::vector<EvRoute> vetEvRoute;
 
 
     explicit ShortestPathSatCli(Instancia &instancia);
