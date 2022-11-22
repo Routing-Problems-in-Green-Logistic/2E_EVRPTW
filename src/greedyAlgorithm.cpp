@@ -873,11 +873,13 @@ void GreedyAlgNS::construtivo(Solucao &sol, Instancia &instancia, const float al
                 }
 
                 satUtilizados[satMin] = 0;
+                //sol.resetaSat(satMin, instancia, clientesSat);
                 sol = Solucao(instancia);
                 numSatZero += 1;
 
                // cout<<"SAT "<<satMin<<" EXCLUIDO\n\n";
 
+                /*
                 for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
                 {
 
@@ -889,7 +891,7 @@ void GreedyAlgNS::construtivo(Solucao &sol, Instancia &instancia, const float al
                         }
                     }
 
-                }
+                }*/
 
                 segundoNivel = secondEchelonGreedy(sol, instancia, alpha, matClienteSat2, listaRestTam, beta, satUtilizados);
                 if(segundoNivel)
