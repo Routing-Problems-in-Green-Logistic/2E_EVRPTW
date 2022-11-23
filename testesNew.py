@@ -15,7 +15,7 @@ print("\n")
 #tamanhoInst = ['5', '10', '15', '100_1'] #, '100_1']
 #tamanhoInst = ['15', '100_0']
 #tamanhoInst = ['100_0']
-tamanhoInst = ['100_2']
+tamanhoInst = ['15']
 numExecucoes = 10
 caminhoDir = str(sys.argv[1])
 metodo = "G"

@@ -70,8 +70,8 @@ for i in range(len(nodeId)):
     if i == 0:
         continue
         
-    if demand[i] != 0.0:
-        continue       
+    #if demand[i] != 0.0:
+    #    continue       
     
     #if len(sys.argv) == 2:
     #    plt.annotate(int(nodeId[i]), (x[i], y[i]), color='r')

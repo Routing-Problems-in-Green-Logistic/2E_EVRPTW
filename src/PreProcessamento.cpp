@@ -509,6 +509,7 @@ int N_PreProcessamento::shifitUpMinHeap(BoostC::vector<DijkstraNo> &minHeap, int
 
 int N_PreProcessamento::shifitDownMinHeap(BoostC::vector<DijkstraNo> &minHeap, int tam, int pos, BoostC::vector<int> &vetIndice)
 {
+
     int filhoDir = 2*pos+1;
     int filhoEsq = 2*pos+2;
 
@@ -559,20 +560,23 @@ int N_PreProcessamento::shifitDownMinHeap(BoostC::vector<DijkstraNo> &minHeap, i
         filhoDir = 2*pos+1;
         filhoEsq = 2*pos+2;
 
-        if(!(filhoDir < tam))
+        if(filhoEsq >= tam)
             break;
     }
 
-    if((!(minHeap[filhoDir] < minHeap[pos])) && (filhoEsq < tam))
+    if(filhoEsq < tam && filhoDir < tam)
     {
-        if (minHeap[pos] > minHeap[filhoEsq])
+        if((!(minHeap[filhoDir] < minHeap[pos])))
         {
+            if(minHeap[pos] > minHeap[filhoEsq])
+            {
 
-            DijkstraNo temp = minHeap[pos];
-            minHeap[pos] = minHeap[filhoEsq];
-            minHeap[filhoEsq] = temp;
+                DijkstraNo temp = minHeap[pos];
+                minHeap[pos] = minHeap[filhoEsq];
+                minHeap[filhoEsq] = temp;
 
-            pos = filhoEsq;
+                pos = filhoEsq;
+            }
         }
     }
 
