@@ -1,9 +1,11 @@
 #include "Vnd.h"
 #include "mersenne-twister.h"
 #include "LocalSearch.h"
+#include "LocalSearch2.h"
 
 using namespace NS_vnd;
 using namespace NS_LocalSearch;
+using namespace NS_LocalSearch2;
 
 /**
  *
@@ -18,9 +20,9 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 {
 
 
-    static int vetMv[NUM_MV];//= {MV_EV_SWAP_INTER_ROTAS_INTER_SAT};
+    static int vetMv[NUM_MV] = {MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTRA_SAT};
 
-    for(int i=0; i < NUM_MV; ++i)
+    /*for(int i=0; i < NUM_MV; ++i)
     {
         vetMv[i] = rand_u32()%NUM_MV;
         bool invalido = true;
@@ -42,7 +44,7 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
                 invalido = false;
 
         }
-    }
+    }*/
 
 
     EvRoute evRouteAux(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
@@ -99,9 +101,12 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
                     aplicacao = mvEvSwapInterRotasInterSats(solution, instance, evRouteAux, evRouteAux1, beta);
                     break;
 
+                case MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTRA_SAT:
+                    aplicacao = mvEvShifit2Nos_interRotasIntraSat(solution, instance, evRouteAux, evRouteAux1);
+                    break;
 
                 default:
-                    cout << "ERRO: MV(" << i << ") NAO EXISTE\n";
+                    cout << "ERRO: MV(" << vetMv[i] << ") NAO EXISTE\n";
                     throw "ERRO";
                     break;
 
@@ -109,6 +114,8 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 
             if(aplicacao)
             {
+
+//cout<<"APLICACAO MV: "<<((solution.distancia-valOrig)/valOrig)*100.0<<"\n";
                 vetMvValor[vetMv[i]].add(valOrig, solution.distancia);
 
                 if(NS_Auxiliary::menor(solution.getDist1Nivel(), val1Nivel))

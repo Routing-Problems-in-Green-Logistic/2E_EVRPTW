@@ -30,8 +30,8 @@ set(SOURCES newMain.cpp
             Satelite.h
         Auxiliary.cpp
             Auxiliary.h
-            LocalSearch.cpp
-            LocalSearch.h
+        LocalSearch.h
+        LocalSearch.cpp
             Route.cpp
             Vnd.cpp
             Vnd.h
@@ -57,7 +57,7 @@ set(SOURCES newMain.cpp
 
 
 
-add_executable(run)# INSTANCIA/ParametrosEntrada.cpp INSTANCIA/ParametrosEntrada.h)
+add_executable(run ${SOURCES})# INSTANCIA/ParametrosEntrada.cpp INSTANCIA/ParametrosEntrada.h)
 
 
 #target_include_directories(run PUBLIC "ACO")
@@ -65,6 +65,7 @@ add_executable(run)# INSTANCIA/ParametrosEntrada.cpp INSTANCIA/ParametrosEntrada
 
 
 target_include_directories(run PUBLIC "INSTANCIA")
+link_directories("INSTANCIA")
 add_subdirectory("INSTANCIA")
 
 target_sources(run PUBLIC ${SOURCES})

@@ -462,8 +462,8 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
                             evRouteAux.routeSize = 4;
 
-                            double dist = NameViabRotaEv::testaRota(evRouteAux, evRouteAux.routeSize, instance, true,
-                                                                    instance.vetTempoSaida[sat], 0, nullptr);
+                            double dist = NS_viabRotaEv::testaRota(evRouteAux, evRouteAux.routeSize, instance, true,
+                                                                   instance.vetTempoSaida[sat], 0, nullptr);
                             if(dist > 0.0)
                             {
                                 evRouteAux.distancia = dist;
@@ -592,7 +592,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                             sol.distancia -= evRoute.distancia;
                             sol.satelites[sat].distancia -= evRoute.distancia;
 
-                            NameViabRotaEv::testaRota(evRoute, evRoute.routeSize, instance, true, evRoute[0].tempoSaida, 0, nullptr);
+                            NS_viabRotaEv::testaRota(evRoute, evRoute.routeSize, instance, true, evRoute[0].tempoSaida, 0, nullptr);
 
 
                             sol.distancia += evRoute.distancia;

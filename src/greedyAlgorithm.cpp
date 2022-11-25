@@ -10,7 +10,7 @@ using namespace GreedyAlgNS;
 using namespace std;
 using namespace NS_Auxiliary;
 using namespace NS_LocalSearch;
-using namespace NameViabRotaEv;
+using namespace NS_viabRotaEv;
 using namespace boost::numeric;
 
 

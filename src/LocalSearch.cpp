@@ -13,7 +13,7 @@
 using namespace NS_LocalSearch;
 using namespace NS_Auxiliary;
 using namespace GreedyAlgNS;
-using namespace NameViabRotaEv;
+using namespace NS_viabRotaEv;
 
 #define PRINT_MV_SHIFIT_INTRA FALSE
 #define PRINT_MV_2OPT FALSE
@@ -447,7 +447,7 @@ int NS_LocalSearch::setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRout
 
 }
 
-void NS_LocalSearch::insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, Instancia &instance, double tempoSaida)
+void NS_LocalSearch::insereEstacaoRota(EvRoute &evRoute, NS_viabRotaEv::InsercaoEstacao &insercaoEstacao, Instancia &instance, double tempoSaida)
 {
     if(insercaoEstacao.pos == -1)
         return;
@@ -1053,7 +1053,7 @@ bool NS_LocalSearch::mvEvShifitInterRotasIntraSat(Solucao &solucao, Instancia &i
 
     const bool interSat = false;
 
-    if(instancia.numSats == 1 && instancia.numEv == 1)
+    if(instancia.numEv == 1)
         return false;
 
     for(int sat0=instancia.getFirstSatIndex(); sat0 <= instancia.getEndSatIndex(); ++sat0)

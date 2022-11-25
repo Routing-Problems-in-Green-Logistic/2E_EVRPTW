@@ -31,7 +31,7 @@ namespace NS_LocalSearch
         int idEvRota    = -1;
         int pos         = -1;
         int i           = -1;
-        NameViabRotaEv::InsercaoEstacao estacao;
+        NS_viabRotaEv::InsercaoEstacao estacao;
     };
 
     class LocalSearch
@@ -78,7 +78,7 @@ namespace NS_LocalSearch
     bool mvEvShifitIntraRota(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux, const int selecao);
     int setRotaMvEvShifitIntraRota(EvRoute &evRoute, EvRoute &evRouteAux, int i, int pos, Instancia &instancia);
     void getMov(int movId, string &mov);
-    void insereEstacaoRota(EvRoute &evRoute, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, Instancia &instance, double tempoSaida);
+    void insereEstacaoRota(EvRoute &evRoute, NS_viabRotaEv::InsercaoEstacao &insercaoEstacao, Instancia &instance, double tempoSaida);
     bool mvEvSwapIntraRota(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux);
     bool mvEv2opt(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux);
 

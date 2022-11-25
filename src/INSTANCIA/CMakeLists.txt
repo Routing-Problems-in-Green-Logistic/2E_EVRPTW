@@ -35,4 +35,5 @@ add_subdirectory("../K_MEANS" K_MEANS)
 target_include_directories(run PUBLIC "../HASH" )
 add_subdirectory("../HASH" HASH)
 
-
+target_include_directories(run PUBLIC "../BUSCA_LOCAL" )
+add_subdirectory("../BUSCA_LOCAL" BUSCA_LOCAL)

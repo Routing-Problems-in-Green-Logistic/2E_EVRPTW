@@ -7,7 +7,7 @@
 
 using namespace NS_Auxiliary;
 using namespace std;
-using namespace NameViabRotaEv;
+using namespace NS_viabRotaEv;
 using namespace GreedyAlgNS;
 
 

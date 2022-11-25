@@ -53,10 +53,10 @@ namespace GreedyAlgNS
             incrP = p + incremento;
         }
 
-        NameViabRotaEv::InsercaoEstacao insercaoEstacao;
+        NS_viabRotaEv::InsercaoEstacao insercaoEstacao;
 
         CandidatoEV(int pos, int clientId, double cost, double demand, double batteryCost, int routeId, int satId, int rsPos,
-                    int rsId, NameViabRotaEv::InsercaoEstacao insercaoEstacao_)
+                    int rsId, NS_viabRotaEv::InsercaoEstacao insercaoEstacao_)
         {
             this->pos = pos;
             this->clientId = clientId;

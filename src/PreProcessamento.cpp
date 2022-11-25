@@ -16,7 +16,7 @@
 
 using namespace N_PreProcessamento;
 using namespace N_heap;
-using namespace NameViabRotaEv;
+using namespace NS_viabRotaEv;
 
 #define PRINT_DIJSTRA       FALSE
 #define PRINT_DIJSTRA_CLIEN FALSE

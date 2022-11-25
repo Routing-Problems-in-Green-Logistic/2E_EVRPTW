@@ -6,7 +6,7 @@
 #define INC_2E_EVRP_VIABILIZADORROTAEV_H
 
 
-namespace NameViabRotaEv
+namespace NS_viabRotaEv
 {
 
 #if TEMPO_FUNC_VIABILIZA_ROTA_EV
@@ -26,7 +26,7 @@ namespace NameViabRotaEv
     };
 
     bool viabilizaRotaEv(EvRoute &evRoute, Instancia &instance, const bool best,
-                         NameViabRotaEv::InsercaoEstacao &insercaoEstacao,
+                         NS_viabRotaEv::InsercaoEstacao &insercaoEstacao,
                          double custoInserMax, const bool construtivo,
                          const double tempoSaidaSat);
 

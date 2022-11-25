@@ -6,13 +6,13 @@
 #include "ViabilizadorRotaEv.h"
 #include "Auxiliary.h"
 
-using namespace NameViabRotaEv;
+using namespace NS_viabRotaEv;
 using namespace NS_Auxiliary;
 
 static int num_G = 0;
 
 #if TEMPO_FUNC_VIABILIZA_ROTA_EV
-    double NameViabRotaEv::global_tempo = 0.0;
+    double NS_viabRotaEv::global_tempo = 0.0;
 #endif
 
 /**
@@ -42,8 +42,8 @@ static int num_G = 0;
  */
 
 
-bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instancia &instance, const bool best, NameViabRotaEv::InsercaoEstacao &insercaoEstacao, double custoInserMax,
-                                     const bool construtivo, const double tempoSaidaSat)
+bool NS_viabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instancia &instance, const bool best, NS_viabRotaEv::InsercaoEstacao &insercaoEstacao, double custoInserMax,
+                                    const bool construtivo, const double tempoSaidaSat)
 {
 
 
@@ -276,7 +276,7 @@ bool NameViabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instancia &instance, cons
  * Verifica se a rota atende a somente a janela de tempo, desconsiderando a bateria
  * Se @posIni > 0, entao, considera-se que a rota esta correta ate @posIni
  * *********************************************************************************** */
-double NameViabRotaEv::testaRotaTempo(EvRoute &evRoute, const int tamRoute, const Instancia &instance, const bool escrita, const double tempoSaidaSat, const int posIni)
+double NS_viabRotaEv::testaRotaTempo(EvRoute &evRoute, const int tamRoute, const Instancia &instance, const bool escrita, const double tempoSaidaSat, const int posIni)
 {
 
     double bateriaRestante = instance.getEvBattery(evRoute.idRota);
@@ -371,8 +371,8 @@ double NameViabRotaEv::testaRotaTempo(EvRoute &evRoute, const int tamRoute, cons
  * Verifica se a rota atende as restricoes de bateria e tempo
  * Se @posIni > 0, entao, considera-se que a rota esta correta ate @posIni
  * *********************************************************************************** */
-double NameViabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Instancia &instance, const bool escrita,
-                                 const double tempoSaidaSat, const int posIni, string *rotaBtDebug)
+double NS_viabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Instancia &instance, const bool escrita,
+                                const double tempoSaidaSat, const int posIni, string *rotaBtDebug)
 {
 
     double bateriaRestante = 0.0;
