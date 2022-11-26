@@ -17,6 +17,8 @@ namespace NS_LocalSearch2
 {
 
     bool mvEvShifit2Nos_interRotasIntraSat(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1);
+    bool mvEvShifit2Nos_interRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0,
+                                            EvRoute &evRouteAux1, const float beta);
 }
 
 #endif //INC_2E_EVRP_LOCALSEARCH2_H

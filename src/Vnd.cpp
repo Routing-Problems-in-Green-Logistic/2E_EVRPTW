@@ -20,7 +20,7 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 {
 
 
-    static int vetMv[NUM_MV] = {MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTRA_SAT};
+    static int vetMv[NUM_MV] = {MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTER_SATS};
 
     /*for(int i=0; i < NUM_MV; ++i)
     {
@@ -103,6 +103,11 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 
                 case MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTRA_SAT:
                     aplicacao = mvEvShifit2Nos_interRotasIntraSat(solution, instance, evRouteAux, evRouteAux1);
+                    break;
+
+                case MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTER_SATS:
+
+                    aplicacao = mvEvShifit2Nos_interRotasInterSats(solution, instance, evRouteAux, evRouteAux1, beta);
                     break;
 
                 default:

@@ -45,7 +45,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    string commite = "e2bb7dc4328e49b6fc92d2b44038ea17ff46f012";
+    string commite = "5b9c1b51e7739eb494a1b6ed63c9bf769132c0ec";
     parametros.commit = commite;
 
     try
@@ -55,6 +55,8 @@ int main(int argc, char* argv[])
         {
             cout<<"NUMERO DE ARGUMENTOS EH INSUFICIENTE.\n";
             cout<<"COMMITE: "<<commite<<"\n";
+            cout<<"Compilado em: "<<__DATE__<<", "<<__TIME__<<".\n";
+
             cout<<string(argv[0])<<"\n";
             exit(-1);
         }

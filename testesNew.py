@@ -23,6 +23,11 @@ metodo = "G"
 parametros = " --pasta '" + caminhoDir+ "' --mt '"+str(metodo) +"' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --numItTotal 2000 --execAtual "
 
 print("PARAMETROS: \n", parametros, "\n")
+strInstancias = ""
+for i in tamanhoInst:
+    strInstancias += i + " "
+    
+print("INSTANCIAS: ", strInstancias, "\n")
 
 diretorioIni = 'instancias/2e-vrp-tw/'
 instanciasVet = []
