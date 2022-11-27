@@ -7,6 +7,9 @@ using namespace NS_vnd;
 using namespace NS_LocalSearch;
 using namespace NS_LocalSearch2;
 
+#define CHECK_SOLUTION FALSE
+
+
 /**
  *
  * @param solution
@@ -20,9 +23,9 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 {
 
 
-    static int vetMv[NUM_MV] = {MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTER_SATS};
+    static int vetMv[NUM_MV];// = {MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTER_SATS};
 
-    /*for(int i=0; i < NUM_MV; ++i)
+    for(int i=0; i < NUM_MV; ++i)
     {
         vetMv[i] = rand_u32()%NUM_MV;
         bool invalido = true;
@@ -42,9 +45,8 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 
             if(j==i)
                 invalido = false;
-
         }
-    }*/
+    }
 
 
     EvRoute evRouteAux(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
@@ -132,16 +134,18 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
                         vetMvValor1Nivel[0].add(val1Nivel, solution.getDist1Nivel());
                 }
 
-                string erro;
-                if(!solution.checkSolution(erro, instance))
-                {
-                    PRINT_DEBUG("", "ERRO. MV: " << i << "\n");
-                    cout << erro << "\n\n";
-                    solution.print(instance);
+                #if CHECK_SOLUTION
 
-                    throw "ERRO";
-                }
+                    string erro;
+                    if(!solution.checkSolution(erro, instance))
+                    {
+                        PRINT_DEBUG("", "ERRO. MV: " << i << "\n");
+                        cout << erro << "\n\n";
+                        solution.print(instance);
 
+                        throw "ERRO";
+                    }
+                #endif
                 i = 0;
             } else
                 i += 1;

@@ -18,7 +18,7 @@
 #define MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTRA_SAT     7
 #define MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTER_SATS    8
 
-#define NUM_MV                                           1
+#define NUM_MV                                           9
 #define NUM_MV_LS                                        9
 
 namespace NS_vnd
