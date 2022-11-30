@@ -2,11 +2,11 @@
 #define INC_2E_EVRP_LOCALSEARCH_H
 
 #include <cfloat>
-#include "EvRoute.h"
-#include "Solucao.h"
-#include "Auxiliary.h"
-#include "greedyAlgorithm.h"
-#include "ViabilizadorRotaEv.h"
+#include "../EvRoute.h"
+#include "../Solucao.h"
+#include "../Auxiliary.h"
+#include "../greedyAlgorithm.h"
+#include "../ViabilizadorRotaEv.h"
 
 using namespace GreedyAlgNS;
 

@@ -14,4 +14,4 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Wconversion")
 
 
 
-target_sources(run PUBLIC LocalSearch2.h LocalSearch2.cpp)
+target_sources(run PUBLIC LocalSearch.h LocalSearch.cpp LocalSearch2.h LocalSearch2.cpp)

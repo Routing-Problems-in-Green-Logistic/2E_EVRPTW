@@ -30,8 +30,6 @@ set(SOURCES newMain.cpp
             Satelite.h
         Auxiliary.cpp
             Auxiliary.h
-        LocalSearch.h
-        LocalSearch.cpp
             Route.cpp
             Vnd.cpp
             Vnd.h

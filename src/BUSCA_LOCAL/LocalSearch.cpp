@@ -4,11 +4,8 @@
  */
 
 #include "LocalSearch.h"
-#include "Auxiliary.h"
-#include "mersenne-twister.h"
+#include "../mersenne-twister.h"
 #include <memory>
-#include "greedyAlgorithm.h"
-#include "ViabilizadorRotaEv.h"
 
 using namespace NS_LocalSearch;
 using namespace NS_Auxiliary;

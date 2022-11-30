@@ -7,8 +7,7 @@
  * ****************************************/
 
 #include "LocalSearch2.h"
-#include "../LocalSearch.h"
-#include "../Auxiliary.h"
+#include "LocalSearch.h"
 #include "../ViabilizadorRotaEv.h"
 
 using namespace NS_LocalSearch;
@@ -258,11 +257,6 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
 
                         bool resutado = realizaMv(instancia, evRoute0, posEv0, evRoute1, posEv1, evRouteAux0, evRouteAux1, evRoute0[0].tempoSaida);
 
-//cout<<"\n\n############################################\n\n";
-
-                        //if(!resutado)
-                        //    resutado = realizaMv(instancia, evRouteSat1, posEvSat1, evRouteSat0, posEvSat0, evRouteAux0, evRouteAux1, evRouteSat1[0].tempoSaida);
-
                         if(resutado)
                         {
                             double novaDist = evRoute0.distancia + evRoute1.distancia;
@@ -298,6 +292,7 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
 
 bool NS_LocalSearch2::mvEvShifit2Nos_interRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0,
                                                          EvRoute &evRouteAux1, const float beta)
+
 {
 
     if(instancia.numSats == 1)
@@ -592,4 +587,57 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
 
 
     return false;
+}
+
+bool NS_LocalSearch2::crossIntraSat(Instancia &instancia, EvRoute &evRoute0, int posEvRoute0, EvRoute &evRoute1, int posEvRoute1, EvRoute &evRouteAux0,
+                                    EvRoute &evRouteAux1, const double tempoSaidaSat)
+{
+
+    /* Todos os clientes a partir da pos (posEvRoute0+1) irão para a pos (posEvRoute1+1), e o mesmo ocorre
+     * com evRoute1 na pos (posEvRoute1+1) irão para (posEvRoute0+1).
+     *
+     * evRoute0 nao pode ser vazio, evRoute1 pode ser vazio */
+
+    if(evRoute0.routeSize <= 2)
+        return false;
+
+    const bool evRoute1Vazio = (evRoute1.routeSize <= 2);
+
+    if(evRoute1Vazio && posEvRoute1 != 0)
+        return false;
+
+    double novaCargaEvRoute0 = evRoute0.demanda;
+    double novaCargaEvRoute1 = evRoute1.demanda;
+
+    // Calcula a nova demanda da evRoute0
+    for(int i=(posEvRoute0+1); i < (evRoute0.routeSize-1); ++i)
+        novaCargaEvRoute0 -= instancia.getDemand(evRoute0[i].cliente);
+
+    if(!evRoute1Vazio)
+    {
+        for(int i=(posEvRoute1+1); i < (evRoute1.routeSize-1); ++i)
+            novaCargaEvRoute0 += instancia.getDemand(evRoute1[i].cliente);
+    }
+
+    if(novaCargaEvRoute0 > instancia.getEvCap(evRoute0.idRota))
+        return false;
+
+
+    if(evRoute1Vazio)
+    {
+        // Calcula a nova demanda da evRoute1
+        for(int i = (posEvRoute1 + 1); i < (evRoute1.routeSize - 1); ++i)
+            novaCargaEvRoute1 -= instancia.getDemand(evRoute1[i].cliente);
+    }
+
+
+    for(int i=(posEvRoute1+1); i < (evRoute1.routeSize-1); ++i)
+        novaCargaEvRoute1 += instancia.getDemand(evRoute0[i].cliente);
+
+
+    if(novaCargaEvRoute1 > instancia.getEvCap(evRoute1.idRota))
+        return false;
+
+    // Cargas estao corretas
+
 }
