@@ -24,12 +24,13 @@ namespace NS_LocalSearch2
 
     bool mvEvShifit2Nos_interRotasIntraSat(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1);
     bool mvEvShifit2Nos_interRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0,
-                                            EvRoute &evRouteAux1, const float beta);
+                                            EvRoute &evRouteAux1, float beta);
 
     int cross(Instancia &instancia, EvRoute &evRoute0, int posEvRoute0, EvRoute &evRoute1, int posEvRoute1, EvRoute &evRouteAux0,
-              EvRoute &evRouteAux1, const double tempoSaidaSat);
+              EvRoute &evRouteAux1, double tempoSaidaSatRoute0, double tempoSaidaSatRoute1);
 
     void copiaCliente(const BoostC::vector<EvNo> &vet0, BoostC::vector<EvNo> &vetDest, int tam, int ini=0);
+    int copiaCliente(const BoostC::vector<EvNo> &vet0, BoostC::vector<EvNo> &vetDest, int iniVet0, int fimVet0, int iniVetDest);
 
     template<typename Func>
     bool mvInterRotasIntraSat(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, Func func)
@@ -59,14 +60,26 @@ namespace NS_LocalSearch2
                             const double distOrig    = evRoute0.distancia+evRoute1.distancia;
                             const double demandaOrig = evRoute0.demanda+evRoute1.demanda;
 
-                            bool resutado = func(instancia, evRoute0, posEv0, evRoute1, posEv1, evRouteAux0, evRouteAux1, evRoute1[0].tempoSaida);
+                            int resutado = func(instancia, evRoute0, posEv0, evRoute1, posEv1, evRouteAux0, evRouteAux1, evRoute0[0].tempoSaida, evRoute1[0].tempoSaida);
 
-                            if(resutado)
+
+                            if(resutado == 1)
                             {
-                                double novaDist = evRoute0.distancia + evRoute1.distancia;
+                                const double novaDist = evRouteAux0.distancia + evRouteAux1.distancia;
                                 solucao.distancia += -distOrig + novaDist;
                                 solucao.satelites[sat].distancia += -distOrig + novaDist;
-                                //cout<<"MV UPDATE\n";
+
+                                evRoute0.copia(evRouteAux0, true, &instancia);
+                                evRoute1.copia(evRouteAux1, true, &instancia);
+
+                                evRoute0.distancia = evRouteAux0.distancia;
+                                evRoute1.distancia = evRouteAux1.distancia;
+
+                                evRoute0.atualizaParametrosRota(instancia);
+                                evRoute1.atualizaParametrosRota(instancia);
+
+
+cout<<"MV UPDATE\n";
 
                                 double novaDemanda = evRoute0.demanda + evRoute1.demanda;
                                 if(novaDemanda != demandaOrig)
@@ -75,8 +88,12 @@ namespace NS_LocalSearch2
                                     cout<<"ERRO! NOVA DEMANDA("<<novaDemanda<<") != DEMANDA ORIGINAL("<<demandaOrig<<")\n";
                                     throw "ERRO";
                                 }
-
+cout<<"\n\n****************************************************\n****************************************************\n\n";
                                 return true;
+                            }
+                            else
+                            {
+cout<<"\n\n****************************************************\n****************************************************\n\n";
                             }
 
                         } // End for(posEvSat1)

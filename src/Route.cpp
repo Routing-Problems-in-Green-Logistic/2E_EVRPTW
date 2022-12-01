@@ -119,9 +119,10 @@ void Route::resetaRoute()
 {
 
     routeSize = 2;
-    cout<<"vet size: "<<rota.size()<<"\n\n";
-    rota[1].satellite = rota[1].satellite;
+    //cout<<"vet size: "<<rota.size()<<"\n\n";
+    rota[1].satellite = rota[0].satellite;
     totalDistence = 0.0;
     totalDemand = 0.0;
+    std::fill(satelliteDemand.begin(), satelliteDemand.end(), 0.0);
 
 }

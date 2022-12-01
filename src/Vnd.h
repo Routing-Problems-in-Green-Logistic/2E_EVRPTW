@@ -15,6 +15,9 @@
 #define MV_EV_SWAP_INTER_ROTAS_INTRA_SAT                 5
 #define MV_EV_SWAP_INTER_ROTAS_INTER_SAT                 6
 
+#define MV_EV_CROSS_INTRA_SAT                            10
+#define MV_EV_CROSS_INTER_SATS                           11
+
 #define MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTRA_SAT     7
 #define MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTER_SATS    8
 

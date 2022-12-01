@@ -8,6 +8,7 @@ using namespace NS_LocalSearch;
 using namespace NS_LocalSearch2;
 
 #define CHECK_SOLUTION FALSE
+#define TESTE_UM_MV    FALSE
 
 
 /**
@@ -23,7 +24,15 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 {
 
 
-    static int vetMv[NUM_MV];// = {MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTER_SATS};
+#if TESTE_UM_MV == FALSE
+    static int vetMv[NUM_MV];
+#endif
+
+#if TESTE_UM_MV == TRUE
+    static int vetMv[NUM_MV] = {MV_EV_CROSS_INTRA_SAT};
+#endif
+
+#if TESTE_UM_MV == FASLE
 
     for(int i=0; i < NUM_MV; ++i)
     {
@@ -47,6 +56,8 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
                 invalido = false;
         }
     }
+
+#endif
 
 
     EvRoute evRouteAux(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
@@ -103,6 +114,10 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
                     aplicacao = mvEvSwapInterRotasInterSats(solution, instance, evRouteAux, evRouteAux1, beta);
                     break;
 
+                case MV_EV_CROSS_INTRA_SAT:
+                    aplicacao = mvInterRotasIntraSat(solution, instance, evRouteAux, evRouteAux1, cross);
+                    break;
+
                 case MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTRA_SAT:
                     aplicacao = mvEvShifit2Nos_interRotasIntraSat(solution, instance, evRouteAux, evRouteAux1);
                     break;
@@ -122,7 +137,7 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
             if(aplicacao)
             {
 
-//cout<<"APLICACAO MV: "<<((solution.distancia-valOrig)/valOrig)*100.0<<"\n";
+//cout<<"\n\nAPLICACAO MV: "<<((solution.distancia-valOrig)/valOrig)*100.0<<"\n";
                 vetMvValor[vetMv[i]].add(valOrig, solution.distancia);
 
                 if(NS_Auxiliary::menor(solution.getDist1Nivel(), val1Nivel))

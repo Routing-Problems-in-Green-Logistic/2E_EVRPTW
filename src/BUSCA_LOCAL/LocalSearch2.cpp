@@ -590,7 +590,7 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
 }
 
 int NS_LocalSearch2::cross(Instancia &instancia, EvRoute &evRoute0, int posEvRoute0, EvRoute &evRoute1, int posEvRoute1, EvRoute &evRouteAux0,
-                           EvRoute &evRouteAux1, const double tempoSaidaSat)
+                           EvRoute &evRouteAux1, const double tempoSaidaSatRoute0, const double tempoSaidaSatRoute1)
 {
 
     /* Todos os clientes a partir da pos (posEvRoute0+1) irão para a pos (posEvRoute1+1), e o mesmo ocorre
@@ -644,7 +644,6 @@ int NS_LocalSearch2::cross(Instancia &instancia, EvRoute &evRoute0, int posEvRou
     if(!evRoute1Vazio)
     {
 
-
         novaDistEvRoute1 -= instancia.getDistance(evRoute1[posEvRoute1].cliente, evRoute1[posEvRoute1+1].cliente);
 
         // Calcula a nova demanda e dist da evRoute1
@@ -669,19 +668,274 @@ int NS_LocalSearch2::cross(Instancia &instancia, EvRoute &evRoute0, int posEvRou
     if(novaCargaEvRoute1 > instancia.getEvCap(evRoute1.idRota))
         return MV_INVIAVEL;
 
+    const double distRotas = evRoute0.distancia+evRoute1.distancia;
+
     // Cargas estao corretas
 
+cout<<"\tDIST ORIG: "<<distRotas<<"; NOVA DIST ESTIMADA: "<<(novaDistEvRoute0+novaDistEvRoute1)<<"\n";
+
     // Verifica se existe melhora
-    if(menor((novaDistEvRoute0+novaDistEvRoute1), (evRoute0.distancia+evRoute1.distancia)))
+    if(menor((novaDistEvRoute0+novaDistEvRoute1), distRotas))
     {
 
+string strRota;
+evRoute0.print(strRota, instancia, true);
+cout<<"\tROTA0: "<<strRota<<"\n\n";
+
+strRota = "";
+evRoute1.print(strRota, instancia, true);
+cout<<"\tROTA1: "<<strRota<<"\n\n";
+
+        // Cria a nova rota0
         // Copia evRoute0 para evRouteAux0 de 0 ate posEvRoute0(inclusive)
         copiaCliente(evRoute0.route, evRouteAux0.route, (posEvRoute0+1), 0);
 
 
+evRouteAux0.routeSize = posEvRoute0+1;
+strRota = "";
+evRouteAux0.print(strRota, instancia, true);
+cout<<"\tNOVA ROTA0 ATE POS("<<posEvRoute0<<"): "<<strRota<<"\n\n";
+
+
+
+        // Copia evRoute1 para evRouteAux0 de (posEvRoute0+1) em evRouteAux0, evRoute1 apartir de (posEvRoute1+1)
+        evRouteAux0.routeSize = copiaCliente(evRoute1.route, evRouteAux0.route, (posEvRoute0+1), (evRoute1.routeSize-1), (posEvRoute0+1));
+        evRouteAux0[evRouteAux0.routeSize-1].cliente = evRouteAux0[0].cliente;
+
+        // Cria a nova rota1
+        // Copia evRoute1 para evRouteAux1 de 0 ate posEvRoute1(inclusive)
+        copiaCliente(evRoute1.route, evRouteAux1.route, (posEvRoute1+1), 0);
+
+evRouteAux1.routeSize = posEvRoute1+1;
+strRota = "";
+evRouteAux1.print(strRota, instancia, true);
+cout<<"\tNOVA ROTA1 ATE POS("<<posEvRoute1<<"): "<<strRota<<"\n\n";
+
+
+        // Copia evRoute0 para evRouteAux1 de (posEvRoute1+1) em evRouteAux1, evRoute0 apartir de (posEvRoute0+1)
+        evRouteAux1.routeSize = copiaCliente(evRoute0.route, evRouteAux1.route, (posEvRoute1+1), (evRoute0.routeSize-1), (posEvRoute1+1));
+        evRouteAux1[evRouteAux1.routeSize-1].cliente = evRouteAux1[0].cliente;
+
+cout<<"\n#############################################################\n\n";
+
+strRota = "";
+evRouteAux0.print(strRota, instancia, true);
+cout<<"\tNOVA ROTA0: "<<strRota<<"\n";
+cout<<"\tPOS ROTA0: "<<posEvRoute0<<"\n\n";
+
+
+strRota = "";
+evRouteAux1.print(strRota, instancia, true);
+cout<<"\tNOVA ROTA1: "<<strRota<<"\n";
+cout<<"\tPOS ROTA1: "<<posEvRoute1<<"\n\n";
+
+        removeRS_Repetido(evRouteAux0, instancia, false);
+        removeRS_Repetido(evRouteAux1, instancia, false);
+
+
+
+
+        // Testa as rotas sem escrever as mudancas
+        double distNovaRota0 = testaRota(evRouteAux0, evRouteAux0.routeSize, instancia, false, tempoSaidaSatRoute0, 0, nullptr);
+        double distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia, false, tempoSaidaSatRoute1, 0, nullptr);
+
+        if(distNovaRota0 > 0.0 && distNovaRota1 > 0.0)
+        {
+
+cout<<"\tROTAS VIAVEIS; NOVA DIST: "<<(distNovaRota0+distNovaRota1)<<"\n\n";
+
+            if(menor((distNovaRota0+distNovaRota1), distRotas))
+            {
+
+cout<<"\tNOVA DIST EH MENOR! ATUALIZANDO ROTAS AUX\n\n";
+                // Escreve as mudancas nas rotas
+                distNovaRota0 = testaRota(evRouteAux0, evRouteAux0.routeSize, instancia, true, tempoSaidaSatRoute0, 0, nullptr);
+                distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia, true, tempoSaidaSatRoute1, 0, nullptr);
+                evRouteAux0.distancia = distNovaRota0;
+                evRouteAux1.distancia = distNovaRota1;
+
+                return MV_VIAVEL;
+            }
+            else
+            {
+cout<<"\tNOVA DIST EH MAIOR!\n";
+                return MV_INVIAVEL;
+            }
+        }
+        else if(distNovaRota0 > 0.0 && distNovaRota1 <= 0.0)
+        {
+
+cout<<"\t\tNOVA ROTA0 EH VIAVEL. DIST: "<<distNovaRota0<<"\n";
+cout<<"\t\tNOVA ROTA1 EH INVIAVEL, TENTANDO VIABILIZAR...\n";
+
+            // Calcular a sobra para a viabilidade da novaRota1
+            // distNovaRota1Max < (evRoute0.distancia+evRoute1.distancia) - (distNovaRota0)
+            double distNovaRota1Max = distRotas - distNovaRota0;
+
+cout<<"\t\tDIST NOVA ROTA1 MAX: "<<distNovaRota1Max<<"\n\n";
+
+            InsercaoEstacao insercaoEstacao;
+            bool viavel = viabilizaRotaEv(evRouteAux1, instancia, false, insercaoEstacao, distNovaRota1Max, false, tempoSaidaSatRoute1);
+
+            if(viavel)
+            {
+                if(menor((distNovaRota0+insercaoEstacao.distanciaRota), distRotas))
+                {
+
+                    distNovaRota0 = testaRota(evRouteAux0, evRouteAux0.routeSize, instancia, true, tempoSaidaSatRoute0, 0, nullptr);
+                    evRouteAux0.distancia = distNovaRota0;
+                    insereEstacaoRota(evRouteAux1, insercaoEstacao, instancia, tempoSaidaSatRoute1);
+
+cout<<"\t\tNOVA ROTA1 VIABILIZADA; DIST: "<<insercaoEstacao.distanciaRota<<"\n";
+
+strRota = "";
+evRouteAux1.print(strRota, instancia, true);
+cout<<"\tNOVA ROTA1 VIABILIZADA: "<<strRota<<"\n\n";
+
+                    return MV_VIAVEL;
+                }
+                else
+                {
+cout<<"\t\tNOVA ROTA1 VIABILIZADA; POREM, SUM DAS DISTS DAS NOVAS ROTAS EH MAIOR DO QUE A DIST ORIG!\n";
+cout<<"\t\tDIST NOVA ROTA1: "<<insercaoEstacao.distanciaRota<<"\n";
+
+                    return MV_INVIAVEL;
+                }
+            }
+            else
+            {
+cout<<"\t\tNAO FOI POSSIVEL VIABILIZAR NOVA ROTA1\n\n";
+                return MV_INVIAVEL;
+            }
+
+        }
+        else if(distNovaRota1 > 0.0 && distNovaRota0 <= 0.0)
+        {
+
+cout<<"\t\tNOVA ROTA1 EH VIAVEL. DIST: "<<distNovaRota1<<"\n";
+cout<<"\t\tNOVA ROTA0 EH INVIAVEL, TENTANDO VIABILIZAR...\n";
+
+            // Calcular a sobra para a viabilidade da novaRota0
+
+            // distNovaRota1Max < (evRoute0.distancia+evRoute1.distancia) - (distNovaRota0)
+            double distNovaRota0Max = distRotas - distNovaRota1;
+
+
+cout<<"\t\tDIST NOVA ROTA1 MAX: "<<distNovaRota0Max<<"\n\n";
+
+            InsercaoEstacao insercaoEstacao;
+            bool viavel = viabilizaRotaEv(evRouteAux0, instancia, false, insercaoEstacao, distNovaRota0Max, false, tempoSaidaSatRoute0);
+
+            if(viavel)
+            {
+                if(menor((distNovaRota1+insercaoEstacao.distanciaRota), distRotas))
+                {
+
+                    distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia, false, tempoSaidaSatRoute1, 0, nullptr);
+                    evRouteAux1.distancia = distNovaRota1;
+                    insereEstacaoRota(evRouteAux0, insercaoEstacao, instancia, tempoSaidaSatRoute0);
+
+
+cout<<"\t\tNOVA ROTA0 VIABILIZADA; DIST: "<<insercaoEstacao.distanciaRota<<"\n";
+
+strRota = "";
+evRouteAux0.print(strRota, instancia, true);
+cout<<"\t\tNOVA ROTA0 VIABILIZADA: "<<strRota<<"\n\n";
+
+                    return MV_VIAVEL;
+                }
+                else
+                {
+
+cout<<"\t\tNOVA ROTA0 VIABILIZADA; POREM, SUM DAS DISTS DAS NOVAS ROTAS EH MAIOR DO QUE A DIST ORIG!\n";
+cout<<"\t\tDIST NOVA ROTA0: "<<insercaoEstacao.distanciaRota<<"\n";
+
+                    return MV_INVIAVEL;
+                }
+            }
+            else
+                return MV_INVIAVEL;
+        }
+        else if(distNovaRota0 <= 0.0 && distNovaRota1 <= 0.0)
+        {
+
+cout<<"NOVAS ROTAS SAO INVIAVEL, TENTANDO VIABILIZAR AMBAS\n";
+
+            // Tenta viabilizar rota0
+            InsercaoEstacao insercaoEstacaoRota0;
+            bool viavel = viabilizaRotaEv(evRouteAux0, instancia, true, insercaoEstacaoRota0, DOUBLE_MAX, false, tempoSaidaSatRoute0);
+            if(viavel)
+            {
+
+cout<<"\t\tNOVA ROTA0 VIABILIZADA; DIST: "<<insercaoEstacaoRota0.distanciaRota<<"\n";
+strRota = "";
+evRouteAux0.print(strRota, instancia, true);
+cout<<"\t\tNOVA ROTA0 VIABILIZADA: "<<strRota<<"\n\n";
+
+                double distNovaRota1Max = distRotas - insercaoEstacaoRota0.distanciaRota;
+
+cout<<"\t\tTENTANDO VIABILIZAR NOVA ROTA1 COM DIST MAX: "<<distNovaRota1Max<<"\n";
+
+                InsercaoEstacao insercaoEstacaoRota1;
+                viavel = viabilizaRotaEv(evRouteAux1, instancia, false, insercaoEstacaoRota1, distNovaRota1Max, false, tempoSaidaSatRoute1);
+
+                if(viavel)
+                {
+                    double novaDist = insercaoEstacaoRota0.distanciaRota+insercaoEstacaoRota1.distanciaRota;
+                    if(menor(novaDist, distRotas))
+                    {
+cout<<"\t\tNOVA ROTA1 VIABILIZADA E SUM DAS NOVAS ROTAS EH MENOR\n";
+cout<<"\t\tDIST NOVA ROTA1: "<<insercaoEstacaoRota1.distanciaRota<<"\n\n";
+
+                        insereEstacaoRota(evRouteAux0, insercaoEstacaoRota0, instancia, tempoSaidaSatRoute0);
+                        insereEstacaoRota(evRouteAux1, insercaoEstacaoRota1, instancia, tempoSaidaSatRoute1);
+
+strRota = "";
+evRouteAux0.print(strRota, instancia, true);
+cout<<"\t\tNOVA ROTA0 VIABILIZADA: "<<strRota<<"\n\n";
+strRota = "";
+evRouteAux0.print(strRota, instancia, true);
+cout<<"\t\tNOVA ROTA0 VIABILIZADA: "<<strRota<<"\n\n";
+
+                        return MV_VIAVEL;
+
+                    }
+                    else
+                    {
+cout<<"\t\tNOVA ROTA1 VIABILIZADA, POREM SUM NOVAS ROTAS EH MAIOR QUE DIST ORIG\n";
+                    }
+
+                }
+                else
+                {
+cout<<"\t\tNAO FOI POSSIVEL VIABILIZAR NOVA ROTA1\n\n";
+                }
+            }
+            else
+            {
+
+cout<<"\t\tNAO FOI POSSIVEL VIABILIZAR NOVA ROTA0\n\n";
+            }
+
+            if(!viavel)
+                return MV_INVIAVEL;
+        }
+        else
+        {
+            PRINT_DEBUG("", "");
+            cout<<"ERRO , CODIGO NAO DEVERIA ATINGIR ESSE ELSE!!\n";
+            throw "ERRO";
+        }
+
     }
     else
+    {
+
+cout<<"\tNOVA DIST ESTIMADA EH MAIOR QUE A DIST ORIG\n";
         return MV_INVIAVEL;
+    }
+
+    return MV_INVIAVEL;
 
 }
 
@@ -689,4 +943,20 @@ void NS_LocalSearch2::copiaCliente(const BoostC::vector<EvNo> &vet0, BoostC::vec
 {
     for(int i=ini; i < tam; ++i)
         vetDest[i].cliente = vetDest[i].cliente;
+}
+
+int NS_LocalSearch2::copiaCliente(const BoostC::vector<EvNo> &vet0, BoostC::vector<EvNo> &vetDest, const int iniVet0, const int fimVet0, const int iniVetDest)
+{
+    int iVet0    = iniVet0;
+    int iVetDest = iniVetDest;
+
+    while(iVet0 <= fimVet0)
+    {
+        vetDest[iVetDest].cliente = vet0[iVet0].cliente;
+
+        ++iVet0;
+        ++iVetDest;
+    }
+
+    return iVetDest;
 }

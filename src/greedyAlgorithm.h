@@ -87,7 +87,7 @@ namespace GreedyAlgNS
 
     bool
     secondEchelonGreedy(Solucao &sol, Instancia &instance, const float alpha, const ublas::matrix<int> &matClienteSat,
-                        bool listaRestTam, const float beta, const vector<int> &satUtilizados);
+                        bool listaRestTam, const float beta, const BoostC::vector<int> &satUtilizados);
     void firstEchelonGreedy(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam);
     void construtivo(Solucao &Sol, Instancia &instancia, const float alpha, const float beta,
                      const ublas::matrix<int> &matClienteSat, bool listaRestTam);

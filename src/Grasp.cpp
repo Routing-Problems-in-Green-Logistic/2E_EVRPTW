@@ -264,8 +264,8 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     {
         hashRotasIncluidas.clear();
 
-        //if(i>0 && (i%100)==0)
-        //    cout<<"ITERACAO: "<<i<<"\n";
+        if(i>0 && (i%100)==0)
+            cout<<"ITERACAO: "<<i<<"\n";
 
         Solucao sol(instance);
         //setSatParaCliente(instance, vetSatAtendCliente, satUtilizado, parametros);
@@ -679,7 +679,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
                 if(sol.distancia < solBest->distancia || !solBest->viavel)
                 {
-                    //cout<<"UPDATE: "<<sol.distancia<<"\n";
+                    cout<<"UPDATE: "<<sol.distancia<<"\n";
 
                     solBest->copia(sol);
                     solBest->ultimaA = i;

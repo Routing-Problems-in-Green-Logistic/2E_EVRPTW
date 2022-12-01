@@ -236,7 +236,7 @@ bool Solucao::checkSolution(std::string &erro, Instancia &inst)
 
         if(std::abs(satelliteDemand[c]- satelites[c].demanda) > TOLERANCIA_DEMANDA)
         {
-            erro += "SATELLITE: "+ to_string(c)+"NAO FOI TOTALMENTE ATENDIDO. DEMANDA: "+ to_string(satelites[c].demanda) +
+            erro += "!SATELLITE: "+ to_string(c)+"NAO FOI TOTALMENTE ATENDIDO. DEMANDA: "+ to_string(satelites[c].demanda) +
                     "; ATENDIDO: "+to_string(satelliteDemand[c])+"\n";
 
             erroB = true;
@@ -515,7 +515,7 @@ bool Solucao::viavel2Nivel(Instancia &instancia)
 
     return true;
 }
-void Solucao::resetaSat(int satId, Instancia &instancia, vector<int> &vetClienteDel)
+void Solucao::resetaSat(int satId, Instancia &instancia, BoostC::vector<int> &vetClienteDel)
 {
 
     if(satId >= 1 && satId <= instancia.getEndSatIndex())
@@ -524,7 +524,7 @@ void Solucao::resetaSat(int satId, Instancia &instancia, vector<int> &vetCliente
         satelites[satId].distancia = 0.0;
         satelites[satId].demanda   = 0.0;
 
-        vetClienteDel = vector<int>(instancia.getEndClientIndex()+1, 0);
+        vetClienteDel = BoostC::vector<int>(instancia.getEndClientIndex()+1, 0);
 
         Satelite &satelite = satelites[satId];
 
@@ -536,6 +536,7 @@ void Solucao::resetaSat(int satId, Instancia &instancia, vector<int> &vetCliente
                     vetClienteDel[evRoute.route[i].cliente] = 1;
 
                 evRoute.distancia = 0.0;
+                evRoute.demanda   = 0.0;
                 evRoute[1].cliente = satId;
                 evRoute.routeSize = 2;
             }
@@ -570,5 +571,7 @@ void Solucao::reseta1Nivel(Instancia &instancia)
             route.resetaRoute();
         }
     }
+
+
 
 }

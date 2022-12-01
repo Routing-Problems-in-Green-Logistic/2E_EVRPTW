@@ -17,7 +17,7 @@ using namespace boost::numeric;
 // Roteamento dos veiculos eletricos
 bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const float alpha,
                                       const ublas::matrix<int> &matClienteSat, bool listaRestTam, const float beta,
-                                      const vector<int> &satUtilizados)
+                                      const BoostC::vector<int> &satUtilizados)
 {
     //cout<<"size1: "<<matClienteSat.size1()<<"\nsize2: "<<matClienteSat.size2()<<"\n\n";
 
@@ -563,6 +563,11 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, Instancia &instance, const fl
 
             // Insere candidato na solucao
             Route &route = sol.primeiroNivel.at(candidato.rotaId);
+
+/*string strRota;
+route.print(strRota);
+cout<<"ROTA: "<<strRota<<"\n\n";*/
+
             shiftVectorDir(route.rota, candidato.pos + 1, 1, route.routeSize);
 
             route.rota.at(candidato.pos+1).satellite = candidato.satelliteId;
@@ -821,8 +826,8 @@ void GreedyAlgNS::construtivo(Solucao &sol, Instancia &instancia, const float al
 {
 
 
-    vector<int> satUtilizados(instancia.numSats+1, 0);
-    vector<int> clientesSat(instancia.getEndClientIndex()+1, 0);
+    BoostC::vector<int> satUtilizados(instancia.numSats+1, 0);
+    BoostC::vector<int> clientesSat(instancia.getEndClientIndex()+1, 0);
 
     std::fill(satUtilizados.begin()+1, satUtilizados.end(), 1);
 
@@ -840,13 +845,13 @@ void GreedyAlgNS::construtivo(Solucao &sol, Instancia &instancia, const float al
             //cout<<"CARGAS: ";
             int numSatZero = 0;
 
-            vector<double> vetCargaSat;
+            BoostC::vector<double> vetCargaSat;
 
             while(!sol.viavel)
             {
 
                 //cout<<"CARGAS: ";
-                vetCargaSat = vector<double>(1 + instancia.numSats, 0.0);
+                vetCargaSat = BoostC::vector<double>(1 + instancia.numSats, 0.0);
 
                 for(int i = 1; i <= instancia.getEndSatIndex(); ++i)
                 {
@@ -873,8 +878,10 @@ void GreedyAlgNS::construtivo(Solucao &sol, Instancia &instancia, const float al
                 }
 
                 satUtilizados[satMin] = 0;
-                //sol.resetaSat(satMin, instancia, clientesSat);
-                sol = Solucao(instancia);
+                sol.resetaSat(satMin, instancia, clientesSat);
+                sol.reseta1Nivel(instancia);
+
+                //sol = Solucao(instancia);
                 numSatZero += 1;
 
                // cout<<"SAT "<<satMin<<" EXCLUIDO\n\n";
