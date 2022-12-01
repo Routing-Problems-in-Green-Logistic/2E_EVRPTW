@@ -9,6 +9,12 @@
 #ifndef INC_2E_EVRP_LOCALSEARCH2_H
 #define INC_2E_EVRP_LOCALSEARCH2_H
 
+#define MV_INVIAVEL                 0
+#define MV_VIAVEL                   1
+#define MV_POS_EV_ROUTE0_INVIAVEL   2
+#define MV_POS_EV_ROUTE1_INVIAVEL   3
+#define MV_EV_ROUTE0_INVIAVEL       4
+#define MV_EV_ROUTE1_INVIAVEL       5
 
 #include "../Solucao.h"
 #include "Instancia.h"
@@ -20,8 +26,10 @@ namespace NS_LocalSearch2
     bool mvEvShifit2Nos_interRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0,
                                             EvRoute &evRouteAux1, const float beta);
 
-    bool crossIntraSat(Instancia &instancia, EvRoute &evRoute0, int posEvRoute0, EvRoute &evRoute1, int posEvRoute1, EvRoute &evRouteAux0,
-                       EvRoute &evRouteAux1, const double tempoSaidaSat);
+    int cross(Instancia &instancia, EvRoute &evRoute0, int posEvRoute0, EvRoute &evRoute1, int posEvRoute1, EvRoute &evRouteAux0,
+              EvRoute &evRouteAux1, const double tempoSaidaSat);
+
+    void copiaCliente(const BoostC::vector<EvNo> &vet0, BoostC::vector<EvNo> &vetDest, int tam, int ini=0);
 
     template<typename Func>
     bool mvInterRotasIntraSat(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, Func func)
@@ -51,7 +59,7 @@ namespace NS_LocalSearch2
                             const double distOrig    = evRoute0.distancia+evRoute1.distancia;
                             const double demandaOrig = evRoute0.demanda+evRoute1.demanda;
 
-                            bool resutado = func(instancia, evRoute0, posEv0, evRoute1, posEv1, evRouteAux0, evRouteAux1, evRoute0[0].tempoSaida);
+                            bool resutado = func(instancia, evRoute0, posEv0, evRoute1, posEv1, evRouteAux0, evRouteAux1, evRoute1[0].tempoSaida);
 
                             if(resutado)
                             {

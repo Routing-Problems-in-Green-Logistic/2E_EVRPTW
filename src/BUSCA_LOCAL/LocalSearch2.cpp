@@ -589,8 +589,8 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
     return false;
 }
 
-bool NS_LocalSearch2::crossIntraSat(Instancia &instancia, EvRoute &evRoute0, int posEvRoute0, EvRoute &evRoute1, int posEvRoute1, EvRoute &evRouteAux0,
-                                    EvRoute &evRouteAux1, const double tempoSaidaSat)
+int NS_LocalSearch2::cross(Instancia &instancia, EvRoute &evRoute0, int posEvRoute0, EvRoute &evRoute1, int posEvRoute1, EvRoute &evRouteAux0,
+                           EvRoute &evRouteAux1, const double tempoSaidaSat)
 {
 
     /* Todos os clientes a partir da pos (posEvRoute0+1) irão para a pos (posEvRoute1+1), e o mesmo ocorre
@@ -599,45 +599,94 @@ bool NS_LocalSearch2::crossIntraSat(Instancia &instancia, EvRoute &evRoute0, int
      * evRoute0 nao pode ser vazio, evRoute1 pode ser vazio */
 
     if(evRoute0.routeSize <= 2)
-        return false;
+        return MV_EV_ROUTE0_INVIAVEL;
 
     const bool evRoute1Vazio = (evRoute1.routeSize <= 2);
 
     if(evRoute1Vazio && posEvRoute1 != 0)
-        return false;
+        return MV_POS_EV_ROUTE1_INVIAVEL;
 
     double novaCargaEvRoute0 = evRoute0.demanda;
     double novaCargaEvRoute1 = evRoute1.demanda;
 
-    // Calcula a nova demanda da evRoute0
+
+    double novaDistEvRoute0 = evRoute0.distancia;
+    double novaDistEvRoute1 = evRoute1.distancia;
+
+    novaDistEvRoute0 -= instancia.getDistance(evRoute0[posEvRoute0].cliente, evRoute0[posEvRoute0+1].cliente);
+
+    // Calcula a nova demanda e dist da evRoute0
     for(int i=(posEvRoute0+1); i < (evRoute0.routeSize-1); ++i)
+    {
         novaCargaEvRoute0 -= instancia.getDemand(evRoute0[i].cliente);
+        novaDistEvRoute0 -= instancia.getDistance(evRoute0[i].cliente, evRoute0[i+1].cliente);
+    }
 
     if(!evRoute1Vazio)
     {
+        novaDistEvRoute0 += instancia.getDistance(evRoute1[posEvRoute1].cliente, evRoute0[posEvRoute0+1].cliente);
+
         for(int i=(posEvRoute1+1); i < (evRoute1.routeSize-1); ++i)
+        {
             novaCargaEvRoute0 += instancia.getDemand(evRoute1[i].cliente);
+            if((i+1) < (evRoute1.routeSize-1))
+                novaDistEvRoute0  += instancia.getDistance(evRoute1[i].cliente, evRoute1[i+1].cliente);
+        }
+
+        novaDistEvRoute0 += instancia.getDistance(evRoute1[evRoute1.routeSize-2].cliente, evRoute0[0].cliente);
+
     }
 
     if(novaCargaEvRoute0 > instancia.getEvCap(evRoute0.idRota))
-        return false;
+        return MV_INVIAVEL;
 
 
-    if(evRoute1Vazio)
+    if(!evRoute1Vazio)
     {
-        // Calcula a nova demanda da evRoute1
+
+
+        novaDistEvRoute1 -= instancia.getDistance(evRoute1[posEvRoute1].cliente, evRoute1[posEvRoute1+1].cliente);
+
+        // Calcula a nova demanda e dist da evRoute1
         for(int i = (posEvRoute1 + 1); i < (evRoute1.routeSize - 1); ++i)
+        {
             novaCargaEvRoute1 -= instancia.getDemand(evRoute1[i].cliente);
+            novaDistEvRoute1  -= instancia.getDistance(evRoute1[i].cliente, evRoute1[i+1].cliente);
+        }
     }
 
 
     for(int i=(posEvRoute1+1); i < (evRoute1.routeSize-1); ++i)
+    {
         novaCargaEvRoute1 += instancia.getDemand(evRoute0[i].cliente);
+        if((i+1) < (evRoute1.routeSize-1))
+            novaDistEvRoute1 += instancia.getDistance(evRoute0[i].cliente, evRoute0[i+1].cliente);
+    }
+
+    novaDistEvRoute1 += instancia.getDistance(evRoute0[evRoute0.routeSize-2].cliente, evRoute1[0].cliente);
 
 
     if(novaCargaEvRoute1 > instancia.getEvCap(evRoute1.idRota))
-        return false;
+        return MV_INVIAVEL;
 
     // Cargas estao corretas
 
+    // Verifica se existe melhora
+    if(menor((novaDistEvRoute0+novaDistEvRoute1), (evRoute0.distancia+evRoute1.distancia)))
+    {
+
+        // Copia evRoute0 para evRouteAux0 de 0 ate posEvRoute0(inclusive)
+        copiaCliente(evRoute0.route, evRouteAux0.route, (posEvRoute0+1), 0);
+
+
+    }
+    else
+        return MV_INVIAVEL;
+
+}
+
+void NS_LocalSearch2::copiaCliente(const BoostC::vector<EvNo> &vet0, BoostC::vector<EvNo> &vetDest, const int tam, const int ini)
+{
+    for(int i=ini; i < tam; ++i)
+        vetDest[i].cliente = vetDest[i].cliente;
 }
