@@ -310,17 +310,19 @@ namespace NS_parametros
         parametrosSaida.mapNoSaida["numEV"](best.getNumEvNaoVazios());
 
 
-
-
         for(int k=0; k < NUM_MV_LS; ++k)
         {
             string nome  = "mv_"+ to_string(k);
             string nome1 = nome+"_num";
+            string nome2 = nome + "_percent";
+            string nome3 = nome1+"total";
 
             parametrosSaida.mapNoSaida[nome](vetMvValor[k].getMedia());
             parametrosSaida.mapNoSaida[nome1](vetMvValor[k].quant);
-        }
+            parametrosSaida.mapNoSaida[nome2](vetMvValor[k].getMediaPercent());
+            parametrosSaida.mapNoSaida[nome3](vetMvValor[k].quantChamadas);
 
+        }
 
         parametrosSaida.mapNoSaida["mv_4_1Nivel"](vetMvValor1Nivel[0].getMedia());
         parametrosSaida.mapNoSaida["mv_4_1Nivel_num"](vetMvValor1Nivel[0].quant);
@@ -328,6 +330,18 @@ namespace NS_parametros
 
         parametrosSaida.mapNoSaida["mv_6_1Nivel"](vetMvValor1Nivel[1].getMedia());
         parametrosSaida.mapNoSaida["mv_6_1Nivel_num"](vetMvValor1Nivel[1].quant);
+
+
+        cout<<"APOS ADD PARAMETROS MV\n";
+
+        for(auto &it:parametrosSaida.mapNoSaida)
+        {
+            string c = "";
+            it.second.getVal(c);
+            cout << it.first << ": "<<c<< "\n";
+        }
+
+        cout<<"\n\n\n*****************************\n\n\n";
 
 
         //  numSatVazios numEV

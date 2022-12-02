@@ -134,6 +134,8 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 
             }
 
+            vetMvValor[vetMv[i]].quantChamadas += 1;
+
             if(aplicacao)
             {
 

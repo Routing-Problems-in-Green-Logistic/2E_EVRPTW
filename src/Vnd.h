@@ -32,7 +32,10 @@ namespace NS_vnd
 
         int mv = -1;
         double dif = 0.0;
+        double difPercent = 0.0;
         int quant = 0;
+        int quantChamadas = 0;
+
 
         MvValor()=default;
 
@@ -44,11 +47,22 @@ namespace NS_vnd
                 return dif/quant;
         }
 
+        double getMediaPercent()
+        {
+            if(quant==0)
+                return 0.0;
+            else
+                return difPercent/quant;
+        }
+
         void add(double disOrig, double novaDist)
         {
             quant += 1;
             dif += (disOrig-novaDist);
+            difPercent += ((disOrig-novaDist)/disOrig)*100.0;
         }
+
+
 
     };
 

@@ -620,12 +620,21 @@ ParametrosSaida NS_parametros::getParametros()
     {
         string nome  = "mv_"+ to_string(k);
         string nome1 = nome+"_num";
+        string nome2 = nome + "_percent";
+        string nome3 = nome1+"total";
 
         parametrosSaida.mapNoSaida[nome] = NoSaida(nome);
         parametrosSaida.mapNoSaida[nome1] = NoSaida(nome1);
+        parametrosSaida.mapNoSaida[nome2] = NoSaida(nome2);
+        parametrosSaida.mapNoSaida[nome3] = NoSaida(nome3);
 
         parametrosSaida.mapNoSaida[nome].addSaida(SAIDA_EXEC_VAL);
         parametrosSaida.mapNoSaida[nome1].addSaida(SAIDA_EXEC_VAL);
+
+        parametrosSaida.mapNoSaida[nome2].addSaida(SAIDA_EXEC_VAL);
+        parametrosSaida.mapNoSaida[nome3].addSaida(SAIDA_EXEC_VAL);
+
+
     }
 
     parametrosSaida.mapNoSaida["mv_4_1Nivel"] = NoSaida("mv_4_1Nivel");
