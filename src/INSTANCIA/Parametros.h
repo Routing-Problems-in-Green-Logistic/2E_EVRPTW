@@ -332,18 +332,6 @@ namespace NS_parametros
         parametrosSaida.mapNoSaida["mv_6_1Nivel_num"](vetMvValor1Nivel[1].quant);
 
 
-        cout<<"APOS ADD PARAMETROS MV\n";
-
-        for(auto &it:parametrosSaida.mapNoSaida)
-        {
-            string c = "";
-            it.second.getVal(c);
-            cout << it.first << ": "<<c<< "\n";
-        }
-
-        cout<<"\n\n\n*****************************\n\n\n";
-
-
         //  numSatVazios numEV
     }
 }
