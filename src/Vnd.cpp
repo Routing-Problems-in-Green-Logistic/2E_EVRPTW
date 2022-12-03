@@ -7,7 +7,7 @@ using namespace NS_vnd;
 using namespace NS_LocalSearch;
 using namespace NS_LocalSearch2;
 
-#define CHECK_SOLUTION FALSE
+#define CHECK_SOLUTION TRUE
 #define TESTE_UM_MV    FALSE
 
 

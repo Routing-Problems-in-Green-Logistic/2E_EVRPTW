@@ -139,81 +139,6 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             vetorProbabilidade1Nivel[i] = 100.0 * (proporcao1Nivel[i] / somaProporcoes1Nivel);
         }
 
-
-       // cout<<solBest->viavel2Nivel(instance)<<": 2NIVEL\n";
-        //cout<<solBest->viavel<<": sol\n";
-
-        //cout<<"2NIVEL VIAVEL: "<<(getPenalidade2Nivel(*solBest, instance, fator))<<"\n";
-        //cout<<"1NIVEL VIAVEL: "<<(getPenalidade1Nivel(*solBest, instance, fator1Nivel))<<"\n";
-
-        //cout<<"BEST: "<<custoBest<<"; \n1NIVEL: "<<custoBest1Nivel<<"\n\n";
-
-        //cout<<"SOL_BEST: "<<solBest->distancia<<"\n";
-
-/*        for(int i = 0; i< tamAlfa; ++i)
-        {
-            cout<<parametros.vetAlfa[i]<<" \t ";
-        }*/
-
-        //cout<<"\n1º:\n";
-
-
-/*        for(int i = 0; i< tamAlfa; ++i)
-        {
-            cout<<converteDouble(vetorProbabilidade1Nivel[i], 1)<<" \t ";
-        }*/
-
-        //cout<<"\n";
-/*
-
-        for(int i = 0; i < tamAlfa; ++i)
-        {
-            cout<<vetorMedia1Nivel[i]<<" \t ";
-        }
-
-        cout<<"\n";
-
-        for(int i=0; i < tamAlfa; ++i)
-        {
-            cout<<vetorFrequencia1Nivel[i]<<" \t ";
-        }
-*/
-
-
-       /*
-        cout<<"\nPROB.; SOL ACUM.; MEDIA; FREQ.\n\n";
-
-        cout<<"\n\n2º:\n";
-
-        for(int i = 0; i< tamAlfa; ++i)
-        {
-            cout<<converteDouble(vetorProbabilidade2Nivel[i], 1)<<" \t ";
-        }
-
-        cout<<"\n";
-
-        for(int i = 0; i< tamAlfa; ++i)
-            cout<<converteDouble(solucaoAcumulada2Nivel[i],1)<<" \t ";
-
-
-        cout<<"\n";
-
-        for(int i = 0; i < tamAlfa; ++i)
-        {
-            cout<<vetorMedia2Nivel[i]<<" \t ";
-        }
-        cout<<"\n";
-
-
-        for(int i=0; i < tamAlfa; ++i)
-        {
-            cout<<vetorFrequencia2Nivel[i]<<" \t ";
-        }
-
-        cout<<"\n\n";
-        cout<<"************************************************************\n\n";
-*/
-
     };
 
     auto convIndClienteVet = [&](int cliente)
@@ -252,9 +177,6 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     int numSolGeradas   = 0;
     int numRotasGeradas = 0;
 
-    std::unordered_set<VetorHash, VetorHash::HashFunc> hashRotasIncluidas;
-    std::unordered_set<VetorHash, VetorHash::HashFunc> hashRotasExcluidas;
-
     bool iniRS = false;
 
     // Guarda os ev que sao inicializados com RS RS
@@ -262,15 +184,15 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
-        hashRotasIncluidas.clear();
+
+/*        if(i==(parametros.numIteGrasp-1))
+            cout<<"ULTIMA ITERACAO\n\n";*/
+
 
 /*        if(i>0 && (i%100)==0)
             cout<<"ITERACAO: "<<i<<"\n";*/
 
         Solucao sol(instance);
-        //setSatParaCliente(instance, vetSatAtendCliente, satUtilizado, parametros);
-        //N_k_means::k_means(instance, vetSatAtendCliente, satUtilizado, true);
-
 
         if(i == parametros.iteracoesCalProb && instance.shortestPath) //&& (i%parametros.iteracoesCalProb)==0)
         {
@@ -376,7 +298,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                                                 evRouteSP.print(saida, instance, true);
                                                 //cout << "INICIANDO SOL COM: " << saida << "\n";
 
-                                                hashRotasIncluidas.insert(VetorHash(evRouteSP));
+                                                //hashRotasIncluidas.insert(VetorHash(evRouteSP));
 
                                                 clientesAdd += 1;
                                                 vetSatRotaInicializada[1+(satId-1)*instance.numEv+evEscolhido] = 1;
@@ -599,7 +521,6 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                             sol.satelites[sat].distancia += evRoute.distancia;
 
                         }
-
 
                     }
                 }

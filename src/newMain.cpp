@@ -45,7 +45,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    string commite = "aa688366da1df66e4e0996bbe412e57f33556939";
+    string commite = "439ca01a3a38d629441da7f55e44e3a0e384b408";
     parametros.commit = commite;
 
     try
@@ -153,5 +153,6 @@ void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const
     if(num == 0)
         num = 1;
 
-    parametrosGrasp = ParametrosGrasp(parametros.numItTotal, 500, vetAlfa, 400, num, 0.1, 400);
+    parametrosGrasp = ParametrosGrasp(parametros.numItTotal, 300, vetAlfa,
+                                      250, num, 0.1, parametros.numItTotal+10);
 }
