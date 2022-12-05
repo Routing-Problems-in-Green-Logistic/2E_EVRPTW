@@ -55,6 +55,7 @@ namespace NS_vnd
                 return difPercent/quant;
         }
 
+        //              rnvd completo   rvnd retirando iº mv
         void add(double disOrig, double novaDist)
         {
             quant += 1;
@@ -62,12 +63,10 @@ namespace NS_vnd
             difPercent += ((disOrig-novaDist)/disOrig)*100.0;
         }
 
-
-
     };
 
-    void rvnd(Solucao &solution, Instancia &instance, const float beta, BoostC::vector<MvValor> &vetMvValor,
-              BoostC::vector<MvValor> &vetMvValor1Nivel);
+     void rvnd(Solucao &solution, Instancia &instance, float beta, BoostC::vector<MvValor> &vetMvValor, BoostC::vector<MvValor> &vetMvValor1Nivel);
+     void rvnd2(Solucao &solution, Instancia &instance, float beta, BoostC::vector<MvValor> &vetMvValor, BoostC::vector<MvValor> &vetMvValor1Nivel);
 }
 
 #endif //INC_2E_EVRP_VND_H

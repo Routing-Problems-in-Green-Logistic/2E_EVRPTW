@@ -217,7 +217,7 @@ namespace NS_parametros
                         for(const double i:vectorSaida)
                             std += pow(i-avg, double(2));
 
-                        std = sqrt(std);
+                        std = sqrt(std/vectorSaida.size());
                         saidaStr += to_string(std) + " \t ";
                         break;
 

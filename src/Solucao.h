@@ -7,8 +7,8 @@ namespace BoostC = boost::container;
 class Solucao
 {
 public:
-    Solucao(Instancia& Inst);
-    Solucao(const Solucao &solution);
+    explicit Solucao(Instancia& Inst);
+    Solucao(const Solucao &solution) = delete;
     void copia(Solucao &solution);
 
     int getNSatelites() const;

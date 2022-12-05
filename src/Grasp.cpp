@@ -596,7 +596,25 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             } else
             {
 
-                rvnd(sol, instance, alfa, vetMvValor, vetMvValor1Nivel);
+                rvnd2(sol, instance, beta, vetMvValor, vetMvValor1Nivel);
+                if(!sol.checkSolution(erro, instance))
+                {
+
+                    cout << "\n\nSOLUCAO:\n\n";
+                    sol.print(instance);
+
+                    cout<<"############################################################################################\n\n";
+                    //cout<<"SOLUCAO INICIAL:\n\n";
+                    //solTemp.print(instance);
+
+
+                    cout << erro
+                         << "\n****************************************************************************************\n\n";
+                    mv = false;
+                    delete solBest;
+                    throw "ERRO";
+                }
+
 
                 if(sol.distancia < solBest->distancia || !solBest->viavel)
                 {
