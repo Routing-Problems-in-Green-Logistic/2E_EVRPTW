@@ -593,6 +593,9 @@ int NS_LocalSearch2::cross(Instancia &instancia, EvRoute &evRoute0, int posEvRou
                            EvRoute &evRouteAux1, const double tempoSaidaSatRoute0, const double tempoSaidaSatRoute1)
 {
 
+    static int quant = 0;
+
+
     /* Todos os clientes a partir da pos (posEvRoute0+1) irão para a pos (posEvRoute1+1), e o mesmo ocorre
      * com evRoute1 na pos (posEvRoute1+1) irão para (posEvRoute0+1).
      *
@@ -600,6 +603,9 @@ int NS_LocalSearch2::cross(Instancia &instancia, EvRoute &evRoute0, int posEvRou
 
     if(evRoute0.routeSize <= 2)
         return MV_EV_ROUTE0_INVIAVEL;
+
+    if(posEvRoute0 == posEvRoute1 && evRoute0[0].cliente == evRoute1[0].cliente)
+        return MV_INVIAVEL;
 
     const bool evRoute1Vazio = (evRoute1.routeSize <= 2);
 
@@ -674,9 +680,18 @@ int NS_LocalSearch2::cross(Instancia &instancia, EvRoute &evRoute0, int posEvRou
 
 cout<<"\tDIST ORIG: "<<distRotas<<"; NOVA DIST ESTIMADA: "<<(novaDistEvRoute0+novaDistEvRoute1)<<"\n";
 
+if(quant >= 5)
+{
+    PRINT_DEBUG("","");
+    throw "NUMERO DE CHAMADAS CHEGOU EM 5!";
+}
+
     // Verifica se existe melhora
-    if(menor((novaDistEvRoute0+novaDistEvRoute1), distRotas))
+    //if(menor((novaDistEvRoute0+novaDistEvRoute1), distRotas))
     {
+
+cout<<"POS EV ROUTE0: "<<posEvRoute0<<"\n";
+cout<<"POS EV ROUTE1: "<<posEvRoute1<<"\n";
 
 string strRota;
 evRoute0.print(strRota, instancia, true);
@@ -696,10 +711,12 @@ strRota = "";
 evRouteAux0.print(strRota, instancia, true);
 cout<<"\tNOVA ROTA0 ATE POS("<<posEvRoute0<<"): "<<strRota<<"\n\n";
 
+        // 1º Parte
 
+cout<<"COPIA EV ROUTE1 PARA EV ROUTE AUX0:\n";
 
         // Copia evRoute1 para evRouteAux0 de (posEvRoute0+1) em evRouteAux0, evRoute1 apartir de (posEvRoute1+1)
-        evRouteAux0.routeSize = copiaCliente(evRoute1.route, evRouteAux0.route, (posEvRoute0+1), (evRoute1.routeSize-1), (posEvRoute0+1));
+        evRouteAux0.routeSize = copiaCliente(evRoute1.route, evRouteAux0.route, (posEvRoute1+1), (evRoute1.routeSize-1), (posEvRoute0+1));
         evRouteAux0[evRouteAux0.routeSize-1].cliente = evRouteAux0[0].cliente;
 
         // Cria a nova rota1
@@ -711,9 +728,9 @@ strRota = "";
 evRouteAux1.print(strRota, instancia, true);
 cout<<"\tNOVA ROTA1 ATE POS("<<posEvRoute1<<"): "<<strRota<<"\n\n";
 
-
+cout<<"COPIA EV ROUTE0 PARA EV ROUTE AUX1:\n";
         // Copia evRoute0 para evRouteAux1 de (posEvRoute1+1) em evRouteAux1, evRoute0 apartir de (posEvRoute0+1)
-        evRouteAux1.routeSize = copiaCliente(evRoute0.route, evRouteAux1.route, (posEvRoute1+1), (evRoute0.routeSize-1), (posEvRoute1+1));
+        evRouteAux1.routeSize = copiaCliente(evRoute0.route, evRouteAux1.route, (posEvRoute0+1), (evRoute0.routeSize-1), (posEvRoute1+1));
         evRouteAux1[evRouteAux1.routeSize-1].cliente = evRouteAux1[0].cliente;
 
 cout<<"\n#############################################################\n\n";
@@ -753,6 +770,8 @@ cout<<"\tNOVA DIST EH MENOR! ATUALIZANDO ROTAS AUX\n\n";
                 distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia, true, tempoSaidaSatRoute1, 0, nullptr);
                 evRouteAux0.distancia = distNovaRota0;
                 evRouteAux1.distancia = distNovaRota1;
+
+
 
                 return MV_VIAVEL;
             }
@@ -928,10 +947,10 @@ cout<<"\t\tNAO FOI POSSIVEL VIABILIZAR NOVA ROTA0\n\n";
         }
 
     }
-    else
+    //else
     {
 
-cout<<"\tNOVA DIST ESTIMADA EH MAIOR QUE A DIST ORIG\n";
+//cout<<"\tNOVA DIST ESTIMADA EH MAIOR QUE A DIST ORIG\n";
         return MV_INVIAVEL;
     }
 
@@ -942,13 +961,26 @@ cout<<"\tNOVA DIST ESTIMADA EH MAIOR QUE A DIST ORIG\n";
 void NS_LocalSearch2::copiaCliente(const BoostC::vector<EvNo> &vet0, BoostC::vector<EvNo> &vetDest, const int tam, const int ini)
 {
     for(int i=ini; i < tam; ++i)
-        vetDest[i].cliente = vetDest[i].cliente;
+        vetDest[i].cliente = vet0[i].cliente;
 }
+
 
 int NS_LocalSearch2::copiaCliente(const BoostC::vector<EvNo> &vet0, BoostC::vector<EvNo> &vetDest, const int iniVet0, const int fimVet0, const int iniVetDest)
 {
     int iVet0    = iniVet0;
     int iVetDest = iniVetDest;
+
+cout<<"COPIA CLIENTE\n\n";
+cout<<"VET0: ";
+for(int i=0; i < iniVet0; ++i)
+    cout<<vet0[i].cliente<<" ";
+cout<<"\n\n";
+
+cout<<"VET DEST [0:"<<iniVetDest-1<<"]: ";
+for(int i=0; i < iniVetDest; ++i)
+    cout<<vetDest[i].cliente<<" ";
+cout<<"\n\n";
+
 
     while(iVet0 <= fimVet0)
     {

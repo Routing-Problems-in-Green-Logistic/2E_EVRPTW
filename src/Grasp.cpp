@@ -596,7 +596,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             } else
             {
 
-                rvnd2(sol, instance, beta, vetMvValor, vetMvValor1Nivel);
+                rvnd(sol, instance, beta, vetMvValor, vetMvValor1Nivel);
                 if(!sol.checkSolution(erro, instance))
                 {
 
