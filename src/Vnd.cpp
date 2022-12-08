@@ -8,7 +8,7 @@ using namespace NS_LocalSearch;
 using namespace NS_LocalSearch2;
 
 #define CHECK_SOLUTION TRUE
-#define TESTE_UM_MV    TRUE
+#define TESTE_UM_MV    FALSE
 
 
 /**

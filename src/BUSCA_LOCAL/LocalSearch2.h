@@ -69,6 +69,13 @@ namespace NS_LocalSearch2
                                 solucao.distancia += -distOrig + novaDist;
                                 solucao.satelites[sat].distancia += -distOrig + novaDist;
 
+                                evRouteAux0.satelite = evRoute0.satelite;
+                                evRouteAux0.idRota   = evRoute0.idRota;
+
+
+                                evRouteAux1.satelite = evRoute1.satelite;
+                                evRouteAux1.idRota   = evRoute1.idRota;
+
                                 evRoute0.copia(evRouteAux0, true, &instancia);
                                 evRoute1.copia(evRouteAux1, true, &instancia);
 
@@ -79,7 +86,7 @@ namespace NS_LocalSearch2
                                 evRoute1.atualizaParametrosRota(instancia);
 
 
-cout<<"MV UPDATE\n";
+//cout<<"MV UPDATE\n";
 
                                 double novaDemanda = evRoute0.demanda + evRoute1.demanda;
                                 if(novaDemanda != demandaOrig)
@@ -88,12 +95,12 @@ cout<<"MV UPDATE\n";
                                     cout<<"ERRO! NOVA DEMANDA("<<novaDemanda<<") != DEMANDA ORIGINAL("<<demandaOrig<<")\n";
                                     throw "ERRO";
                                 }
-cout<<"\n\n****************************************************\n****************************************************\n\n";
+//cout<<"\n\n****************************************************\n****************************************************\n\n";
                                 return true;
                             }
                             else
                             {
-cout<<"\n\n****************************************************\n****************************************************\n\n";
+//cout<<"\n\n****************************************************\n****************************************************\n\n";
                             }
 
                         } // End for(posEvSat1)

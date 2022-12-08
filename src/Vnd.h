@@ -22,8 +22,8 @@
 #define MV_EV_CROSS_INTRA_SAT                            9
 #define MV_EV_CROSS_INTER_SATS                           10
 
-#define NUM_MV                                           1
-#define NUM_MV_LS                                        1
+#define NUM_MV                                           10
+#define NUM_MV_LS                                        10
 
 namespace NS_vnd
 {
