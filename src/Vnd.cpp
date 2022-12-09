@@ -29,7 +29,7 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 #endif
 
 #if TESTE_UM_MV == TRUE
-    static int vetMv[NUM_MV] = {MV_EV_CROSS_INTRA_SAT};
+    static int vetMv[NUM_MV] = {MV_EV_CROSS_INTER_SATS};
 #endif
 
 #if TESTE_UM_MV == FASLE
@@ -116,6 +116,11 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 
                 case MV_EV_CROSS_INTRA_SAT:
                     aplicacao = mvInterRotasIntraSat(solution, instance, evRouteAux, evRouteAux1, cross);
+                    break;
+
+
+                case MV_EV_CROSS_INTER_SATS:
+                    aplicacao = mvInterRotasInterSats(solution, instance, evRouteAux, evRouteAux1, cross, beta);
                     break;
 
                 case MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTRA_SAT:

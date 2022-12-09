@@ -189,8 +189,8 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             cout<<"ULTIMA ITERACAO\n\n";*/
 
 
-/*        if(i>0 && (i%100)==0)
-            cout<<"ITERACAO: "<<i<<"\n";*/
+        //if(i>0 && (i%100)==0)
+        //    cout<<"ITERACAO: "<<i<<"\n";
 
         Solucao sol(instance);
 

@@ -18,6 +18,7 @@
 
 #include "../Solucao.h"
 #include "Instancia.h"
+#include "../greedyAlgorithm.h"
 
 namespace NS_LocalSearch2
 {
@@ -35,6 +36,8 @@ namespace NS_LocalSearch2
     template<typename Func>
     bool mvInterRotasIntraSat(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, Func func)
     {
+
+        int resutado = 0;
 
         for(int sat = 1; sat <= instancia.getNSats(); ++sat)
         {
@@ -60,8 +63,10 @@ namespace NS_LocalSearch2
                             const double distOrig    = evRoute0.distancia+evRoute1.distancia;
                             const double demandaOrig = evRoute0.demanda+evRoute1.demanda;
 
-                            int resutado = func(instancia, evRoute0, posEv0, evRoute1, posEv1, evRouteAux0, evRouteAux1, evRoute0[0].tempoSaida, evRoute1[0].tempoSaida);
+                            resutado = func(instancia, evRoute0, posEv0, evRoute1, posEv1, evRouteAux0, evRouteAux1, evRoute0[0].tempoSaida, evRoute1[0].tempoSaida);
 
+                            if(resutado == MV_POS_EV_ROUTE0_INVIAVEL || resutado == MV_POS_EV_ROUTE1_INVIAVEL)
+                                break;
 
                             if(resutado == 1)
                             {
@@ -98,20 +103,159 @@ namespace NS_LocalSearch2
 //cout<<"\n\n****************************************************\n****************************************************\n\n";
                                 return true;
                             }
-                            else
-                            {
-//cout<<"\n\n****************************************************\n****************************************************\n\n";
-                            }
+
+
 
                         } // End for(posEvSat1)
 
+
+                        if(resutado == MV_POS_EV_ROUTE0_INVIAVEL || resutado == MV_POS_EV_ROUTE1_INVIAVEL)
+                            break;
+
                     } // End for(posEvSat0)
 
+
+                    if(resutado == MV_POS_EV_ROUTE0_INVIAVEL)
+                        break;
+
+                    if(resutado == MV_POS_EV_ROUTE1_INVIAVEL)
+                        continue;
+
                 } // End for(evSat1)
+
+
+                if(resutado == MV_POS_EV_ROUTE0_INVIAVEL)
+                    continue;
 
             } // End for(evSat0)
 
         } // End for(sat1)
+
+        return false;
+    }
+
+    template<typename Func>
+    bool
+    mvInterRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, Func func, const float beta)
+    {
+
+
+        int resutado = 0;
+
+        for(int sat0 = 1; sat0 <= instancia.getNSats(); ++sat0)
+        {
+
+
+            for(int sat1 = 1; sat1 <= instancia.getNSats(); ++sat1)
+            {
+                if(sat0 == sat1)
+                    continue;
+
+                for(int evSat0=0; evSat0 < instancia.getN_Evs(); ++evSat0)
+                {
+                    EvRoute &evRouteSat0 = solucao.satelites[sat0].vetEvRoute[evSat0];
+
+
+                        for(int evSat1 = 0; evSat1 < instancia.getN_Evs(); ++evSat1)
+                        {
+
+                            EvRoute &evRouteSat1 = solucao.satelites[sat1].vetEvRoute[evSat1];
+
+                            // Selecionar as posicoes das rotas
+                            for(int posEv0 = 0; posEv0 < (evRouteSat0.routeSize - 1); ++posEv0)
+                            {
+
+                                for(int posEv1 = 0; posEv1 < (evRouteSat1.routeSize - 1); ++posEv1)
+                                {
+
+                                    const double distOrig = evRouteSat0.distancia + evRouteSat1.distancia;
+                                    const double demandaOrig = evRouteSat0.demanda + evRouteSat1.demanda;
+
+                                    resutado = MV_INVIAVEL;
+                                    resutado = func(instancia, evRouteSat0, posEv0, evRouteSat1, posEv1, evRouteAux0, evRouteAux1,
+                                                    evRouteSat0[0].tempoSaida, evRouteSat1[0].tempoSaida);
+
+                                    if(resutado == MV_POS_EV_ROUTE0_INVIAVEL || resutado == MV_POS_EV_ROUTE1_INVIAVEL)
+                                        break;
+
+                                    if(resutado == 1)
+                                    {
+                                        Solucao solucaoCopia(instancia);
+                                        solucaoCopia.copia(solucao);
+
+                                        EvRoute &evRoute0 = solucaoCopia.satelites[sat0].vetEvRoute[evSat0];
+                                        EvRoute &evRoute1 = solucaoCopia.satelites[sat1].vetEvRoute[evSat1];
+
+                                        const double novaDist = evRouteAux0.distancia + evRouteAux1.distancia;
+                                        solucaoCopia.distancia += -distOrig + novaDist;
+                                        solucaoCopia.satelites[sat0].distancia += -distOrig + novaDist;
+
+                                        evRouteAux0.satelite = evRoute0.satelite;
+                                        evRouteAux0.idRota = evRoute1.idRota;
+
+
+                                        evRouteAux1.satelite = evRoute1.satelite;
+                                        evRouteAux1.idRota = evRoute1.idRota;
+
+                                        evRoute0.copia(evRouteAux0, true, &instancia);
+                                        evRoute1.copia(evRouteAux1, true, &instancia);
+
+                                        evRoute0.distancia = evRouteAux0.distancia;
+                                        evRoute1.distancia = evRouteAux1.distancia;
+
+                                        evRoute0.atualizaParametrosRota(instancia);
+                                        evRoute1.atualizaParametrosRota(instancia);
+
+
+//cout<<"MV UPDATE\n";
+
+                                        double novaDemanda = evRoute0.demanda + evRoute1.demanda;
+                                        if(novaDemanda != demandaOrig)
+                                        {
+                                            PRINT_DEBUG("", "");
+                                            cout << "ERRO! NOVA DEMANDA(" << novaDemanda << ") != DEMANDA ORIGINAL("
+                                                 << demandaOrig << ")\n";
+
+                                            throw "ERRO";
+                                        }
+
+                                        solucaoCopia.recalculaDistSat(instancia);
+                                        solucaoCopia.resetaPrimeiroNivel(instancia);
+                                        GreedyAlgNS::firstEchelonGreedy(solucaoCopia, instancia, beta, false);
+
+                                        if(solucaoCopia.viavel && NS_Auxiliary::menor(solucaoCopia.distancia, solucao.distancia))
+                                        {
+//cout<<"MV UPDATE\n";
+                                            solucao.copia(solucaoCopia);
+                                            return true;
+                                        }
+                                    }
+
+                                } // End for(posEvSat1)
+
+                                if(resutado == MV_POS_EV_ROUTE0_INVIAVEL || resutado == MV_POS_EV_ROUTE1_INVIAVEL)
+                                    break;
+
+                            } // End for(posEvSat0)
+
+
+                            if(resutado == MV_POS_EV_ROUTE0_INVIAVEL)
+                                break;
+
+                            if(resutado == MV_POS_EV_ROUTE1_INVIAVEL)
+                                continue;
+
+                        } // End for(evSat1)
+
+
+                        if(resutado == MV_POS_EV_ROUTE0_INVIAVEL)
+                            continue;
+
+                    } // End for(evSat0)
+
+                } // End for(sat1)
+
+        } // End for(sat0)
 
         return false;
     }
