@@ -154,5 +154,5 @@ void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const
         num = 1;
 
     parametrosGrasp = ParametrosGrasp(parametros.numItTotal, 300, vetAlfa,
-                                      250, num, 0.1, parametros.numItTotal+10);
+                                      250, num, 0.1, 400);
 }
