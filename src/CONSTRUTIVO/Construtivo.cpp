@@ -1,43 +1,38 @@
-#include "greedyAlgorithm.h"
-#include "Auxiliary.h"
+#include "Construtivo.h"
+#include "../Auxiliary.h"
 #include <set>
 #include <cfloat>
-#include "mersenne-twister.h"
-#include "LocalSearch.h"
-#include "ViabilizadorRotaEv.h"
+#include "../mersenne-twister.h"
+#include "../ViabilizadorRotaEv.h"
 
-using namespace GreedyAlgNS;
+using namespace NS_Construtivo;
 using namespace std;
 using namespace NS_Auxiliary;
-using namespace NS_LocalSearch;
 using namespace NS_viabRotaEv;
 using namespace boost::numeric;
 
 
 // Roteamento dos veiculos eletricos
-bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const float alpha,
-                                      const ublas::matrix<int> &matClienteSat, bool listaRestTam, const float beta,
-                                      const BoostC::vector<int> &satUtilizados)
+bool NS_Construtivo::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha,
+                                               const ublas::matrix<int> &matClienteSat, bool listaRestTam, const float beta,
+                                               const BoostC::vector<int> &satUtilizados)
 {
-    //cout<<"size1: "<<matClienteSat.size1()<<"\nsize2: "<<matClienteSat.size2()<<"\n\n";
-
     if(sol.numEv == sol.numEvMax)
         return false;
 
     //cout<<"**********************************************CONSTRUTIVO**********************************************\n\n";
-    //cout<<"\tALFA: "<<alpha<<"\n\n";
 
     BoostC::vector<int8_t> &visitedClients = sol.vetClientesAtend;
 
     const int FistIdClient  = instance.getFirstClientIndex();
     const int LastIdClient  = instance.getEndClientIndex();
     const auto ItEnd        = visitedClients.begin() + instance.getNSats() + instance.getNClients();
-    //const BoostC::vector<double> vetTempoSaida = std::move(calculaTempoSaidaInicialSat(instance, beta));
     const BoostC::vector<double> &vetTempoSaida = instance.vetTempoSaida;
     EvRoute evRouteAux(-1, -1, instance.getEvRouteSizeMax(), instance);
 
     std::list<CandidatoEV> listaCandidatos;
     std::list<int> clientesSemCandidato;
+
     //COLUNAS DA MATRIZ POSSUEM SOMENTE A QUANTIDADE DE CLIENTES!!
     static BoostC::vector<ublas::matrix<CandidatoEV*>> matCandidato(1 + instance.getNSats());
     static bool primeiraChamada = true;
@@ -140,18 +135,6 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const f
             size = max(temp, 1);
         }
 
-        /*
-
-        cout<<"\tLIMITE: "<<(1.0+alpha)*(listaCandidatos.begin()->incrP)<<"\n";
-        cout<<"\tSIZE LISTA: "<<size<<"\n";
-        cout<<"\tLISTA DE CAND:  ";
-        for(auto cand:listaCandidatos)
-            cout<<cand.clientId<<";"<<cand.incrP<<" ";
-
-        cout<<"\n";
-
-        */
-
         int randIndex = rand_u32()%size;
 
         //cout<<"size(lista): "<<listaCandidatos.size()<<"; size*alfa: "<<size<<"; rand: "<<randIndex<<"\n";
@@ -161,8 +144,6 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const f
         CandidatoEV *candEvPtr = &(*topItem);
         visitedClients.at(topItem->clientId) = 1;
         sol.vetClientesAtend.at(topItem->clientId) = 1;
-
-//cout<<"ADD CLIENTE: "<<topItem->clientId<<"\n";
 
         Satelite *satelite = sol.getSatelite(topItem->satId);
         satelite->demanda += topItem->demand;
@@ -379,7 +360,7 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const f
         }
 
 
-    } // while(!visitAllClientes)
+    } // End while(!visitAllClientes)
 
 
     sol.viavel = visitAllClientes(visitedClients, instance);
@@ -389,9 +370,8 @@ bool GreedyAlgNS::secondEchelonGreedy(Solucao &sol, Instancia &instance, const f
     return sol.viavel;
 }
 
-// run ../instancias/2e-vrp-tw/Customer_5/C101_C5x.txt 1652454289
 
-bool GreedyAlgNS::visitAllClientes(BoostC::vector<int8_t> &visitedClients, const Instancia &instance)
+bool NS_Construtivo::visitAllClientes(BoostC::vector<int8_t> &visitedClients, const Instancia &instance)
 {
 
     int i=instance.getFirstClientIndex();
@@ -408,7 +388,7 @@ bool GreedyAlgNS::visitAllClientes(BoostC::vector<int8_t> &visitedClients, const
 }
 
 
-void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam)
+void NS_Construtivo::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam)
 {
 
     // Cria o vetor com a demanda de cada satellite
@@ -564,10 +544,6 @@ void GreedyAlgNS::firstEchelonGreedy(Solucao &sol, Instancia &instance, const fl
             // Insere candidato na solucao
             Route &route = sol.primeiroNivel.at(candidato.rotaId);
 
-/*string strRota;
-route.print(strRota);
-cout<<"ROTA: "<<strRota<<"\n\n";*/
-
             shiftVectorDir(route.rota, candidato.pos + 1, 1, route.routeSize);
 
             route.rota.at(candidato.pos+1).satellite = candidato.satelliteId;
@@ -620,13 +596,8 @@ cout<<"ROTA: "<<strRota<<"\n\n";*/
 
 }
 
-/*
- * Erro!
- * Verificar o shift da rota, possibilidade de atrasar a rota
- */
-
 // Com o tempo de chegada ao satelite, eh verificado se as rotas dos EV's podem sair apos o tempo de chegada do veic a combustao
-bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelite &satelite, const Instancia &instance, const bool modificaSatelite)
+bool NS_Construtivo::verificaViabilidadeSatelite(const double tempoChegada, Satelite &satelite, const Instancia &instance, const bool modificaSatelite)
 {
 
     bool viavel = true;
@@ -634,7 +605,6 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
     if(satelite.sateliteId == 0)
         return true;
 
-    //cout<<"\nFUNC VERIFICA VIABILIDADE SAT: "<<satelite.sateliteId<<"; TEMPO CHEGADA: "<<tempoChegada<<"\n";
 
     // Verifica se os tempos de saida das rotas dos EV's eh maior que o tempo de chegada do veic a combustao
     for(int evId = 0; evId < instance.getN_Evs(); ++evId)
@@ -678,8 +648,6 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
     }
 
 
-    //cout<<"\t\tVIAVEL: "<<viavel<<"; MOD: "<<modificaSatelite<<"\n";
-
     if(!modificaSatelite)
     {
         return viavel;
@@ -692,7 +660,6 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
         {
 
             const double tempoEv = evRoute.route[0].tempoSaida;
-            //cout<<"\t\tROUTE: "<<evRoute.idRota<<"; ROUTE SIZE: "<<evRoute.routeSize<<"\n";
 
             if(evRoute.routeSize > 2)
             {
@@ -703,7 +670,6 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
 
                 } else
                 {
-                    //cout<<"\t\telse\n";
                     // Verifica se eh possivel realizar um shift na rota
 
                     const int indice = evRoute.route[0].posMenorFolga;
@@ -714,17 +680,12 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
                     if(diferenca < 0.0)
                         diferenca = 0.0;
 
-                    //cout<<"\ttempo saida Ev: "<<tempoEv<<"; dif: "<<diferenca<<"; tempoCheg ~EV: "<<tempoChegada<<"\n";
-                    //cout<<"\tCliente Menor Folga: "<<cliente<<"; tempo chegada orig.: "<<tempoSaidaEv.evRoute->route[indice].tempoCheg<<"\n\n";
-
                     if(!((tempoEv + diferenca) >= tempoChegada))
                     {
-                        // Nao deve chegar aqui
-                        //cout<<"ERRO; "<<evRoute.idRota<<" PARA: "<<tempoChegada<<"\n";
+
                         return false;
                     } else
                     {
-                        //cout<<"ALTERANDO TEMPO DE SAIDA ROTA: "<<evRoute.idRota<<" PARA: "<<tempoChegada<<"\n";
                         if(!evRoute.alteraTempoSaida(tempoChegada, instance))
                         {
                             string str;
@@ -751,14 +712,11 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
             }
         }
 
-        //PRINT_DEBUG("", "ERRO SATELITE: "<<satelite.sateliteId<<", DEVERIA TER PELO MENOS UMA ROTA(ORDENADAS DE FORMA CRESENTE COM TEMPO DE SAIDA) COM TEMPO DE SAIDA MAIOR OU IGUAL A "<<tempoChegada);
-        //throw "ERRO";
         return true;
 
     }
     else
     {
-        //cout<<"RET FALSE\n";
         return false;
     }
 
@@ -766,7 +724,7 @@ bool GreedyAlgNS::verificaViabilidadeSatelite(const double tempoChegada, Satelit
 
 
 
-bool GreedyAlgNS::existeDemandaNaoAtendida(BoostC::vector<double> &demandaNaoAtendida)
+bool NS_Construtivo::existeDemandaNaoAtendida(BoostC::vector<double> &demandaNaoAtendida)
 {
     for(double dem:demandaNaoAtendida)
     {
@@ -777,7 +735,7 @@ bool GreedyAlgNS::existeDemandaNaoAtendida(BoostC::vector<double> &demandaNaoAte
     return false;
 }
 
-void GreedyAlgNS::setSatParaCliente(Instancia &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, ParametrosGrasp &param)
+void NS_Construtivo::setSatParaCliente(Instancia &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, ParametrosGrasp &param)
 {
     std::fill(satUtilizado.begin()+1, satUtilizado.end(), 0);
     std::fill(vetSatAtendCliente.begin()+1, vetSatAtendCliente.end(), -1);
@@ -821,8 +779,8 @@ void GreedyAlgNS::setSatParaCliente(Instancia &instancia, vector<int> &vetSatAte
     }
 }
 
-void GreedyAlgNS::construtivo(Solucao &sol, Instancia &instancia, const float alpha, const float beta, const ublas::matrix<int> &matClienteSat,
-                              bool listaRestTam)
+void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float alpha, const float beta, const ublas::matrix<int> &matClienteSat,
+                                 bool listaRestTam)
 {
 
 
@@ -831,14 +789,15 @@ void GreedyAlgNS::construtivo(Solucao &sol, Instancia &instancia, const float al
 
     std::fill(satUtilizados.begin()+1, satUtilizados.end(), 1);
 
-    bool segundoNivel = secondEchelonGreedy(sol, instancia, alpha, matClienteSat, listaRestTam, beta, satUtilizados);
+    bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat, listaRestTam, beta,
+                                                  satUtilizados);
 
     ublas::matrix<int> matClienteSat2 = matClienteSat;
     const int zero_max = max(1, instancia.numSats-2);
 
     if(segundoNivel)
     {
-        firstEchelonGreedy(sol, instancia, beta, listaRestTam);
+        construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam);
 
         if(!sol.viavel && instancia.numSats > 2)
         {
@@ -884,75 +843,29 @@ void GreedyAlgNS::construtivo(Solucao &sol, Instancia &instancia, const float al
                 //sol = Solucao(instancia);
                 numSatZero += 1;
 
-               // cout<<"SAT "<<satMin<<" EXCLUIDO\n\n";
-
-                /*
-                for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
-                {
-
-                    if(clientesSat[i] == 1)
-                    {
-                        for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
-                        {
-                            matClienteSat2(i, sat) = 1;
-                        }
-                    }
-
-                }*/
-
-                segundoNivel = secondEchelonGreedy(sol, instancia, alpha, matClienteSat2, listaRestTam, beta, satUtilizados);
+                segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat2, listaRestTam, beta,
+                                                         satUtilizados);
                 if(segundoNivel)
                 {
-                    firstEchelonGreedy(sol, instancia, beta, listaRestTam);
+                    construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam);
                 }
                 else
                 {
                     sol.viavel = false;
                     break;
                 }
-                 //   cout<<"SEGUNDO NIVEL INVIAVEL\n\n";
-
-
-
-                //cout << "MIN: " << min << ", sat: " << satMin << "\n";
-
-
-                //cout<<"SOL VIAVEL: "<<sol.viavel<<"\n";
-                //cout<<"numSatZero: "<<numSatZero<<"\n";
 
                 if(numSatZero == zero_max)
                     break;
 
-                //cout<<"END WHILE\n";
 
             }
 
             if(sol.viavel)
             {
                 sol.recalculaDist();
-                //cout << "SOL VIAVEL\n\n";
             }
-
-
-/*            cout<<"CARGAS: ";
-            vetCargaSat = vector<double>(1 + instancia.numSats, 0.0);
-
-            for(int i = 1; i <= instancia.getEndSatIndex(); ++i)
-            {
-                vetCargaSat[i] = sol.satelites[i].demanda;
-                cout<<i<<": "<<vetCargaSat[i]<<" ";
-
-                if(vetCargaSat[i] == 0.0)
-                    satUtilizados[i] = 0;
-            }
-
-            sol.print(instancia);
-            cout<<"CAP: "<<instancia.getTruckCap(instancia.getFirstTruckIndex())<<"\n\n";
-            cout<<"EXIT\n\n";
-            exit(-1);*/
-
         }
-
     }
     else
         sol.viavel = false;
@@ -961,7 +874,7 @@ void GreedyAlgNS::construtivo(Solucao &sol, Instancia &instancia, const float al
 
 
 
-bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instancia &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux)
+bool NS_Construtivo::canInsert(EvRoute &evRoute, int node, Instancia &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux)
 {
     double demand = instance.getDemand(node);
     double bestIncremento = candidatoEv.incrP;
@@ -1025,23 +938,10 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instancia &instance, Can
             if(custo > 0.0)
             {
 
-                //string str;
-                //evRouteAux.print(str, instance, true);
-
                 bestIncremento = distanceAux;
                 candidatoEv = CandidatoEV(pos, node, distanceAux, demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, {});
-
-                // Se evRoute eh uma nova rota, eh adicionado uma penalidade para cria-la
-/*                if(evRoute.routeSize == 2)
-                {
-                    candidatoEv.atualizaPenalidade(instance.penalizacaoDistEv);
-                    bestIncremento += instance.penalizacaoDistEv;
-                }
-                else*/
-                {
-                    candidatoEv.penalidade = 0.0;
-                    candidatoEv.atualizaPenalidade();
-                }
+                candidatoEv.penalidade = 0.0;
+                candidatoEv.atualizaPenalidade();
 
                 viavel = true;
 
@@ -1057,21 +957,9 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instancia &instance, Can
                 if(insertionCost < bestIncremento)
                 {
 
-                    //string str;
-                    //evRouteAux.print(str, instance, true);
-
-
                     bestIncremento = insertionCost;
                     candidatoEv = CandidatoEV(pos, node, (insercaoEstacao.distanciaRota - distanciaRota), demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, insercaoEstacao);
-
-                    // Se evRoute eh uma nova rota, eh adicionado uma penalidade para cria-la
-/*                    if(evRoute.routeSize == 2)
-                        candidatoEv.atualizaPenalidade(instance.penalizacaoDistEv);
-                    else*/
-                    {
-                        candidatoEv.atualizaPenalidade(0.0);
-                    }
-
+                    candidatoEv.atualizaPenalidade(0.0);
                     viavel = true;
                 }
             }
@@ -1080,26 +968,15 @@ bool GreedyAlgNS::canInsert(EvRoute &evRoute, int node, Instancia &instance, Can
         evRouteAux[pos+1] = evRouteAux[pos+2];
 
     }
-    //PRINT_DEBUG("", "<<viavel: "<<viavel);
 
     if(viavel)
-    {
-/*        if(evRoute.routeSize == 2)
-        {
-            candidatoEv.atualizaPenalidade(instance.penalizacaoDistEv);
-        }
-        else*/
-            candidatoEv.atualizaPenalidade(0.0);
-    }
+        candidatoEv.atualizaPenalidade(0.0);
 
     return viavel;
-
 }
 
-BoostC::vector<double> GreedyAlgNS::calculaTempoSaidaInicialSat(Instancia &instance, const float beta)
+BoostC::vector<double> NS_Construtivo::calculaTempoSaidaInicialSat(Instancia &instance, const float beta)
 {
-
-    //cout<<"calculaTempo\n\n";
 
    const int NumSatMaisDep = instance.getNSats()+1;
 
@@ -1295,7 +1172,7 @@ BoostC::vector<double> GreedyAlgNS::calculaTempoSaidaInicialSat(Instancia &insta
 
 }
 
-bool GreedyAlgNS::insert(EvRoute &evRoute, CandidatoEV &insertion, const Instancia &instance, const double tempoSaidaSat, Solucao &sol)
+bool NS_Construtivo::insert(EvRoute &evRoute, CandidatoEV &insertion, const Instancia &instance, const double tempoSaidaSat, Solucao &sol)
 {
     //cout<<"EV ROUTE ID: "<<evRoute.idRota<<"\n";
     //evRoute.print(instance, true);

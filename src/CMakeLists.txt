@@ -39,8 +39,6 @@ set(SOURCES newMain.cpp
             Teste.h
         Solucao.cpp
         EvRoute.cpp
-        greedyAlgorithm.cpp
-        greedyAlgorithm.h
         mersenne-twister.h
         mersenne-twister.cpp
         Constants.h

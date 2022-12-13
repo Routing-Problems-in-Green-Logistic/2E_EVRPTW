@@ -10,9 +10,8 @@
 
 #include "Aco.h"
 #include "Instancia.h"
-#include "../greedyAlgorithm.h"
+#include "../CONSTRUTIVO/Construtivo.h"
 #include "../mersenne-twister.h"
-#include "../greedyAlgorithm.h"
 #include "../K_MEANS/k_means.h"
 #include <iostream>
 #include <boost/numeric/ublas/matrix.hpp>
@@ -998,7 +997,7 @@ bool N_Aco::acoSol(Instancia &instancia, AcoParametros &acoPar, AcoEstatisticas 
             }
 
             //cout << "TODOS OS SAT VIAVEIS\n";
-            GreedyAlgNS::firstEchelonGreedy(solucao, instancia, param.vetAlfa[0], false);
+            NS_Construtivo::construtivoPrimeiroNivel(solucao, instancia, param.vetAlfa[0], false);
 
             if(solucao.viavel)
             {

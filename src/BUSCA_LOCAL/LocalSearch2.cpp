@@ -556,7 +556,7 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
                                 //solucaoAux.distSat();
 
                                 solucaoAux.resetaPrimeiroNivel(instancia);
-                                firstEchelonGreedy(solucaoAux, instancia, beta, false);
+                                construtivoPrimeiroNivel(solucaoAux, instancia, beta, false);
 
                                 if(solucaoAux.viavel)
                                 {

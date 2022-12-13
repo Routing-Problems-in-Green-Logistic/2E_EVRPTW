@@ -2,13 +2,13 @@ const int Tam =10000;
 
 #include <chrono>
 #include "Teste.h"
-#include "greedyAlgorithm.h"
+#include "Construtivo.h"
 #include "LocalSearch.h"
 #include "mersenne-twister.h"
 
 
 using namespace NameTeste;
-using namespace GreedyAlgNS;
+using namespace NS_Construtivo;
 
 /*
 

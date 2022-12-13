@@ -5,10 +5,10 @@
 #include "../EvRoute.h"
 #include "../Solucao.h"
 #include "../Auxiliary.h"
-#include "../greedyAlgorithm.h"
+#include "../CONSTRUTIVO/Construtivo.h"
 #include "../ViabilizadorRotaEv.h"
 
-using namespace GreedyAlgNS;
+using namespace NS_Construtivo;
 
 
 #define MOV_SHIFIT_INTRA      0

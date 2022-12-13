@@ -7,7 +7,7 @@
  * ****************************************/
 
 #include "Grasp.h"
-#include "greedyAlgorithm.h"
+#include "Construtivo.h"
 #include "Auxiliary.h"
 #include "mersenne-twister.h"
 #include "LocalSearch.h"
@@ -20,7 +20,7 @@
 
 #define NUM_EST_INI 3
 
-using namespace GreedyAlgNS;
+using namespace NS_Construtivo;
 using namespace NameS_Grasp;
 using namespace NS_LocalSearch;
 using namespace NS_vnd;

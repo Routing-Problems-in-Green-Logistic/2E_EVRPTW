@@ -5,7 +5,7 @@
 #include <fstream>
 #include <boost/format.hpp>
 #include "../Auxiliary.h"
-#include "../greedyAlgorithm.h"
+#include "../CONSTRUTIVO/Construtivo.h"
 #include "../PreProcessamento.h"
 
 using namespace std;

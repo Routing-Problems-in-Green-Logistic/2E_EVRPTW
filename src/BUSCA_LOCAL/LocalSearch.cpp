@@ -9,7 +9,7 @@
 
 using namespace NS_LocalSearch;
 using namespace NS_Auxiliary;
-using namespace GreedyAlgNS;
+using namespace NS_Construtivo;
 using namespace NS_viabRotaEv;
 
 #define PRINT_MV_SHIFIT_INTRA FALSE
@@ -1665,7 +1665,7 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
                             {
                                 solucaoAux.recalculaDistSat(instancia);
                                 solucaoAux.resetaPrimeiroNivel(instancia);
-                                firstEchelonGreedy(solucaoAux, instancia, beta, false);
+                                construtivoPrimeiroNivel(solucaoAux, instancia, beta, false);
 
                                 if(solucaoAux.viavel)
                                 {
@@ -2374,7 +2374,7 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                 {
                                     solucaoAux.recalculaDistSat(instancia);
                                     solucaoAux.resetaPrimeiroNivel(instancia);
-                                    firstEchelonGreedy(solucaoAux, instancia, beta, false);
+                                    construtivoPrimeiroNivel(solucaoAux, instancia, beta, false);
 
                                     if(solucaoAux.viavel)
                                     {

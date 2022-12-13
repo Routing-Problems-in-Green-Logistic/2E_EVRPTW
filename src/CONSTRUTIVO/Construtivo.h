@@ -1,13 +1,13 @@
-#ifndef INC_2E_EVRP_GREEDYALGORITHM_H
-#define INC_2E_EVRP_GREEDYALGORITHM_H
+#ifndef INC_2E_EVRP_CONSTRUTIVO_H
+#define INC_2E_EVRP_CONSTRUTIVO_H
 
-#include "Solucao.h"
-#include "ViabilizadorRotaEv.h"
+#include "../Solucao.h"
+#include "../ViabilizadorRotaEv.h"
 #include <list>
 #include <boost/container/vector.hpp>
 namespace BoostC = boost::container;
 
-namespace GreedyAlgNS
+namespace NS_Construtivo
 {
 
     class CandidatoVeicComb
@@ -85,10 +85,9 @@ namespace GreedyAlgNS
     };
 
 
-    bool
-    secondEchelonGreedy(Solucao &sol, Instancia &instance, const float alpha, const ublas::matrix<int> &matClienteSat,
-                        bool listaRestTam, const float beta, const BoostC::vector<int> &satUtilizados);
-    void firstEchelonGreedy(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam);
+    bool construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha, const ublas::matrix<int> &matClienteSat,
+                                   bool listaRestTam, const float beta, const BoostC::vector<int> &satUtilizados);
+    void construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam);
     void construtivo(Solucao &Sol, Instancia &instancia, const float alpha, const float beta,
                      const ublas::matrix<int> &matClienteSat, bool listaRestTam);
     bool visitAllClientes(BoostC::vector<int8_t> &visitedClients, const Instancia &instance);
@@ -103,9 +102,7 @@ namespace GreedyAlgNS
     BoostC::vector<double> calculaTempoSaidaInicialSat(Instancia &instance, const float beta);
     void setSatParaCliente(Instancia &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, ParametrosGrasp &param);
 
-
-
 }
 
-#endif //INC_2E_EVRP_GREEDYALGORITHM_H
+#endif //INC_2E_EVRP_CONSTRUTIVO_H
 

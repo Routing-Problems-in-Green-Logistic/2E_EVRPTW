@@ -18,7 +18,7 @@
 
 #include "../Solucao.h"
 #include "Instancia.h"
-#include "../greedyAlgorithm.h"
+#include "../CONSTRUTIVO/Construtivo.h"
 
 namespace NS_LocalSearch2
 {
@@ -221,7 +221,7 @@ namespace NS_LocalSearch2
 
                                         solucaoCopia.recalculaDistSat(instancia);
                                         solucaoCopia.resetaPrimeiroNivel(instancia);
-                                        GreedyAlgNS::firstEchelonGreedy(solucaoCopia, instancia, beta, false);
+                                        NS_Construtivo::construtivoPrimeiroNivel(solucaoCopia, instancia, beta, false);
 
                                         if(solucaoCopia.viavel && NS_Auxiliary::menor(solucaoCopia.distancia, solucao.distancia))
                                         {

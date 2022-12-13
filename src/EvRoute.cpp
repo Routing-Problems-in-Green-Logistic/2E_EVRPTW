@@ -3,12 +3,12 @@
 #include "EvRoute.h"
 #include "Auxiliary.h"
 #include "ViabilizadorRotaEv.h"
-#include "greedyAlgorithm.h"
+#include "Construtivo.h"
 
 using namespace NS_Auxiliary;
 using namespace std;
 using namespace NS_viabRotaEv;
-using namespace GreedyAlgNS;
+using namespace NS_Construtivo;
 
 
 
