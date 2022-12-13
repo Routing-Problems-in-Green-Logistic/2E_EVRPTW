@@ -874,9 +874,9 @@ void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float
 
 
 
-bool NS_Construtivo::canInsert(EvRoute &evRoute, int node, Instancia &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux)
+bool NS_Construtivo::canInsert(EvRoute &evRoute, int cliente, Instancia &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux)
 {
-    double demand = instance.getDemand(node);
+    double demand = instance.getDemand(cliente);
     double bestIncremento = candidatoEv.incrP;
     bool viavel = false;
 
@@ -920,13 +920,13 @@ bool NS_Construtivo::canInsert(EvRoute &evRoute, int node, Instancia &instance, 
      * **************************************************************************************************************************
      */
 
-    const ClienteInst &instNode = instance.vectCliente[node];
+    const ClienteInst &instNode = instance.vectCliente[cliente];
 
     for(int pos = 0; pos < evRoute.routeSize-1; pos++)
     {
 
-        evRouteAux.route[pos+1].cliente = node;
-        double distanceAux = instance.getDistance(evRouteAux[pos].cliente, node) + instance.getDistance(node, evRouteAux[pos+2].cliente) -
+        evRouteAux.route[pos+1].cliente = cliente;
+        double distanceAux = instance.getDistance(evRouteAux[pos].cliente, cliente) + instance.getDistance(cliente, evRouteAux[pos + 2].cliente) -
                              instance.getDistance(evRouteAux[pos].cliente, evRouteAux[pos+2].cliente);
 
 
@@ -939,7 +939,7 @@ bool NS_Construtivo::canInsert(EvRoute &evRoute, int node, Instancia &instance, 
             {
 
                 bestIncremento = distanceAux;
-                candidatoEv = CandidatoEV(pos, node, distanceAux, demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, {});
+                candidatoEv = CandidatoEV(pos, cliente, distanceAux, demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, {});
                 candidatoEv.penalidade = 0.0;
                 candidatoEv.atualizaPenalidade();
 
@@ -958,7 +958,7 @@ bool NS_Construtivo::canInsert(EvRoute &evRoute, int node, Instancia &instance, 
                 {
 
                     bestIncremento = insertionCost;
-                    candidatoEv = CandidatoEV(pos, node, (insercaoEstacao.distanciaRota - distanciaRota), demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, insercaoEstacao);
+                    candidatoEv = CandidatoEV(pos, cliente, (insercaoEstacao.distanciaRota - distanciaRota), demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, insercaoEstacao);
                     candidatoEv.atualizaPenalidade(0.0);
                     viavel = true;
                 }

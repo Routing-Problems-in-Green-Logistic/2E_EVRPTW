@@ -94,7 +94,7 @@ namespace NS_Construtivo
     bool existeDemandaNaoAtendida(BoostC::vector<double> &demandaNaoAtendida);
     bool insereEstacao(int rotaId, int satId);
 
-    bool canInsert(EvRoute &evRoute, int node, Instancia &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux);
+    bool canInsert(EvRoute &evRoute, int cliente, Instancia &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux);
     bool canInsertSemBateria(EvRoute &evRoute, int node, const Instancia &Instance, CandidatoEV &insertion);
     bool insert(EvRoute &evRoute, CandidatoEV & insertion, const Instancia &instance, const double tempoSaidaSat, Solucao &sol);
     bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instancia &instance, bool modficaSatelite);

@@ -596,6 +596,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             } else
             {
 
+                /*
                 rvnd(sol, instance, beta, vetMvValor, vetMvValor1Nivel);
                 if(!sol.checkSolution(erro, instance))
                 {
@@ -614,6 +615,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                     delete solBest;
                     throw "ERRO";
                 }
+                 */
 
 
                 if(sol.distancia < solBest->distancia || !solBest->viavel)
