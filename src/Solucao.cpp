@@ -327,7 +327,7 @@ void Solucao::print(std::string &saida, const Instancia &instance)
         route.print(saida);
     }
 
-    saida+= "DISTANCIA TOTAL: " + to_string(distancia) + "\n";
+    saida+= "DISTANCIA TOTAL SOLUCAO: " + to_string(distancia) + "\n";
 
 }
 
@@ -346,7 +346,7 @@ void Solucao::print(const Instancia& Inst)
     {
         route.print();
     }
-    cout << "DISTANCIA TOTAL: " << distancia << "\n";
+    cout << "DISTANCIA TOTAL SOLUCAO: " << distancia << "\n";
 
 }
 

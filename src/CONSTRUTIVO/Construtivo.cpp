@@ -2,6 +2,7 @@
 #include "../Auxiliary.h"
 #include <set>
 #include <cfloat>
+#include <chrono>
 #include "../mersenne-twister.h"
 #include "../ViabilizadorRotaEv.h"
 
@@ -387,13 +388,10 @@ bool NS_Construtivo::visitAllClientes(BoostC::vector<int8_t> &visitedClients, co
 
 }
 
-
 void NS_Construtivo::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam)
 {
 
     // Cria o vetor com a demanda de cada satellite
-
-
 
     BoostC::vector<double> demandaNaoAtendidaSat;
     demandaNaoAtendidaSat.reserve(sol.getNSatelites()+1);
@@ -592,7 +590,6 @@ void NS_Construtivo::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance,
 
     if(sol.viavel)
         sol.atualizaVetSatTempoChegMax(instance);
-
 
 }
 

@@ -7,6 +7,7 @@
 #include <boost/container/vector.hpp>
 namespace BoostC = boost::container;
 
+
 namespace NS_Construtivo
 {
 

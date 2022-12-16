@@ -22,6 +22,7 @@
 #include "VetorHash.h"
 #include "HASH/Hash.h"
 #include "Grasp.h"
+#include "Construtivo.h"
 
 using namespace std;
 using namespace NS_parametros;
@@ -95,6 +96,13 @@ int main(int argc, char* argv[])
         setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
         saida(parametros, parametrosSaida, best, instancia);
 
+        double tempoCpuSum = 0.0;
+        for(int i=0; i < NUM_MV; ++i)
+        {
+            cout << "TEMPO CPU MV " << i << ": " << NS_TimeMV::vetTempoCpuMV[i] << "\n";
+            tempoCpuSum += NS_TimeMV::vetTempoCpuMV[i];
+        }
+        cout<<"*****************************\nSUM: "<<tempoCpuSum<<"\n";
 
 
     }

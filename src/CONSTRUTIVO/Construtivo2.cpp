@@ -14,9 +14,8 @@ using namespace NS_Construtivo2;
 
 
 // Roteamento dos veiculos eletricos
-bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha,
-                                               const ublas::matrix<int> &matClienteSat, bool listaRestTam, const float beta,
-                                               const BoostC::vector<int> &satUtilizados)
+bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha, const ublas::matrix<int> &matClienteSat,
+                                                 bool listaRestTam, const float beta, const BoostC::vector<int> &satUtilizados)
 {
     if(sol.numEv == sol.numEvMax)
         return false;
@@ -35,8 +34,10 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
     std::list<int> clientesSemCandidato;
 
     //COLUNAS DA MATRIZ POSSUEM SOMENTE A QUANTIDADE DE CLIENTES!!
-    static BoostC::vector<ublas::matrix<CandidatoEV*>> matCandidato(1 + instance.getNSats());
+    static BoostC::vector<ublas::matrix<CandidatoEV*>> vetMatCand(1 + instance.getNSats());
     static bool primeiraChamada = true;
+
+    // Guarda candidato para cada cliente
     BoostC::vector<CandidatoEV*> vetCandPtr(instance.getNClients(), nullptr);
 
     const int numLinhasMat      = instance.getN_Evs();
@@ -47,7 +48,7 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
     auto transformaIdCliente  = [&](const int id){return (id - idPrimeiroCliente);};
     auto transformaIdEv       = [&](const int id){return (id-idPrimeiroEv);};
 
-    std::fill(matCandidato.begin(), matCandidato.end(), ublas::zero_matrix<CandidatoEV*>(numLinhasMat, numColMat));
+    std::fill(vetMatCand.begin(), vetMatCand.end(), ublas::zero_matrix<CandidatoEV*>(numLinhasMat, numColMat));
 
     const int fistSat = instance.getFirstSatIndex();
 //    int satId = sat;
@@ -101,8 +102,8 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
 
                 listaCandidatos.push_back(candidatoEv);
                 CandidatoEV *candPtr = &listaCandidatos.back();
-                matCandidato.at(candPtr->satId)(transformaIdEv(candPtr->routeId), transformaIdCliente(candPtr->clientId)) = candPtr;
-                vetCandPtr.at(transformaIdCliente(candPtr->clientId)) = candPtr;
+                vetMatCand[(candPtr->satId)](transformaIdEv(candPtr->routeId), transformaIdCliente(candPtr->clientId)) = candPtr;
+                vetCandPtr[transformaIdCliente(candPtr->clientId)] = candPtr;
 
             } else
                 clientesSemCandidato.push_back(clientId);
@@ -171,7 +172,7 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
             throw "ERRO";
         }
 
-        matCandidato.at(topItem->satId)(transformaIdEv(topItem->routeId), transformaIdCliente(topItem->clientId)) = nullptr;
+        vetMatCand.at(topItem->satId)(transformaIdEv(topItem->routeId), transformaIdCliente(topItem->clientId)) = nullptr;
 
         // Corrigi a lista de candidatos
         // 1º Os candidatos que estao no mesmo satelite e na mesma rota precisao ser avaliados novamente
@@ -193,7 +194,7 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
             for(int clientId = instance.getFirstClientIndex(); clientId <= instance.getEndClientIndex(); ++clientId)
             {
 
-                CandidatoEV *candidatoEvPtrAux = matCandidato.at(sat->sateliteId)(transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId));
+                CandidatoEV *candidatoEvPtrAux = vetMatCand.at(sat->sateliteId)(transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId));
 
                 if(numEVsMax && candidatoEvPtrAux)
                 {
@@ -209,7 +210,7 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
                    (candidatoEvPtrAux || (!candidatoEvPtrAux && numEVsMax)))
                 {
 
-                    matCandidato.at(sat->sateliteId)(transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId)) = nullptr;
+                    vetMatCand.at(sat->sateliteId)(transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId)) = nullptr;
                     CandidatoEV candidatoEv;
                     candidatoEv.clientId = clientId;
 
@@ -256,7 +257,7 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
                             *candidatoEvPtrAux = candidatoEv;
                         }
 
-                        matCandidato.at(candidatoEv.satId)(transformaIdEv(candidatoEv.routeId), transformaIdCliente(candidatoEv.clientId)) = candidatoEvPtrAux;
+                        vetMatCand.at(candidatoEv.satId)(transformaIdEv(candidatoEv.routeId), transformaIdCliente(candidatoEv.clientId)) = candidatoEvPtrAux;
                     }
                     else
                     {
@@ -302,9 +303,9 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
                             if(resultado)
                             {
 
-                                matCandidato.at(candCopia.satId)(transformaIdEv(candCopia.routeId), transformaIdCliente(candCopia.clientId)) = nullptr;
-                                matCandidato.at(satIdTemp)(transformaIdEv(candidatoEvPtrAux->routeId),
-                                                           transformaIdCliente(candidatoEvPtrAux->clientId)) = candidatoEvPtrAux;
+                                vetMatCand.at(candCopia.satId)(transformaIdEv(candCopia.routeId), transformaIdCliente(candCopia.clientId)) = nullptr;
+                                vetMatCand.at(satIdTemp)(transformaIdEv(candidatoEvPtrAux->routeId),
+                                                         transformaIdCliente(candidatoEvPtrAux->clientId)) = candidatoEvPtrAux;
                             }
                         }
                     }
@@ -339,7 +340,7 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
 
                         listaCandidatos.push_back(candidatoEv);
                         CandidatoEV *candPtr = &listaCandidatos.back();
-                        matCandidato.at(satId)(transformaIdEv(routeId), transformaIdCliente(cliente)) = candPtr;
+                        vetMatCand.at(satId)(transformaIdEv(routeId), transformaIdCliente(cliente)) = candPtr;
                         vetCandPtr.at(transformaIdCliente(cliente)) = candPtr;
                         ++itCliente;
                         clientesSemCandidato.remove(cliente);
@@ -352,7 +353,7 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
 
         // Remove candidato escolhido
         vetCandPtr.at(transformaIdCliente(topItem->clientId)) = nullptr;
-        matCandidato.at(topItem->satId)(transformaIdEv(topItem->routeId), transformaIdCliente(topItem->clientId)) = nullptr;
+        vetMatCand.at(topItem->satId)(transformaIdEv(topItem->routeId), transformaIdCliente(topItem->clientId)) = nullptr;
         listaCandidatos.erase(topItem);
 
         if(listaCandidatos.empty())

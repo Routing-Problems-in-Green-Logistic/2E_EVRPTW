@@ -25,6 +25,13 @@
 #define NUM_MV                                           11
 #define NUM_MV_LS                                        11
 
+
+namespace  NS_TimeMV
+{
+    extern double vetTempoCpuMV[NUM_MV];
+}
+
+
 namespace NS_vnd
 {
     class MvValor

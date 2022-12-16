@@ -1,3 +1,4 @@
+#include <chrono>
 #include "Vnd.h"
 #include "mersenne-twister.h"
 #include "LocalSearch.h"
@@ -11,6 +12,11 @@ using namespace NS_LocalSearch2;
 #define TESTE_UM_MV    FALSE
 
 
+
+double NS_TimeMV::vetTempoCpuMV[NUM_MV];
+
+
+
 /**
  *
  * @param solution
@@ -22,6 +28,15 @@ using namespace NS_LocalSearch2;
 
 void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, BoostC::vector<MvValor> &vetMvValor, BoostC::vector<MvValor> &vetMvValor1Nivel)
 {
+
+    static bool iniVetTempoCpuMV = false;
+    if(!iniVetTempoCpuMV)
+    {
+        for(int i=0; i < NUM_MV; ++i)
+            NS_TimeMV::vetTempoCpuMV[i] = 0.0;
+
+        iniVetTempoCpuMV = true;
+    }
 
 
 #if TESTE_UM_MV == FALSE
@@ -82,6 +97,8 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
             double val = solution.distancia;
             //cout << "\t\tMV: " << vetMv[i] << "\n";
 
+            auto start = std::chrono::high_resolution_clock::now();
+
             switch(vetMv[i])
             {
                 case MV_EV_SHIFIT_INTRA_ROTA:
@@ -138,6 +155,10 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
                     break;
 
             }
+
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> tempoAux = end - start;
+            NS_TimeMV::vetTempoCpuMV[i] += tempoAux.count();
 
             vetMvValor[vetMv[i]].quantChamadas += 1;
 

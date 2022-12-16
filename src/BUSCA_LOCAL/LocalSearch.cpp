@@ -243,7 +243,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instancia &instancia,
                                     distNovaRota = insercaoEstacao.distanciaRota;
                                 }
                                 else
-                                {
+/*                                {
                                     double d0 = abs(distNovaRota - (evRoute.distancia+incDist));
                                     double d1 = abs((evRoute.distancia+incDist) - distNovaRota);
                                     double dif = (d0 < d1) ? d0 : d1;
@@ -264,7 +264,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instancia &instancia,
                                         #endif
 
                                     }
-                                }
+                                }*/
 
 
                                 //if(distNovaRota < evRoute.distancia)
@@ -325,7 +325,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instancia &instancia,
                                             PRINT_DEBUG("", "ERRO FUNC testaRota");
                                             throw "ERRO";
                                         }
-                                        solucao.recalculaDist();
+                                        //solucao.recalculaDist();
                                         return true;
                                     }
 
