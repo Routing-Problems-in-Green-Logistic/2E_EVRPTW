@@ -1,13 +1,16 @@
 #ifndef INC_2E_EVRP_SOLUCAO_H
 #define INC_2E_EVRP_SOLUCAO_H
 #include <boost/container/vector.hpp>
-namespace BoostC = boost::container;
+#include <boost/numeric/ublas/matrix.hpp>
 #include "Satelite.h"
+
+namespace BoostC = boost::container;
+using namespace boost::numeric;
 
 class Solucao
 {
 public:
-    explicit Solucao(Instancia& Inst);
+    explicit Solucao(Instancia& inst);
     Solucao(const Solucao &solution) = delete;
     void copia(Solucao &solution);
 
@@ -52,6 +55,15 @@ public:
     bool solInicializada = false;
     int ultimaA = -1;
 
+
+    BoostC::vector<ublas::matrix<int>> vetMatSatEvMv;  // Sat, ev, mv
+    /*
+     * Se vetMatSatEvMv[1](0,0) (sat 1, ev 0, mv 0) = 1:
+     *
+     *  Entao, nao eh necessario refazer o mv 0 no ev 0 do sat 1 se nao houver alteracao nessa rota!
+     */
+
+    void rotaEvAtualizada(int sat, int ev);
 
 };
 #endif //INC_2E_EVRP_SOLUCAO_H

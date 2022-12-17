@@ -4,42 +4,44 @@
 
 
 
-Solucao::Solucao(Instancia &Inst)
+Solucao::Solucao(Instancia &inst)
 {
-    satelites.reserve(Inst.getNSats()+1);
+    satelites.reserve(inst.getNSats() + 1);
 
-    for(int i = 0; i < Inst.getNSats()+1; i++)
-        satelites.emplace_back(Inst, i);
+    for(int i = 0; i < inst.getNSats() + 1; i++)
+        satelites.emplace_back(inst, i);
 
 
-    numTrucksMax = Inst.getN_Trucks();
-    numEvMax = Inst.getN_Evs();
+    numTrucksMax = inst.getN_Trucks();
+    numEvMax = inst.getN_Evs();
 
     primeiroNivel.reserve(numTrucksMax);
 
     for(int i=0; i < numTrucksMax; ++i)
-        primeiroNivel.emplace_back(Inst);
+        primeiroNivel.emplace_back(inst);
 
-    satTempoChegMax.reserve(Inst.getNSats()+1);
-    for(int i = 0; i < Inst.getNSats()+1; i++)
+    satTempoChegMax.reserve(inst.getNSats() + 1);
+    for(int i = 0; i < inst.getNSats() + 1; i++)
         satTempoChegMax.emplace_back(-1.0);
 
     //vetClientesAtend.reserve(1+Inst.getNSats()+Inst.getN_RechargingS()+Inst.getNClients());
-    vetClientesAtend = BoostC::vector<int8_t>(1+Inst.getNSats()+Inst.getN_RechargingS()+Inst.getNClients());
+    vetClientesAtend = BoostC::vector<int8_t>(1 + inst.getNSats() + inst.getN_RechargingS() + inst.getNClients());
 
     // Clientes
-    std::fill((vetClientesAtend.begin()+Inst.getFirstClientIndex()), vetClientesAtend.end(), 0);
+    std::fill((vetClientesAtend.begin() + inst.getFirstClientIndex()), vetClientesAtend.end(), 0);
 
     // Satelites
-    std::fill((vetClientesAtend.begin()+1), (vetClientesAtend.begin()+Inst.getEndSatIndex()+1), 0);
+    std::fill((vetClientesAtend.begin()+1), (vetClientesAtend.begin() + inst.getEndSatIndex() + 1), 0);
 
     // Dep
     vetClientesAtend[0] = -1;
 
     // Estacoes
-    std::fill((vetClientesAtend.begin()+ Inst.getFirstRS_index()), (vetClientesAtend.begin() + Inst.getEndRS_index() + 1), -1);
+    std::fill((vetClientesAtend.begin() + inst.getFirstRS_index()), (vetClientesAtend.begin() + inst.getEndRS_index() + 1), -1);
 
-    inicializaVetClientesAtend(Inst);
+    inicializaVetClientesAtend(inst);
+
+    vetMatSatEvMv = BoostC::vector<ublas::matrix<int>>((inst.numSats+1), ublas::matrix<int>(inst.numEv, NUM_MV, 0));
 
 }
 
@@ -411,6 +413,7 @@ void Solucao::copia(Solucao &solution)
 
     //cout<<"Tempo de chegada 4º arg: "<<solution.satTempoChegMax[4]<<"; Tempo de chegada 4º copia: "<<satTempoChegMax[4]<<"\n\n";
 
+    vetMatSatEvMv = solution.vetMatSatEvMv;
 
 }
 
@@ -441,6 +444,13 @@ int Solucao::getNumEvNaoVazios()
     }
 
     return num;
+}
+
+
+void Solucao::rotaEvAtualizada(const int sat, const int ev)
+{
+    for(int i=0; i < NUM_MV; ++i)
+        vetMatSatEvMv[sat](ev, i) = 0;
 }
 
 void Solucao::inicializaVetClientesAtend(Instancia &instance)

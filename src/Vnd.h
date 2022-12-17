@@ -4,7 +4,7 @@
 #ifndef INC_2E_EVRP_VND_H
 #define INC_2E_EVRP_VND_H
 
-
+/*
 #define MV_EV_SHIFIT_INTRA_ROTA                          0
 #define MV_EV_SWAP_INTRA_ROTA                            1
 #define MV_EV_2OPT                                       2
@@ -22,9 +22,11 @@
 #define MV_EV_CROSS_INTRA_SAT                            9
 #define MV_EV_CROSS_INTER_SATS                           10
 
-#define NUM_MV                                           11
-#define NUM_MV_LS                                        11
+#define NUM_MV                                           1
 
+#define NUM_MV_LS                                        11*/
+
+// Definido em Auxiliary.h
 
 namespace  NS_TimeMV
 {

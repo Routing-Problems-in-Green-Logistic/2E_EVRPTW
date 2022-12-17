@@ -78,6 +78,8 @@ void NS_LocalSearch::LocalSearch::print() const
 bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux, const int selecao)
 {
 
+    const int mvId = MV_EV_SHIFIT_INTRA_ROTA;
+
     #if PRINT_MV_SHIFIT_INTRA
         cout<<"mvEvShifitIntraRota\n";
     #endif
@@ -97,6 +99,9 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instancia &instancia,
         // Percorre todas as rotas do satellite
         for(int routeId = 0; routeId < satelite->getNRoutes(); ++routeId)
         {
+            if(solucao.vetMatSatEvMv[satId](routeId, mvId) == 1)
+                continue;
+
 
             EvRoute &evRoute = satelite->vetEvRoute[routeId];
             string str;
@@ -310,6 +315,7 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instancia &instancia,
                                             insereEstacaoRota(evRouteAux, insercaoEstacao, instancia, solucao.satTempoChegMax[satId]);
                                             evRoute.copia(evRouteAux, true, &instancia);
                                             evRoute.vetRecarga[insercaoEstacao.estacao - instancia.getFirstRS_index()].utilizado += 1;
+                                            solucao.rotaEvAtualizada(satId, routeId);
 
                                             return true;
                                         }
@@ -343,6 +349,9 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instancia &instancia,
                     }
                 }
             }
+
+            solucao.vetMatSatEvMv[satId](routeId, mvId) = 1;
+
         }
     }
 
@@ -541,6 +550,8 @@ bool NS_LocalSearch::mvEvSwapIntraRota(Solucao &solucao, Instancia &instancia, E
 
     InsercaoEstacao insereEstacao;
 
+    const int mvId = MV_EV_SWAP_INTRA_ROTA;
+
     // Percorre os satelites
     for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
     {
@@ -551,6 +562,9 @@ bool NS_LocalSearch::mvEvSwapIntraRota(Solucao &solucao, Instancia &instancia, E
         // Percorre os EVs
         for(int ev=0; ev < satelite.getNRoutes(); ++ev)
         {
+
+            if(solucao.vetMatSatEvMv[sat](ev, mvId) == 1)
+                continue;
 
 #if PRINT_MV_SWAP == TRUE
 cout<<"EV: "<<ev<<"\n";
@@ -685,6 +699,7 @@ cout<<"SWAP ROTA: "<<strRota<<"\n";
                                         satelite.distancia += distReal;
                                         solucao.distancia += distReal;
                                         solucao.recalculaDist();
+                                        solucao.rotaEvAtualizada(sat, ev);
 
                                         return true;
                                     }
@@ -721,7 +736,7 @@ cout<<"SWAP ROTA: "<<strRota<<"\n";
                                                 solucao.distancia += evRoute.distancia;
                                                 satelite.distancia += evRoute.distancia;
                                                 solucao.recalculaDist();
-
+                                                solucao.rotaEvAtualizada(sat, ev);
                                                 return true;
                                             }
                                         }
