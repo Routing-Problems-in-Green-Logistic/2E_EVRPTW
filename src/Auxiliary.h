@@ -14,22 +14,22 @@ namespace BoostC = boost::container;
 
 using namespace std;
 
-#define TOLERANCIA_BATERIA      1e-4
-#define TOLERANCIA_DISTANCIA    1e-4
-#define TOLERANCIA_DIST_SOLUCAO 1e-2
-#define TOLERANCIA_TEMPO        1e-4
-#define TOLERANCIA_JANELA_TEMPO 1e-4
-#define TOLERANCIA_DEMANDA      1E-5
-#define INCREM_DIST             1E-2
-#define TOLERANCIA_DIF_ROTAS    1E-2
+#define TOLERANCIA_BATERIA          1e-4
+#define TOLERANCIA_DISTANCIA        1e-4
+#define TOLERANCIA_DIST_SOLUCAO     1e-2
+#define TOLERANCIA_TEMPO            1e-4
+#define TOLERANCIA_JANELA_TEMPO     1e-4
+#define TOLERANCIA_DEMANDA          1E-5
+#define INCREM_DIST                 1E-2
+#define TOLERANCIA_DIF_ROTAS        1E-2
 
-#define FLOAT_MAX               FLT_MAX
-#define FLOAT_MIN               FLT_MIN
+#define FLOAT_MAX                   FLT_MAX
+#define FLOAT_MIN                   FLT_MIN
 
-#define DOUBLE_MAX              DBL_MAX
-#define DOUBLE_MIN              DBL_MIN
+#define DOUBLE_MAX                  DBL_MAX
+#define DOUBLE_MIN                  DBL_MIN
 
-#define NUM_MAX_EST_POR_ARC     3
+#define NUM_MAX_EST_POR_ARC         3
 
 
 
@@ -50,8 +50,8 @@ using namespace std;
 #define MV_EV_CROSS_INTRA_SAT                            9
 #define MV_EV_CROSS_INTER_SATS                           10
 
-#define NUM_MV                  2
-#define NUM_MV_LS               11
+#define NUM_MV                                           11
+#define NUM_MV_LS                                        11
 
 #define TRUE  1
 #define FALSE 0

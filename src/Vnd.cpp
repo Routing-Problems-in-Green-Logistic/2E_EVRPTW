@@ -44,7 +44,7 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 #endif
 
 #if TESTE_UM_MV == TRUE
-    static int vetMv[NUM_MV] = {MV_EV_CROSS_INTER_SATS};
+    static int vetMv[NUM_MV] = {MV_EV_SHIFIT_INTER_ROTAS_INTRA_SAiT};
 #endif
 
 #if TESTE_UM_MV == FASLE
@@ -132,12 +132,12 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
                     break;
 
                 case MV_EV_CROSS_INTRA_SAT:
-                    aplicacao = mvInterRotasIntraSat(solution, instance, evRouteAux, evRouteAux1, cross);
+                    aplicacao = mvInterRotasIntraSat(solution, instance, evRouteAux, evRouteAux1, cross, MV_EV_CROSS_INTRA_SAT);
                     break;
 
 
                 case MV_EV_CROSS_INTER_SATS:
-                    aplicacao = mvInterRotasInterSats(solution, instance, evRouteAux, evRouteAux1, cross, beta);
+                    aplicacao = mvInterRotasInterSats(solution, instance, evRouteAux, evRouteAux1, cross, beta, MV_EV_CROSS_INTER_SATS);
                     break;
 
                 case MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTRA_SAT:
@@ -158,7 +158,7 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> tempoAux = end - start;
-            NS_TimeMV::vetTempoCpuMV[i] += tempoAux.count();
+            NS_TimeMV::vetTempoCpuMV[vetMv[i]] += tempoAux.count();
 
             vetMvValor[vetMv[i]].quantChamadas += 1;
 
@@ -168,21 +168,12 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 //cout<<"\n\nAPLICACAO MV: "<<((solution.distancia-valOrig)/valOrig)*100.0<<"\n";
                 vetMvValor[vetMv[i]].add(valOrig, solution.distancia);
 
-                if(NS_Auxiliary::menor(solution.getDist1Nivel(), val1Nivel))
-                {
-
-                    if(vetMv[i] == MV_EV_SWAP_INTER_ROTAS_INTER_SAT)
-                        vetMvValor1Nivel[1].add(val1Nivel, solution.getDist1Nivel());
-                    else if(vetMv[i] == MV_EV_SHIFIT_INTER_ROTAS_INTER_SAT)
-                        vetMvValor1Nivel[0].add(val1Nivel, solution.getDist1Nivel());
-                }
-
                 #if CHECK_SOLUTION
 
                     string erro;
                     if(!solution.checkSolution(erro, instance))
                     {
-                        PRINT_DEBUG("", "ERRO. MV: " << i << "\n");
+                        PRINT_DEBUG("", "ERRO. MV: " << vetMv[i] << "\n");
                         cout << erro << "\n\n";
                         solution.print(instance);
 
@@ -191,7 +182,23 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
                 #endif
                 i = 0;
             } else
+            {
+
+                #if CHECK_SOLUTION
+
+                    string erro;
+                    if(!solution.checkSolution(erro, instance))
+                    {
+                        PRINT_DEBUG("", "ERRO APOS PASSA MV: " << i << "\n");
+                        cout << erro << "\n\n";
+                        solution.print(instance);
+
+                        throw "ERRO";
+                    }
+                #endif
+
                 i += 1;
+            }
 
             //cout<<"#############################################################\n\n";
 
@@ -308,7 +315,7 @@ void NS_vnd::rvnd2(Solucao &solution, Instancia &instance, const float beta, Boo
                         break;
 
                     case MV_EV_CROSS_INTRA_SAT:
-                        aplicacao = mvInterRotasIntraSat(solAux, instance, evRouteAux, evRouteAux1, cross);
+                        aplicacao = mvInterRotasIntraSat(solAux, instance, evRouteAux, evRouteAux1, cross, 0);
                         break;
 
                     case MV_EV_SHIFIT_2CLIENTES_INTER_ROTAS_INTRA_SAT:

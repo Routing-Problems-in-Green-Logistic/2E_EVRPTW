@@ -34,7 +34,7 @@ namespace NS_LocalSearch2
     int copiaCliente(const BoostC::vector<EvNo> &vet0, BoostC::vector<EvNo> &vetDest, int iniVet0, int fimVet0, int iniVetDest);
 
     template<typename Func>
-    bool mvInterRotasIntraSat(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, Func func)
+    bool mvInterRotasIntraSat(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, Func func, const int mv)
     {
 
         int resutado = 0;
@@ -49,6 +49,9 @@ namespace NS_LocalSearch2
                 for(int ev1=0; ev1 < instancia.getN_Evs(); ++ev1)
                 {
                     if(ev0 == ev1)
+                        continue;
+
+                    if(solucao.vetMatSatEvMv[sat](ev0, mv) == 1 && solucao.vetMatSatEvMv[sat](ev1, mv) == 1)
                         continue;
 
                     EvRoute &evRoute1 = solucao.satelites[sat].vetEvRoute[ev1];
@@ -90,6 +93,8 @@ namespace NS_LocalSearch2
                                 evRoute0.atualizaParametrosRota(instancia);
                                 evRoute1.atualizaParametrosRota(instancia);
 
+                                solucao.rotaEvAtualizada(sat, ev0);
+                                solucao.rotaEvAtualizada(sat, ev1);
 
 //cout<<"MV UPDATE\n";
 
@@ -124,6 +129,7 @@ namespace NS_LocalSearch2
                 } // End for(evSat1)
 
 
+                solucao.vetMatSatEvMv[sat](ev0, mv) = 1;
                 if(resutado == MV_POS_EV_ROUTE0_INVIAVEL)
                     continue;
 
@@ -136,7 +142,7 @@ namespace NS_LocalSearch2
 
     template<typename Func>
     bool
-    mvInterRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, Func func, const float beta)
+    mvInterRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, Func func, const float beta, const int mv)
     {
 
 
@@ -158,6 +164,9 @@ namespace NS_LocalSearch2
 
                         for(int evSat1 = 0; evSat1 < instancia.getN_Evs(); ++evSat1)
                         {
+
+                            if(solucao.vetMatSatEvMv[sat0](evSat0, mv) == 1 && solucao.vetMatSatEvMv[sat1](evSat1, mv) == 1)
+                                continue;
 
                             EvRoute &evRouteSat1 = solucao.satelites[sat1].vetEvRoute[evSat1];
 
@@ -227,6 +236,10 @@ namespace NS_LocalSearch2
                                         {
 //cout<<"MV UPDATE\n";
                                             solucao.copia(solucaoCopia);
+
+                                            solucao.rotaEvAtualizada(sat0, evSat0);
+                                            solucao.rotaEvAtualizada(sat1, evSat1);
+
                                             return true;
                                         }
                                     }
@@ -247,6 +260,7 @@ namespace NS_LocalSearch2
 
                         } // End for(evSat1)
 
+                        solucao.vetMatSatEvMv[sat0](evSat0, mv) = 1;
 
                         if(resutado == MV_POS_EV_ROUTE0_INVIAVEL)
                             continue;
