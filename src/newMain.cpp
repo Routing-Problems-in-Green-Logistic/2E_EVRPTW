@@ -96,6 +96,8 @@ int main(int argc, char* argv[])
         setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
         saida(parametros, parametrosSaida, best, instancia);
 
+
+        /*
         double tempoCpuSum = 0.0;
         for(int i=0; i < NUM_MV; ++i)
         {
@@ -103,7 +105,8 @@ int main(int argc, char* argv[])
             tempoCpuSum += NS_TimeMV::vetTempoCpuMV[i];
         }
         cout<<"*****************************\nSUM: "<<tempoCpuSum<<"\n";
-
+         */
+        
 
     }
     catch(const char *erro)
@@ -155,12 +158,12 @@ void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, Parametr
 
 void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const Parametros &parametros)
 {
-    const BoostC::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.5, 0.7, 0.9, 1.0};
+    const BoostC::vector<float> vetAlfa{0.05, 0.07, 0.1, 0.15, 0.2, 0.3, 0.35, 0.4, 0.5, 0.6};
     //const BoostC::vector<float> vetAlfa{0.1, 0.3, 0.5, 0.9};
     int num = min(instancia.getN_Evs() / 2, 8);
     if(num == 0)
         num = 1;
 
     parametrosGrasp = ParametrosGrasp(parametros.numItTotal, 300, vetAlfa,
-                                      250, num, 0.1, 400);
+                                      450, num, 0.1, parametros.numItTotal+100);
 }

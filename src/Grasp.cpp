@@ -108,9 +108,9 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     auto atualizaProb = [&]()
     {
 
-        double penalidade1Nivel = getPenalidade1Nivel(*solBest, instance, fator1Nivel);
-        custoBest = solBest->distancia + getPenalidade2Nivel(*solBest, instance, fator) + penalidade1Nivel;
-        custoBest1Nivel = solBest->getDist1Nivel() + penalidade1Nivel;
+        //double penalidade1Nivel = getPenalidade1Nivel(*solBest, instance, fator1Nivel);
+        //custoBest = solBest->distancia + getPenalidade2Nivel(*solBest, instance, fator) + penalidade1Nivel;
+        //custoBest1Nivel = solBest->getDist1Nivel() + penalidade1Nivel;
 
         double somaProporcoes2Nivel = 0.0;
         double somaProporcoes1Nivel = 0.0;
@@ -132,12 +132,21 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             somaProporcoes1Nivel += proporcao1Nivel[i];
         }
 
+        for(int i=0; i < tamAlfa; ++i)
+            cout<<parametros.vetAlfa[i]<<"\t";
+
+        cout<<"\n";
+
         //Calcula probabilidade
         for(int i = 0; i< tamAlfa; ++i)
         {
             vetorProbabilidade2Nivel[i] = 100.0 * (proporcao2Nivel[i] / somaProporcoes2Nivel);
             vetorProbabilidade1Nivel[i] = 100.0 * (proporcao1Nivel[i] / somaProporcoes1Nivel);
+
+            cout<<vetorProbabilidade2Nivel[i]<<"\t";
         }
+
+        cout<<"\n\n****************************\n\n";
 
     };
 
@@ -189,8 +198,8 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             cout<<"ULTIMA ITERACAO\n\n";*/
 
 
-        //if(i>0 && (i%100)==0)
-        //    cout<<"ITERACAO: "<<i<<"\n";
+        if(i>0 && (i%100)==0)
+            cout<<"ITERACAO: "<<i<<"\n";
 
         Solucao sol(instance);
 
@@ -555,6 +564,48 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             }
         }
 
+
+        if(!sol.viavel)
+        {
+            double penal1Nivel = getPenalidade1Nivel(sol, instance, fator1Nivel);
+
+            double aux = sol.distancia + getPenalidade2Nivel(sol, instance, fator)+penal1Nivel;
+
+            if(aux < custoBest)
+                custoBest = aux;
+
+            //if(posAlfa == 0)
+            //    cout<<aux<<"\n";
+
+            solucaoAcumulada2Nivel[posAlfa] += aux;
+            vetorFrequencia2Nivel[posAlfa] += 1;
+
+            aux = sol.getDist1Nivel() + penal1Nivel;
+
+            if(aux < custoBest1Nivel)
+                custoBest1Nivel = aux;
+
+            //cout<<aux<<"\n\n";
+            solucaoAcumulada1Nivel[posBeta] += aux;
+            vetorFrequencia1Nivel[posBeta] += 1;
+        }
+        else
+        {
+
+            if(sol.distancia < custoBest)
+                custoBest = sol.distancia;
+
+            double temp = sol.getDist1Nivel();
+            if(temp < custoBest1Nivel)
+                custoBest1Nivel = temp;
+
+            solucaoAcumulada2Nivel[posAlfa] += sol.distancia;
+            vetorFrequencia2Nivel[posAlfa] += 1;
+
+            solucaoAcumulada1Nivel[posBeta] += temp;
+            vetorFrequencia1Nivel[posBeta] += 1;
+        }
+
         if(sol.viavel)
         {
             //cout<<"SOL VIAVEL\n\n";
@@ -618,7 +669,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
                 if(sol.distancia < solBest->distancia || !solBest->viavel)
                 {
-                    //cout<<"UPDATE: "<<sol.distancia<<"\n";
+                    cout<<"UPDATE("<<i<<"): "<<sol.distancia<<"  ALFA: "<<alfa<<"\n\n";
 
                     solBest->copia(sol);
                     solBest->ultimaA = i;
@@ -667,6 +718,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
         }
 
+        /*
         if(!sol.viavel)
         {
             double penal1Nivel = getPenalidade1Nivel(sol, instance, fator1Nivel);
@@ -692,6 +744,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             solucaoAcumulada1Nivel[posBeta] += sol.getDist1Nivel();
             vetorFrequencia1Nivel[posBeta] += 1;
         }
+         */
 
         if(i >= parametros.numIteGrasp/2 && solBest->viavel && (i-solBest->ultimaA)>= parametros.numItSemMelhora)
         {
