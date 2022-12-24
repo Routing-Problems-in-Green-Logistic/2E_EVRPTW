@@ -14,7 +14,7 @@
 namespace NS_Construtivo2
 {
 
-    bool construtivo2SegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha, const ublas::matrix<int> &matClienteSat,
+    bool construtivo2SegundoNivelEV(Solucao &sol, Instancia &instancia, const float alpha, const ublas::matrix<int> &matClienteSat,
                                     bool listaRestTam, const float beta, const BoostC::vector<int> &satUtilizados);
 
     void construtivo2(Solucao &Sol, Instancia &instancia, const float alpha, const float beta,
