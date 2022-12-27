@@ -33,9 +33,6 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
     // Indice: igual a do cliente
     BoostC::vector<int8_t> vetClientesVisitados = BoostC::vector<int8_t>(visitedClients);
 
-    const int FistIdClient = instancia.getFirstClientIndex();
-    const int LastIdClient = instancia.getEndClientIndex();
-    const auto ItEnd = visitedClients.begin() + instancia.getNSats() + instancia.getNClients();
     const BoostC::vector<double> &vetTempoSaida = instancia.vetTempoSaida;
     EvRoute evRouteAux(-1, -1, instancia.getEvRouteSizeMax(), instancia);
 
@@ -50,83 +47,23 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
     // Guarda candidato para cada cliente
     BoostC::vector <CandidatoEV*> vetCandPtr(instancia.getNClients(), nullptr);
 
+    /*
     const int numLinhasMat = instancia.getN_Evs();
     const int numColMat = instancia.getNClients();
     const int idPrimeiroCliente = instancia.getFirstClientIndex();
     const int idPrimeiroEv = instancia.getFirstEvIndex();
-
     auto transformaIdCliente = [&](const int id)
     { return (id - idPrimeiroCliente); };
     auto transformaIdEv = [&](const int id)
     { return (id - idPrimeiroEv); };
+    */
 
     std::fill(vetMatCand.begin(), vetMatCand.end(), ublas::zero_matrix<CandidatoEV *>(numLinhasMat, numColMat));
 
-    const int fistSat = instancia.getFirstSatIndex();
-//    int satId = sat;
-
-    // Cria um candidato para cada cliente e armazena em matCandidato
-    /*
-    for(int clientId = FistIdClient; clientId <= LastIdClient; ++clientId)
-    {
-        if(visitedClients.at(clientId) == int8_t(0))
-        {
-
-            CandidatoEV candidatoEv;
-            candidatoEv.clientId = clientId;
-
-            for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); ++satId)
-            {
-
-                //cout<<clientId<<", "<<satId<<"\n";
-                if(matClienteSat(clientId, (satId)) != 1 || satUtilizados[satId] == 0)
-                    continue;
-
-                Satelite *sat = sol.getSatelite(satId);
-                bool rotaVazia = false;
-                for(int routeId = 0; routeId < instance.getN_Evs(); ++routeId)
-                {
-                    EvRoute &route = sat->getRoute(routeId);
-                    if(route.routeSize <= 2 && !rotaVazia)
-                        rotaVazia = true;
-                    else if(route.routeSize <= 2 && rotaVazia)
-                        continue;
-
-                    CandidatoEV candidatoEvAux(candidatoEv);
-                    candidatoEvAux.satId = satId;
-                    candidatoEvAux.routeId = routeId;
-
-                    canInsert(route, clientId, instance, candidatoEvAux, satId, vetTempoSaida.at(satId), evRouteAux);
-
-                    if(candidatoEv.pos != -1 && candidatoEvAux.pos != -1)
-                    {
-                        if(candidatoEvAux < candidatoEv)
-                            candidatoEv = candidatoEvAux;
-                    } else if(candidatoEvAux != -1)
-                        candidatoEv = candidatoEvAux;
-
-                }
-
-            }
-
-            if(candidatoEv.pos != -1)
-            {
-
-                listaCandidatos.push_back(candidatoEv);
-                CandidatoEV *candPtr = &listaCandidatos.back();
-                vetMatCand[(candPtr->satId)](transformaIdEv(candPtr->routeId),
-                                             transformaIdCliente(candPtr->clientId)) = candPtr;
-                vetCandPtr[transformaIdCliente(candPtr->clientId)] = candPtr;
-
-            } else
-                clientesSemCandidato.push_back(clientId);
-        }
-
-    }
-    */
 
     do
     {
+        // Seleciona aleatoriamente um cliente que nao foi atendido
         int cliente = instancia.getFirstClientIndex() + (rand_u32()%instancia.numClients);
         const int clienteIni = cliente;
 
@@ -144,33 +81,58 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
             sol.viavel = false;
             break;
         }
+        // Cliente Selecionando
 
         vetCandidatos = BoostC::vector<CandidatoEV>();
         vetCandidatos.reserve(instancia.numEv+instancia.numSats);
 
+        // Candidato eh <cliente, ev> sendo a insercao mais barata de cada ev
         for(int sat=1; sat <= instancia.numSats; ++sat)
         {
-            Satelite &satelite = sol.satelites[sat];
+            if(!satUtilizados[sat])
+                continue;
 
+            Satelite &satelite = sol.satelites[sat];
+            // Somente um ev vazio eh testado para cada sat
             bool evVazio = false;
+
             for(int ev=0; ev < instancia.numEv; ++ev)
             {
                 EvRoute &evRoute = satelite.vetEvRoute[ev];
                 if(evRoute.routeSize <= 2 && evVazio)
                     continue;
 
+                if(evRoute.routeSize <= 2 && sol.numEv == sol.numEvMax)
+                {
+                    evVazio = true;
+                    continue;
+                }
+
+                if(evRoute.routeSize <= 2)
+                    evVazio = true;
+
                 CandidatoEV candidatoEv;
                 candidatoEv.satId = sat;
                 candidatoEv.routeId = ev;
 
-                if(canInsert(evRoute, cliente, instancia, candidatoEv, sat, instancia.vetTempoSaida[sat], evRouteAux))
-                {
+                // Retorna a melhor insercao do cliente para evRoute
+                if(!canInsert(evRoute, cliente, instancia, candidatoEv, sat, instancia.vetTempoSaida[sat], evRouteAux))
+                    continue;
 
-                }
-
+                vetCandidatos.push_back(candidatoEv);
 
             }
         }
+
+        if(vetCandidatos.empty())
+        {
+            vetClientesVisitados[cliente] = CLIENTE_INVIAVEL;
+            continue;
+        }
+
+
+
+
 
     }
     while(!visitAllClientes(visitedClients, instancia));
