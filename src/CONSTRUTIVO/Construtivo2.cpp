@@ -163,7 +163,7 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
                 candidatoEv.satId = sat;
                 candidatoEv.routeId = ev;
 
-                canInsert(evRoute, cliente, instancia, candidatoEv, sat, )
+                //canInsert(evRoute, cliente, instancia, candidatoEv, sat, instancia)
 
 
             }
