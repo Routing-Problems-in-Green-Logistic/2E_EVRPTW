@@ -152,7 +152,7 @@ bool NS_Construtivo::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance
 
         EvRoute &evRoute = satelite->getRoute(transformaIdEv(topItem->routeId));
 
-        // Atualiza o numero de EVs
+/*        // Atualiza o numero de EVs
         if(evRoute.routeSize <= 2)
         {
             sol.numEv += 1;
@@ -162,7 +162,7 @@ bool NS_Construtivo::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance
                 PRINT_DEBUG("\n", "SOLUCAO POSSUI NUMERO MAIOR DE EVs("<<sol.numEv<<") DO QUE MAX("<<sol.numEvMax<<")");
                 throw "ERRO";
             }
-        }
+        }*/
 
         bool resultadoTopItem = insert(evRoute, *topItem, instance, vetTempoSaida[topItem->satId], sol);
         if(!resultadoTopItem)
@@ -783,7 +783,6 @@ void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float
 
     BoostC::vector<int> satUtilizados(instancia.numSats+1, 0);
     BoostC::vector<int> clientesSat(instancia.getEndClientIndex()+1, 0);
-
     std::fill(satUtilizados.begin()+1, satUtilizados.end(), 1);
 
     bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat, listaRestTam, beta,
@@ -1171,6 +1170,19 @@ BoostC::vector<double> NS_Construtivo::calculaTempoSaidaInicialSat(Instancia &in
 
 bool NS_Construtivo::insert(EvRoute &evRoute, CandidatoEV &insertion, const Instancia &instance, const double tempoSaidaSat, Solucao &sol)
 {
+
+    // Atualiza o numero de EVs
+    if(evRoute.routeSize <= 2)
+    {
+        sol.numEv += 1;
+
+        if(sol.numEv > sol.numEvMax)
+        {
+            PRINT_DEBUG("\n", "SOLUCAO POSSUI NUMERO MAIOR DE EVs("<<sol.numEv<<") DO QUE MAX("<<sol.numEvMax<<")");
+            throw "ERRO";
+        }
+    }
+
     //cout<<"EV ROUTE ID: "<<evRoute.idRota<<"\n";
     //evRoute.print(instance, true);
 
@@ -1212,7 +1224,7 @@ bool NS_Construtivo::insert(EvRoute &evRoute, CandidatoEV &insertion, const Inst
     if(evRoute.routeSize > 2)
     {
         sol.distancia += -evRoute.distancia;
-        sol.satelites.at(evRoute.satelite).distancia += -evRoute.distancia;
+        sol.satelites[evRoute.satelite].distancia += -evRoute.distancia;
     }
 
 
@@ -1221,7 +1233,7 @@ bool NS_Construtivo::insert(EvRoute &evRoute, CandidatoEV &insertion, const Inst
     sol.distancia += evRoute.distancia;
 
 
-    sol.satelites.at(evRoute.satelite).distancia += evRoute.distancia;
+    sol.satelites[evRoute.satelite].distancia += evRoute.distancia;
 
     if(evRoute.distancia <= 0.0)
     {

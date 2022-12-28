@@ -40,27 +40,6 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
     BoostC::vector<CandidatoEV> vetCandidatos;
     std::list<int> clientesSemCandidato;
 
-    //COLUNAS DA MATRIZ POSSUEM SOMENTE A QUANTIDADE DE CLIENTES!!
-    static BoostC::vector <ublas::matrix<CandidatoEV *>> vetMatCand(1 + instancia.getNSats());
-    static bool primeiraChamada = true;
-
-    // Guarda candidato para cada cliente
-    BoostC::vector <CandidatoEV*> vetCandPtr(instancia.getNClients(), nullptr);
-
-    /*
-    const int numLinhasMat = instancia.getN_Evs();
-    const int numColMat = instancia.getNClients();
-    const int idPrimeiroCliente = instancia.getFirstClientIndex();
-    const int idPrimeiroEv = instancia.getFirstEvIndex();
-    auto transformaIdCliente = [&](const int id)
-    { return (id - idPrimeiroCliente); };
-    auto transformaIdEv = [&](const int id)
-    { return (id - idPrimeiroEv); };
-    */
-
-    std::fill(vetMatCand.begin(), vetMatCand.end(), ublas::zero_matrix<CandidatoEV *>(numLinhasMat, numColMat));
-
-
     do
     {
         // Seleciona aleatoriamente um cliente que nao foi atendido
@@ -130,16 +109,129 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
             continue;
         }
 
+        std::sort(vetCandidatos.begin(), vetCandidatos.end());
+
+        int temp = vetCandidatos.size()*beta;
+        const int sizeVet = max(temp, 1);
+
+        const int candId = rand_u32()%sizeVet;
+        CandidatoEV &candEscolhido = vetCandidatos[candId];
 
 
+        EvRoute &evRoute = sol.satelites[candEscolhido.satId].vetEvRoute[candEscolhido.routeId];
+        if(!insert(evRoute, candEscolhido, instancia, instancia.vetTempoSaida[candEscolhido.satId], sol))
+        {
+            PRINT_DEBUG("", "ERRO!, CLIENTE("<<candEscolhido.clientId<<") JA FOI TESTADO NESSA ROTA, DEVERIA SER VIAVEL!!");
+            throw "ERRO";
+        }
+
+        vetClientesVisitados[candEscolhido.clientId] = int8_t(CLIENTE_VISITADO);
 
 
+    }while(!visitAllClientes(vetClientesVisitados, instancia));
+
+    if(visitAllClientes(vetClientesVisitados, instancia))
+        sol.viavel = true;
+    else
+        sol.viavel = false;
+
+    // Converte vetClientesVisitados para visitClientes
+    for(int i=0; i < visitedClients.size(); ++i)
+    {
+        if(vetClientesVisitados[i] != int8_t(1))
+            visitedClients[i] = int8_t(0);
     }
-    while(!visitAllClientes(visitedClients, instancia));
 
-
-
-
-
+    return sol.viavel;
 }
 
+void NS_Construtivo2::construtivo2(Solucao &sol, Instancia &instancia, const float alpha, const float beta, const ublas::matrix<int> &matClienteSat,
+                                   bool listaRestTam)
+{
+
+
+    BoostC::vector<int> satUtilizados(instancia.numSats+1, 0);
+    BoostC::vector<int> clientesSat(instancia.getEndClientIndex()+1, 0);
+
+    std::fill(satUtilizados.begin()+1, satUtilizados.end(), 1);
+
+    bool segundoNivel = construtivo2SegundoNivelEV(sol, instancia, alpha, matClienteSat, listaRestTam, beta, satUtilizados);
+
+    ublas::matrix<int> matClienteSat2 = matClienteSat;
+    const int zero_max = max(1, instancia.numSats-2);
+
+    if(segundoNivel)
+    {
+        construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam);
+
+        if(!sol.viavel && instancia.numSats > 2)
+        {
+            //cout<<"CARGAS: ";
+            int numSatZero = 0;
+
+            BoostC::vector<double> vetCargaSat;
+
+            while(!sol.viavel)
+            {
+
+                //cout<<"CARGAS: ";
+                vetCargaSat = BoostC::vector<double>(1 + instancia.numSats, 0.0);
+
+                for(int i = 1; i <= instancia.getEndSatIndex(); ++i)
+                {
+                    vetCargaSat[i] = sol.satelites[i].demanda;
+                    //cout<<i<<": "<<vetCargaSat[i]<<" ";
+
+                    if(vetCargaSat[i] == 0.0)
+                        satUtilizados[i] = 0;
+                }
+
+                //cout<<"\n\n";
+
+                int satMin = -1;
+                double min = DOUBLE_INF;
+
+                for(int i = 1; i <= instancia.getEndSatIndex(); ++i)
+                {
+                    if(vetCargaSat[i] < min && vetCargaSat[i] > 0.0)
+                    {
+                        satMin = i;
+                        min = vetCargaSat[i];
+                    }
+
+                }
+
+                satUtilizados[satMin] = 0;
+                sol.resetaSat(satMin, instancia, clientesSat);
+                sol.reseta1Nivel(instancia);
+
+                //sol = Solucao(instancia);
+                numSatZero += 1;
+
+                segundoNivel = construtivo2SegundoNivelEV(sol, instancia, alpha, matClienteSat2, listaRestTam, beta, satUtilizados);
+                if(segundoNivel)
+                {
+                    construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam);
+                }
+                else
+                {
+                    sol.viavel = false;
+                    break;
+                }
+
+                if(numSatZero == zero_max)
+                    break;
+
+
+            }
+
+            if(sol.viavel)
+            {
+                sol.recalculaDist();
+            }
+        }
+    }
+    else
+        sol.viavel = false;
+
+}

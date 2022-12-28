@@ -8,6 +8,7 @@
 
 #include "Grasp.h"
 #include "Construtivo.h"
+#include "Construtivo2.h"
 #include "Auxiliary.h"
 #include "mersenne-twister.h"
 #include "LocalSearch.h"
@@ -21,6 +22,7 @@
 #define NUM_EST_INI 3
 
 using namespace NS_Construtivo;
+using namespace NS_Construtivo2;
 using namespace NameS_Grasp;
 using namespace NS_LocalSearch;
 using namespace NS_vnd;
@@ -70,7 +72,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     // Solucao para inicializar reativo
     Solucao gul(instance);
 
-    construtivo(gul, instance, 0.0, 0.0, matClienteSat, ListaRestTam);
+    construtivo2(gul, instance, 0.0, 0.0, matClienteSat, ListaRestTam);
     const double gulCusto2Nivel = getDistMaisPenalidade(gul, instance);
     double temp = gul.getDist1Nivel();
     if(!gul.viavel)
@@ -484,7 +486,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         float beta = parametros.vetAlfa[posBeta];
 
         solTemp.copia(sol);
-        construtivo(sol, instance, alfa, beta, matClienteSat, ListaRestTam);
+        construtivo2(sol, instance, alfa, beta, matClienteSat, ListaRestTam);
 
         // Remove rotas sat RS RS sat que nao foram utilizadas
         if(segundaEst)
