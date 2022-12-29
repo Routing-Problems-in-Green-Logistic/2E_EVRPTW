@@ -97,6 +97,9 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
                 // Retorna a melhor insercao do cliente para evRoute
                 if(!canInsert(evRoute, cliente, instancia, candidatoEv, sat, instancia.vetTempoSaida[sat], evRouteAux))
                     continue;
+                candidatoEv.routeId = ev;
+
+//cout<<"\tADD CANDIDATO CLIENTE: "<<cliente<<"; SAT: "<<sat<<"; EV ROUTE: "<<ev<<"\n";
 
                 vetCandidatos.push_back(candidatoEv);
 
@@ -117,6 +120,8 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
         const int candId = rand_u32()%sizeVet;
         CandidatoEV &candEscolhido = vetCandidatos[candId];
 
+//cout<<"CANDIDATO: CLIENTE: "<<candEscolhido.clientId<<"; SAT: "<<candEscolhido.satId<<"; ROUTE ID: "<<candEscolhido.routeId<<"\n\n";
+//cout<<"\n\n**********************\n\n";
 
         EvRoute &evRoute = sol.satelites[candEscolhido.satId].vetEvRoute[candEscolhido.routeId];
         if(!insert(evRoute, candEscolhido, instancia, instancia.vetTempoSaida[candEscolhido.satId], sol))
@@ -125,10 +130,28 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
             throw "ERRO";
         }
 
+//PRINT_DEBUG("","");
+//cout<<"ADD CLIENTE "<<candEscolhido.clientId<<" A SOLUCAO\n";
+
         vetClientesVisitados[candEscolhido.clientId] = int8_t(CLIENTE_VISITADO);
 
 
     }while(!visitAllClientes(vetClientesVisitados, instancia));
+
+    for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+    {
+
+        Satelite &satelite = sol.satelites[sat];
+        double demandaSat = 0.0;
+
+        for(int ev=0; ev < instancia.numEv; ++ev)
+        {
+            EvRoute &evRoute = satelite.vetEvRoute[ev];
+            demandaSat += evRoute.demanda;
+        }
+
+        satelite.demanda = demandaSat;
+    }
 
     if(visitAllClientes(vetClientesVisitados, instancia))
         sol.viavel = true;
