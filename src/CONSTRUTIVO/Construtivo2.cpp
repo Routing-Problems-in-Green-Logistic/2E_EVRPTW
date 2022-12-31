@@ -26,12 +26,19 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
     if(sol.numEv == sol.numEvMax)
         return false;
 
-    //cout<<"**********************************************CONSTRUTIVO**********************************************\n\n";
+    //cout<<"**********************************************CONSTRUTIVO2**********************************************\n\n";
 
     BoostC::vector <int8_t> &visitedClients = sol.vetClientesAtend;
 
     // Indice: igual a do cliente
     BoostC::vector<int8_t> vetClientesVisitados = BoostC::vector<int8_t>(visitedClients);
+
+/*
+cout<<"VET CLIENTES VISITADOS: \n";
+for(int i=0; i < visitedClients.size(); ++i)
+    cout<<int(visitedClients[i])<<" ";
+cout<<"\n\n";
+*/
 
     const BoostC::vector<double> &vetTempoSaida = instancia.vetTempoSaida;
     EvRoute evRouteAux(-1, -1, instancia.getEvRouteSizeMax(), instancia);
@@ -42,6 +49,12 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
 
     do
     {
+/*
+EvRoute &evRouteTemp = sol.satelites[6].vetEvRoute[0];
+string str;
+evRouteTemp.print(str, instancia, true);
+cout<<"\t\t\tROTA: "<<str<<"\n\n";
+*/
         // Seleciona aleatoriamente um cliente que nao foi atendido
         int cliente = instancia.getFirstClientIndex() + (rand_u32()%instancia.numClients);
         const int clienteIni = cliente;
@@ -60,6 +73,9 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
             sol.viavel = false;
             break;
         }
+
+//cout<<"CLIENTE SELECIONADO: "<<cliente<<"\n";
+
         // Cliente Selecionando
 
         vetCandidatos = BoostC::vector<CandidatoEV>();
@@ -93,7 +109,14 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
                 CandidatoEV candidatoEv;
                 candidatoEv.satId = sat;
                 candidatoEv.routeId = ev;
-
+/*
+if(cliente == 82 && sat == 6)
+{
+    string strRota;
+    evRoute.print(strRota, instancia, true);
+    cout<<"\t\tROTA: "<<strRota<<"\n";
+}
+*/
                 // Retorna a melhor insercao do cliente para evRoute
                 if(!canInsert(evRoute, cliente, instancia, candidatoEv, sat, instancia.vetTempoSaida[sat], evRouteAux))
                     continue;
@@ -120,19 +143,32 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
         const int candId = rand_u32()%sizeVet;
         CandidatoEV &candEscolhido = vetCandidatos[candId];
 
-//cout<<"CANDIDATO: CLIENTE: "<<candEscolhido.clientId<<"; SAT: "<<candEscolhido.satId<<"; ROUTE ID: "<<candEscolhido.routeId<<"\n\n";
-//cout<<"\n\n**********************\n\n";
+//cout<<"\tCANDIDATO: CLIENTE: "<<candEscolhido.clientId<<"; SAT: "<<candEscolhido.satId<<"; ROUTE ID: "<<candEscolhido.routeId<<"\n\n";
+//cout<<"\n\n\t**********************\n\n";
 
         EvRoute &evRoute = sol.satelites[candEscolhido.satId].vetEvRoute[candEscolhido.routeId];
+        string strRotaAntes;
+        evRoute.print(strRotaAntes, instancia, true);
+
         if(!insert(evRoute, candEscolhido, instancia, instancia.vetTempoSaida[candEscolhido.satId], sol))
         {
             PRINT_DEBUG("", "ERRO!, CLIENTE("<<candEscolhido.clientId<<") JA FOI TESTADO NESSA ROTA, DEVERIA SER VIAVEL!!");
             throw "ERRO";
         }
+/*
+if(evRoute[1].cliente == 56)
+{
+    string strRota;
+    evRoute.print(strRota, instancia, true);
+    cout<<"ROTA COM 56: "<<strRota<<"\n";
+    cout<<"ROTA ANTES: "<<strRotaAntes<<"\n";
+    cout<<"ID ROTA: "<<evRoute.idRota<<"\n\n";
+}
 
 //PRINT_DEBUG("","");
-//cout<<"ADD CLIENTE "<<candEscolhido.clientId<<" A SOLUCAO\n";
-
+cout<<"ADD CLIENTE "<<candEscolhido.clientId<<" A SOLUCAO\n";
+cout<<"*********************************\n\n";
+*/
         vetClientesVisitados[candEscolhido.clientId] = int8_t(CLIENTE_VISITADO);
 
 
@@ -159,10 +195,13 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
         sol.viavel = false;
 
     // Converte vetClientesVisitados para visitClientes
-    for(int i=0; i < visitedClients.size(); ++i)
+    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
     {
         if(vetClientesVisitados[i] != int8_t(1))
             visitedClients[i] = int8_t(0);
+        else
+            visitedClients[i] = 1;
+
     }
 
     return sol.viavel;
@@ -172,6 +211,7 @@ void NS_Construtivo2::construtivo2(Solucao &sol, Instancia &instancia, const flo
                                    bool listaRestTam)
 {
 
+//cout<<"INICIO CONSTRUTIVO2\n\n";
 
     BoostC::vector<int> satUtilizados(instancia.numSats+1, 0);
     BoostC::vector<int> clientesSat(instancia.getEndClientIndex()+1, 0);
@@ -228,8 +268,18 @@ void NS_Construtivo2::construtivo2(Solucao &sol, Instancia &instancia, const flo
                 sol.resetaSat(satMin, instancia, clientesSat);
                 sol.reseta1Nivel(instancia);
 
+//cout<<"\tSAT "<<satMin<<" NAO SERA UTILIZADO\n";
+
                 //sol = Solucao(instancia);
                 numSatZero += 1;
+
+/*
+cout<<"VET CLIENTES VISITADOS: \n";
+
+for(int i=0; i < sol.vetClientesAtend.size(); ++i)
+    cout<<int(sol.vetClientesAtend[i])<<" ";
+cout<<"\n\n";
+*/
 
                 segundoNivel = construtivo2SegundoNivelEV(sol, instancia, alpha, matClienteSat2, listaRestTam, beta, satUtilizados);
                 if(segundoNivel)

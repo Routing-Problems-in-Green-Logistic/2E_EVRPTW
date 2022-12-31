@@ -555,7 +555,10 @@ void Solucao::resetaSat(int satId, Instancia &instancia, BoostC::vector<int> &ve
         for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
         {
             if(vetClienteDel[i] == 1)
+            {
+                //cout<<"\t\t"<<i<<"<- 0\n";
                 vetClientesAtend[i] = int8_t(0);
+            }
         }
 
         satTempoChegMax[satId] = -1.0;

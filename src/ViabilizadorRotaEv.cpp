@@ -161,6 +161,10 @@ bool NS_viabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instancia &instance, const
         if(vet == nullptr)
         {
             cout<<"i: "<<evRouteSta[i].cliente<<"; j: "<<evRouteSta[i+1].cliente<<"\n\n";
+            string strRota;
+            evRoute.print(strRota, instance, true);
+            cout<<"ROTA: "<<strRota<<"\n\n";
+
             PRINT_DEBUG("", "vetor NULL");
             throw "NULL";
         }

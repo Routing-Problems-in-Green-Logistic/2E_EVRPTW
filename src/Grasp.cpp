@@ -47,6 +47,9 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                              BoostC::vector<NS_vnd::MvValor> &vetMvValor, BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel,
                              NS_parametros::ParametrosSaida &parametrosSaida)
 {
+
+//cout<<"Primeiro cliente: "<<instance.getFirstClientIndex()<<"\n";
+
     vetMvValor1Nivel = BoostC::vector<MvValor>(2);
 
     vetMvValor1Nivel[0].mv = MV_EV_SHIFIT_INTER_ROTAS_INTER_SAT;
@@ -72,7 +75,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     // Solucao para inicializar reativo
     Solucao gul(instance);
 
-    construtivo(gul, instance, 0.0, 0.0, matClienteSat, ListaRestTam);
+    construtivo2(gul, instance, 0.0, 0.0, matClienteSat, ListaRestTam);
     const double gulCusto2Nivel = getDistMaisPenalidade(gul, instance);
     double temp = gul.getDist1Nivel();
     if(!gul.viavel)
@@ -258,6 +261,8 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         // Insere  rotas da forama: sat cliente sat
         if(i >= parametros.iteracoesCalProb && parametros.iteracoesCalProb > 0 && instance.shortestPath && (i%2)==0)
         {
+
+//cout<<"PRIMEIRA ESTRATEGIA; i: "<<i<<"\n\n";
             int clientesAdd = 0;
 
             bool add   = false;
@@ -350,7 +355,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         else if(i >= parametros.iteracoesCalProb && parametros.iteracoesCalProb > 0 && ((i%2)==1) || instance.shortestPath == nullptr)
         {
 
-            //cout<<"SEGUNDA ESTRATEGIA, i: "<<i<<"\n";
+//cout<<"SEGUNDA ESTRATEGIA, i: "<<i<<"\n\n";
 
             segundaEst = true;
 
@@ -495,7 +500,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         float beta = parametros.vetAlfa[posBeta];
 
         solTemp.copia(sol);
-        construtivo(sol, instance, alfa, beta, matClienteSat, ListaRestTam);
+        construtivo2(sol, instance, alfa, beta, matClienteSat, ListaRestTam);
 
         // Remove rotas sat RS RS sat que nao foram utilizadas
         if(segundaEst)
@@ -658,6 +663,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             } else
             {
 
+
                 rvnd(sol, instance, beta, vetMvValor, vetMvValor1Nivel);
                 if(!sol.checkSolution(erro, instance))
                 {
@@ -675,6 +681,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                     delete solBest;
                     throw "ERRO";
                 }
+
 
 
                 if(sol.distancia < solBest->distancia || !solBest->viavel)
