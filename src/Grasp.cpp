@@ -137,21 +137,22 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             somaProporcoes1Nivel += proporcao1Nivel[i];
         }
 
+        /*
         for(int i=0; i < tamAlfa; ++i)
             cout<<parametros.vetAlfa[i]<<"\t";
 
         cout<<"\n";
-
+*/
         //Calcula probabilidade
         for(int i = 0; i< tamAlfa; ++i)
         {
             vetorProbabilidade2Nivel[i] = 100.0 * (proporcao2Nivel[i] / somaProporcoes2Nivel);
             vetorProbabilidade1Nivel[i] = 100.0 * (proporcao1Nivel[i] / somaProporcoes1Nivel);
 
-            cout<<vetorProbabilidade2Nivel[i]<<"\t";
+  //          cout<<vetorProbabilidade2Nivel[i]<<"\t";
         }
 
-        cout<<"\n\n****************************\n\n";
+    //    cout<<"\n\n****************************\n\n";
 
         for(int i=0; i < tamAlfa; ++i)
         {
@@ -212,8 +213,8 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             cout<<"ULTIMA ITERACAO\n\n";*/
 
 
-        if(i>0 && (i%100)==0)
-            cout<<"ITERACAO: "<<i<<"\n";
+        //if(i>0 && (i%100)==0)
+        //    cout<<"ITERACAO: "<<i<<"\n";
 
         Solucao sol(instance);
 
@@ -686,7 +687,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
                 if(sol.distancia < solBest->distancia || !solBest->viavel)
                 {
-                    cout<<"UPDATE("<<i<<"): "<<sol.distancia<<"  ALFA: "<<alfa<<"\n\n";
+                    //cout<<"UPDATE("<<i<<"): "<<sol.distancia<<"  ALFA: "<<alfa<<"\n\n";
 
                     solBest->copia(sol);
                     solBest->ultimaA = i;
