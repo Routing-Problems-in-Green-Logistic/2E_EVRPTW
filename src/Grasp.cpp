@@ -218,6 +218,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
         Solucao sol(instance);
 
+
         if(i == parametros.iteracoesCalProb && instance.shortestPath) //&& (i%parametros.iteracoesCalProb)==0)
         {
 
