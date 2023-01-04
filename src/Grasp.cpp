@@ -75,7 +75,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     // Solucao para inicializar reativo
     Solucao gul(instance);
 
-    construtivo2(gul, instance, 0.0, 0.0, matClienteSat, ListaRestTam);
+    construtivo(gul, instance, 0.0, 0.0, matClienteSat, ListaRestTam);
     const double gulCusto2Nivel = getDistMaisPenalidade(gul, instance);
     double temp = gul.getDist1Nivel();
     if(!gul.viavel)
@@ -502,7 +502,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         float beta = parametros.vetAlfa[posBeta];
 
         solTemp.copia(sol);
-        construtivo2(sol, instance, alfa, beta, matClienteSat, ListaRestTam);
+        construtivo(sol, instance, alfa, beta, matClienteSat, ListaRestTam);
 
         // Remove rotas sat RS RS sat que nao foram utilizadas
         if(segundaEst)
