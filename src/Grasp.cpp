@@ -137,22 +137,24 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             somaProporcoes1Nivel += proporcao1Nivel[i];
         }
 
-        /*
+
+/*
         for(int i=0; i < tamAlfa; ++i)
             cout<<parametros.vetAlfa[i]<<"\t";
 
         cout<<"\n";
 */
+
         //Calcula probabilidade
         for(int i = 0; i< tamAlfa; ++i)
         {
             vetorProbabilidade2Nivel[i] = 100.0 * (proporcao2Nivel[i] / somaProporcoes2Nivel);
             vetorProbabilidade1Nivel[i] = 100.0 * (proporcao1Nivel[i] / somaProporcoes1Nivel);
 
-  //          cout<<vetorProbabilidade2Nivel[i]<<"\t";
+            //cout<<vetorProbabilidade2Nivel[i]<<"\t";
         }
 
-    //    cout<<"\n\n****************************\n\n";
+        //cout<<"\n\n****************************\n\n";
 
         for(int i=0; i < tamAlfa; ++i)
         {
@@ -213,8 +215,10 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             cout<<"ULTIMA ITERACAO\n\n";*/
 
 
-        //if(i>0 && (i%100)==0)
-        //    cout<<"ITERACAO: "<<i<<"\n";
+        /*
+        if(i>0 && (i%100)==0)
+            cout<<"ITERACAO: "<<i<<"\n";
+        */
 
         Solucao sol(instance);
 
@@ -224,10 +228,8 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
             for(int t=0; t < instance.getNClients(); ++t)
             {
-
                 for(int sat=instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
                 {
-
                     const EvRoute &evRouteAux = instance.shortestPath[sat].getEvRoute(convClienteIndVet(t));
 
                     if(evRouteAux.routeSize > 2)
@@ -252,9 +254,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                 parametros.numMaxClie += 1;
                 if(parametros.numMaxClie > instance.getN_Evs())
                     parametros.numMaxClie -= 1;
-
             }
-
         }
 
         Solucao solTemp(instance);
@@ -666,7 +666,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             {
 
 
-                //rvnd(sol, instance, beta, vetMvValor, vetMvValor1Nivel);
+                rvnd(sol, instance, beta, vetMvValor, vetMvValor1Nivel);
                 if(!sol.checkSolution(erro, instance))
                 {
 
@@ -704,13 +704,10 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                     estat.ultimaAtualizacaoBest = i;
 
                 }
-
-
             }
 
             if(sol.viavel)
             {
-
                 estat.numSol += 1;
                 estat.distAcum += sol.distancia;
             }

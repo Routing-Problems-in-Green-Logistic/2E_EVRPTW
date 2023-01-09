@@ -49,7 +49,9 @@ set(SOURCES newMain.cpp
         PreProcessamento.h
         Heap.h
         common.h
-        VetorHash.h)
+        VetorHash.h
+        IG.h
+        IG.cpp)
 
 
 
