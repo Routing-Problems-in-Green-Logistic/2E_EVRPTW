@@ -23,7 +23,7 @@ tamanhoInst = ['100_1', '100_2']
 numExecucoes = 10
 caminhoDir = str(sys.argv[1])
 metodo = "G"
-parametros = " --pasta '" + caminhoDir+ "' --mt '"+str(metodo) +"' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --numItTotal 1000 --execAtual "
+parametros = " --pasta '" + caminhoDir+ "' --mt '"+str(metodo) +"' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --numItTotal 1200 --execAtual "
 
 print("PARAMETROS: \n", parametros, "\n")
 strInstancias = ""

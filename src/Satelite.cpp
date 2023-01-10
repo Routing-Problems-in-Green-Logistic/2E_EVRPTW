@@ -156,7 +156,6 @@ bool Satelite::vazio()
     for(int i=0; i < vetEvRoute.size(); ++i)
     {
         EvRoute &evRoute = vetEvRoute.at(i);
-        //cout<<"evRoute.routeSize: "<<evRoute.routeSize<<"\n";
         if(evRoute.routeSize > 2)
            return false;
     }
