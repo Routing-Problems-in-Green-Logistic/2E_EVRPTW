@@ -31,7 +31,7 @@ using namespace std;
 
 #define METODO_GRASP 0
 #define METODO_ACO   1
-
+#define METODO_IG    2
 
 #define SAIDA_ULTIMO     SAIDA_EXEC_SEM
 

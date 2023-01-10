@@ -15,8 +15,8 @@ using namespace boost::numeric;
 
 // Roteamento dos veiculos eletricos
 bool NS_Construtivo::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha,
-                                               const ublas::matrix<int> &matClienteSat, bool listaRestTam, const float beta,
-                                               const BoostC::vector<int> &satUtilizados)
+                                               const ublas::matrix<int> &matClienteSat, bool listaRestTam,
+                                               const float beta, const BoostC::vector<int> &satUtilizados, bool print)
 {
     if(sol.numEv == sol.numEvMax)
         return false;
@@ -141,7 +141,9 @@ bool NS_Construtivo::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance
         //cout<<"size(lista): "<<listaCandidatos.size()<<"; size*alfa: "<<size<<"; rand: "<<randIndex<<"\n";
 
         auto topItem = std::next(listaCandidatos.begin(), randIndex);
-        //cout<<"\tESCOLHIDO: "<<topItem->clientId<<";"<<topItem->incrP<<"\n\n";
+if(print)
+    cout<<"\tESCOLHIDO: "<<topItem->clientId<<";"<<topItem->incrP<<"\n\n";
+
         CandidatoEV *candEvPtr = &(*topItem);
         visitedClients.at(topItem->clientId) = 1;
         sol.vetClientesAtend.at(topItem->clientId) = 1;
@@ -776,17 +778,38 @@ void NS_Construtivo::setSatParaCliente(Instancia &instancia, vector<int> &vetSat
     }
 }
 
-void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float alpha, const float beta, const ublas::matrix<int> &matClienteSat,
-                                 bool listaRestTam)
+/**
+ *
+ * @param sol
+ * @param instancia
+ * @param alpha           Parametro de aleatoriedade  do segundo nivel
+ * @param beta            Parametro de aleatoriedade  do primeiro nivel
+ * @param matClienteSat
+ * @param listaRestTam
+ * @param iniSatUtil      Indica se os satelites devem ser zerados de acordo com a sol parcial (Para utilizacao do IG)
+ */
+void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float alpha, const float beta,
+                                 const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil,
+                                 bool print)
 {
 
 
     BoostC::vector<int> satUtilizados(instancia.numSats+1, 0);
     BoostC::vector<int> clientesSat(instancia.getEndClientIndex()+1, 0);
-    std::fill(satUtilizados.begin()+1, satUtilizados.end(), 1);
+
+    if(!iniSatUtil)
+        std::fill(satUtilizados.begin()+1, satUtilizados.end(), 1);
+    else
+    {
+        for(int sat=1; sat <= instancia.numSats; ++sat)
+        {
+            if(sol.satelites[sat].demanda > 0.001)
+                satUtilizados[sat] = 1;
+        }
+    }
 
     bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat, listaRestTam, beta,
-                                                  satUtilizados);
+                                                  satUtilizados, print);
 
     ublas::matrix<int> matClienteSat2 = matClienteSat;
     const int zero_max = max(1, instancia.numSats-2);
@@ -797,6 +820,9 @@ void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float
 
         if(!sol.viavel && instancia.numSats > 2)
         {
+//            if(iniSatUtil)
+//cout<<"\t\t1º NIVEL INV\n";
+
             //cout<<"CARGAS: ";
             int numSatZero = 0;
 
@@ -840,7 +866,7 @@ void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float
                 numSatZero += 1;
 
                 segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat2, listaRestTam, beta,
-                                                         satUtilizados);
+                                                         satUtilizados, false);
                 if(segundoNivel)
                 {
                     construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam);
@@ -872,6 +898,8 @@ void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float
 
 bool NS_Construtivo::canInsert(EvRoute &evRoute, int cliente, Instancia &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux)
 {
+
+
     double demand = instance.getDemand(cliente);
     double bestIncremento = candidatoEv.incrP;
     bool viavel = false;
@@ -880,6 +908,7 @@ bool NS_Construtivo::canInsert(EvRoute &evRoute, int cliente, Instancia &instanc
     evRouteAux.idRota = evRoute.idRota;
     evRouteAux.routeSizeMax = evRoute.routeSizeMax;
 
+    string strRota;
 
     InsercaoEstacao insercaoEstacao;
 
@@ -939,6 +968,12 @@ bool NS_Construtivo::canInsert(EvRoute &evRoute, int cliente, Instancia &instanc
                 candidatoEv.penalidade = 0.0;
                 candidatoEv.atualizaPenalidade();
 
+                if(cliente == 86)
+                {
+                    strRota = "";
+                    evRouteAux.print(strRota, instance, false);
+                }
+
                 viavel = true;
 
             }
@@ -957,6 +992,12 @@ bool NS_Construtivo::canInsert(EvRoute &evRoute, int cliente, Instancia &instanc
                     candidatoEv = CandidatoEV(pos, cliente, (insercaoEstacao.distanciaRota - distanciaRota), demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, insercaoEstacao);
                     candidatoEv.atualizaPenalidade(0.0);
                     viavel = true;
+
+                    if(cliente == 86)
+                    {
+                        strRota = "";
+                        evRouteAux.print(strRota, instance, false);
+                    }
                 }
             }
         }
@@ -966,7 +1007,20 @@ bool NS_Construtivo::canInsert(EvRoute &evRoute, int cliente, Instancia &instanc
     }
 
     if(viavel)
+    {
         candidatoEv.atualizaPenalidade(0.0);
+
+/*if(cliente == 86)
+{
+    cout << "canInsert 86 sat "<<satelite<<"\n";
+    cout<<strRota<<"\n";
+    strRota = "";
+
+    evRoute.print(strRota, instance, false);
+    cout<<strRota<<"\n\n";
+}*/
+
+    }
 
     return viavel;
 }
@@ -1209,6 +1263,10 @@ bool NS_Construtivo::insert(EvRoute &evRoute, CandidatoEV &insertion, const Inst
      */
 
     int k = pos;
+
+string rotaAntes;
+evRoute.print(rotaAntes, instance, false);
+
     shiftVectorDir(evRoute.route, pos+1, 1, evRoute.routeSize);
     evRoute.route.at(pos+1).cliente = node;
     evRoute.routeSize += 1;
@@ -1227,8 +1285,8 @@ bool NS_Construtivo::insert(EvRoute &evRoute, CandidatoEV &insertion, const Inst
         sol.satelites[evRoute.satelite].distancia += -evRoute.distancia;
     }
 
-
-    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaidaSat, 0, nullptr);
+    string rotaDebug;
+    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaidaSat, 0, &rotaDebug);
     evRoute.demanda += insertion.demand;
     sol.distancia += evRoute.distancia;
 
@@ -1239,6 +1297,10 @@ bool NS_Construtivo::insert(EvRoute &evRoute, CandidatoEV &insertion, const Inst
     {
         string rotaStr;
         evRoute.print(rotaStr, instance, false);
+
+        cout<<"NO: "<<node<<"\n";
+        cout<<"ERRO: "<<rotaDebug<<"\n\n";
+        cout<<"ROTA ANTES: "<<rotaAntes<<"\n\n";
 
         PRINT_DEBUG("", "ERRO NA FUNCAO GreedyAlgNS::insert, BATERIA DA ROTA EH INVIAVEL: "<<rotaStr<<"\n\n");
         cout<<"FUNCAO TESTA ROTA RETORNOU DISTANCIA NEGATIVA, ROTA: ";

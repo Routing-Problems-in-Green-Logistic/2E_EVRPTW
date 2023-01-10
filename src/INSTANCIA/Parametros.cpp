@@ -483,6 +483,9 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
                     else if(metodoStr == "ACO")
                         paramEntrada.metodo = METODO_ACO;
 
+                    else if(metodoStr == "IG")
+                        paramEntrada.metodo = METODO_IG;
+
                     else
                     {
                         cout<<"OPCAO --mt "<<metodoStr<<" EH INVALIDA. METODO "<<metodoStr<<" NAO EXISTE\n";

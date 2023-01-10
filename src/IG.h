@@ -13,7 +13,7 @@
 
 namespace NameS_IG
 {
-    void iteratedGreedy(Instancia &instance, ParametrosGrasp &parametros, NameS_Grasp::Estatisticas &estat,
+    Solucao* iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametros, NameS_Grasp::Estatisticas &estat,
                         const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
                         BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida);
 }

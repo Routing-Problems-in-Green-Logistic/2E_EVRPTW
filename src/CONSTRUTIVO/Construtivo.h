@@ -86,11 +86,12 @@ namespace NS_Construtivo
     };
 
 
-    bool construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha, const ublas::matrix<int> &matClienteSat,
-                                   bool listaRestTam, const float beta, const BoostC::vector<int> &satUtilizados);
+    bool construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha,
+                                   const ublas::matrix<int> &matClienteSat, bool listaRestTam, const float beta,
+                                   const BoostC::vector<int> &satUtilizados, bool print);
     void construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam);
     void construtivo(Solucao &Sol, Instancia &instancia, const float alpha, const float beta,
-                     const ublas::matrix<int> &matClienteSat, bool listaRestTam);
+                     const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil, bool print);
     bool visitAllClientes(BoostC::vector<int8_t> &visitedClients, const Instancia &instance);
     bool existeDemandaNaoAtendida(BoostC::vector<double> &demandaNaoAtendida);
     bool insereEstacao(int rotaId, int satId);

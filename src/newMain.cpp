@@ -1,6 +1,3 @@
-// Erro MV 1:
-// run ../../instancias/2e-vrp-tw/Customer_15/C202_C15x.txt --execTotal 2 --pasta 'resultados' --resulCSV 'resultados.csv' --execAtual 0 --mt G --seed 1663599262
-
 /* ****************************************
  * ****************************************
  *  Nome:    Igor de Andrade Junqueira
@@ -23,6 +20,7 @@
 #include "HASH/Hash.h"
 #include "Grasp.h"
 #include "Construtivo.h"
+#include "IG.h"
 
 using namespace std;
 using namespace NS_parametros;
@@ -32,9 +30,11 @@ using namespace N_Aco;
 using namespace N_k_means;
 using namespace NS_VetorHash;
 using namespace NS_Hash;
+using namespace NameS_IG;
 
 void aco(Instancia &instancia, Parametros &parametros, ParametrosGrasp &parm, Solucao &best);
 void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida);
+void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida);
 void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const Parametros &parametros);
 
 namespace N_gamb
@@ -85,6 +85,11 @@ int main(int argc, char* argv[])
             case METODO_GRASP:
                 grasp(instancia, parametros, best, parametrosSaida);
                 break;
+
+            case METODO_IG:
+                ig(instancia, parametros, best, parametrosSaida);
+                break;
+
             default:
                 cout<<"METODO: "<<parametros.metodo<<" NAO EXISTE\n"<<parametros.getParametros()<<"\n\n";
                 throw "ERRO";
@@ -96,6 +101,7 @@ int main(int argc, char* argv[])
         setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
         saida(parametros, parametrosSaida, best, instancia);
 
+        cout<<"TEMPO CPU: "<<parametrosSaida.tempo<<" S\n";
 
         /*
         double tempoCpuSum = 0.0;
@@ -127,13 +133,9 @@ int main(int argc, char* argv[])
 void aco(Instancia &instancia, Parametros &parametros, ParametrosGrasp &parm, Solucao &best)
 {
     //cout<<"ACO\n\n";
-
     AcoParametros acoParm;
     AcoEstatisticas acoEst;
-
     N_Aco::acoSol(instancia, acoParm, acoEst, parm, best);
-
-
 }
 
 void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida)
@@ -144,7 +146,6 @@ void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, Parametr
     setParamGrasp(instancia, parametrosGrasp, parametros);
     Estatisticas estatisticas;
 
-
     BoostC::vector<int> vetSatAtendCliente(instancia.numNos, -1);
     BoostC::vector<int> satUtilizado(instancia.numSats+1, 0);
     const ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
@@ -154,6 +155,23 @@ void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, Parametr
 
     delete solGrasp;
 
+}
+
+void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida)
+{
+
+    ParametrosGrasp parametrosGrasp;
+    setParamGrasp(instancia, parametrosGrasp, parametros);
+    Estatisticas estatisticas;
+
+    BoostC::vector<int> vetSatAtendCliente(instancia.numNos, -1);
+    BoostC::vector<int> satUtilizado(instancia.numSats+1, 0);
+    const ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
+    Solucao *solGrasp = iteratedGreedy(instancia, parametrosGrasp, estatisticas, matClienteSat, N_gamb::vetMvValor,
+                                       N_gamb::vetMvValor1Nivel, parametrosSaida);
+    best.copia(*solGrasp);
+
+    delete solGrasp;
 }
 
 void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const Parametros &parametros)
