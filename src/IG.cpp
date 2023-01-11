@@ -32,7 +32,7 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
     // Gera uma sol inicial com grasp
     NS_parametros::ParametrosSaida parametrosSaidaGrasp = parametrosSaida;
     ParametrosGrasp parametrosGrasp = parametros;
-    parametrosGrasp.numIteGrasp = 300;
+    //parametrosGrasp.numIteGrasp = 300;
 
     Solucao *solG = grasp(instancia, parametrosGrasp, estat, true,
                           matClienteSat, vetMvValor, vetMvValor1Nivel, parametrosSaidaGrasp);
