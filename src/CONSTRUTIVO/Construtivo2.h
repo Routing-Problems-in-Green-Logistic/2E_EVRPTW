@@ -18,7 +18,7 @@ namespace NS_Construtivo2
                                     bool listaRestTam, const float beta, const BoostC::vector<int> &satUtilizados);
 
     void construtivo2(Solucao &Sol, Instancia &instancia, const float alpha, const float beta,
-                     const ublas::matrix<int> &matClienteSat, bool listaRestTam);
+                      const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil);
 
 }
 

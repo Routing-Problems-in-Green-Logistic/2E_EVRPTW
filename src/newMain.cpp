@@ -101,7 +101,13 @@ int main(int argc, char* argv[])
         setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
         saida(parametros, parametrosSaida, best, instancia);
 
-        cout<<"TEMPO CPU: "<<parametrosSaida.tempo<<" S\n";
+        //if(best.viavel)
+       //     cout<<"BEST: "<<best.distancia<<"\n";
+
+        //cout<<"TEMPO CPU: "<<parametrosSaida.tempo<<" S\n";
+        //string numSol;
+        //parametrosSaida.mapNoSaida["numSol"].getVal(numSol);
+        //cout<<"NUM SOL: "<<numSol<<"\n";
 
         /*
         double tempoCpuSum = 0.0;

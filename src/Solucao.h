@@ -35,6 +35,7 @@ public:
     bool viavel2Nivel(Instancia &instancia);
     void resetaSat(int satId, Instancia &instancia, BoostC::vector<int> &vetClienteDel);    // Somente o sat eh alterado, 1 nivel nao se altera
     void reseta1Nivel(Instancia &instancia);
+    void resetaIndiceEv(Instancia &instancia);
 
     // Possui numSat + 1 !!
     BoostC::vector<Satelite> satelites;

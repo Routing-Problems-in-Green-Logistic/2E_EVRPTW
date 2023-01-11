@@ -207,8 +207,8 @@ cout<<"*********************************\n\n";
     return sol.viavel;
 }
 
-void NS_Construtivo2::construtivo2(Solucao &sol, Instancia &instancia, const float alpha, const float beta, const ublas::matrix<int> &matClienteSat,
-                                   bool listaRestTam)
+void NS_Construtivo2::construtivo2(Solucao &sol, Instancia &instancia, const float alpha, const float beta,
+                                   const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil)
 {
 
 //cout<<"INICIO CONSTRUTIVO2\n\n";
@@ -216,9 +216,20 @@ void NS_Construtivo2::construtivo2(Solucao &sol, Instancia &instancia, const flo
     BoostC::vector<int> satUtilizados(instancia.numSats+1, 0);
     BoostC::vector<int> clientesSat(instancia.getEndClientIndex()+1, 0);
 
-    std::fill(satUtilizados.begin()+1, satUtilizados.end(), 1);
+
+    if(!iniSatUtil)
+        std::fill(satUtilizados.begin()+1, satUtilizados.end(), 1);
+    else
+    {
+        for(int sat=1; sat <= instancia.numSats; ++sat)
+        {
+            if(sol.satelites[sat].demanda > 0.001)
+                satUtilizados[sat] = 1;
+        }
+    }
 
     bool segundoNivel = construtivo2SegundoNivelEV(sol, instancia, alpha, matClienteSat, listaRestTam, beta, satUtilizados);
+
 
     ublas::matrix<int> matClienteSat2 = matClienteSat;
     const int zero_max = max(1, instancia.numSats-2);

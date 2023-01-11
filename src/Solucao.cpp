@@ -585,6 +585,17 @@ void Solucao::reseta1Nivel(Instancia &instancia)
         }
     }
 
+}
 
+void Solucao::resetaIndiceEv(Instancia &instancia)
+{
+
+    const int evId1 = instancia.getFirstEvIndex();
+    for(int sat=1; sat <= instancia.numSats; ++sat)
+    {
+        Satelite &satelite = satelites[sat];
+        for(int ev=0; ev < instancia.numEv; ++ev)
+            satelite.vetEvRoute[ev].idRota = ev+evId1;
+    }
 
 }
