@@ -807,6 +807,8 @@ void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float
                 satUtilizados[sat] = 1;
         }
     }
+    std::fill(satUtilizados.begin()+1, satUtilizados.end(), 1);
+    satUtilizados[8] = 0;
 
     bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat, listaRestTam, beta,
                                                   satUtilizados, print);

@@ -46,7 +46,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    string commite = "865bfa3e064ccc3ce7d04eaccc19882ec6e3a423";
+    string commite = "7f8756f9c78714c10e6208b66c3955e8facb43b5";
     parametros.commit = commite;
 
     try
@@ -101,10 +101,14 @@ int main(int argc, char* argv[])
         setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
         saida(parametros, parametrosSaida, best, instancia);
 
-        //if(best.viavel)
-       //     cout<<"BEST: "<<best.distancia<<"\n";
+        if(best.viavel)
+        {
+            cout << "BEST: " << best.distancia << "\n";
+            cout<<"2º Nivel: "<<best.getDist2Nivel()<<"\n";
+            cout<<"1º Nivel: "<<best.getDist1Nivel()<<"\n\n";
+        }
 
-        //cout<<"TEMPO CPU: "<<parametrosSaida.tempo<<" S\n";
+        cout<<"TEMPO CPU: "<<parametrosSaida.tempo<<" S\n";
         //string numSol;
         //parametrosSaida.mapNoSaida["numSol"].getVal(numSol);
         //cout<<"NUM SOL: "<<numSol<<"\n";

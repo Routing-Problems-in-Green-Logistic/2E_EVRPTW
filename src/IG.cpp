@@ -45,7 +45,7 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
     delete solG;
     solG = nullptr;
 
-//cout<<"GRASP: "<<solBest.distancia<<"\n\n";
+cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
     Solucao solC(instancia);
     solC.copia(solBest);
@@ -189,11 +189,27 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
             solBest = Solucao(instancia);
             solBest.copia(solC);
             solBest.ultimaA = i;
-//cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
+cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 
         }
     }
 
+    solC = Solucao(instancia);
+    solC.copia(solBest);
+
+    for(int i=0; i < 10; ++i)
+    {
+        solC.reseta1Nivel(instancia);
+        construtivoPrimeiroNivel(solC, instancia, beta, true);
+        if(NS_Auxiliary::menor(solC.distancia, solBest.distancia))
+        {
+            solBest = Solucao(instancia);
+            solBest.copia(solC);
+
+cout<<"UPDATE 1 NIVEL: "<<solBest.distancia<<"\n\n";
+
+        }
+    }
 
     parametrosSaida.mapNoSaida["numSol"] = NS_parametros::NoSaida("numSol");
     parametrosSaida.mapNoSaida["numSol"].addSaida(SAIDA_EXEC_VAL);

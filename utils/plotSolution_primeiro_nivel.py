@@ -109,7 +109,8 @@ for linha in file:
 
 nodeId = coord.index.values
 
-
+for i in range(0, numSat+2):
+	removeNo[i] = 0
 
 nodeType = [x[0] for x in coord['code'].values]
 
@@ -133,17 +134,17 @@ for i in range(len(nodeId)):
     if removeNo[i] == 1:
         continue
 
-    plt.annotate(nodeId[i], (x[i], y[i]), color='r', zorder=10)
-    print(nodeId[i], ": ", x[i], " ", y[i])
 
     color = ''
     marker = ''
     if nodeType[i] == 'C':
         marker = 'o'
         color = '#000000'
+        continue
     if nodeType[i] == 'F':
         marker = '^'
         color = '#0000ff'
+        continue
     if nodeType[i] == 'S':
         marker = 'D'
         #color = '#00ff00'
@@ -151,6 +152,10 @@ for i in range(len(nodeId)):
     if nodeType[i] == 'D':
         marker = 's'
         color = '#ff0000'
+        
+    plt.annotate(nodeId[i], (x[i], y[i]), color='r', zorder=10)
+    print(nodeId[i], ": ", x[i], " ", y[i])
+        
     plt.scatter(x[i], y[i], c=color, marker=marker, s=65, zorder= 5, edgecolors='#222222')
 
 
