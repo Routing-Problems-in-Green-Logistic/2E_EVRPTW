@@ -15,12 +15,15 @@
 #include "Construtivo2.h"
 #include "Vnd.h"
 #include "mersenne-twister.h"
+#include <unordered_set>
+#include "VetorHash.h"
 
 using namespace NameS_IG;
 using namespace NameS_Grasp;
 using namespace NS_Construtivo;
 using namespace NS_Construtivo2;
 using namespace NS_vnd;
+using namespace NS_VetorHash;
 
 // ./run ../../instancias/2e-vrp-tw/Customer_100/C101_21x.txt --numItTotal 1000 --mt IG --seed 1673390763
 
@@ -28,6 +31,13 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
                               const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
                               BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida)
 {
+
+    std::unordered_set<VetorHash, VetorHash::HashFunc> hashSolSetCorrente;    // Solucao Corrente
+    int numSolCorrente = 0;
+
+    std::unordered_set<VetorHash, VetorHash::HashFunc> hashSolSetConst;       // Apos construtivo
+    std::unordered_set<VetorHash, VetorHash::HashFunc> hashSolSetVnd;         // Apos vnd
+    int numSolConstVia = 0;
 
     // Gera uma sol inicial com grasp
     NS_parametros::ParametrosSaida parametrosSaidaGrasp = parametrosSaida;
@@ -160,6 +170,9 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
             ultimaA = i;
         }
 
+        hashSolSetCorrente.insert(VetorHash(solC, instancia));
+        numSolCorrente += 1;
+
 //cout<<"SOL "<<i<<": "<<solC.distancia<<"\n";
 
         funcDestroi0(solC, numEvRm);
@@ -179,8 +192,13 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
         }
         else
         {
+            hashSolSetConst.insert(VetorHash(solC, instancia));
+            numSolConstVia += 1;
+
             numSolG += 1;
             rvnd(solC, instancia, beta, vetMvValor, vetMvValor1Nivel);
+            hashSolSetVnd.insert(VetorHash(solC, instancia));
+
 //cout<<"\tSOL VIAVEL "<<i<<": "<<solC.distancia<<"\n";
         }
 
@@ -211,9 +229,26 @@ cout<<"UPDATE 1 NIVEL: "<<solBest.distancia<<"\n\n";
         }
     }
 
-    parametrosSaida.mapNoSaida["numSol"] = NS_parametros::NoSaida("numSol");
-    parametrosSaida.mapNoSaida["numSol"].addSaida(SAIDA_EXEC_VAL);
-    parametrosSaida.mapNoSaida["numSol"](double(numSolG));
+    double fatorSolCorr = (double(hashSolSetCorrente.size())/numSolCorrente) * 100;
+    double fatorSolConst = (double(hashSolSetConst.size())/numSolConstVia) * 100;
+    double fatorSolVnd = (double(hashSolSetVnd.size())/numSolConstVia) * 100;
+
+cout<<"Sol Corrente: "<<fatorSolCorr<<"\n";
+cout<<"Sol Construtivo: "<<fatorSolConst<<"\n";
+cout<<"Sol VND: "<<fatorSolVnd<<"\n\n";
+
+    auto funcAddParaSaida = [&](string &&strParm, double val)
+    {
+
+        parametrosSaida.mapNoSaida[strParm] = NS_parametros::NoSaida(strParm);
+        parametrosSaida.mapNoSaida[strParm].addSaida(SAIDA_EXEC_VAL);
+        parametrosSaida.mapNoSaida[strParm](val);
+    };
+
+    funcAddParaSaida("numSol", numSolG);
+    funcAddParaSaida("fatorSolCorr", fatorSolCorr);
+    funcAddParaSaida("fatorSolConst", fatorSolConst);
+    funcAddParaSaida("fatorSolVnd", fatorSolVnd);
 
     Solucao *solPtr = new Solucao(instancia);
     solPtr->copia(solBest);

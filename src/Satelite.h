@@ -35,6 +35,7 @@ public:
 
 };
 
+// OK
 class Satelite
 {
 public:
@@ -56,14 +57,18 @@ public:
     BoostC::vector<EvRoute> vetEvRoute;
 
     // O vetor deve estar ordenado antes de ser utilizado
-    BoostC::vector<TempoSaidaEvRoute> vetTempoSaidaEvRoute;
-
-    void sortVetTempoSaidaEvRoute(){std::sort(vetTempoSaidaEvRoute.begin(), vetTempoSaidaEvRoute.end());};
+    //BoostC::vector<TempoSaidaEvRoute> vetTempoSaidaEvRoute;
+    //void sortVetTempoSaidaEvRoute(){std::sort(vetTempoSaidaEvRoute.begin(), vetTempoSaidaEvRoute.end());};
 
     int tamVetEvRoute = -1;
     int sateliteId = -1;
     double demanda = 0.0;
     double distancia = 0.0;
-    int primeiroEv = -1;
+
+
+    // O vetor deve estar ordenado antes de ser utilizado
+    //BoostC::vector<TempoSaidaEvRoute> vetTempoSaidaEvRoute;
+    //void sortVetTempoSaidaEvRoute(){std::sort(vetTempoSaidaEvRoute.begin(), vetTempoSaidaEvRoute.end());};
+
 };
 #endif //INC_2E_EVRP_SATELITE_H

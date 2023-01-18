@@ -9,6 +9,7 @@
 #include "LocalSearch2.h"
 #include "LocalSearch.h"
 #include "../ViabilizadorRotaEv.h"
+#include "../mersenne-twister.h"
 
 #define PRINT_CROSS FALSE
 
@@ -1047,4 +1048,84 @@ cout<<"\n\n";
     }
 
     return iVetDest;
+}
+
+bool NS_LocalSearch2::mvSplitCarga(Solucao &solucao, Instancia &instancia, Route &routeAux0, Route &routeAux1)
+{
+/*    BoostC::vector<std::pair<int,double>> vetPairSat;
+    vetPairSat.reserve(instancia.numSats);
+
+    for(int sat=1; sat <= instancia.numSats; ++sat)
+    {
+        if(!solucao.satelites[sat].vazio())
+            vetPairSat.push_back(std::make_pair(sat, solucao.satelites[sat].demanda));
+    }
+
+    std::sort(vetPairSat.begin(), vetPairSat.end(),
+              [](const std::pair<int,double> &p0, const std::pair<int,double> &p1){return p0.second < p1.second;});
+
+    bool demandaPos = false;
+    for(auto &[_,demanda]:vetPairSat)
+    {
+        if(demanda > 0.0)
+        {
+            demandaPos = true;
+            break;
+        }
+    }
+
+    if(!demandaPos)
+        return false;
+*/
+
+    if(instancia.numTruck <= 2)
+        return false;
+
+    // Seleciona um truck com somente um sat
+    const int idRotaP = rand_u32()%instancia.numTruck;
+    int idRota = idRotaP;
+
+    auto incIdRota = [&]()
+    {
+        idRota = (idRota+1)%instancia.numTruck;
+        return idRota != idRotaP;
+    };
+
+    while(true)
+    {
+        if(solucao.primeiroNivel[idRota].routeSize != 3)
+        {
+           if(incIdRota())
+               continue;
+           else
+               break;
+        }
+
+        // Verifica se o sat eh atendido por somete essa rota
+        Route &route = solucao.primeiroNivel[idRota];
+        int sat = route.rota[1].satellite;
+
+        if(route.satelliteDemand[sat] != solucao.satelites[sat].demanda)
+        {
+
+            if(incIdRota())
+                continue;
+            else
+                break;
+        }
+
+
+
+
+
+        if(incIdRota())
+            continue;
+        else
+            break;
+
+    }
+
+
+    return false;
+
 }

@@ -73,16 +73,6 @@ void Solucao::recalculaDistSat(Instancia &instancia)
     }
 }
 
-double Solucao::distSat()
-{
-    double dist = 0.0;
-
-    for(Satelite &sat:satelites)
-        dist += sat.distancia;
-
-    return dist;
-}
-
 void Solucao::atualizaVetSatTempoChegMax(Instancia &instance)
 {
 
@@ -352,45 +342,6 @@ void Solucao::print(const Instancia& Inst)
 
 }
 
-/*int Solucao::findSatellite(int id) const {
-    return -1;
-
-}*/
-
-double Solucao::calcCost(const Instancia& Inst) {
-    double cost  = 0.0;
-
-    for(int t = 0; t < this->primeiroNivel.size(); t++)
-    {
-        const auto& truckRoute = this->primeiroNivel.at(t);
-        for(int i = 1; i < truckRoute.rota.size(); i++)
-        {
-            int n0 = truckRoute.rota[i-1].satellite;
-            int n1 = truckRoute.rota[i].satellite;
-            cost += Inst.getDistance(n0, n1);
-
-            if(Inst.isDepot(n1))
-                break;
-        }
-    }
-
-    for(int s = 0; s < this->getNSatelites(); s++)
-    {
-        const auto& sat = this->getSatelite(s);
-        for(int e = 0; e < sat->getNRoutes(); e++)
-        {
-            auto& evRoute = sat->getRoute(e);
-            for(int i = 1; i < evRoute.routeSize; i++)
-            {
-                int n0 = evRoute[i-1].cliente;
-                int n1 = evRoute[i].cliente;
-                cost += Inst.getDistance(n0, n1);
-            }
-        }
-    }
-    return cost;
-}
-
 void Solucao::copia(Solucao &solution)
 {
 
@@ -511,20 +462,6 @@ void Solucao::recalculaDist()
     }
 }
 
-bool Solucao::viavel2Nivel(Instancia &instancia)
-{
-
-    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
-    {
-        if(vetClientesAtend[i] == int8_t(0))
-        {
-            cout<<"CLIENTE "<<i<<" NAO ATENDIDO\n";
-            return false;
-        }
-    }
-
-    return true;
-}
 void Solucao::resetaSat(int satId, Instancia &instancia, BoostC::vector<int> &vetClienteDel)
 {
 

@@ -17,18 +17,18 @@ Satelite::Satelite(const Instancia& instance, const int _satId)
         vetEvRoute.emplace_back(_satId, instance.getFirstEvIndex()+i, max, instance);
     }
 
-    vetTempoSaidaEvRoute.reserve(instance.getN_Evs());
+    //vetTempoSaidaEvRoute.reserve(instance.getN_Evs());
 
     for(int i=0; i < instance.getN_Evs(); ++i)
     {
         EvRoute *evRoute = &vetEvRoute[i];
-        vetTempoSaidaEvRoute.emplace_back(evRoute);
+        //vetTempoSaidaEvRoute.emplace_back(evRoute);
     }
 
 //    cout<<"vetTempoSaidaEvRoute size: "<<vetTempoSaidaEvRoute.size()<<"\n";
 
     sateliteId = _satId;
-    primeiroEv = instance.getFirstEvIndex();
+
 
 }
 
@@ -151,7 +151,9 @@ void Satelite::recalculaDist()
 bool Satelite::vazio()
 {
 
-    bool resultado = true;
+    return demanda <= 0.0;
+
+/*    bool resultado = true;
 
     for(int i=0; i < vetEvRoute.size(); ++i)
     {
@@ -160,7 +162,7 @@ bool Satelite::vazio()
            return false;
     }
 
-    return true;
+    return true;*/
 }
 
 int Satelite::numEv()

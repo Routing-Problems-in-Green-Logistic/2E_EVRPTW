@@ -1025,6 +1025,6 @@ void NameS_Grasp::addRotaCliente(Solucao &sol, Instancia &instancia, const EvRou
 
     sol.satelites[sat].tamVetEvRoute += 1;
     sol.vetClientesAtend[cliente] = int8_t(1);
-    sol.solInicializada = true;
+    //sol.solInicializada = true;
 
 }

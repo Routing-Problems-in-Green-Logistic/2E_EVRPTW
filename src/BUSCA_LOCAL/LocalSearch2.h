@@ -141,8 +141,7 @@ namespace NS_LocalSearch2
     }
 
     template<typename Func>
-    bool
-    mvInterRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, Func func, const float beta, const int mv)
+    bool mvInterRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, Func func, const float beta, const int mv)
     {
 
 
@@ -274,6 +273,7 @@ namespace NS_LocalSearch2
         return false;
     }
 
+    bool mvSplitCarga(Solucao &solucao, Instancia &instancia, Route &routeAux0, Route &routeAux1);
 }
 
 #endif //INC_2E_EVRP_LOCALSEARCH2_H

@@ -98,15 +98,26 @@ int main(int argc, char* argv[])
 
         auto end = std::chrono::high_resolution_clock::now();
 
-        setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
-        saida(parametros, parametrosSaida, best, instancia);
-
         if(best.viavel)
         {
             cout << "BEST: " << best.distancia << "\n";
             cout<<"2º Nivel: "<<best.getDist2Nivel()<<"\n";
             cout<<"1º Nivel: "<<best.getDist1Nivel()<<"\n\n";
+
+
+            string erro;
+            if(!best.checkSolution(erro, instancia))
+            {
+                cout<<"ERRO SOL BEST\n";
+                cout << erro << "\n\n";
+                best.viavel = false;
+            }
+
         }
+
+
+        setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
+        saida(parametros, parametrosSaida, best, instancia);
 
         cout<<"TEMPO CPU: "<<parametrosSaida.tempo<<" S\n";
         //string numSol;
