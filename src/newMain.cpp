@@ -65,6 +65,7 @@ int main(int argc, char* argv[])
         caregaParametros(parametros, argc-1, &argv[1]);
         Instancia instancia(parametros.instancia, parametros.nomeInstancia);
 
+
         dijkstraSatCli(instancia);
         instancia.calculaVetVoltaRS_sat();
 

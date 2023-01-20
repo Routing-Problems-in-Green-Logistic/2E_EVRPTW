@@ -273,7 +273,7 @@ namespace NS_LocalSearch2
         return false;
     }
 
-    bool mvSplitCarga(Solucao &solucao, Instancia &instancia, Route &routeAux0, Route &routeAux1);
+    bool mvSplitCarga(Solucao &satId, Instancia &instancia, Route &routeAux0, Route &routeAux1);
 }
 
 #endif //INC_2E_EVRP_LOCALSEARCH2_H

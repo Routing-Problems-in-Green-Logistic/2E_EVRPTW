@@ -10,6 +10,7 @@
 #include "LocalSearch.h"
 #include "../ViabilizadorRotaEv.h"
 #include "../mersenne-twister.h"
+#include "Construtivo.h"
 
 #define PRINT_CROSS FALSE
 
@@ -1078,6 +1079,10 @@ bool NS_LocalSearch2::mvSplitCarga(Solucao &solucao, Instancia &instancia, Route
         return false;
 */
 
+    constexpr double CapMin = 1.0;
+    const int PrimeiroTruckId = instancia.getFirstTruckIndex();
+    const double CapacidadeRoute = instancia.vectVeiculo[PrimeiroTruckId].capacidade;
+
     if(instancia.numTruck <= 2)
         return false;
 
@@ -1089,6 +1094,72 @@ bool NS_LocalSearch2::mvSplitCarga(Solucao &solucao, Instancia &instancia, Route
     {
         idRota = (idRota+1)%instancia.numTruck;
         return idRota != idRotaP;
+    };
+
+    // Encontra rotas nao vazias com capaciade sobrando, diferentes de idRota0
+    auto funcEscolheRota = [&](const int idRota0) -> BoostC::vector<std::pair<int,int>>
+    {
+        BoostC::vector<std::pair<int,int>> vetIdRota;
+        for(int r=0; r < instancia.numTruck; ++r)
+        {
+            if(r == idRota0)
+                continue;
+
+            Route &route = solucao.primeiroNivel[r];
+            if(route.routeSize > 2 && (instancia.vectVeiculo[PrimeiroTruckId].capacidade - route.totalDemand) > CapMin)
+            {
+                vetIdRota.push_back(std::make_pair(r, rand_u32()%100));
+            }
+        }
+
+        if(!vetIdRota.empty())
+            std::sort(vetIdRota.begin(), vetIdRota.end(), [](const std::pair<int,int> &p0,const std::pair<int,int> &p1){return p0.second < p1.second;});
+        return vetIdRota;
+    };
+
+    auto funcMelhorInserSat = [&](const int satId, Route &route)
+    {
+        int melhorPos = -1;
+        double distIncBest = DOUBLE_INF;
+        double tempoChegadaSat = 0.0;
+        Satelite &sat = solucao.satelites[satId];
+
+        for(int i=0; i < (route.routeSize-1); ++i)
+        {
+            const int satI    = route.rota[i].satellite;
+            const int satIPos = route.rota[i+1].satellite;
+            double distInc = -instancia.getDistance(satI,satIPos);
+            distInc += instancia.getDistance(satI, satId);
+            distInc += instancia.getDistance(satId, satIPos);
+
+            if(menor(distInc, distIncBest))
+            {
+                double tempoChegada = route.rota[i].tempoChegada+instancia.getDistance(satI, satId);
+                const double tempoAux = tempoChegada;
+                bool viabSat = NS_Construtivo::verificaViabilidadeSatelite(tempoChegada, sat, instancia, false);
+                if(!viabSat)
+                    continue;
+                tempoChegada += instancia.getDistance(satId,satIPos);
+
+                for(int j=i+1; j < (route.routeSize-1); ++j)
+                {
+                    Satelite &satTemp = solucao.satelites[route.rota[j].satellite];
+                    viabSat = NS_Construtivo::verificaViabilidadeSatelite(tempoChegada, satTemp, instancia, false);
+                    if(!viabSat)
+                        break;
+                    tempoChegada += instancia.getDistance(route.rota[j].satellite, route.rota[j+1].satellite);
+                }
+
+                if(!viabSat)
+                    continue;
+
+                melhorPos = i;
+                distIncBest = distInc;
+                tempoChegadaSat = tempoAux;
+            }
+        }
+
+        return std::make_tuple(melhorPos, distIncBest, tempoChegadaSat);
     };
 
     while(true)
@@ -1103,11 +1174,11 @@ bool NS_LocalSearch2::mvSplitCarga(Solucao &solucao, Instancia &instancia, Route
 
         // Verifica se o sat eh atendido por somete essa rota
         Route &route = solucao.primeiroNivel[idRota];
-        int sat = route.rota[1].satellite;
+        const int sat = route.rota[1].satellite;
+        const double satDemanda = solucao.satelites[sat].demanda;
 
         if(route.satelliteDemand[sat] != solucao.satelites[sat].demanda)
         {
-
             if(incIdRota())
                 continue;
             else
@@ -1115,8 +1186,45 @@ bool NS_LocalSearch2::mvSplitCarga(Solucao &solucao, Instancia &instancia, Route
         }
 
 
+        auto vetIdRota = funcEscolheRota(idRota);
+        if(vetIdRota.size() >= 2)
+        {
+            // Percorre por todos os pares
+            for(int i=0; i < vetIdRota.size(); ++i)
+            {
+                auto [idI,_] = vetIdRota[i];
+                Route &routeI = solucao.primeiroNivel[idI];
+                const double capRestRouteI = CapacidadeRoute-routeI.totalDemand;
+
+                for(int j=i+1; j < vetIdRota.size(); ++j)
+                {
+                    auto [idJ,_] = vetIdRota[j];
+                    Route &routeJ = solucao.primeiroNivel[idJ];
+
+                    // Verificar se a capacidade restante de routeI + routeJ >= carga do sat
+                    const double capRestRouteJ = CapacidadeRoute-routeJ.totalDemand;
+                    if((capRestRouteI+capRestRouteJ) < satDemanda)
+                        continue;
+
+                    // Obj: max a maior cap restante
+                    //if(capRestRouteI < capRestRouteJ)
+                    // melhorPos, distIncBest, tempoChegadaSat);
+                    // Duas rotas encontradas
+                    auto [bestInsertI, distIncBestI, tempoChegadaSatI] = funcMelhorInserSat(sat, routeI);
+
+                    if(bestInsertI < 0)
+                        continue;
+
+                    auto [bestInsertJ, distIncBestJ, tempoChegadaSatJ] = funcMelhorInserSat(sat, routeJ);
+                    if(bestInsertJ < 0)
+                        continue;
 
 
+
+
+                }
+            }
+        }
 
         if(incIdRota())
             continue;
@@ -1125,7 +1233,5 @@ bool NS_LocalSearch2::mvSplitCarga(Solucao &solucao, Instancia &instancia, Route
 
     }
 
-
     return false;
-
 }
