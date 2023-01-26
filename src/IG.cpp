@@ -255,28 +255,20 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
 
         if(NS_Auxiliary::menor(solC.distancia, solBest.distancia))
         {
+            string erro;
+            if(!solC.checkSolution(erro, instancia))
+            {
+                PRINT_DEBUG("", "");
+                cout<<"ERRO, IG\n";
+                cout<<erro<<"\n\n";
+                throw "ERRO";
+            }
+
             solBest = Solucao(instancia);
             solBest.copia(solC);
             solBest.ultimaA = i;
             numFuncDestroi = 0;
 //cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
-
-        }
-    }
-
-    solC = Solucao(instancia);
-    solC.copia(solBest);
-
-    for(int i=0; i < 10; ++i)
-    {
-        solC.reseta1Nivel(instancia);
-        construtivoPrimeiroNivel(solC, instancia, beta, true);
-        if(NS_Auxiliary::menor(solC.distancia, solBest.distancia))
-        {
-            solBest = Solucao(instancia);
-            solBest.copia(solC);
-
-//cout<<"UPDATE 1 NIVEL: "<<solBest.distancia<<"\n\n";
 
         }
     }
@@ -301,6 +293,16 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
     funcAddParaSaida("fatorSolCorr", fatorSolCorr);
     funcAddParaSaida("fatorSolConst", fatorSolConst);
     funcAddParaSaida("fatorSolVnd", fatorSolVnd);
+
+    string erro;
+    if(!solBest.checkSolution(erro, instancia))
+    {
+
+        PRINT_DEBUG("", "");
+        cout<<"ERRO, IG\n";
+        cout<<erro<<"\n\n";
+        throw "ERRO";
+    }
 
     Solucao *solPtr = new Solucao(instancia);
     solPtr->copia(solBest);

@@ -47,7 +47,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    string commite = "7f8756f9c78714c10e6208b66c3955e8facb43b5";
+    string commite = "c94f601882645a38c1bfc8e773e0a53aaa8a6d51";
     parametros.commit = commite;
 
     try
@@ -116,6 +116,8 @@ int main(int argc, char* argv[])
             }
 
         }
+        else
+            cout<<"SOLUCAO INVIAVEL!\n";
 
 
         setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
