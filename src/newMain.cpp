@@ -10,6 +10,7 @@
 #include <chrono>
 #include <limits>
 #include <unordered_set>
+#include <fstream>
 #include "Parametros.h"
 #include "Instancia.h"
 #include "Aco.h"
@@ -101,9 +102,9 @@ int main(int argc, char* argv[])
 
         if(best.viavel)
         {
-            cout << "BEST: " << best.distancia << "\n";
+/*            cout << "BEST: " << best.distancia << "\n";
             cout<<"2º Nivel: "<<best.getDist2Nivel()<<"\n";
-            cout<<"1º Nivel: "<<best.getDist1Nivel()<<"\n\n";
+            cout<<"1º Nivel: "<<best.getDist1Nivel()<<"\n\n";*/
 
 
             string erro;
@@ -120,7 +121,7 @@ int main(int argc, char* argv[])
         setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
         saida(parametros, parametrosSaida, best, instancia);
 
-        cout<<"TEMPO CPU: "<<parametrosSaida.tempo<<" S\n";
+       // cout<<"TEMPO CPU: "<<parametrosSaida.tempo<<" S\n";
         //string numSol;
         //parametrosSaida.mapNoSaida["numSol"].getVal(numSol);
         //cout<<"NUM SOL: "<<numSol<<"\n";

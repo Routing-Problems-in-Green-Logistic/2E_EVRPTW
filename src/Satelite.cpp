@@ -170,7 +170,7 @@ int Satelite::numEv()
     int num=0;
     for(int i=0; i < vetEvRoute.size(); ++i)
     {
-        EvRoute &evRoute = vetEvRoute.at(i);
+        EvRoute &evRoute = vetEvRoute[i];
         if(evRoute.routeSize > 2)
             num += 1;
     }
@@ -189,4 +189,29 @@ void Satelite::recalculaDemanda()
         if(evRoute.routeSize > 2)
             demanda += evRoute.demanda;
     }
+}
+
+double Satelite::excluiSatelite(Instancia &instancia, BoostC::vector<int8_t> &vetClientesAtend)
+{
+
+    const double distTemp = distancia;
+    distancia = 0.0;
+    demanda = 0.0;
+
+    for(EvRoute &evRoute:vetEvRoute)
+    {
+        if(evRoute.routeSize <= 2)
+            continue;
+
+        for(int i=1; i < (evRoute.routeSize-1); ++i)
+        {
+            const int cliente = evRoute[i].cliente;
+            if(instancia.isClient(cliente))
+                vetClientesAtend[cliente] = int8_t(0);
+        }
+
+        evRoute = EvRoute(sateliteId, evRoute.idRota, evRoute.routeSizeMax, instancia);
+    }
+
+    return distTemp;
 }

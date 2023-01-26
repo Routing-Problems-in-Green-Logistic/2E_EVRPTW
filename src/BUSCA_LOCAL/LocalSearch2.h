@@ -273,7 +273,35 @@ namespace NS_LocalSearch2
         return false;
     }
 
-    bool mvSplitCarga(Solucao &satId, Instancia &instancia, Route &routeAux0, Route &routeAux1);
+    bool mvSplitCarga(Solucao &satId, Instancia &instancia);
+
+    class RotaTempoCh
+    {
+    public:
+        int rotaId   = -1;
+        double tempoCh = 0.0;
+        RotaTempoCh()=default;
+        RotaTempoCh(int rota, double tempo){rotaId = rota; tempoCh = tempo;}
+
+        friend bool operator < (const RotaTempoCh &rota0, const RotaTempoCh &rota1)
+        {
+            return rota0.tempoCh > rota1.tempoCh;
+        }
+    };
+
+    class VetRotaTempoCh
+    {
+    public:
+        BoostC::vector<RotaTempoCh> vet;
+        VetRotaTempoCh()
+        {
+            vet.reserve(2);
+        }
+        void sort()
+        {
+            std::sort(vet.begin(), vet.end());
+        }
+    };
 }
 
 #endif //INC_2E_EVRP_LOCALSEARCH2_H

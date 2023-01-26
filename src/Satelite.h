@@ -53,6 +53,7 @@ public:
     void recalculaDemanda();        // Parte do principio de que as cargas nas rotas estao corretas
     bool vazio();
     int numEv();
+    double excluiSatelite(Instancia &instancia, BoostC::vector<int8_t> &vetClientesAtend);
 
     BoostC::vector<EvRoute> vetEvRoute;
 

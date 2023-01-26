@@ -204,6 +204,8 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 
         }
 
+        //mvSplitCarga(solution, instance);
+
     }
     catch(const char *erro)
     {

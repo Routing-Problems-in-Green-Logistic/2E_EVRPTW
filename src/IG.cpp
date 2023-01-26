@@ -55,7 +55,7 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
     delete solG;
     solG = nullptr;
 
-cout<<"GRASP: "<<solBest.distancia<<"\n\n";
+//cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
     Solucao solC(instancia);
     solC.copia(solBest);
@@ -76,13 +76,16 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     const float alfa  = 0.8; //0.8
     const float beta  = alfa;
 
-    const int numEvRm = min(int(0.1*numEvN_Vazias+1), 100);
+    const int numEvRm = min(int(0.1*numEvN_Vazias+1), 5);
     const int numItSemMelhoraResetSolC = 10;
     int ultimaA = 0;
     int numSolG = 1;
+    int numFuncDestroi = 0;
 
     //cout<<"NUM EV: "<<numEvRm<<"\n\n";
 
+
+    // Escolhe aleatoriamente numRotas nao vazias e as removem da solucao
     auto funcDestroi0 = [&](Solucao &sol, const int numRotas)
     {
         for(int i=0; i < numRotas; ++i)
@@ -161,13 +164,41 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
     };
 
+    // Remove aleatoriamente um sat, o sat pode estar vazio(nao faz nada)
+    auto funcDestroi1 = [&](Solucao &sol) -> bool
+    {
+        if(instancia.numSats == 1)
+            return false;
+
+        int sat = 1 + (rand_u32()%instancia.numSats);
+        Satelite &satelite = sol.satelites[sat];
+        if(satelite.vazio())
+            return false;
+
+        const int numEvSat = satelite.numEv();
+        sol.numEv -= numEvSat;
+
+        double dist = satelite.excluiSatelite(instancia, sol.vetClientesAtend);
+        sol.distancia -= dist;
+        sol.vetMatSatEvMv[sat] =  ublas::matrix<int>(instancia.numEv, NUM_MV, 0);
+
+        sol.reseta1Nivel(instancia);
+        sol.resetaIndiceEv(instancia);
+
+        return true;
+    };
+
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
+        //if(i%200 == 0)
+            //cout<<"ITERACAO: "<<i<<"\n";
+
         if((i-ultimaA) == numItSemMelhoraResetSolC)
         {
             solC = Solucao(instancia);
             solC.copia(solBest);
             ultimaA = i;
+            numFuncDestroi = 0;
         }
 
         hashSolSetCorrente.insert(VetorHash(solC, instancia));
@@ -175,7 +206,18 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
 //cout<<"SOL "<<i<<": "<<solC.distancia<<"\n";
 
-        funcDestroi0(solC, numEvRm);
+        if(numFuncDestroi == 0)
+        {
+            funcDestroi0(solC, numEvRm);
+            numFuncDestroi = 1;
+        }
+        else
+        {
+            if(!funcDestroi1(solC))
+                funcDestroi0(solC, numEvRm);
+
+            numFuncDestroi = 0;
+        }
 
 //cout<<"***********************************\n\n";
 
@@ -192,6 +234,15 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
         }
         else
         {
+            string strErro;
+            if(!solC.checkSolution(strErro, instancia))
+            {
+                PRINT_DEBUG("", "");
+                cout<<"ERRO NO IG APOS O CONSTRUTIVO\nERRO:\n\n";
+                cout<<strErro<<"\n\n";
+                throw "ERRO";
+            }
+
             hashSolSetConst.insert(VetorHash(solC, instancia));
             numSolConstVia += 1;
 
@@ -207,7 +258,8 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
             solBest = Solucao(instancia);
             solBest.copia(solC);
             solBest.ultimaA = i;
-cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
+            numFuncDestroi = 0;
+//cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 
         }
     }
@@ -224,7 +276,7 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
             solBest = Solucao(instancia);
             solBest.copia(solC);
 
-cout<<"UPDATE 1 NIVEL: "<<solBest.distancia<<"\n\n";
+//cout<<"UPDATE 1 NIVEL: "<<solBest.distancia<<"\n\n";
 
         }
     }
@@ -233,9 +285,9 @@ cout<<"UPDATE 1 NIVEL: "<<solBest.distancia<<"\n\n";
     double fatorSolConst = (double(hashSolSetConst.size())/numSolConstVia) * 100;
     double fatorSolVnd = (double(hashSolSetVnd.size())/numSolConstVia) * 100;
 
-cout<<"Sol Corrente: "<<fatorSolCorr<<"\n";
-cout<<"Sol Construtivo: "<<fatorSolConst<<"\n";
-cout<<"Sol VND: "<<fatorSolVnd<<"\n\n";
+//cout<<"Sol Corrente: "<<fatorSolCorr<<"\n";
+//cout<<"Sol Construtivo: "<<fatorSolConst<<"\n";
+//cout<<"Sol VND: "<<fatorSolVnd<<"\n\n";
 
     auto funcAddParaSaida = [&](string &&strParm, double val)
     {
