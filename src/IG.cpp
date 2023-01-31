@@ -25,7 +25,6 @@ using namespace NS_Construtivo2;
 using namespace NS_vnd;
 using namespace NS_VetorHash;
 
-// ./run ../../instancias/2e-vrp-tw/Customer_100/C101_21x.txt --numItTotal 1000 --mt IG --seed 1673390763
 
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametros, NameS_Grasp::Estatisticas &estat,
                               const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
@@ -50,12 +49,14 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
     if(!solG->viavel)
         return nullptr;
 
+    rvnd(*solG, instancia, 0.4, vetMvValor, vetMvValor1Nivel);
+
     Solucao solBest(instancia);
     solBest.copia(*solG);
     delete solG;
     solG = nullptr;
 
-//cout<<"GRASP: "<<solBest.distancia<<"\n\n";
+cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
     Solucao solC(instancia);
     solC.copia(solBest);
@@ -77,7 +78,7 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
     const float beta  = alfa;
 
     const int numEvRm = min(int(0.1*numEvN_Vazias+1), 5);
-    const int numItSemMelhoraResetSolC = 10;
+    const int numItSemMelhoraResetSolC = 400;
     int ultimaA = 0;
     int numSolG = 1;
     int numFuncDestroi = 0;
@@ -190,15 +191,35 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
 
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
-        //if(i%200 == 0)
-            //cout<<"ITERACAO: "<<i<<"\n";
+        if(i%200 == 0)
+            cout<<"ITERACAO: "<<i<<"\n";
 
         if((i-ultimaA) == numItSemMelhoraResetSolC)
         {
+            solG = nullptr;
+            while(solG == nullptr)
+            {
+                solG = grasp(instancia, parametrosGrasp, estat, true, matClienteSat, vetMvValor, vetMvValor1Nivel, parametrosSaidaGrasp);
+            }
+
+            if(!solG->viavel)
+            {
+                cout<<"SOL INVIAVEL!\n";
+                throw "ERRO";
+            }
+
+            rvnd(*solG, instancia, 0.4, vetMvValor, vetMvValor1Nivel);
+
             solC = Solucao(instancia);
-            solC.copia(solBest);
+            solC.copia(*solG);
             ultimaA = i;
             numFuncDestroi = 0;
+            delete solG;
+        }
+        else if((i-ultimaA) % 100 == 0 && i!=ultimaA)
+        {
+            solC = Solucao(instancia);
+            solC.copia(solBest);
         }
 
         hashSolSetCorrente.insert(VetorHash(solC, instancia));
@@ -268,7 +289,7 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
             solBest.copia(solC);
             solBest.ultimaA = i;
             numFuncDestroi = 0;
-//cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
+cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 
         }
     }
@@ -303,6 +324,8 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
         cout<<erro<<"\n\n";
         throw "ERRO";
     }
+
+    cout<<"IG: "<<solBest.distancia<<"\n\n";
 
     Solucao *solPtr = new Solucao(instancia);
     solPtr->copia(solBest);
