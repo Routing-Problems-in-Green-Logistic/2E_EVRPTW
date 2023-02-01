@@ -25,6 +25,7 @@ using namespace NS_Construtivo2;
 using namespace NS_vnd;
 using namespace NS_VetorHash;
 
+#define PRINT_IG FALSE
 
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametros, NameS_Grasp::Estatisticas &estat,
                               const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
@@ -56,7 +57,9 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
     delete solG;
     solG = nullptr;
 
+#if PRINT_IG
 cout<<"GRASP: "<<solBest.distancia<<"\n\n";
+#endif
 
     Solucao solC(instancia);
     solC.copia(solBest);
@@ -191,8 +194,11 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
-        if(i%200 == 0)
-            cout<<"ITERACAO: "<<i<<"\n";
+
+#if PRINT_IG
+if(i%200 == 0)
+    cout<<"ITERACAO: "<<i<<"\n";
+#endif
 
         if((i-ultimaA) == numItSemMelhoraResetSolC)
         {
@@ -208,7 +214,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
                 throw "ERRO";
             }
 
-            rvnd(*solG, instancia, 0.4, vetMvValor, vetMvValor1Nivel);
+            rvnd(*solG, instancia, beta, vetMvValor, vetMvValor1Nivel);
 
             solC = Solucao(instancia);
             solC.copia(*solG);
@@ -289,7 +295,10 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
             solBest.copia(solC);
             solBest.ultimaA = i;
             numFuncDestroi = 0;
+
+#if PRINT_IG
 cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
+#endif
 
         }
     }
@@ -325,7 +334,9 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
         throw "ERRO";
     }
 
-    cout<<"IG: "<<solBest.distancia<<"\n\n";
+#if PRINT_IG
+cout<<"IG: "<<solBest.distancia<<"\n\n";
+#endif
 
     Solucao *solPtr = new Solucao(instancia);
     solPtr->copia(solBest);
