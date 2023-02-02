@@ -63,7 +63,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
     Solucao solC(instancia);
     solC.copia(solBest);
-    int numEvN_Vazias = 0;
+    int temp = 0;
 
     for(int sat=1; sat <= instancia.numSats; ++sat)
     {
@@ -71,10 +71,11 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
         {
             EvRoute &evRoute = solBest.satelites[sat].vetEvRoute[ev];
             if(evRoute.routeSize > 2)
-                numEvN_Vazias += 1;
+                temp += 1;
         }
     }
 
+    const int numEvN_Vazias = temp;
 
     //Parametros
     const float alfa  = 0.8; //0.8
@@ -85,6 +86,10 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     int ultimaA = 0;
     int numSolG = 1;
     int numFuncDestroi = 0;
+    //const int numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRm)));
+    const int numChamadasDestroi0 = 1;
+
+    cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n";
 
     //cout<<"NUM EV: "<<numEvRm<<"\n\n";
 
@@ -200,6 +205,7 @@ if(i%200 == 0)
     cout<<"ITERACAO: "<<i<<"\n";
 #endif
 
+        /*
         if((i-ultimaA) == numItSemMelhoraResetSolC)
         {
             solG = nullptr;
@@ -216,13 +222,16 @@ if(i%200 == 0)
 
             rvnd(*solG, instancia, beta, vetMvValor, vetMvValor1Nivel);
 
+
             solC = Solucao(instancia);
             solC.copia(*solG);
             ultimaA = i;
             numFuncDestroi = 0;
             delete solG;
         }
-        else if((i-ultimaA) % 100 == 0 && i!=ultimaA)
+        else if
+        */
+        if((i-ultimaA) % 40 == 0 && i!=ultimaA)
         {
             solC = Solucao(instancia);
             solC.copia(solBest);
@@ -233,12 +242,12 @@ if(i%200 == 0)
 
 //cout<<"SOL "<<i<<": "<<solC.distancia<<"\n";
 
-        if(numFuncDestroi == 0)
+        if(numFuncDestroi < numChamadasDestroi0)
         {
             funcDestroi0(solC, numEvRm);
-            numFuncDestroi = 1;
+            numFuncDestroi += 1;
         }
-        else
+        else if(numFuncDestroi == numChamadasDestroi0)
         {
             if(!funcDestroi1(solC))
                 funcDestroi0(solC, numEvRm);

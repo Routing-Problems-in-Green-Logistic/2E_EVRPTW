@@ -10,7 +10,7 @@ namespace BoostC = boost::container;
 #include <iostream>
 #include <cfloat>
 #include <limits>
-
+#include <cmath>
 
 using namespace std;
 
@@ -195,6 +195,28 @@ namespace NS_Auxiliary
 
         else
             return false;
+    }
+
+    inline float upperVal(float x)
+    {
+        return std::ceil(x);
+    }
+
+
+    inline double upperVal(double x)
+    {
+        return std::ceil(x);
+    }
+
+    inline float lowerVal(float x)
+    {
+        return std::floor(x);
+    }
+
+
+    inline double lowerVal(double x)
+    {
+        return std::floor(x);
     }
 }
 
