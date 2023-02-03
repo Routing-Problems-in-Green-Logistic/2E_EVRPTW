@@ -86,10 +86,12 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     int ultimaA = 0;
     int numSolG = 1;
     int numFuncDestroi = 0;
-    //const int numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRm)));
-    const int numChamadasDestroi0 = 1;
+    const int numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRm)));
+    //const int numChamadasDestroi0 = 1;
 
+#if PRINT_IG
     cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n";
+#endif
 
     //cout<<"NUM EV: "<<numEvRm<<"\n\n";
 
