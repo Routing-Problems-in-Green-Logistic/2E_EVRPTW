@@ -82,7 +82,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     const float beta  = alfa;
 
     const int numEvRm = min(int(0.1*numEvN_Vazias+1), 5);
-    const int numItSemMelhoraResetSolC = 400;
+    const int numItSemMelhoraResetSolC = 40;
     int ultimaA = 0;
     int numSolG = 1;
     int numFuncDestroi = 0;
@@ -233,7 +233,8 @@ if(i%200 == 0)
         }
         else if
         */
-        if((i-ultimaA) % 40 == 0 && i!=ultimaA)
+
+        if((i-ultimaA) % numItSemMelhoraResetSolC == 0 && i!=ultimaA)
         {
             solC = Solucao(instancia);
             solC.copia(solBest);
@@ -306,13 +307,14 @@ if(i%200 == 0)
             solBest.copia(solC);
             solBest.ultimaA = i;
             numFuncDestroi = 0;
+            ultimaA = i;
 
 #if PRINT_IG
 cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 #endif
 
         }
-    }
+    } // END for ig
 
     double fatorSolCorr = (double(hashSolSetCorrente.size())/numSolCorrente) * 100;
     double fatorSolConst = (double(hashSolSetConst.size())/numSolConstVia) * 100;
