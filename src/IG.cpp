@@ -44,8 +44,7 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
     ParametrosGrasp parametrosGrasp = parametros;
     //parametrosGrasp.numIteGrasp = 300;
 
-    Solucao *solG = grasp(instancia, parametrosGrasp, estat, true,
-                          matClienteSat, vetMvValor, vetMvValor1Nivel, parametrosSaidaGrasp);
+    Solucao *solG = grasp(instancia, parametrosGrasp, estat, true, matClienteSat, vetMvValor, vetMvValor1Nivel, parametrosSaidaGrasp);
 
     if(!solG->viavel)
         return nullptr;
@@ -79,10 +78,10 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
     //Parametros
     const float alfa  = 0.8; //0.8
-    const float beta  = alfa;
+    const float beta  = 0.8;
 
     const int numEvRm = min(int(0.1*numEvN_Vazias+1), 5);
-    const int numItSemMelhoraResetSolC = 40;
+    const int numItSemMelhoraResetSolC = 20;
     int ultimaA = 0;
     int numSolG = 1;
     int numFuncDestroi = 0;
@@ -262,7 +261,7 @@ if(i%200 == 0)
 
 
         construtivo(solC, instancia, alfa, beta, matClienteSat, true, true, false);
-        //construtivo(solC, instancia, alfa, beta, matClienteSat, true, true);
+        //construtivo2(solC, instancia, alfa, beta, matClienteSat, true, false);
 
         if(!solC.viavel)
         {
