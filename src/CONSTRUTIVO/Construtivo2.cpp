@@ -23,6 +23,7 @@ using namespace NS_Construtivo2;
 bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instancia, const float alpha, const ublas::matrix<int> &matClienteSat,
                                                  bool listaRestTam, const float beta, const BoostC::vector<int> &satUtilizados)
 {
+
     if(sol.numEv == sol.numEvMax)
         return false;
 
@@ -47,6 +48,23 @@ cout<<"\n\n";
     BoostC::vector<CandidatoEV> vetCandidatos;
     std::list<int> clientesSemCandidato;
 
+    //instancia.vetVetDistClienteSatelite
+    std::vector<DistClienteSat> vetClienteSat;
+    int proxIdCliente = 0;
+
+    for(int cliente=instancia.getFirstClientIndex(); cliente <= instancia.getEndClientIndex(); ++cliente)
+    {
+        if(vetClientesVisitados[cliente] == int8_t(CLIENTE_NAO_VISITADO) && cliente != 0)
+        {
+            DistSatelite distSatelite = (instancia.vetVetDistClienteSatelite[cliente])[0];
+            vetClienteSat.emplace_back(cliente, distSatelite.dist);
+        }
+    }
+
+    std::sort(vetClienteSat.begin(), vetClienteSat.end());
+
+
+
     do
     {
 /*
@@ -56,22 +74,18 @@ evRouteTemp.print(str, instancia, true);
 cout<<"\t\t\tROTA: "<<str<<"\n\n";
 */
         // Seleciona aleatoriamente um cliente que nao foi atendido
-        int cliente = instancia.getFirstClientIndex() + (rand_u32()%instancia.numClients);
-        const int clienteIni = cliente;
 
-        do
-        {
-            if(vetClientesVisitados[cliente] == int8_t(CLIENTE_NAO_VISITADO))
-                break;
-            cliente += 1;
-            cliente = instancia.getFirstClientIndex() + cliente%instancia.numClients;
-        }
-        while(cliente != clienteIni);
+        if(proxIdCliente == vetClienteSat.size())
+            break;
+
+        int cliente = vetClienteSat[proxIdCliente].cliente;
+        proxIdCliente += 1;
 
         if(vetClientesVisitados[cliente] != int8_t(CLIENTE_NAO_VISITADO))
         {
-            sol.viavel = false;
-            break;
+            PRINT_DEBUG("", "");
+            cout<<"ERRO, CLIENTE("<<cliente<<") DEVERIA SER NAO VISITADO!\n\n";
+            throw "ERRO";
         }
 
 //cout<<"CLIENTE SELECIONADO: "<<cliente<<"\n";
@@ -212,6 +226,8 @@ void NS_Construtivo2::construtivo2(Solucao &sol, Instancia &instancia, const flo
 {
 
 //cout<<"INICIO CONSTRUTIVO2\n\n";
+
+    //instancia.vetVetDistClienteSatelite
 
     BoostC::vector<int> satUtilizados(instancia.numSats+1, 0);
     BoostC::vector<int> clientesSat(instancia.getEndClientIndex()+1, 0);

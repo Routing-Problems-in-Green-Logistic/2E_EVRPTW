@@ -13,9 +13,29 @@
 
 namespace NameS_IG
 {
-    Solucao* iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametros, NameS_Grasp::Estatisticas &estat,
-                        const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
-                        BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida);
+    class DadosIg
+    {
+    public:
+
+        int it = 0;
+        double solCorrente = 0.0;
+        double solConst    = 0.0;
+        double solVnd      = 0.0;
+
+        DadosIg(){}
+        DadosIg(int it_, double solCorr_, double solVnd_)
+        {
+            it = it_;
+            solCorrente = solCorr_;
+            solVnd = solVnd_;
+        }
+    };
+
+    Solucao* iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
+                            const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
+                            BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida, NS_parametros::Parametros &parametros);
+
+    void printVetDadosIg(const BoostC::vector<DadosIg> &vetDadosIg, NS_parametros::Parametros &parametros);
 }
 
 #endif //INC_2E_EVRP_IG_H

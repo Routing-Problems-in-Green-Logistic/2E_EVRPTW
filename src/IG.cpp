@@ -17,6 +17,8 @@
 #include "mersenne-twister.h"
 #include <unordered_set>
 #include "VetorHash.h"
+#include <sys/stat.h>
+#include <fstream>
 
 using namespace NameS_IG;
 using namespace NameS_Grasp;
@@ -25,13 +27,14 @@ using namespace NS_Construtivo2;
 using namespace NS_vnd;
 using namespace NS_VetorHash;
 
-#define PRINT_IG FALSE
+#define PRINT_IG TRUE
 
-Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametros, NameS_Grasp::Estatisticas &estat,
-                              const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
-                              BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida)
+Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
+                                  const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
+                                  BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida,
+                                  NS_parametros::Parametros &parametros)
 {
-
+// NS_parametros::Parametros &parametros
     std::unordered_set<VetorHash, VetorHash::HashFunc> hashSolSetCorrente;    // Solucao Corrente
     int numSolCorrente = 0;
 
@@ -41,7 +44,7 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
 
     // Gera uma sol inicial com grasp
     NS_parametros::ParametrosSaida parametrosSaidaGrasp = parametrosSaida;
-    ParametrosGrasp parametrosGrasp = parametros;
+    //ParametrosGrasp parametrosGrasp = parametros;
     //parametrosGrasp.numIteGrasp = 300;
 
     Solucao *solG = grasp(instancia, parametrosGrasp, estat, true, matClienteSat, vetMvValor, vetMvValor1Nivel, parametrosSaidaGrasp);
@@ -81,7 +84,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     const float beta  = 0.8;
 
     const int numEvRm = min(int(0.1*numEvN_Vazias+1), 5);
-    const int numItSemMelhoraResetSolC = 40;
+    const int numItSemMelhoraResetSolC = 20;
     int ultimaA = 0;
     int numSolG = 1;
     int numFuncDestroi = 0;
@@ -197,7 +200,10 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
         return true;
     };
 
-    for(int i=0; i < parametros.numIteGrasp; ++i)
+    BoostC::vector<DadosIg> vetDadosIg;
+    vetDadosIg.reserve(parametrosGrasp.numIteGrasp);
+
+    for(int i=0; i < parametrosGrasp.numIteGrasp; ++i)
     {
 
 #if PRINT_IG
@@ -240,6 +246,10 @@ if(i%200 == 0)
 
         hashSolSetCorrente.insert(VetorHash(solC, instancia));
         numSolCorrente += 1;
+        DadosIg dadosIg;
+
+        dadosIg.it = i;
+        dadosIg.solCorrente = solC.distancia;
 
 //cout<<"SOL "<<i<<": "<<solC.distancia<<"\n";
 
@@ -260,10 +270,14 @@ if(i%200 == 0)
 
 
         construtivo(solC, instancia, alfa, beta, matClienteSat, true, true, false);
-        //construtivo2(solC, instancia, alfa, beta, matClienteSat, true, false);
+        //construtivo2(solC, instancia, alfa, beta, matClienteSat, true, true);
 
         if(!solC.viavel)
         {
+
+            dadosIg.solConst = -1.0;
+            dadosIg.solVnd   = -1.0;
+
             solC = Solucao(instancia);
             solC.copia(solBest);
 //cout<<"\tSOL INVIAVEL\n";
@@ -283,12 +297,18 @@ if(i%200 == 0)
             hashSolSetConst.insert(VetorHash(solC, instancia));
             numSolConstVia += 1;
 
+            dadosIg.solConst = solC.distancia;
+
             numSolG += 1;
             rvnd(solC, instancia, beta, vetMvValor, vetMvValor1Nivel);
+
             hashSolSetVnd.insert(VetorHash(solC, instancia));
+            dadosIg.solVnd   = solC.distancia;
 
 //cout<<"\tSOL VIAVEL "<<i<<": "<<solC.distancia<<"\n";
         }
+
+        vetDadosIg.push_back(dadosIg);
 
         if(NS_Auxiliary::menor(solC.distancia, solBest.distancia))
         {
@@ -349,7 +369,60 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 cout<<"IG: "<<solBest.distancia<<"\n\n";
 #endif
 
+    printVetDadosIg(vetDadosIg, parametros);
+
     Solucao *solPtr = new Solucao(instancia);
     solPtr->copia(solBest);
     return solPtr;
+}
+
+void NameS_IG::printVetDadosIg(const BoostC::vector<DadosIg> &vetDadosIg, NS_parametros::Parametros &parametros)
+{
+    string strVet;
+    const int ultimaIt = parametros.numItTotal-1;
+
+    for(auto it:vetDadosIg)
+    {
+        strVet += to_string(it.it) + ", " + to_string(it.solCorrente) + ", " + to_string(it.solConst) + ", " + to_string(it.solVnd) + "\n";
+    }
+
+    const string caminhoInst = parametros.caminhoPasta + "/dadosIg/";
+
+    if(mkdir(caminhoInst.c_str(), 0777) == -1)
+    {
+        if(errno != EEXIST)
+        {
+            cout << "ERRO, NAO FOI POSSIVEL CRIAR O DIRETORIO: " << caminhoInst << "\nErro: " << strerror(errno) << "\n\n";
+            throw "ERRO";
+        }
+    }
+
+
+    const string caminho = caminhoInst + parametros.nomeInstancia + "/";
+
+    if(mkdir(caminho.c_str(), 0777) == -1)
+    {
+        if(errno != EEXIST)
+        {
+            cout << "ERRO, NAO FOI POSSIVEL CRIAR O DIRETORIO: " << caminho << "\nErro: " << strerror(errno) << "\n\n";
+            throw "ERRO";
+        }
+    }
+    //cout<<"DIRETORIO: "<<caminho<<" criado\n";
+
+    string strSaida = caminho+parametros.nomeInstancia+"_EXE_"+ to_string(parametros.execucaoAtual)+".csv";
+
+    std::ofstream outfile;
+    outfile.open(strSaida, std::ios_base::out);
+
+    if(outfile.is_open())
+    {
+        outfile<<strVet<<"\n";
+        outfile.close();
+    }
+    else
+    {
+        cout<<"NAO FOI POSSIVEL ABRIR O ARQUIVO: "<<strSaida<<"\n";
+    }
+
 }

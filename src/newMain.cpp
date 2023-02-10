@@ -47,7 +47,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    string commite = "7196a619f444cd2acd6385af4b209d15f04a96de";
+    string commite = "2d2b0e588de0ca5f0c4fe458c765c5f584d071f2";
     parametros.commit = commite;
 
     try
@@ -193,7 +193,7 @@ void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosS
     BoostC::vector<int> satUtilizado(instancia.numSats+1, 0);
     const ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
     Solucao *solGrasp = iteratedGreedy(instancia, parametrosGrasp, estatisticas, matClienteSat, N_gamb::vetMvValor,
-                                       N_gamb::vetMvValor1Nivel, parametrosSaida);
+                                       N_gamb::vetMvValor1Nivel, parametrosSaida, parametros);
     best.copia(*solGrasp);
 
     delete solGrasp;
