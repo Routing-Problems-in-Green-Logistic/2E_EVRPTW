@@ -21,7 +21,7 @@ tamanhoInst = ['100_2']
 
 
 
-numExecucoes = 10
+numExecucoes = 30
 caminhoDir = str(sys.argv[1])
 metodo = "IG"
 parametros = " --pasta '" + caminhoDir+ "' --mt '"+str(metodo) +"' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --numItTotal 2500 --execAtual "

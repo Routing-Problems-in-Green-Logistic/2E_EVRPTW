@@ -81,7 +81,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     const float beta  = 0.8;
 
     const int numEvRm = min(int(0.1*numEvN_Vazias+1), 5);
-    const int numItSemMelhoraResetSolC = 20;
+    const int numItSemMelhoraResetSolC = 40;
     int ultimaA = 0;
     int numSolG = 1;
     int numFuncDestroi = 0;
@@ -93,7 +93,6 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 #endif
 
     //cout<<"NUM EV: "<<numEvRm<<"\n\n";
-
 
     // Escolhe aleatoriamente numRotas nao vazias e as removem da solucao
     auto funcDestroi0 = [&](Solucao &sol, const int numRotas)
