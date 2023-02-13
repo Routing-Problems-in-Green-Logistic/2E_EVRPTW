@@ -308,7 +308,6 @@ if(i%200 == 0)
 //cout<<"\tSOL VIAVEL "<<i<<": "<<solC.distancia<<"\n";
         }
 
-        vetDadosIg.push_back(dadosIg);
 
         if(NS_Auxiliary::menor(solC.distancia, solBest.distancia))
         {
@@ -332,6 +331,10 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 #endif
 
         }
+
+        dadosIg.solBest = solBest.distancia;
+        vetDadosIg.push_back(dadosIg);
+
     } // END for ig
 
     double fatorSolCorr = (double(hashSolSetCorrente.size())/numSolCorrente) * 100;
@@ -376,14 +379,40 @@ cout<<"IG: "<<solBest.distancia<<"\n\n";
     return solPtr;
 }
 
-void NameS_IG::printVetDadosIg(const BoostC::vector<DadosIg> &vetDadosIg, NS_parametros::Parametros &parametros)
+void NameS_IG::printVetDadosIg(BoostC::vector<DadosIg> &vetDadosIg, NS_parametros::Parametros &parametros)
 {
-    string strVet;
+    if(vetDadosIg[0].solConst < 0.0)
+    {
+        vetDadosIg[0].solConst = vetDadosIg[0].solCorrente;
+        vetDadosIg[0].solVnd   = vetDadosIg[0].solCorrente;
+    }
+
+    for(int i=1; i < vetDadosIg.size(); ++i)
+    {
+        if(vetDadosIg[i].solConst < 0.0)
+            vetDadosIg[i].solConst = vetDadosIg[i-1].solConst;
+
+        if(vetDadosIg[i].solVnd < 0.0)
+            vetDadosIg[i].solVnd = vetDadosIg[i-1].solVnd;
+    }
+
+    string strVet = "it, corr, const, vnd, best\n";
     const int ultimaIt = parametros.numItTotal-1;
 
     for(auto it:vetDadosIg)
     {
-        strVet += to_string(it.it) + ", " + to_string(it.solCorrente) + ", " + to_string(it.solConst) + ", " + to_string(it.solVnd) + "\n";
+        strVet += to_string(it.it) + ", " + to_string(it.solCorrente) + ", " + to_string(it.solConst) + ", " + to_string(it.solVnd) +
+                + ", " + to_string(it.solBest) + "\n";
+    }
+
+
+    if(mkdir(parametros.caminhoPasta.c_str(), 0777) == -1)
+    {
+        if(errno != EEXIST)
+        {
+            cout << "ERRO, NAO FOI POSSIVEL CRIAR O DIRETORIO: " << parametros.caminhoPasta << "\nErro: " << strerror(errno) << "\n\n";
+            throw "ERRO";
+        }
     }
 
     const string caminhoInst = parametros.caminhoPasta + "/dadosIg/";
