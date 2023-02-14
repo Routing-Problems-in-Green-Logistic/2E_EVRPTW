@@ -27,7 +27,7 @@ using namespace NS_Construtivo2;
 using namespace NS_vnd;
 using namespace NS_VetorHash;
 
-#define PRINT_IG TRUE
+#define PRINT_IG FALSE
 
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
                                   const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
@@ -269,7 +269,7 @@ if(i%200 == 0)
 //cout<<"***********************************\n\n";
 
 
-        construtivo(solC, instancia, alfa, beta, matClienteSat, true, true, false);
+        construtivo(solC, instancia, alfa, beta, matClienteSat, true, false, false);
         //construtivo2(solC, instancia, alfa, beta, matClienteSat, true, true);
 
         if(!solC.viavel)
