@@ -27,13 +27,79 @@ using namespace NS_Construtivo2;
 using namespace NS_vnd;
 using namespace NS_VetorHash;
 
-#define PRINT_IG FALSE
+#define PRINT_IG        TRUE
+#define WRITE_SOL_PRINT FALSE
 
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
                                   const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
                                   BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida,
                                   NS_parametros::Parametros &parametros)
 {
+    // Cria o diretorio plotInter
+    const string dirPlotInter = parametros.caminhoPasta+"/plotInter";
+
+#if WRITE_SOL_PRINT
+    NS_Auxiliary::criaDiretorio(parametros.caminhoPasta);
+    NS_Auxiliary::criaDiretorio(dirPlotInter);
+#endif
+
+    auto writeSol = [](const string &dirPlotInter, const int it, const string &solAntes, const string &solDepois, const string solVnd)
+    {
+        const string fileAntes = dirPlotInter + "/"+ to_string(it)+"_sol_antes.txt";
+        const string fileDepois = dirPlotInter + "/"+ to_string(it)+"_sol_depois.txt";
+        const string fileVnd    = dirPlotInter + "/"+ to_string(it)+"_sol_vnd.txt";
+
+
+
+        std::ofstream outfile;
+        outfile.open(fileAntes, std::ios_base::out);
+
+        if(outfile.is_open())
+        {
+            outfile<<solAntes<<"\n";
+            outfile.close();
+        }
+        else
+        {
+            cout<<"NAO FOI POSSIVEL ABRIR O ARQUIVO: "<<fileAntes<<"\n";
+            throw "ERRO";
+        }
+        outfile.close();
+
+
+        outfile.open(fileDepois, std::ios_base::out);
+
+        if(outfile.is_open())
+        {
+            outfile<<solDepois<<"\n";
+            outfile.close();
+        }
+        else
+        {
+            cout<<"NAO FOI POSSIVEL ABRIR O ARQUIVO: "<<fileDepois<<"\n";
+            throw "ERRO";
+        }
+
+        outfile.close();
+
+
+        outfile.open(fileVnd, std::ios_base::out);
+
+        if(outfile.is_open())
+        {
+            outfile<<solVnd<<"\n";
+            outfile.close();
+        }
+        else
+        {
+            cout<<"NAO FOI POSSIVEL ABRIR O ARQUIVO: "<<fileVnd<<"\n";
+            throw "ERRO";
+        }
+
+        outfile.close();
+
+    };
+
 // NS_parametros::Parametros &parametros
     std::unordered_set<VetorHash, VetorHash::HashFunc> hashSolSetCorrente;    // Solucao Corrente
     int numSolCorrente = 0;
@@ -81,18 +147,19 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
     //Parametros
     const float alfa  = 0.8; //0.8
-    const float beta  = 0.8;
+    const float beta  = alfa;
 
-    const int numEvRm = min(int(0.1*numEvN_Vazias+1), 5);
+    int numEvRm = min(int(0.1*numEvN_Vazias+1), 5);
     const int numItSemMelhoraResetSolC = 20;
     int ultimaA = 0;
     int numSolG = 1;
     int numFuncDestroi = 0;
-    const int numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRm)));
+    int numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRm)));
     //const int numChamadasDestroi0 = 1;
 
 #if PRINT_IG
     cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n";
+    cout<<"num rotas removidas: "<<numEvRm<<"\n";
 #endif
 
     //cout<<"NUM EV: "<<numEvRm<<"\n\n";
@@ -203,6 +270,8 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     BoostC::vector<DadosIg> vetDadosIg;
     vetDadosIg.reserve(parametrosGrasp.numIteGrasp);
 
+    bool escreveSol = false;
+
     for(int i=0; i < parametrosGrasp.numIteGrasp; ++i)
     {
 
@@ -238,11 +307,38 @@ if(i%200 == 0)
         else if
         */
 
+        /*
+        if(i == 501)
+        {
+            cout<<"NUM SOL GERADAS: "<<numSolG<<"\n";
+            cout<<"numSolG/i: "<<(float)numSolG/i<<"\n";
+            float fator = (float)numSolG/i;
+            if(fator < 0.55)
+            {
+                numEvRm = max(1, numEvRm/2);
+                cout<<"Reduiz o num de rotas destruidas para: "<<numEvRm<<"\n";
+                numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRm)));
+            }
+        }
+        */
+
+#if WRITE_SOL_PRINT
+
+        if(i == 500 || i == 1000 || i == 1500 || i == 2000 || i == 2499)
+        {
+            escreveSol = true;
+        }
+#endif
+
         if((i-ultimaA) % numItSemMelhoraResetSolC == 0 && i!=ultimaA)
         {
             solC = Solucao(instancia);
             solC.copia(solBest);
         }
+
+        string strSolC;
+        if(escreveSol)
+            solC.printPlot(strSolC, instancia);
 
         hashSolSetCorrente.insert(VetorHash(solC, instancia));
         numSolCorrente += 1;
@@ -285,6 +381,12 @@ if(i%200 == 0)
         }
         else
         {
+            string strSolConst;
+            if(escreveSol)
+            {
+                solC.printPlot(strSolConst, instancia);
+            }
+
             string strErro;
             if(!solC.checkSolution(strErro, instancia))
             {
@@ -301,6 +403,17 @@ if(i%200 == 0)
 
             numSolG += 1;
             rvnd(solC, instancia, beta, vetMvValor, vetMvValor1Nivel);
+
+
+            if(escreveSol)
+            {
+                string strSolVnd;
+                solC.printPlot(strSolVnd, instancia);
+
+
+                writeSol(dirPlotInter, i, strSolC, strSolConst, strSolVnd);
+                escreveSol = false;
+            }
 
             hashSolSetVnd.insert(VetorHash(solC, instancia));
             dadosIg.solVnd   = solC.distancia;
@@ -396,7 +509,7 @@ void NameS_IG::printVetDadosIg(BoostC::vector<DadosIg> &vetDadosIg, NS_parametro
             vetDadosIg[i].solVnd = vetDadosIg[i-1].solVnd;
     }
 
-    string strVet = "it, corr, const, vnd, best\n";
+    string strVet = "it,corr,const,vnd,best\n";
     const int ultimaIt = parametros.numItTotal-1;
 
     for(auto it:vetDadosIg)

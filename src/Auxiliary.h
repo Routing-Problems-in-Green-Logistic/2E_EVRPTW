@@ -11,6 +11,7 @@ namespace BoostC = boost::container;
 #include <cfloat>
 #include <limits>
 #include <cmath>
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -218,6 +219,8 @@ namespace NS_Auxiliary
     {
         return std::floor(x);
     }
+
+    void criaDiretorio(const string& caminho);
 }
 
 #endif //INC_2E_EVRP_AUXILIARY_H

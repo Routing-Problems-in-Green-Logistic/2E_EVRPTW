@@ -536,3 +536,44 @@ void Solucao::resetaIndiceEv(Instancia &instancia)
     }
 
 }
+
+void Solucao::printPlot(string &saida, const Instancia &instance)
+{
+    for(int s=instance.getFirstSatIndex(); s <= instance.getEndSatIndex(); ++s)
+    {
+
+        for(int e=0; e < satelites[s].vetEvRoute.size(); ++e)
+        {
+            EvRoute &evRoute = satelites[s].vetEvRoute[e];
+
+            if(evRoute.routeSize > 2)
+            {
+                string rota;
+
+                for(int i=0; i < evRoute.routeSize; ++i)
+                {
+                    rota += to_string(evRoute[i].cliente) + " ";
+                }
+
+                saida += rota+"\n";
+
+
+            }
+        }
+    }
+
+    for(int i = 0; i < primeiroNivel.size(); ++i)
+    {
+        Route &veic = primeiroNivel[i];
+        string rota;
+
+        if(veic.routeSize > 2)
+        {
+            for(int t=0; t < veic.routeSize; ++t)
+                rota += to_string(veic.rota[t].satellite) + " ";
+
+            saida+rota+"\n";
+        }
+
+    }
+}
