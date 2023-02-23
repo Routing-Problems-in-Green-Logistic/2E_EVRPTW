@@ -1,7 +1,3 @@
-//
-// Created by igor on 09/01/23.
-//
-
 /* ****************************************
  * ****************************************
  *  Nome:    Igor de Andrade Junqueira
@@ -460,7 +456,6 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 
     auto funcAddParaSaida = [&](string &&strParm, double val)
     {
-
         parametrosSaida.mapNoSaida[strParm] = NS_parametros::NoSaida(strParm);
         parametrosSaida.mapNoSaida[strParm].addSaida(SAIDA_EXEC_VAL);
         parametrosSaida.mapNoSaida[strParm](val);

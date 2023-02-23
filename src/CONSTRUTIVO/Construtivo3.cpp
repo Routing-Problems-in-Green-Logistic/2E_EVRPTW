@@ -64,7 +64,7 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
     // Cria um candidato para cada cliente e armazena em matCandidato
     for(int clientId = FistIdClient; clientId <= LastIdClient; ++clientId)
     {
-        if(visitedClients.at(clientId) == int8_t(0))
+        if(visitedClients[clientId] == int8_t(0))
         {
 
             CandidatoEV candidatoEv;
@@ -91,7 +91,7 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
                     candidatoEvAux.satId = satId;
                     candidatoEvAux.routeId = routeId;
 
-                    canInsert(route, clientId, instance, candidatoEvAux, satId, vetTempoSaida.at(satId), evRouteAux);
+                    canInsert(route, clientId, instance, candidatoEvAux, satId, vetTempoSaida[satId], evRouteAux);
 
                     if(candidatoEv.pos != -1 && candidatoEvAux.pos != -1)
                     {
@@ -356,7 +356,6 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
                         clientesSemCandidato.remove(cliente);
                     } else
                         ++itCliente;
-
                 }
             }
         }
@@ -401,9 +400,7 @@ bool NS_Construtivo3::visitAllClientes(BoostC::vector<int8_t> &visitedClients, c
 
 void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam)
 {
-
     // Cria o vetor com a demanda de cada satellite
-
     BoostC::vector<double> demandaNaoAtendidaSat;
     demandaNaoAtendidaSat.reserve(sol.getNSatelites()+1);
     int satId = 1;
@@ -431,7 +428,6 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
             // Verifica se a demanda não atendida eh positiva
             if(demandaNaoAtendidaSat.at(i) > 0.0)
             {
-
                 // Percorre todas as rotas
                 for(int rotaId = 0; rotaId < sol.primeiroNivel.size(); ++rotaId)
                 {
@@ -465,7 +461,6 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
 
                             if(incrementoDist < candidato.incrementoDistancia)
                             {
-
                                 // Calcula o tempo de chegada e verifica a janela de tempo
                                 const double tempoChegCand = clienteP.tempoChegada + instance.getDistance(clienteP.satellite, i);
 
@@ -487,18 +482,13 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
                                         }
 
                                         tempoChegTemp += instance.getDistance(route.rota.at(t).satellite, route.rota.at(t+1).satellite);
-
                                     }
-
                                 }
                                 else
-                                {
                                     satViavel = false;
-                                }
 
                                 if(satViavel)
                                 {
-
                                     candidato.incrementoDistancia = incrementoDist;
                                     candidato.pos = p;
                                     candidato.tempoSaida = tempoChegCand;
@@ -508,13 +498,10 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
 
                         if(candidato.pos >= 0)
                             listaCandidatos.push_back(candidato);
-
                     }
                 }
             }
-
         }
-
 
         if(!listaCandidatos.empty())
         {
@@ -798,8 +785,7 @@ void NS_Construtivo3::setSatParaCliente(Instancia &instancia, vector<int> &vetSa
  * @param iniSatUtil      Indica se os satelites devem ser zerados de acordo com a sol parcial (Para utilizacao do IG)
  */
 void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const float alpha, const float beta,
-                                 const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil,
-                                 bool print)
+                                 const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil, bool print)
 {
 
 
@@ -1007,12 +993,6 @@ bool NS_Construtivo3::canInsert(EvRoute &evRoute, int cliente, Instancia &instan
                     candidatoEv = CandidatoEV(pos, cliente, (insercaoEstacao.distanciaRota - distanciaRota), demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, insercaoEstacao);
                     candidatoEv.atualizaPenalidade(0.0);
                     viavel = true;
-
-                    if(cliente == 86)
-                    {
-                        strRota = "";
-                        evRouteAux.print(strRota, instance, false);
-                    }
                 }
             }
         }
@@ -1022,20 +1002,7 @@ bool NS_Construtivo3::canInsert(EvRoute &evRoute, int cliente, Instancia &instan
     }
 
     if(viavel)
-    {
         candidatoEv.atualizaPenalidade(0.0);
-
-/*if(cliente == 86)
-{
-    cout << "canInsert 86 sat "<<satelite<<"\n";
-    cout<<strRota<<"\n";
-    strRota = "";
-
-    evRoute.print(strRota, instance, false);
-    cout<<strRota<<"\n\n";
-}*/
-
-    }
 
     return viavel;
 }
@@ -1103,40 +1070,12 @@ BoostC::vector<double> NS_Construtivo3::calculaTempoSaidaInicialSat(Instancia &i
 
                             if(incrementoDist < candidato.incrementoDistancia)
                             {
-
                                 // Calcula o tempo de chegada e verifica a janela de tempo
                                 const double tempoChegCand = clienteP.tempoChegada + instance.getDistance(clienteP.satellite, i);
-
                                 bool satViavel = true;
-
-                                //if(verificaViabilidadeSatelite(tempoChegCand, satelite, instance, false))
-                                {
-                                    double tempoChegTemp = tempoChegCand + instance.getDistance(i, clientePP.satellite);
-
-/*                                    // Verificar viabilidade dos outros satelites
-                                    for(int t=p+1; (t+1) < (route.routeSize); ++t)
-                                    {
-                                        Satelite &sateliteTemp = sol.satelites.at(route.rota.at(t).satellite);
-
-                                        if(!verificaViabilidadeSatelite(tempoChegTemp, sateliteTemp, instance, false))
-                                        {
-                                            satViavel = false;
-                                            break;
-                                        }
-
-                                        tempoChegTemp += instance.getDistance(route.rota.at(t).satellite, route.rota.at(t+1).satellite);
-
-                                    }*/
-
-                                }
-/*                                else
-                                {
-                                    satViavel = false;
-                                }*/
 
                                 if(satViavel)
                                 {
-
                                     candidato.incrementoDistancia = incrementoDist;
                                     candidato.pos = p;
                                     candidato.tempoSaida = tempoChegCand;
@@ -1146,13 +1085,10 @@ BoostC::vector<double> NS_Construtivo3::calculaTempoSaidaInicialSat(Instancia &i
 
                         if(candidato.pos >= 0)
                             listaCandidatos.push_back(candidato);
-
                     }
                 }
             }
-
         }
-
 
         if(!listaCandidatos.empty())
         {
@@ -1162,8 +1098,6 @@ BoostC::vector<double> NS_Construtivo3::calculaTempoSaidaInicialSat(Instancia &i
             // Escolhe o candidado da lista restrita
             int size = listaCandidatos.size();
             size = max(int(beta * listaCandidatos.size()), 1);
-
-
 
             int tam = size;
             int escolhido = rand_u32() % tam;
@@ -1195,7 +1129,6 @@ BoostC::vector<double> NS_Construtivo3::calculaTempoSaidaInicialSat(Instancia &i
             sol.distancia += candidato.incrementoDistancia;
             route.satelliteDemand[candidato.satelliteId] = candidato.demand;
             route.totalDistence += candidato.incrementoDistancia;
-
             vetSatAtendido[candidato.satelliteId] = 1;
 
         }
@@ -1251,9 +1184,6 @@ bool NS_Construtivo3::insert(EvRoute &evRoute, CandidatoEV &insertion, const Ins
             throw "ERRO";
         }
     }
-
-    //cout<<"EV ROUTE ID: "<<evRoute.idRota<<"\n";
-    //evRoute.print(instance, true);
 
     const int pos = insertion.pos;
     const int node = insertion.clientId;

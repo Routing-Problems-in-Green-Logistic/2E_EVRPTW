@@ -137,34 +137,17 @@ bool NS_Construtivo::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance
         }
 
         int randIndex = rand_u32()%size;
-
-        //cout<<"size(lista): "<<listaCandidatos.size()<<"; size*alfa: "<<size<<"; rand: "<<randIndex<<"\n";
-
         auto topItem = std::next(listaCandidatos.begin(), randIndex);
+
 if(print)
     cout<<"\tESCOLHIDO: "<<topItem->clientId<<";"<<topItem->incrP<<"\n\n";
 
         CandidatoEV *candEvPtr = &(*topItem);
         visitedClients.at(topItem->clientId) = 1;
         sol.vetClientesAtend.at(topItem->clientId) = 1;
-
         Satelite *satelite = sol.getSatelite(topItem->satId);
         satelite->demanda += topItem->demand;
-
-
         EvRoute &evRoute = satelite->getRoute(transformaIdEv(topItem->routeId));
-
-/*        // Atualiza o numero de EVs
-        if(evRoute.routeSize <= 2)
-        {
-            sol.numEv += 1;
-
-            if(sol.numEv > sol.numEvMax)
-            {
-                PRINT_DEBUG("\n", "SOLUCAO POSSUI NUMERO MAIOR DE EVs("<<sol.numEv<<") DO QUE MAX("<<sol.numEvMax<<")");
-                throw "ERRO";
-            }
-        }*/
 
         bool resultadoTopItem = insert(evRoute, *topItem, instance, vetTempoSaida[topItem->satId], sol);
         if(!resultadoTopItem)
@@ -194,7 +177,6 @@ if(print)
 
             for(int clientId = instance.getFirstClientIndex(); clientId <= instance.getEndClientIndex(); ++clientId)
             {
-
                 CandidatoEV *candidatoEvPtrAux = matCandidato.at(sat->sateliteId)(transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId));
 
                 if(numEVsMax && candidatoEvPtrAux)
@@ -207,8 +189,8 @@ if(print)
                 }
 
                 // 1º Os candidatos que estao no mesmo satelite e na mesma rota precisao ser avaliados novamente em todos os sat e rotas
-                if(((!visitedClients.at(clientId)) && (matClienteSat(clientId, sat->sateliteId) == 1 && satUtilizados[sat->sateliteId]==1) && clientId != topItem->clientId) &&
-                        (candidatoEvPtrAux || (!candidatoEvPtrAux && numEVsMax)))
+                if(((!visitedClients.at(clientId)) && (matClienteSat(clientId, sat->sateliteId) == 1 && satUtilizados[sat->sateliteId]==1) &&
+                clientId != topItem->clientId) && (candidatoEvPtrAux || (!candidatoEvPtrAux && numEVsMax)))
                 {
 
                     matCandidato.at(sat->sateliteId)(transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId)) = nullptr;
@@ -233,10 +215,8 @@ if(print)
 
                                 if(route.routeSize <= 2 && !routeEmpty)
                                     routeEmpty = true;
-
                             }
                         }
-
                     }
 
                     if(!candidatoEvPtrAux)
@@ -253,18 +233,13 @@ if(print)
                             candidatoEvPtrAux = vetCandPtr.at(transformaIdCliente(candidatoEv.clientId));
                         }
                         else
-                        {
-
                             *candidatoEvPtrAux = candidatoEv;
-                        }
 
                         matCandidato.at(candidatoEv.satId)(transformaIdEv(candidatoEv.routeId), transformaIdCliente(candidatoEv.clientId)) = candidatoEvPtrAux;
                     }
                     else
                     {
-
                         // Nao existe uma rota viavel para o cliente
-
                         if(candidatoEvPtrAux)
                         {
                             listaCandidatos.remove(*candidatoEvPtrAux);
@@ -273,23 +248,19 @@ if(print)
                             clientesSemCandidato.push_back(clientId);
                         }
                     }
-
                 }
                 // 3º Os candidatos que nao estao na mesma rota so precisao ser reavaliados na rota que houve mudanca
                 else if((!visitedClients[clientId]) && !candidatoEvPtrAux && clientId != topItem->clientId)
                 {
-
                     candidatoEvPtrAux = vetCandPtr.at(transformaIdCliente(clientId));
                     if(candidatoEvPtrAux)
                     {
                         if(matClienteSat(clientId, topItem->satId) == 1 && satUtilizados[topItem->satId] == 1)
                         {
-
                             CandidatoEV candCopia = *candidatoEvPtrAux;
 
                             const int satIdTemp = topItem->satId;
                             const int routeId = topItem->routeId;
-
                             bool resultado = canInsert(sol.satelites.at(satIdTemp).getRoute(transformaIdEv(routeId)), clientId, instance,
                                                        *candidatoEvPtrAux, candidatoEvPtrAux->satId, vetTempoSaida.at(satIdTemp), evRouteAux);
 
@@ -303,7 +274,6 @@ if(print)
 
                             if(resultado)
                             {
-
                                 matCandidato.at(candCopia.satId)(transformaIdEv(candCopia.routeId), transformaIdCliente(candCopia.clientId)) = nullptr;
                                 matCandidato.at(satIdTemp)(transformaIdEv(candidatoEvPtrAux->routeId),
                                         transformaIdCliente(candidatoEvPtrAux->clientId)) = candidatoEvPtrAux;
@@ -329,10 +299,8 @@ if(print)
                 {
                     cliente = *itCliente;
                     CandidatoEV candidatoEv;
-
                     const int satId = topItem->satId;
                     const int routeId = topItem->routeId;
-
                     bool resultado = canInsert(sol.satelites.at(satId).getRoute(transformaIdEv(routeId)), cliente,
                                                instance, candidatoEv, satId, vetTempoSaida.at(satId), evRouteAux);
 
@@ -557,15 +525,10 @@ void NS_Construtivo::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance,
 
                 if(!verificaViabilidadeSatelite(tempoSaida, sol.satelites[satTemp], instance, true))
                 {
-
-
                     sol.viavel = false;
                     break;
-
                     string satStr;
                     sol.satelites[satTemp].print(satStr, instance);
-
-
                     sol.print(instance);
 
                     throw "ERRO!";
@@ -612,10 +575,8 @@ bool NS_Construtivo::verificaViabilidadeSatelite(const double tempoChegada, Sate
         //TempoSaidaEvRoute &tempoSaidaEv = satelite.vetTempoSaidaEvRoute[evId];
         const double tempoEv = evRoute.route[0].tempoSaida;
 
-
         if(evRoute.routeSize > 2)
         {
-
             // Verifica se o tempo de saida do ev eh inconpativel com o tempo de chegada do veic a comb
             if(tempoEv < tempoChegada)
             {
@@ -633,16 +594,12 @@ bool NS_Construtivo::verificaViabilidadeSatelite(const double tempoChegada, Sate
                 if(diferenca < 0.0)
                     diferenca = 0.0;
 
-
-
                 if(!((tempoEv + diferenca) >= tempoChegada))
                 {
                     viavel = false;
                     break;
                 }
-
             }
-
         }
     }
 
@@ -653,13 +610,9 @@ bool NS_Construtivo::verificaViabilidadeSatelite(const double tempoChegada, Sate
     }
     else if(viavel)
     {
-        //cout<<"\t\tVIAVEL\n";
-
         for(EvRoute &evRoute:satelite.vetEvRoute)
         {
-
             const double tempoEv = evRoute.route[0].tempoSaida;
-
             if(evRoute.routeSize > 2)
             {
                 if(tempoEv >= tempoChegada)
@@ -703,21 +656,15 @@ bool NS_Construtivo::verificaViabilidadeSatelite(const double tempoChegada, Sate
                             cout<<"\n\n***********************************************************************VERIFICA VIABILIDADE SAT FIM**************************************************************************************\n\n";
                             throw "ERRO";
                         }
-
                     }
-
                 }
-
             }
         }
 
         return true;
-
     }
     else
-    {
         return false;
-    }
 
 }
 
@@ -760,8 +707,6 @@ void NS_Construtivo::setSatParaCliente(Instancia &instancia, vector<int> &vetSat
             int sat = rand_u32() % numSize;
             vetSatAtendCliente[i] = (instancia.vetVetDistClienteSatelite[i])[sat].satelite;
             satUtilizado[vetSatAtendCliente[i]] += 1;
-
-
         }
     }
     else
@@ -789,11 +734,8 @@ void NS_Construtivo::setSatParaCliente(Instancia &instancia, vector<int> &vetSat
  * @param iniSatUtil      Indica se os satelites devem ser zerados de acordo com a sol parcial (Para utilizacao do IG)
  */
 void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float alpha, const float beta,
-                                 const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil,
-                                 bool print)
+                                 const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil, bool print)
 {
-
-
     BoostC::vector<int> satUtilizados(instancia.numSats+1, 0);
     BoostC::vector<int> clientesSat(instancia.getEndClientIndex()+1, 0);
 
@@ -808,15 +750,7 @@ void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float
         }
     }
     std::fill(satUtilizados.begin()+1, satUtilizados.end(), 1);
-
-/*    if(instancia.numSats == 8)
-        satUtilizados[8] = 0;*/
-    //satUtilizados[1] = 0;
-    //satUtilizados[3] = 0;
-
-
     bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat, listaRestTam, beta, satUtilizados, print);
-
     ublas::matrix<int> matClienteSat2 = matClienteSat;
     const int zero_max = max(1, instancia.numSats-2);
 
@@ -826,30 +760,19 @@ void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float
 
         if(!sol.viavel && instancia.numSats > 2)
         {
-//            if(iniSatUtil)
-//cout<<"\t\t1º NIVEL INV\n";
-
-            //cout<<"CARGAS: ";
             int numSatZero = 0;
-
             BoostC::vector<double> vetCargaSat;
 
             while(!sol.viavel)
             {
-
-                //cout<<"CARGAS: ";
                 vetCargaSat = BoostC::vector<double>(1 + instancia.numSats, 0.0);
 
                 for(int i = 1; i <= instancia.getEndSatIndex(); ++i)
                 {
                     vetCargaSat[i] = sol.satelites[i].demanda;
-                    //cout<<i<<": "<<vetCargaSat[i]<<" ";
-
                     if(vetCargaSat[i] == 0.0)
                         satUtilizados[i] = 0;
                 }
-
-                //cout<<"\n\n";
 
                 int satMin = -1;
                 double min = DOUBLE_INF;
@@ -886,7 +809,6 @@ void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float
                 if(numSatZero == zero_max)
                     break;
 
-
             }
 
             if(sol.viavel)
@@ -904,31 +826,23 @@ void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float
 
 bool NS_Construtivo::canInsert(EvRoute &evRoute, int cliente, Instancia &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux)
 {
-
-
     double demand = instance.getDemand(cliente);
     double bestIncremento = candidatoEv.incrP;
     bool viavel = false;
-
     evRouteAux.satelite = satelite;
     evRouteAux.idRota = evRoute.idRota;
     evRouteAux.routeSizeMax = evRoute.routeSizeMax;
-
     string strRota;
-
     InsercaoEstacao insercaoEstacao;
-
 
     if((evRoute.getDemand() + demand) > instance.getEvCap(evRoute.idRota))
         return false;
-
 
     copiaVector(evRoute.route, evRouteAux.route, evRoute.routeSize);
     shiftVectorDir(evRouteAux.route, 1, 1, evRoute.routeSize);
     evRouteAux.routeSize = evRoute.routeSize+1;
     evRouteAux[0].bateriaRestante = instance.getEvBattery(evRoute.idRota);
     evRouteAux[0].tempoSaida = tempoSaidaSat;
-
 
     double distanciaRota  = 0.0;
     if(evRoute.routeSize > 2)
@@ -998,12 +912,6 @@ bool NS_Construtivo::canInsert(EvRoute &evRoute, int cliente, Instancia &instanc
                     candidatoEv = CandidatoEV(pos, cliente, (insercaoEstacao.distanciaRota - distanciaRota), demand, 0.0, evRoute.idRota, evRoute.satelite, -1, -1, insercaoEstacao);
                     candidatoEv.atualizaPenalidade(0.0);
                     viavel = true;
-
-                    if(cliente == 86)
-                    {
-                        strRota = "";
-                        evRouteAux.print(strRota, instance, false);
-                    }
                 }
             }
         }
@@ -1013,20 +921,8 @@ bool NS_Construtivo::canInsert(EvRoute &evRoute, int cliente, Instancia &instanc
     }
 
     if(viavel)
-    {
         candidatoEv.atualizaPenalidade(0.0);
 
-/*if(cliente == 86)
-{
-    cout << "canInsert 86 sat "<<satelite<<"\n";
-    cout<<strRota<<"\n";
-    strRota = "";
-
-    evRoute.print(strRota, instance, false);
-    cout<<strRota<<"\n\n";
-}*/
-
-    }
 
     return viavel;
 }
@@ -1100,34 +996,8 @@ BoostC::vector<double> NS_Construtivo::calculaTempoSaidaInicialSat(Instancia &in
 
                                 bool satViavel = true;
 
-                                //if(verificaViabilidadeSatelite(tempoChegCand, satelite, instance, false))
-                                {
-                                    double tempoChegTemp = tempoChegCand + instance.getDistance(i, clientePP.satellite);
-
-/*                                    // Verificar viabilidade dos outros satelites
-                                    for(int t=p+1; (t+1) < (route.routeSize); ++t)
-                                    {
-                                        Satelite &sateliteTemp = sol.satelites.at(route.rota.at(t).satellite);
-
-                                        if(!verificaViabilidadeSatelite(tempoChegTemp, sateliteTemp, instance, false))
-                                        {
-                                            satViavel = false;
-                                            break;
-                                        }
-
-                                        tempoChegTemp += instance.getDistance(route.rota.at(t).satellite, route.rota.at(t+1).satellite);
-
-                                    }*/
-
-                                }
-/*                                else
-                                {
-                                    satViavel = false;
-                                }*/
-
                                 if(satViavel)
                                 {
-
                                     candidato.incrementoDistancia = incrementoDist;
                                     candidato.pos = p;
                                     candidato.tempoSaida = tempoChegCand;
@@ -1137,13 +1007,10 @@ BoostC::vector<double> NS_Construtivo::calculaTempoSaidaInicialSat(Instancia &in
 
                         if(candidato.pos >= 0)
                             listaCandidatos.push_back(candidato);
-
                     }
                 }
             }
-
         }
-
 
         if(!listaCandidatos.empty())
         {
@@ -1153,8 +1020,6 @@ BoostC::vector<double> NS_Construtivo::calculaTempoSaidaInicialSat(Instancia &in
             // Escolhe o candidado da lista restrita
             int size = listaCandidatos.size();
             size = max(int(beta * listaCandidatos.size()), 1);
-
-
 
             int tam = size;
             int escolhido = rand_u32() % tam;
@@ -1269,10 +1134,6 @@ bool NS_Construtivo::insert(EvRoute &evRoute, CandidatoEV &insertion, const Inst
      */
 
     int k = pos;
-
-string rotaAntes;
-evRoute.print(rotaAntes, instance, false);
-
     shiftVectorDir(evRoute.route, pos+1, 1, evRoute.routeSize);
     evRoute.route.at(pos+1).cliente = node;
     evRoute.routeSize += 1;
@@ -1306,7 +1167,6 @@ evRoute.print(rotaAntes, instance, false);
 
         cout<<"NO: "<<node<<"\n";
         cout<<"ERRO: "<<rotaDebug<<"\n\n";
-        cout<<"ROTA ANTES: "<<rotaAntes<<"\n\n";
 
         PRINT_DEBUG("", "ERRO NA FUNCAO GreedyAlgNS::insert, BATERIA DA ROTA EH INVIAVEL: "<<rotaStr<<"\n\n");
         cout<<"FUNCAO TESTA ROTA RETORNOU DISTANCIA NEGATIVA, ROTA: ";
@@ -1320,7 +1180,6 @@ evRoute.print(rotaAntes, instance, false);
 
         throw "ERRO";
     }
-
 
     return true;
 }
