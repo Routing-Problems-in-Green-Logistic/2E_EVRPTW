@@ -23,7 +23,7 @@ using namespace NS_Construtivo2;
 using namespace NS_vnd;
 using namespace NS_VetorHash;
 
-#define PRINT_IG        TRUE
+#define PRINT_IG        FALSE
 #define WRITE_SOL_PRINT FALSE
 
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
@@ -345,6 +345,9 @@ if(i%200 == 0)
 
 //cout<<"SOL "<<i<<": "<<solC.distancia<<"\n";
 
+        Solucao solC_copia(instancia);
+        solC_copia.copia(solC);
+
         if(numFuncDestroi < numChamadasDestroi0)
         {
             funcDestroi0(solC, numEvRm);
@@ -371,7 +374,7 @@ if(i%200 == 0)
             dadosIg.solVnd   = -1.0;
 
             solC = Solucao(instancia);
-            solC.copia(solBest);
+            solC.copia(solC_copia);
 //cout<<"\tSOL INVIAVEL\n";
 
         }
