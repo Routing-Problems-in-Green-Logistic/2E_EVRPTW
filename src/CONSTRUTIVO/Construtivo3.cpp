@@ -43,8 +43,6 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
     std::list<CandidatoEV> listaCandidatos;
     std::list<int> clientesSemCandidato;
 
-    //COLUNAS DA MATRIZ POSSUEM SOMENTE A QUANTIDADE DE CLIENTES!!
-    static BoostC::vector<ublas::matrix<CandidatoEV*>> matCandidato(1 + instance.getNSats());
     static bool primeiraChamada = true;
     BoostC::vector<CandidatoEV*> vetCandPtr(instance.getNClients(), nullptr);
 
@@ -52,73 +50,68 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
     const int numColMat         = instance.getNClients();
     const int idPrimeiroCliente = instance.getFirstClientIndex();
     const int idPrimeiroEv      = instance.getFirstEvIndex();
-
     auto transformaIdCliente  = [&](const int id){return (id - idPrimeiroCliente);};
     auto transformaIdEv       = [&](const int id){return (id-idPrimeiroEv);};
 
-    std::fill(matCandidato.begin(), matCandidato.end(), ublas::zero_matrix<CandidatoEV*>(numLinhasMat, numColMat));
 
     const int fistSat = instance.getFirstSatIndex();
 //    int satId = sat;
 
+    auto criaListaCandidatosP_Cliente = [&](const int cliente) -> std::list<CandidatoEV>
+    {
+        if(visitedClients[cliente] == int8_t(1))
+            return {};
+
+        // Guarda as melhores insercoes para de cliente para cada rota
+        std::list<CandidatoEV> listaCand;
+
+        for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); ++satId)
+        {
+            if(matClienteSat(cliente, (satId)) != 1 || satUtilizados[satId] == 0)
+                continue;
+
+            Satelite *sat = sol.getSatelite(satId);
+            bool rotaVazia = false;
+            for(int routeId = 0; routeId < instance.getN_Evs(); ++routeId)
+            {
+                EvRoute &route = sat->getRoute(routeId);
+                if(route.routeSize <= 2 && !rotaVazia)
+                    rotaVazia = true;
+                else if(route.routeSize <= 2 && rotaVazia)
+                    continue;
+
+                CandidatoEV candidatoEvAux;
+                candidatoEvAux.satId    = satId;
+                candidatoEvAux.routeId  = routeId;
+                candidatoEvAux.clientId = cliente;
+                canInsert(route, cliente, instance, candidatoEvAux, satId, vetTempoSaida[satId], evRouteAux);
+
+                if(candidatoEvAux.pos != -1)
+                    listaCandidatos.push_back(candidatoEvAux);
+            }
+        }
+
+        return listaCandidatos;
+
+    };
+
     // Cria um candidato para cada cliente e armazena em matCandidato
     for(int clientId = FistIdClient; clientId <= LastIdClient; ++clientId)
     {
-        if(visitedClients[clientId] == int8_t(0))
+        auto listaCandCliente = criaListaCandidatosP_Cliente(clientId);
+
+        if(!listaCandCliente.empty())
         {
+            const int candEscolhido = rand_u32() % listaCandCliente.size();
+            auto itCandEscolhido = std::next(listaCandCliente.begin(), candEscolhido);
+            listaCandidatos.push_back(*itCandEscolhido);
 
-            CandidatoEV candidatoEv;
-            candidatoEv.clientId = clientId;
+            CandidatoEV *candPtr = &listaCandidatos.back();
+            vetCandPtr.at(transformaIdCliente(candPtr->clientId)) = candPtr;
 
-            for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); ++satId)
-            {
-
-                //cout<<clientId<<", "<<satId<<"\n";
-                if(matClienteSat(clientId, (satId)) != 1 || satUtilizados[satId] == 0)
-                    continue;
-
-                Satelite *sat = sol.getSatelite(satId);
-                bool rotaVazia = false;
-                for(int routeId = 0; routeId < instance.getN_Evs(); ++routeId)
-                {
-                    EvRoute &route = sat->getRoute(routeId);
-                    if(route.routeSize <= 2 && !rotaVazia)
-                        rotaVazia = true;
-                    else if(route.routeSize <= 2 && rotaVazia)
-                        continue;
-
-                    CandidatoEV candidatoEvAux(candidatoEv);
-                    candidatoEvAux.satId = satId;
-                    candidatoEvAux.routeId = routeId;
-
-                    canInsert(route, clientId, instance, candidatoEvAux, satId, vetTempoSaida[satId], evRouteAux);
-
-                    if(candidatoEv.pos != -1 && candidatoEvAux.pos != -1)
-                    {
-                        if(candidatoEvAux < candidatoEv)
-                            candidatoEv = candidatoEvAux;
-                    }
-                    else if(candidatoEvAux != -1)
-                        candidatoEv = candidatoEvAux;
-
-                }
-
-            }
-
-            if(candidatoEv.pos != -1)
-            {
-
-                listaCandidatos.push_back(candidatoEv);
-                CandidatoEV *candPtr = &listaCandidatos.back();
-                matCandidato.at(candPtr->satId)(transformaIdEv(candPtr->routeId), transformaIdCliente(candPtr->clientId)) = candPtr;
-                vetCandPtr.at(transformaIdCliente(candPtr->clientId)) = candPtr;
-
-            } else
-                clientesSemCandidato.push_back(clientId);
-        }
-
+        } else
+            clientesSemCandidato.push_back(clientId);
     }
-
 
     while(!visitAllClientes(visitedClients, instance) && !listaCandidatos.empty())
     {
@@ -156,11 +149,8 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
         CandidatoEV *candEvPtr = &(*topItem);
         visitedClients.at(topItem->clientId) = 1;
         sol.vetClientesAtend.at(topItem->clientId) = 1;
-
         Satelite *satelite = sol.getSatelite(topItem->satId);
         satelite->demanda += topItem->demand;
-
-
         EvRoute &evRoute = satelite->getRoute(transformaIdEv(topItem->routeId));
 
 /*        // Atualiza o numero de EVs
@@ -182,12 +172,10 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
             throw "ERRO";
         }
 
-        matCandidato.at(topItem->satId)(transformaIdEv(topItem->routeId), transformaIdCliente(topItem->clientId)) = nullptr;
-
         // Corrigi a lista de candidatos
         // 1º Os candidatos que estao no mesmo satelite e na mesma rota precisao ser avaliados novamente
         // 2º Os clientes que nao possuem candidato so tem que ser avaliados na rota que houve mudanca
-        // 3º Os candidatos que nao estao na mesma rota so precisao ser reavaliados na rota que houve mudanca
+        // 3º Os candidatos que nao estao na mesma rota nao sao reavaliados
 
         Satelite *sat = sol.getSatelite(candEvPtr->satId);
         EvRoute &evRouteEsc = sat->vetEvRoute.at(transformaIdEv(candEvPtr->routeId));
@@ -203,8 +191,19 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
 
             for(int clientId = instance.getFirstClientIndex(); clientId <= instance.getEndClientIndex(); ++clientId)
             {
+                //CandidatoEV *candidatoEvPtrAux = matCandidato.at(sat->sateliteId)(transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId));
+                CandidatoEV *candidatoEvPtrAux = vetCandPtr[transformaIdCliente(clientId)];
+                if(!candidatoEvPtrAux)
+                    continue;
 
-                CandidatoEV *candidatoEvPtrAux = matCandidato.at(sat->sateliteId)(transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId));
+                if(candidatoEvPtrAux)
+                {
+                    if(!(candidatoEvPtrAux->satId == candEvPtr->satId && candidatoEvPtrAux->routeId == candEvPtr->routeId))
+                    {
+                        candidatoEvPtrAux = nullptr;
+                        continue;
+                    }
+                }
 
                 if(numEVsMax && candidatoEvPtrAux)
                 {
@@ -216,40 +215,23 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
                 }
 
                 // 1º Os candidatos que estao no mesmo satelite e na mesma rota precisao ser avaliados novamente em todos os sat e rotas
-                if(((!visitedClients.at(clientId)) && (matClienteSat(clientId, sat->sateliteId) == 1 && satUtilizados[sat->sateliteId]==1) && clientId != topItem->clientId) &&
-                   (candidatoEvPtrAux || (!candidatoEvPtrAux && numEVsMax)))
+                if((visitedClients[clientId] == int8_t(0) && (matClienteSat(clientId, sat->sateliteId) == 1 && satUtilizados[sat->sateliteId]==1) &&
+                    clientId != topItem->clientId) && (candidatoEvPtrAux || (!candidatoEvPtrAux && numEVsMax)))
                 {
 
-                    matCandidato.at(sat->sateliteId)(transformaIdEv(evRouteEsc.idRota), transformaIdCliente(clientId)) = nullptr;
                     CandidatoEV candidatoEv;
                     candidatoEv.clientId = clientId;
 
-                    for(int satId = instance.getFirstSatIndex(); satId <= instance.getEndSatIndex(); satId++)
+                    auto listaCandCliente = criaListaCandidatosP_Cliente(clientId);
+                    if(!listaCandCliente.empty())
                     {
-                        if(matClienteSat(clientId, satId) == 1 && satUtilizados[satId]==1)
-                        {
-                            bool routeEmpty = false;
-
-                            for(int routeId = instance.getFirstEvIndex(); routeId <= instance.getEndEvIndex(); routeId++)
-                            {
-                                Satelite *satAux = sol.getSatelite(satId);
-                                EvRoute &route = satAux->getRoute(transformaIdEv(routeId));
-
-                                if(route.routeSize <= 2 && (routeEmpty || numEVsMax))
-                                    continue;
-
-                                canInsert(route, clientId, instance, candidatoEv, satId, vetTempoSaida.at(satId), evRouteAux);
-
-                                if(route.routeSize <= 2 && !routeEmpty)
-                                    routeEmpty = true;
-
-                            }
-                        }
-
+                        const int candEscolhido = rand_u32() % listaCandCliente.size();
+                        auto itCandEscolhido = std::next(listaCandCliente.begin(), candEscolhido);
+                        candidatoEv = *itCandEscolhido;
                     }
 
                     if(!candidatoEvPtrAux)
-                        candidatoEvPtrAux = vetCandPtr.at(transformaIdCliente(candidatoEv.clientId));
+                        candidatoEvPtrAux = vetCandPtr[transformaIdCliente(candidatoEv.clientId)];
 
                     if(candidatoEv.pos != -1)
                     {
@@ -262,61 +244,17 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
                             candidatoEvPtrAux = vetCandPtr.at(transformaIdCliente(candidatoEv.clientId));
                         }
                         else
-                        {
-
                             *candidatoEvPtrAux = candidatoEv;
-                        }
-
-                        matCandidato.at(candidatoEv.satId)(transformaIdEv(candidatoEv.routeId), transformaIdCliente(candidatoEv.clientId)) = candidatoEvPtrAux;
                     }
                     else
                     {
-
                         // Nao existe uma rota viavel para o cliente
-
                         if(candidatoEvPtrAux)
                         {
                             listaCandidatos.remove(*candidatoEvPtrAux);
                             vetCandPtr.at(transformaIdCliente(clientId)) = nullptr;
                             candidatoEvPtrAux = nullptr;
                             clientesSemCandidato.push_back(clientId);
-                        }
-                    }
-
-                }
-                    // 3º Os candidatos que nao estao na mesma rota so precisao ser reavaliados na rota que houve mudanca
-                else if((!visitedClients[clientId]) && !candidatoEvPtrAux && clientId != topItem->clientId)
-                {
-
-                    candidatoEvPtrAux = vetCandPtr.at(transformaIdCliente(clientId));
-                    if(candidatoEvPtrAux)
-                    {
-                        if(matClienteSat(clientId, topItem->satId) == 1 && satUtilizados[topItem->satId] == 1)
-                        {
-
-                            CandidatoEV candCopia = *candidatoEvPtrAux;
-
-                            const int satIdTemp = topItem->satId;
-                            const int routeId = topItem->routeId;
-
-                            bool resultado = canInsert(sol.satelites.at(satIdTemp).getRoute(transformaIdEv(routeId)), clientId, instance,
-                                                       *candidatoEvPtrAux, candidatoEvPtrAux->satId, vetTempoSaida.at(satIdTemp), evRouteAux);
-
-                            EvRoute &evRouteTemp = sol.satelites.at(satIdTemp).getRoute(transformaIdEv(routeId));
-
-                            if(evRouteTemp.routeSize <= 2)
-                            {
-                                PRINT_DEBUG("", "evRouteTemp eh VAZIO\n");
-                                throw "ERRO";
-                            }
-
-                            if(resultado)
-                            {
-
-                                matCandidato.at(candCopia.satId)(transformaIdEv(candCopia.routeId), transformaIdCliente(candCopia.clientId)) = nullptr;
-                                matCandidato.at(satIdTemp)(transformaIdEv(candidatoEvPtrAux->routeId),
-                                                           transformaIdCliente(candidatoEvPtrAux->clientId)) = candidatoEvPtrAux;
-                            }
                         }
                     }
                 }
@@ -328,7 +266,6 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
         if(!clientesAntendidos)
         {
             // Tenta inserir os clientes sem candidato na nova rota
-
             auto itCliente = clientesSemCandidato.begin();
             int cliente = -1;
 
@@ -338,7 +275,6 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
                 {
                     cliente = *itCliente;
                     CandidatoEV candidatoEv;
-
                     const int satId = topItem->satId;
                     const int routeId = topItem->routeId;
 
@@ -347,10 +283,8 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
 
                     if(resultado)
                     {
-
                         listaCandidatos.push_back(candidatoEv);
                         CandidatoEV *candPtr = &listaCandidatos.back();
-                        matCandidato.at(satId)(transformaIdEv(routeId), transformaIdCliente(cliente)) = candPtr;
                         vetCandPtr.at(transformaIdCliente(cliente)) = candPtr;
                         ++itCliente;
                         clientesSemCandidato.remove(cliente);
@@ -361,8 +295,7 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
         }
 
         // Remove candidato escolhido
-        vetCandPtr.at(transformaIdCliente(topItem->clientId)) = nullptr;
-        matCandidato.at(topItem->satId)(transformaIdEv(topItem->routeId), transformaIdCliente(topItem->clientId)) = nullptr;
+        vetCandPtr[transformaIdCliente(topItem->clientId)] = nullptr;
         listaCandidatos.erase(topItem);
 
         if(listaCandidatos.empty())
@@ -628,8 +561,6 @@ bool NS_Construtivo3::verificaViabilidadeSatelite(const double tempoChegada, Sat
                 double diferenca = twFim - evRoute.route[indice].tempoCheg;
                 if(diferenca < 0.0)
                     diferenca = 0.0;
-
-
 
                 if(!((tempoEv + diferenca) >= tempoChegada))
                 {

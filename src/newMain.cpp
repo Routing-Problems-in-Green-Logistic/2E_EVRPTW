@@ -47,7 +47,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    string commite = "b565530cd732a2444bb01540de1dde5c23d76d52";
+    string commite = "4a4368a7689e8b7fed671feab48fc2c81d00a7d8";
     parametros.commit = commite;
 
     try

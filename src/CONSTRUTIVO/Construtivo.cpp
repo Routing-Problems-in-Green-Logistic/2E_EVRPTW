@@ -249,6 +249,7 @@ if(print)
                         }
                     }
                 }
+
                 // 3º Os candidatos que nao estao na mesma rota so precisao ser reavaliados na rota que houve mudanca
                 else if((!visitedClients[clientId]) && !candidatoEvPtrAux && clientId != topItem->clientId)
                 {
