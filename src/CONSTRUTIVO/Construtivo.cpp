@@ -150,6 +150,8 @@ if(print)
         EvRoute &evRoute = satelite->getRoute(transformaIdEv(topItem->routeId));
 
         bool resultadoTopItem = insert(evRoute, *topItem, instance, vetTempoSaida[topItem->satId], sol);
+        sol.rotaEvAtualizada(topItem->satId, transformaIdEv(topItem->routeId));
+
         if(!resultadoTopItem)
         {
             PRINT_DEBUG("", "ERRO, INSERT RETORNOU FALSE!!!\n\n");

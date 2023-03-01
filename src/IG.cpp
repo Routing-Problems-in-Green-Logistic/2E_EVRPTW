@@ -15,6 +15,7 @@
 #include "VetorHash.h"
 #include <sys/stat.h>
 #include <fstream>
+#include "Construtivo3.h"
 
 using namespace NameS_IG;
 using namespace NameS_Grasp;
@@ -363,8 +364,9 @@ if(i%200 == 0)
 
 //cout<<"***********************************\n\n";
 
+        //solC.todasRotasEvAtualizadas();
+        NS_Construtivo::construtivo(solC, instancia, alfa, beta, matClienteSat, true, false, false);
 
-        construtivo(solC, instancia, alfa, beta, matClienteSat, true, false, false);
         //construtivo2(solC, instancia, alfa, beta, matClienteSat, true, true);
 
         if(!solC.viavel)

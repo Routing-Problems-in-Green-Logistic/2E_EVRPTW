@@ -51,6 +51,20 @@ namespace NS_Construtivo3
         double incrP        = DOUBLE_MAX;
         double demand       = 0.0;
         double penalidade   = 0.0;
+        NS_viabRotaEv::InsercaoEstacao insercaoEstacao;
+
+        CandidatoEV(const CandidatoEV &outro)
+        {
+            pos         = outro.pos;
+            clientId    = outro.clientId;
+            routeId     = outro.routeId;
+            satId       = outro.satId;
+            incremento  = outro.incremento;
+            incrP       = outro.incrP;
+            demand      = outro.demand;
+            penalidade  = outro.penalidade;
+            insercaoEstacao = outro.insercaoEstacao;
+        }
 
         void atualizaPenalidade()
         {
@@ -62,8 +76,6 @@ namespace NS_Construtivo3
             penalidade = p;
             incrP = p + incremento;
         }
-
-        NS_viabRotaEv::InsercaoEstacao insercaoEstacao;
 
         CandidatoEV(int pos, int clientId, double cost, double demand, double batteryCost, int routeId, int satId, int rsPos,
                     int rsId, NS_viabRotaEv::InsercaoEstacao insercaoEstacao_)
@@ -80,7 +92,6 @@ namespace NS_Construtivo3
         }
         CandidatoEV(int routeId) { this->routeId = routeId;}
         CandidatoEV() = default;
-        CandidatoEV(const CandidatoEV &outro)=default;
 
         bool operator < (const CandidatoEV& that) const
         {

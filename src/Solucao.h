@@ -41,6 +41,7 @@ public:
     int numTrucksMax = -1;
     int numEvMax     = -1;
     int numEv        = 0;                   // Num Ev utilizados
+    int numSats      = 1;
     bool viavel      = true;
     BoostC::vector<Route> primeiroNivel;
     double distancia = 0.0;
@@ -57,6 +58,10 @@ public:
      */
 
     void rotaEvAtualizada(int sat, int ev);
+    void todasRotasEvAtualizadas()
+    {
+        vetMatSatEvMv = BoostC::vector<ublas::matrix<int>>((numSats+1), ublas::matrix<int>(numEvMax, NUM_MV, 0));
+    }
 
 };
 #endif //INC_2E_EVRP_SOLUCAO_H

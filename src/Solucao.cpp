@@ -14,6 +14,7 @@ Solucao::Solucao(Instancia &inst)
 
     numTrucksMax = inst.getN_Trucks();
     numEvMax = inst.getN_Evs();
+    numSats  = inst.numSats;
 
     primeiroNivel.reserve(numTrucksMax);
 
@@ -348,6 +349,7 @@ void Solucao::copia(Solucao &solution)
     distancia = solution.distancia;
     viavel = solution.viavel;
     numEv = solution.numEv;
+    numSats = solution.numSats;
     ultimaA = solution.ultimaA;
 
     for(int s=0; s <= solution.getNSatelites(); ++s)
