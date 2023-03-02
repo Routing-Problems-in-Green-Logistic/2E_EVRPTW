@@ -143,8 +143,8 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     const int numEvN_Vazias = temp;
 
     //Parametros
-    const float alfa  = 0.8; //0.8
-    const float beta  = alfa;
+    const float alfa  = 0.4; //0.8
+    const float beta  = 0.8;
 
     int numEvRm = min(int(0.1*numEvN_Vazias+1), 5);
     const int numItSemMelhoraResetSolC = 20;
@@ -365,9 +365,11 @@ if(i%200 == 0)
 //cout<<"***********************************\n\n";
 
         //solC.todasRotasEvAtualizadas();
-        NS_Construtivo::construtivo(solC, instancia, alfa, beta, matClienteSat, true, false, false);
-
+        NS_Construtivo3::construtivo(solC, instancia, alfa, beta, matClienteSat, true, false, false);
         //construtivo2(solC, instancia, alfa, beta, matClienteSat, true, true);
+
+        //cout<<"FUNCIONOU!!\n";
+        //exit(-1);
 
         if(!solC.viavel)
         {

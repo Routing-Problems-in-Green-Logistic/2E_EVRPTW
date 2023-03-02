@@ -135,13 +135,14 @@ if(cliente == 94 &&satId == 1 && route.idRota == 3)
 
         if(!listaCandCliente.empty())
         {
-            const int candEscolhido = rand_u32() % listaCandCliente.size();
+/*            const int candEscolhido = rand_u32() % listaCandCliente.size();
             auto itCandEscolhido = std::next(listaCandCliente.begin(), candEscolhido);
             listaCandidatos.push_back(*itCandEscolhido);
 
             CandidatoEV *candPtr = &listaCandidatos.back();
-            vetCandPtr.at(transformaIdCliente(candPtr->clientId)) = candPtr;
+            vetCandPtr.at(transformaIdCliente(candPtr->clientId)) = candPtr;*/
 
+            listaCandidatos.splice(listaCandidatos.end(), listaCandCliente);
 
 #if PRINT_DEBUG_CONST
 string strRota;
@@ -150,8 +151,6 @@ EvRoute &evRoute = sat->getRoute(candPtr->routeId);
 evRoute.print(strRota, instance, true);
 cout<<"CLIENTE("<<clientId<<") ROTA ESCOLHIDA: "<<strRota<<"; pos: "<<candPtr->pos<<"; posIt: "<<itCandEscolhido->pos<<"\n\n";
 #endif
-
-
         } else
             clientesSemCandidato.push_back(clientId);
     }
@@ -254,6 +253,7 @@ cout<<"\tROTA: "<<strRota<<"\n\n";
         // 2º Os clientes que nao possuem candidato so tem que ser avaliados na rota que houve mudanca
         // 3º Os candidatos que nao estao na mesma rota nao sao reavaliados
 
+
         Satelite *sat = sol.getSatelite(candEvPtr->satId);
         EvRoute &evRouteEsc = sat->vetEvRoute[candEvPtr->routeId];
         const bool numEVsMax = (sol.numEv >= sol.numEvMax);
@@ -268,6 +268,7 @@ if(numEVsMax)
          * Verificar se existe somente um sat
          * ********************************************************************************/
 
+        /*
         if(listaCandidatos.size() > 1)
         {
 
@@ -344,9 +345,36 @@ cout<<"\tCLIENTE("<<clientId<<") ESTA SENDO REAVALIADO\n";
                 }
             } // End for clientId
         }
+        */
 
-        bool clientesAntendidos = visitAllClientes(visitedClients, instance);
+        listaCandidatos = std::list<CandidatoEV>();
+        //cout<<"TAM LISTA DE CANDIDATOS: "<<listaCandidatos.size()<<"\n";
 
+        for(int clientId=instance.getFirstClientIndex(); clientId <= instance.getEndClientIndex(); ++clientId)
+        {
+            if(visitedClients[clientId] == int8_t(0))
+            {
+                auto listaCandCliente = criaListaCandidatosP_Cliente(clientId, (sol.numEv >= sol.numEvMax));
+
+                if(!listaCandCliente.empty())
+                {
+                    listaCandidatos.splice(listaCandidatos.end(), listaCandCliente);
+
+#if PRINT_DEBUG_CONST
+                    string strRota;
+Satelite *sat = sol.getSatelite(candPtr->satId);
+EvRoute &evRoute = sat->getRoute(candPtr->routeId);
+evRoute.print(strRota, instance, true);
+cout<<"CLIENTE("<<clientId<<") ROTA ESCOLHIDA: "<<strRota<<"; pos: "<<candPtr->pos<<"; posIt: "<<itCandEscolhido->pos<<"\n\n";
+#endif
+                } else
+                    clientesSemCandidato.push_back(clientId);
+            }
+        }
+
+        //bool clientesAntendidos = visitAllClientes(visitedClients, instance);
+
+        /*
         if(!clientesAntendidos)
         {
             // Tenta inserir os clientes sem candidato na nova rota
@@ -384,9 +412,11 @@ cout<<"CLIENTE("<<*itCliente<<") SEM CANDIDADO, REAVALIADO: \n";
             }
         }
 
+        */
+
         // Remove candidato escolhido
-        vetCandPtr[transformaIdCliente(topItem->clientId)] = nullptr;
-        listaCandidatos.erase(topItem);
+        //vetCandPtr[transformaIdCliente(topItem->clientId)] = nullptr;
+        //listaCandidatos.erase(topItem);
 
         if(listaCandidatos.empty())
         {
