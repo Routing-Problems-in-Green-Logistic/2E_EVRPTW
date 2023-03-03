@@ -143,7 +143,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     const int numEvN_Vazias = temp;
 
     //Parametros
-    const float alfa  = 0.4; //0.8
+    const float alfa  = 0.15; //0.8
     const float beta  = 0.8;
 
     int numEvRm = min(int(0.1*numEvN_Vazias+1), 5);
