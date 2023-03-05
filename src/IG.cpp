@@ -373,7 +373,6 @@ if(i%200 == 0)
 
         if(!solC.viavel)
         {
-
             dadosIg.solConst = -1.0;
             dadosIg.solVnd   = -1.0;
 
