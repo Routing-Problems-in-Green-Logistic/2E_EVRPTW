@@ -227,13 +227,14 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instancia &instancia,
 
                                 // Verifica viabilidade da nova rota
                                 double distNovaRota = testaRota(evRouteAux, evRouteAux.routeSize, instancia, false,
-                                                                solucao.satTempoChegMax[satId], 0, nullptr);
+                                                                solucao.satTempoChegMax[satId], 0, nullptr, nullptr);
                                 bool exit = false;
 
                                 if(distNovaRota < 0.0)
                                 {
-                                    bool viavel = viabilizaRotaEv(evRouteAux, instancia, instancia.bestInsViabRotaEv, insercaoEstacao, (evRoute.distancia - INCREM_DIST),
-                                                                  false, solucao.satTempoChegMax[satId]);
+                                    bool viavel = viabilizaRotaEv(evRouteAux, instancia, instancia.bestInsViabRotaEv,
+                                                                  insercaoEstacao, (evRoute.distancia - INCREM_DIST),
+                                                                  false, solucao.satTempoChegMax[satId], nullptr);
 
                                     if(!viavel)
                                     {
@@ -325,7 +326,8 @@ bool NS_LocalSearch::mvEvShifitIntraRota(Solucao &solucao, Instancia &instancia,
                                         }
 
                                         evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instancia, true,
-                                                                      solucao.satTempoChegMax[satId], 0, nullptr);
+                                                                      solucao.satTempoChegMax[satId], 0, nullptr,
+                                                                      nullptr);
                                         if(evRoute.distancia < 0)
                                         {
                                             PRINT_DEBUG("", "ERRO FUNC testaRota");
@@ -463,7 +465,7 @@ void NS_LocalSearch::insereEstacaoRota(EvRoute &evRoute, NS_viabRotaEv::Insercao
     evRoute[insercaoEstacao.pos+1].cliente = insercaoEstacao.estacao;
     evRoute.routeSize += 1;
     removeRS_Repetido(evRoute, instance, false);
-    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaida, 0, nullptr);
+    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaida, 0, nullptr, nullptr);
 
     if(evRoute.distancia < 0.0)
     {
@@ -661,7 +663,8 @@ cout<<"SWAP ROTA: "<<strRota<<"\n";
                                 {
                                     // Testa nova rota:
                                     double distReal = testaRota(evRouteAux, evRouteAux.routeSize, instancia, false,
-                                                                evRoute[0].tempoSaida, ultimoValIndice, nullptr);
+                                                                evRoute[0].tempoSaida, ultimoValIndice, nullptr,
+                                                                nullptr);
 
                                     // Verifica se a nova rota eh viavel
                                     //if(distReal > 0.0 && ((distReal+10E-2) < evRoute.distancia))
@@ -673,7 +676,7 @@ cout<<"SWAP ROTA: "<<strRota<<"\n";
 #endif
                                         double distOrig = evRoute.distancia;
                                         distReal = testaRota(evRouteAux, evRouteAux.routeSize, instancia, true,
-                                                             evRoute[0].tempoSaida, ultimoValIndice, nullptr);
+                                                             evRoute[0].tempoSaida, ultimoValIndice, nullptr, nullptr);
 
                                         if(!menor(distReal, evRoute.distancia))
                                         {
@@ -707,7 +710,9 @@ cout<<"SWAP ROTA: "<<strRota<<"\n";
                                     else if(distReal < 0.0)
                                     {
                                         // Tenta viabilizar rota
-                                        if(viabilizaRotaEv(evRouteAux, instancia, false, insereEstacao, (evRoute.distancia-10E-2), false, evRoute[0].tempoSaida))
+                                        if(viabilizaRotaEv(evRouteAux, instancia, false, insereEstacao,
+                                                           (evRoute.distancia - 10E-2), false, evRoute[0].tempoSaida,
+                                                           nullptr))
                                         {
 
                                             //if((evRouteAux.distancia+10E-2) < evRoute.distancia)
@@ -945,7 +950,7 @@ cout<<"\tnovaDistC("<<novaDist<<"); dist rota("<<evRoute.distancia<<")\n";
                         {
                             // Testa nova rota:
                             double distReal = testaRota(evRouteAux, evRouteAux.routeSize, instancia, false,
-                                                        evRoute[0].tempoSaida, ultimoValIndice, nullptr);
+                                                        evRoute[0].tempoSaida, ultimoValIndice, nullptr, nullptr);
 
                             // Verifica se a nova rota eh viavel
                             //if(distReal > 0.0 && (distReal+1e-3) < evRoute.distancia)
@@ -957,7 +962,7 @@ cout<<"\tnovaDistC("<<novaDist<<"); dist rota("<<evRoute.distancia<<")\n";
 #endif
                                 double distOrig = evRoute.distancia;
                                 distReal = testaRota(evRouteAux, evRouteAux.routeSize, instancia, true,
-                                                     evRoute[0].tempoSaida, ultimoValIndice, nullptr);
+                                                     evRoute[0].tempoSaida, ultimoValIndice, nullptr, nullptr);
 
                                 if(!menor(distReal, evRoute.distancia))
                                 {
@@ -990,7 +995,7 @@ cout<<"\t\t\tMELHORA: "<<100.0*dif<<"%\n";
                             {
                                 // Tenta viabilizar rota
                                 if(viabilizaRotaEv(evRouteAux, instancia, true, insereEstacao,
-                                                   (evRoute.distancia - 1E-3), false, evRoute[0].tempoSaida))
+                                                   (evRoute.distancia - 1E-3), false, evRoute[0].tempoSaida, nullptr))
                                 {
 
                                     //if((evRouteAux.distancia+10E-3) < evRoute.distancia)
@@ -1213,7 +1218,7 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
 */
 
                                      double distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia,
-                                                                      false, tempoSaidaSat, 0, nullptr);
+                                                                      false, tempoSaidaSat, 0, nullptr, nullptr);
                                      InsercaoEstacao insercaoEstacao;
                                      bool novaRota1Viavel = true;
                                      bool rotaViabilizada = false;
@@ -1240,7 +1245,9 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
 
 
 
-                                        novaRota1Viavel = viabilizaRotaEv(evRouteAux1, instancia, false, insercaoEstacao, limNovaDist1, false, tempoSaidaSat);
+                                        novaRota1Viavel = viabilizaRotaEv(evRouteAux1, instancia, false,
+                                                                          insercaoEstacao, limNovaDist1, false,
+                                                                          tempoSaidaSat, nullptr);
                                         if(novaRota1Viavel)
                                         {
                                             distNovaRota1 = insercaoEstacao.distanciaRota;
@@ -1251,7 +1258,7 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                      else
                                      {
                                          distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia, true,
-                                                                   tempoSaidaSat, 0, nullptr);
+                                                                   tempoSaidaSat, 0, nullptr, nullptr);
                                          evRouteAux1.distancia = distNovaRota1;
                                      }
 
@@ -1271,7 +1278,7 @@ evRouteAux0.print(strRota, instancia, false);
 cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
 
                                          double distNovaRota0 = testaRota(evRouteAux0, evRouteAux0.routeSize, instancia,
-                                                                          true, tempoSaidaSat, 0, nullptr);
+                                                                          true, tempoSaidaSat, 0, nullptr, nullptr);
                                          evRouteAux0.distancia = distNovaRota0;
 
                                          // Verifica Viabilidade
@@ -1541,7 +1548,7 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
 */
 
                                     double distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia,
-                                                                     false, tempoSaidaSat, 0, nullptr);
+                                                                     false, tempoSaidaSat, 0, nullptr, nullptr);
                                     InsercaoEstacao insercaoEstacao;
                                     bool novaRota1Viavel = true;
                                     bool rotaViabilizada = false;
@@ -1568,7 +1575,9 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
 
 
 
-                                        novaRota1Viavel = viabilizaRotaEv(evRouteAux1, instancia, false, insercaoEstacao, limNovaDist1, false, tempoSaidaSat);
+                                        novaRota1Viavel = viabilizaRotaEv(evRouteAux1, instancia, false,
+                                                                          insercaoEstacao, limNovaDist1, false,
+                                                                          tempoSaidaSat, nullptr);
                                         if(novaRota1Viavel)
                                         {
                                             distNovaRota1 = insercaoEstacao.distanciaRota;
@@ -1579,7 +1588,7 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                     else
                                     {
                                         distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia, true,
-                                                                  tempoSaidaSat, 0, nullptr);
+                                                                  tempoSaidaSat, 0, nullptr, nullptr);
                                         evRouteAux1.distancia = distNovaRota1;
                                     }
 
@@ -1599,7 +1608,7 @@ evRouteAux0.print(strRota, instancia, false);
 cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
 
                                         double distNovaRota0 = testaRota(evRouteAux0, evRouteAux0.routeSize, instancia,
-                                                                         true, tempoSaidaSat, 0, nullptr);
+                                                                         true, tempoSaidaSat, 0, nullptr, nullptr);
                                         evRouteAux0.distancia = distNovaRota0;
 
                                         // Verifica Viabilidade
@@ -1844,9 +1853,9 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
 
                                 // Testa as novas rotas
                                 double distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia, false,
-                                                                 tempoSaidaSat, 0, nullptr);
+                                                                 tempoSaidaSat, 0, nullptr, nullptr);
                                 double distNovaRota0 = testaRota(evRouteAux0, evRouteAux0.routeSize, instancia, false,
-                                                                 tempoSaidaSat, 0, nullptr);
+                                                                 tempoSaidaSat, 0, nullptr, nullptr);
 
                                 InsercaoEstacao inserEstRota0;
                                 InsercaoEstacao inserEstRota1;
@@ -1861,7 +1870,8 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                 if(!novaRota0Viavel && !novaRota1Viavel)
                                 {
 
-                                    rota0Viabilizada = viabilizaRotaEv(evRouteAux0, instancia, true, inserEstRota0, -1.0, false, tempoSaidaSat);
+                                    rota0Viabilizada = viabilizaRotaEv(evRouteAux0, instancia, true, inserEstRota0,
+                                                                       -1.0, false, tempoSaidaSat, nullptr);
                                     if(rota0Viabilizada)
                                     {
                                         novaDist = distNovaRota1+inserEstRota0.distanciaRota;
@@ -1895,7 +1905,9 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                              */
 
                                             const double distLimRota1 = distOrig-inserEstRota0.distanciaRota;
-                                            rota1Viabilizada = viabilizaRotaEv(evRouteAux1, instancia, false, inserEstRota1, distLimRota1, false, tempoSaidaSat);
+                                            rota1Viabilizada = viabilizaRotaEv(evRouteAux1, instancia, false,
+                                                                               inserEstRota1, distLimRota1, false,
+                                                                               tempoSaidaSat, nullptr);
                                             if(!rota1Viabilizada)
                                                 return false;       // Nao existem outras opcoes
 
@@ -1917,7 +1929,9 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
 
                                     if(!novaRota0Viavel)
                                     {
-                                        rota0Viabilizada = viabilizaRotaEv(evRouteAux0, instancia, false, inserEstRota0, distOrig-distNovaRota1, false, tempoSaidaSat);
+                                        rota0Viabilizada = viabilizaRotaEv(evRouteAux0, instancia, false, inserEstRota0,
+                                                                           distOrig - distNovaRota1, false,
+                                                                           tempoSaidaSat, nullptr);
                                         if(!rota0Viabilizada)
                                             return false;
 
@@ -1925,7 +1939,9 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                     }
                                     else
                                     {
-                                        rota1Viabilizada = viabilizaRotaEv(evRouteAux1, instancia, false, inserEstRota1, distOrig-distNovaRota0, false, tempoSaidaSat);
+                                        rota1Viabilizada = viabilizaRotaEv(evRouteAux1, instancia, false, inserEstRota1,
+                                                                           distOrig - distNovaRota0, false,
+                                                                           tempoSaidaSat, nullptr);
                                         if(!rota1Viabilizada)
                                             return false;
 
@@ -1941,7 +1957,7 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                 if(novaRota0Viavel)
                                 {
                                     distNovaRota0 = testaRota(evRouteAux0, evRouteAux0.routeSize, instancia, true,
-                                                              tempoSaidaSat, 0, nullptr);
+                                                              tempoSaidaSat, 0, nullptr, nullptr);
                                     evRouteAux0.distancia = distNovaRota0;
                                     if(distNovaRota0 <= 0.0)
                                     {
@@ -1970,7 +1986,7 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                 if(novaRota1Viavel)
                                 {
                                     distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia, true,
-                                                              tempoSaidaSat, 0, nullptr);
+                                                              tempoSaidaSat, 0, nullptr, nullptr);
                                     evRouteAux1.distancia = distNovaRota1;
                                     if(distNovaRota1 <= 0.0)
                                     {
@@ -2218,9 +2234,9 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
 
                                     // Testa as novas rotas
                                     double distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia,
-                                                                     false, tempoSaidaRoute1, 0, nullptr);
+                                                                     false, tempoSaidaRoute1, 0, nullptr, nullptr);
                                     double distNovaRota0 = testaRota(evRouteAux0, evRouteAux0.routeSize, instancia,
-                                                                     false, tempoSaidaRoute0, 0, nullptr);
+                                                                     false, tempoSaidaRoute0, 0, nullptr, nullptr);
 
                                     InsercaoEstacao inserEstRota0;
                                     InsercaoEstacao inserEstRota1;
@@ -2235,7 +2251,8 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                     if(!novaRota0Viavel && !novaRota1Viavel)
                                     {
 
-                                        rota0Viabilizada = viabilizaRotaEv(evRouteAux0, instancia, true, inserEstRota0, -1.0, false, tempoSaidaRoute0);
+                                        rota0Viabilizada = viabilizaRotaEv(evRouteAux0, instancia, true, inserEstRota0,
+                                                                           -1.0, false, tempoSaidaRoute0, nullptr);
                                         if(rota0Viabilizada)
                                         {
                                             novaDist = distNovaRota1 + inserEstRota0.distanciaRota;
@@ -2269,8 +2286,9 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                                  */
 
                                                 const double distLimRota1 = distOrig - inserEstRota0.distanciaRota;
-                                                rota1Viabilizada = viabilizaRotaEv(evRouteAux1, instancia, false, inserEstRota1, distLimRota1,
-                                                                                   false, tempoSaidaRoute1);
+                                                rota1Viabilizada = viabilizaRotaEv(evRouteAux1, instancia, false,
+                                                                                   inserEstRota1, distLimRota1, false,
+                                                                                   tempoSaidaRoute1, nullptr);
                                                 if(!rota1Viabilizada)
                                                     return false;       // Nao existem outras opcoes
 
@@ -2290,16 +2308,18 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
 
                                         if(!novaRota0Viavel)
                                         {
-                                            rota0Viabilizada = viabilizaRotaEv(evRouteAux0, instancia, false, inserEstRota0, distOrig - distNovaRota1,
-                                                                               false, tempoSaidaRoute0);
+                                            rota0Viabilizada = viabilizaRotaEv(evRouteAux0, instancia, false,
+                                                                               inserEstRota0, distOrig - distNovaRota1,
+                                                                               false, tempoSaidaRoute0, nullptr);
                                             if(!rota0Viabilizada)
                                                 return false;
 
                                             novaDist = distNovaRota1 + inserEstRota0.distanciaRota;
                                         } else
                                         {
-                                            rota1Viabilizada = viabilizaRotaEv(evRouteAux1, instancia, false, inserEstRota1, distOrig - distNovaRota0,
-                                                                               false, tempoSaidaRoute1);
+                                            rota1Viabilizada = viabilizaRotaEv(evRouteAux1, instancia, false,
+                                                                               inserEstRota1, distOrig - distNovaRota0,
+                                                                               false, tempoSaidaRoute1, nullptr);
                                             if(!rota1Viabilizada)
                                                 return false;
 
@@ -2315,7 +2335,7 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                     if(novaRota0Viavel)
                                     {
                                         distNovaRota0 = testaRota(evRouteAux0, evRouteAux0.routeSize, instancia, true,
-                                                                  tempoSaidaRoute0, 0, nullptr);
+                                                                  tempoSaidaRoute0, 0, nullptr, nullptr);
                                         evRouteAux0.distancia = distNovaRota0;
                                         if(distNovaRota0 <= 0.0)
                                         {
@@ -2341,7 +2361,7 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                     if(novaRota1Viavel)
                                     {
                                         distNovaRota1 = testaRota(evRouteAux1, evRouteAux1.routeSize, instancia, true,
-                                                                  tempoSaidaRoute1, 0, nullptr);
+                                                                  tempoSaidaRoute1, 0, nullptr, nullptr);
                                         evRouteAux1.distancia = distNovaRota1;
                                         if(distNovaRota1 <= 0.0)
                                         {

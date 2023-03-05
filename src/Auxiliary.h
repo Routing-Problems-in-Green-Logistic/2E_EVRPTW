@@ -67,8 +67,20 @@ using namespace std;
 
 extern const double DOUBLE_INF;
 
+
+#define SIZE_ENUM_INV 5
+
 namespace NS_Auxiliary
 {
+
+    enum EnumInviabilidade
+    {
+        Inv_Carga,
+        Inv_tw,
+        Inv_bat,
+        Inv_1_Nivel,
+        Inv_nao_ev_rs
+    };
 
     template<typename T>
 

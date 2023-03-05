@@ -132,7 +132,8 @@ if(cliente == 82 && sat == 6)
 }
 */
                 // Retorna a melhor insercao do cliente para evRoute
-                if(!canInsert(evRoute, cliente, instancia, candidatoEv, sat, instancia.vetTempoSaida[sat], evRouteAux))
+                if(!canInsert(evRoute, cliente, instancia, candidatoEv, sat, instancia.vetTempoSaida[sat], evRouteAux,
+                              nullptr))
                     continue;
                 candidatoEv.routeId = ev;
 

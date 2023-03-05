@@ -24,7 +24,7 @@ using namespace NS_Construtivo2;
 using namespace NS_vnd;
 using namespace NS_VetorHash;
 
-#define PRINT_IG        FALSE
+#define PRINT_IG        TRUE
 #define WRITE_SOL_PRINT FALSE
 
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
@@ -267,6 +267,9 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     BoostC::vector<DadosIg> vetDadosIg;
     vetDadosIg.reserve(parametrosGrasp.numIteGrasp);
 
+    // Quarda o numero de inviabilidades
+    BoostC::vector<int> vetInviabilidate(SIZE_ENUM_INV, 0);
+
     bool escreveSol = false;
 
     for(int i=0; i < parametrosGrasp.numIteGrasp; ++i)
@@ -365,7 +368,8 @@ if(i%200 == 0)
 //cout<<"***********************************\n\n";
 
         //solC.todasRotasEvAtualizadas();
-        NS_Construtivo3::construtivo(solC, instancia, alfa, beta, matClienteSat, true, false, false);
+        NS_Construtivo::construtivo(solC, instancia, alfa, beta, matClienteSat, true,
+                                     false, false, &vetInviabilidate);
         //construtivo2(solC, instancia, alfa, beta, matClienteSat, true, true);
 
         //cout<<"FUNCIONOU!!\n";
@@ -460,17 +464,44 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 //cout<<"Sol Construtivo: "<<fatorSolConst<<"\n";
 //cout<<"Sol VND: "<<fatorSolVnd<<"\n\n";
 
-    auto funcAddParaSaida = [&](string &&strParm, double val)
+    auto funcAddParaSaidaDouble = [&](string &&strParm, double val)
     {
         parametrosSaida.mapNoSaida[strParm] = NS_parametros::NoSaida(strParm);
         parametrosSaida.mapNoSaida[strParm].addSaida(SAIDA_EXEC_VAL);
         parametrosSaida.mapNoSaida[strParm](val);
     };
 
-    funcAddParaSaida("numSol", numSolG);
-    funcAddParaSaida("fatorSolCorr", fatorSolCorr);
-    funcAddParaSaida("fatorSolConst", fatorSolConst);
-    funcAddParaSaida("fatorSolVnd", fatorSolVnd);
+
+    funcAddParaSaidaDouble("numSol", numSolG);
+    funcAddParaSaidaDouble("fatorSolCorr", fatorSolCorr);
+    funcAddParaSaidaDouble("fatorSolConst", fatorSolConst);
+    funcAddParaSaidaDouble("fatorSolVnd", fatorSolVnd);
+
+
+    auto funcAddParaSaidaInt = [&](string &&strParm, int val)
+    {
+        parametrosSaida.mapNoSaida[strParm] = NS_parametros::NoSaida(strParm, SAIDA_TIPO_INT);
+        parametrosSaida.mapNoSaida[strParm].addSaida(SAIDA_EXEC_VAL);
+        parametrosSaida.mapNoSaida[strParm](val);
+    };
+
+
+    funcAddParaSaidaInt("invCarga", vetInviabilidate[NS_Auxiliary::Inv_Carga]);
+    funcAddParaSaidaInt("invTw", vetInviabilidate[NS_Auxiliary::Inv_tw]);
+    funcAddParaSaidaInt("invBat", vetInviabilidate[NS_Auxiliary::Inv_bat]);
+    funcAddParaSaidaInt("inv1Nivel", vetInviabilidate[NS_Auxiliary::Inv_1_Nivel]);
+    funcAddParaSaidaInt("invNaoRs", vetInviabilidate[NS_Auxiliary::Inv_nao_ev_rs]);
+
+
+#if PRINT_IG
+
+    cout<<"INVIABILIDADE CARGA: \t"<<vetInviabilidate[NS_Auxiliary::Inv_Carga]<<"\n";
+    cout<<"INVIABILIDADE JANELA: \t"<<vetInviabilidate[NS_Auxiliary::Inv_tw]<<"\n";
+    cout<<"INVIABILIDADE BAT: \t"<<vetInviabilidate[NS_Auxiliary::Inv_bat]<<"\n";
+    cout<<"INVIABILIDADE 1º NIVEL: \t"<<vetInviabilidate[NS_Auxiliary::Inv_1_Nivel]<<"\n";
+    cout<<"INVIABILIDADE NAO EXISTE RS: \t"<<vetInviabilidate[NS_Auxiliary::Inv_nao_ev_rs]<<"\n";
+
+#endif
 
     string erro;
     if(!solBest.checkSolution(erro, instancia))

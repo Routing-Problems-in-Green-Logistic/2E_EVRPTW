@@ -253,7 +253,7 @@ void N_PreProcessamento::dijkstraSatCli(Instancia &instancia)
 
                 evRoute[0].tempoSaida = instancia.vetTempoSaida[sat];
                 double r = testaRota(evRoute, evRoute.routeSize, instancia, true, instancia.vetTempoSaida[sat], 0,
-                                     nullptr);
+                                     nullptr, nullptr);
 
                 if(r <= 0.0)
                 {

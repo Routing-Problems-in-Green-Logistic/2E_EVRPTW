@@ -25,8 +25,9 @@ using namespace boost::numeric;
 
 // Roteamento dos veiculos eletricos
 bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha,
-                                               const ublas::matrix<int> &matClienteSat, bool listaRestTam,
-                                               const float beta, const BoostC::vector<int> &satUtilizados, bool print)
+                                                const ublas::matrix<int> &matClienteSat, bool listaRestTam,
+                                                const float beta, const BoostC::vector<int> &satUtilizados, bool print,
+                                                BoostC::vector<int> &vetInviabilidade)
 {
 #if PRINT_DEBUG_CONST
     print = true;
@@ -94,7 +95,7 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
                 candidatoEvAux.satId    = satId;
                 candidatoEvAux.routeId  = routeId;
                 candidatoEvAux.clientId = cliente;
-                canInsert(route, cliente, instance, candidatoEvAux, satId, vetTempoSaida[satId], evRouteAux);
+                canInsert(route, cliente, instance, candidatoEvAux, satId, vetTempoSaida[satId], evRouteAux, vetInviabilidade);
                 candidatoEvAux.routeId  = routeId;
 
                 if(candidatoEvAux.pos != -1)
@@ -835,8 +836,8 @@ void NS_Construtivo3::setSatParaCliente(Instancia &instancia, vector<int> &vetSa
  * @param listaRestTam
  * @param iniSatUtil      Indica se os satelites devem ser zerados de acordo com a sol parcial (Para utilizacao do IG)
  */
-void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const float alpha, const float beta,
-                                 const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil, bool print)
+void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const float alpha, const float beta, const ublas::matrix<int> &matClienteSat,
+                                  bool listaRestTam, bool iniSatUtil, bool print, BoostC::vector<int> *vetInviabilidate)
 {
 
 
@@ -861,7 +862,7 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
     //satUtilizados[3] = 0;
 
 
-    bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat, listaRestTam, beta, satUtilizados, print);
+    bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat, listaRestTam, beta, satUtilizados, print, *vetInviabilidate);
 
     ublas::matrix<int> matClienteSat2 = matClienteSat;
     const int zero_max = max(1, instancia.numSats-2);
@@ -882,6 +883,8 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
 
             while(!sol.viavel)
             {
+
+                (*vetInviabilidate)[Inv_1_Nivel] += 1;
 
                 //cout<<"CARGAS: ";
                 vetCargaSat = BoostC::vector<double>(1 + instancia.numSats, 0.0);
@@ -918,7 +921,7 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
                 numSatZero += 1;
 
                 segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat2, listaRestTam, beta,
-                                                         satUtilizados, false);
+                                                         satUtilizados, false, *vetInviabilidate);
                 if(segundoNivel)
                 {
                     construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam);
@@ -948,9 +951,10 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
 
 
 
-bool NS_Construtivo3::canInsert(EvRoute &evRoute, int cliente, Instancia &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux)
+bool NS_Construtivo3::canInsert(EvRoute &evRoute, int cliente, Instancia &instance, CandidatoEV &candidatoEv,
+                                const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux,
+                                BoostC::vector<int> &vetInviabilidade)
 {
-
 
     double demand = instance.getDemand(cliente);
     double bestIncremento = candidatoEv.incrP;
@@ -966,7 +970,10 @@ bool NS_Construtivo3::canInsert(EvRoute &evRoute, int cliente, Instancia &instan
 
 
     if((evRoute.getDemand() + demand) > instance.getEvCap(evRoute.idRota))
+    {
+        vetInviabilidade[Inv_Carga] += 1;
         return false;
+    }
 
 
     copiaVector(evRoute.route, evRouteAux.route, evRoute.routeSize);
@@ -1010,7 +1017,8 @@ bool NS_Construtivo3::canInsert(EvRoute &evRoute, int cliente, Instancia &instan
         if(distanceAux < bestIncremento)
         {
 
-            const double custo = testaRota(evRouteAux, evRouteAux.routeSize, instance, false, tempoSaidaSat, 0, nullptr);
+            const double custo = testaRota(evRouteAux, evRouteAux.routeSize, instance, false, tempoSaidaSat, 0,
+                                           nullptr, &vetInviabilidade);
 
             if(custo > 0.0)
             {
@@ -1020,16 +1028,17 @@ bool NS_Construtivo3::canInsert(EvRoute &evRoute, int cliente, Instancia &instan
                 candidatoEv.penalidade = 0.0;
                 candidatoEv.atualizaPenalidade();
 
-                if(cliente == 86)
+/*                if(cliente == 86)
                 {
                     strRota = "";
                     evRouteAux.print(strRota, instance, false);
-                }
+                }*/
 
                 viavel = true;
 
             }
-            else if(viabilizaRotaEv(evRouteAux, instance, false, insercaoEstacao, (bestIncremento-distanceAux), true, tempoSaidaSat))
+            else if(viabilizaRotaEv(evRouteAux, instance, false, insercaoEstacao, (bestIncremento - distanceAux),
+                                    true, tempoSaidaSat, &vetInviabilidade))
             {
 
                 double insertionCost = insercaoEstacao.distanciaRota - distanciaRota;
@@ -1282,7 +1291,7 @@ bool NS_Construtivo3::insert(EvRoute &evRoute, CandidatoEV &insertion, const Ins
     }
 
     string rotaDebug;
-    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaidaSat, 0, &rotaDebug);
+    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instance, true, tempoSaidaSat, 0, &rotaDebug, nullptr);
     evRoute.demanda += insertion.demand;
     sol.distancia += evRoute.distancia;
 

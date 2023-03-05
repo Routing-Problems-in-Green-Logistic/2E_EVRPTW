@@ -75,7 +75,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     // Solucao para inicializar reativo
     Solucao gul(instance);
 
-    construtivo(gul, instance, 0.0, 0.0, matClienteSat, ListaRestTam, false, false);
+    construtivo(gul, instance, 0.0, 0.0, matClienteSat, ListaRestTam, false, false, nullptr);
     const double gulCusto2Nivel = getDistMaisPenalidade(gul, instance);
     double temp = gul.getDist1Nivel();
     if(!gul.viavel)
@@ -412,7 +412,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                             evRouteAux.routeSize = 4;
 
                             double dist = NS_viabRotaEv::testaRota(evRouteAux, evRouteAux.routeSize, instance, true,
-                                                                   instance.vetTempoSaida[sat], 0, nullptr);
+                                                                   instance.vetTempoSaida[sat], 0, nullptr, nullptr);
                             if(dist > 0.0)
                             {
                                 evRouteAux.distancia = dist;
@@ -502,7 +502,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         float beta = parametros.vetAlfa[posBeta];
 
         solTemp.copia(sol);
-        construtivo(sol, instance, alfa, beta, matClienteSat, ListaRestTam, false, false);
+        construtivo(sol, instance, alfa, beta, matClienteSat, ListaRestTam, false, false, nullptr);
 
         // Remove rotas sat RS RS sat que nao foram utilizadas
         if(segundaEst)
@@ -541,7 +541,8 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                             sol.distancia -= evRoute.distancia;
                             sol.satelites[sat].distancia -= evRoute.distancia;
 
-                            NS_viabRotaEv::testaRota(evRoute, evRoute.routeSize, instance, true, evRoute[0].tempoSaida, 0, nullptr);
+                            NS_viabRotaEv::testaRota(evRoute, evRoute.routeSize, instance, true, evRoute[0].tempoSaida,
+                                                     0, nullptr, nullptr);
 
 
                             sol.distancia += evRoute.distancia;

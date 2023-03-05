@@ -26,12 +26,12 @@ namespace NS_viabRotaEv
     };
 
     bool viabilizaRotaEv(EvRoute &evRoute, Instancia &instance, const bool best,
-                         NS_viabRotaEv::InsercaoEstacao &insercaoEstacao,
-                         double custoInserMax, const bool construtivo,
-                         const double tempoSaidaSat);
+                         NS_viabRotaEv::InsercaoEstacao &insercaoEstacao, double custoInserMax, const bool construtivo,
+                         const double tempoSaidaSat, BoostC::vector<int> *vetInviabilidade);
 
     double testaRota(EvRoute &evRoute, const int tamRoute, const Instancia &instance, const bool escrita,
-                     const double tempoSaidaSat, const int posIni, string *rotaBtDebug);
+                     const double tempoSaidaSat, const int posIni, string *rotaBtDebug,
+                     BoostC::vector<int> *vetInviabilidade);
 
     double testaRotaTempo(EvRoute &evRoute, const int tamRoute,
                           const Instancia &instance, const bool escrita,

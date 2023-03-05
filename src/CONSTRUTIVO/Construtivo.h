@@ -88,15 +88,18 @@ namespace NS_Construtivo
 
     bool construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha,
                                    const ublas::matrix<int> &matClienteSat, bool listaRestTam, const float beta,
-                                   const BoostC::vector<int> &satUtilizados, bool print);
+                                   const BoostC::vector<int> &satUtilizados, bool print,
+                                   BoostC::vector<int> *vetInviabilidate);
     void construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam);
     void construtivo(Solucao &Sol, Instancia &instancia, const float alpha, const float beta,
-                     const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil, bool print);
+                     const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil, bool print,
+                     BoostC::vector<int> *vetInviabilidate);
     bool visitAllClientes(BoostC::vector<int8_t> &visitedClients, const Instancia &instance);
     bool existeDemandaNaoAtendida(BoostC::vector<double> &demandaNaoAtendida);
     bool insereEstacao(int rotaId, int satId);
 
-    bool canInsert(EvRoute &evRoute, int cliente, Instancia &instance, CandidatoEV &candidatoEv, const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux);
+    bool canInsert(EvRoute &evRoute, int cliente, Instancia &instance, CandidatoEV &candidatoEv, const int satelite,
+                   const double tempoSaidaSat, EvRoute &evRouteAux, BoostC::vector<int> *vetInviabilidate);
     bool canInsertSemBateria(EvRoute &evRoute, int node, const Instancia &Instance, CandidatoEV &insertion);
     bool insert(EvRoute &evRoute, CandidatoEV & insertion, const Instancia &instance, const double tempoSaidaSat, Solucao &sol);
     bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instancia &instance, bool modficaSatelite);

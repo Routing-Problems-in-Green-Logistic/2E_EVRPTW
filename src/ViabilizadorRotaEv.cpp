@@ -42,8 +42,10 @@ static int num_G = 0;
  */
 
 
-bool NS_viabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instancia &instance, const bool best, NS_viabRotaEv::InsercaoEstacao &insercaoEstacao, double custoInserMax,
-                                    const bool construtivo, const double tempoSaidaSat)
+bool NS_viabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instancia &instance, const bool best,
+                                    NS_viabRotaEv::InsercaoEstacao &insercaoEstacao, double custoInserMax,
+                                    const bool construtivo, const double tempoSaidaSat,
+                                    BoostC::vector<int> *vetInviabilidade)
 {
 
 
@@ -56,9 +58,9 @@ bool NS_viabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instancia &instance, const
     start = std::chrono::high_resolution_clock::now();
 
 
-    end   = std::chrono::high_resolution_clock::now();
-    duracao = end - start;
-    global_tempo += duracao.count();
+    //end   = std::chrono::high_resolution_clock::now();
+    //duracao = end - start;
+    //global_tempo += duracao.count();
 
 #endif
 
@@ -98,12 +100,23 @@ bool NS_viabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instancia &instance, const
     }
 
     if(!existeEstacao)
+    {
+
+        if(vetInviabilidade)
+            (*vetInviabilidade)[Inv_nao_ev_rs] += 1;
+
         return false;
+    }
 
     // verifica se a rota atende as janelas de tempo
     if(testaRotaTempo(evRouteSta, evRouteSta.routeSize, instance, true, tempoSaidaSat, 0) <= 0.0)
     {
         //cout<<"Rota eh invalida pela janela de tempo\n\n";
+
+
+        if(vetInviabilidade)
+            (*vetInviabilidade)[Inv_tw] += 1;
+
         return false;
     }
 
@@ -199,7 +212,7 @@ bool NS_viabRotaEv::viabilizaRotaEv(EvRoute &evRoute, Instancia &instance, const
 
                         //const double distTemp  = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat, 0, &strRotaBt);
                         const double dist = testaRota(evRouteSta, evRouteSta.routeSize, instance, false, tempoSaidaSat,
-                                                      i, nullptr);
+                                                      i, nullptr, vetInviabilidade);
 
                         string str;
                         evRouteSta.print(str, instance, true);
@@ -376,7 +389,8 @@ double NS_viabRotaEv::testaRotaTempo(EvRoute &evRoute, const int tamRoute, const
  * Se @posIni > 0, entao, considera-se que a rota esta correta ate @posIni
  * *********************************************************************************** */
 double NS_viabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Instancia &instance, const bool escrita,
-                                const double tempoSaidaSat, const int posIni, string *rotaBtDebug)
+                                const double tempoSaidaSat, const int posIni, string *rotaBtDebug,
+                                BoostC::vector<int> *vetInviabilidade)
 {
 
     double bateriaRestante = 0.0;
@@ -447,6 +461,9 @@ double NS_viabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Inst
 
             //evRoute.print(instance, true);
 
+            if(vetInviabilidade)
+                (*vetInviabilidade)[Inv_tw] += 1;
+
             return -1.0;
         }
 
@@ -468,6 +485,10 @@ double NS_viabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Inst
                 (*rotaBtDebug) += "BATERIA!\n" + to_string(bateriaRestante) + "\ncliente: " + to_string(evRoute[i+1].cliente)+"\n\n";
 
             }
+
+
+            if(vetInviabilidade)
+                (*vetInviabilidade)[Inv_bat] += 1;
 
             //cout<<"Inviavel: \n";
             //evRoute.print(instance, true);
