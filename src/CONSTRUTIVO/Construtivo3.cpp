@@ -164,8 +164,6 @@ cout<<"\nNUMERO DE CANDIDATOS: "<<listaCandidatos.size()<<"\n\n";
     while(!visitAllClientes(visitedClients, instance) && !listaCandidatos.empty())
     {
         listaCandidatos.sort();
-        int size = listaCandidatos.size();
-
 
 #if PRINT_DEBUG_CONST
 cout<<"LISTA DE CANDIDATOS: \n";
@@ -185,31 +183,57 @@ for(auto it:listaCandidatos)
 cout<<"\n\n";
 #endif
 
-        if(listaRestTam)
+        auto funcGetIncremento = [&](const int i) -> double
         {
-            size = max(int(alpha * listaCandidatos.size()), 1);
-        }
-        else
-        {
-            double limite = (1.0+alpha)*(listaCandidatos.begin()->incrP);
-            auto candIt = listaCandidatos.begin();
-            int temp = 0;
+            auto it = std::next(listaCandidatos.begin(), i);
+            return it->incremento;
+        };
 
-            while(candIt->incrP <= limite && candIt != listaCandidatos.end())
+        auto funcGetItCand = [&](auto itI, auto itJ, auto itK)
+        {
+            const auto itI_Primeiro = itI;
+            const int clienteJ = itJ->clientId;
+            const int clienteK = itK->clientId;
+
+            if(!(itI->clientId == clienteJ || itI->clientId == clienteK))
+                return itI;
+
+            do
             {
-                //cout<<candIt->clientId<<"\n";
-                ++candIt;
-                temp += 1;
-            }
 
-            size = max(temp, 1);
-        }
+                ++itI;
+                if(itI == listaCandidatos.end())
+                    itI = listaCandidatos.begin();
 
-        int randIndex = rand_u32()%size;
+            }while((itI->clientId == clienteJ || itI->clientId == clienteK) && itI != itI_Primeiro);
 
-        //cout<<"size(lista): "<<listaCandidatos.size()<<"; size*alfa: "<<size<<"; rand: "<<randIndex<<"\n";
+            return itI;
 
-        auto topItem = std::next(listaCandidatos.begin(), randIndex);
+        };
+
+        const int size = max(int(alpha * listaCandidatos.size()), 1);
+
+        const int escolhido0 = rand_u32()%size;
+        const int escolhido1 = rand_u32()%size;
+        const int escolhido2 = rand_u32()%size;
+
+        auto it0 = std::next(listaCandidatos.begin(), escolhido0);
+        auto it1 = std::next(listaCandidatos.begin(), escolhido1);
+        auto it2 = std::next(listaCandidatos.begin(), escolhido2);
+
+        it1 = funcGetItCand(it1, it0, it2);
+        it2 = funcGetItCand(it2, it0, it1);
+
+        auto topItem = it0;
+
+        const double val0 = it0->incremento;
+        const double val1 = it1->incremento;
+        const double val2 = it2->incremento;
+
+        if(val1 < val0 && val1 < val2)
+            topItem = it1;
+        else if(val2 < val0 && val2 < val1)
+            topItem = it2;
 
         if(print)
             cout<<"\tESCOLHIDO: "<<topItem->clientId<<";"<<topItem->incrP<<"\n\n";
@@ -562,30 +586,10 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
 
             listaCandidatos.sort();
 
-            // Escolhe o candidado da lista restrita
-            int size = listaCandidatos.size();
+            // Escolhe 3 candidados da lista restrita para o torneio ternario
+            const int size = max(int(beta * listaCandidatos.size()), 1);
 
-            if(listaRestTam)
-            {
-                size = max(int(beta * listaCandidatos.size()), 1);
-            }
-            else
-            {
-                double limite = (1.0+beta)*listaCandidatos.begin()->incrementoDistancia;
-                auto candIt = listaCandidatos.begin();
-                int temp = 0;
-
-                while(candIt != listaCandidatos.end() && candIt->incrementoDistancia <= limite)
-                {
-                    ++candIt;
-                    temp += 1;
-                }
-
-                size = max(temp, 1);
-            }
-
-            int tam = size;
-            int escolhido = rand_u32() % tam;
+            int escolhido = rand_u32() % size;
             auto it = listaCandidatos.begin();
 
             std::advance(it, escolhido);
@@ -595,7 +599,6 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
             Route &route = sol.primeiroNivel.at(candidato.rotaId);
 
             shiftVectorDir(route.rota, candidato.pos + 1, 1, route.routeSize);
-
             route.rota.at(candidato.pos+1).satellite = candidato.satelliteId;
             route.rota.at(candidato.pos+1).tempoChegada = candidato.tempoSaida;
             route.routeSize += 1;
@@ -809,7 +812,6 @@ void NS_Construtivo3::setSatParaCliente(Instancia &instancia, vector<int> &vetSa
             vetSatAtendCliente[i] = (instancia.vetVetDistClienteSatelite[i])[sat].satelite;
             satUtilizado[vetSatAtendCliente[i]] += 1;
 
-
         }
     }
     else
@@ -873,6 +875,8 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
 
         if(!sol.viavel && instancia.numSats > 2)
         {
+            (*vetInviabilidate)[Inv_1_Nivel_unico] += 1;
+
 //            if(iniSatUtil)
 //cout<<"\t\t1º NIVEL INV\n";
 
@@ -884,7 +888,8 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
             while(!sol.viavel)
             {
 
-                (*vetInviabilidate)[Inv_1_Nivel] += 1;
+                if(vetInviabilidate)
+                    (*vetInviabilidate)[Inv_1_Nivel] += 1;
 
                 //cout<<"CARGAS: ";
                 vetCargaSat = BoostC::vector<double>(1 + instancia.numSats, 0.0);
@@ -951,9 +956,8 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
 
 
 
-bool NS_Construtivo3::canInsert(EvRoute &evRoute, int cliente, Instancia &instance, CandidatoEV &candidatoEv,
-                                const int satelite, const double tempoSaidaSat, EvRoute &evRouteAux,
-                                BoostC::vector<int> &vetInviabilidade)
+bool NS_Construtivo3::canInsert(EvRoute &evRoute, int cliente, Instancia &instance, CandidatoEV &candidatoEv, const int satelite,
+                                const double tempoSaidaSat, EvRoute &evRouteAux, BoostC::vector<int> &vetInviabilidade)
 {
 
     double demand = instance.getDemand(cliente);

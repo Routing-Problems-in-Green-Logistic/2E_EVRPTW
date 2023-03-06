@@ -68,7 +68,7 @@ using namespace std;
 extern const double DOUBLE_INF;
 
 
-#define SIZE_ENUM_INV 5
+#define SIZE_ENUM_INV 6
 
 namespace NS_Auxiliary
 {
@@ -79,7 +79,8 @@ namespace NS_Auxiliary
         Inv_tw,
         Inv_bat,
         Inv_1_Nivel,
-        Inv_nao_ev_rs
+        Inv_nao_ev_rs,
+        Inv_1_Nivel_unico
     };
 
     template<typename T>

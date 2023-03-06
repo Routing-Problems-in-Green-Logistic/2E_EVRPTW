@@ -38,6 +38,7 @@ namespace NameS_IG
                             BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida, NS_parametros::Parametros &parametros);
 
     void printVetDadosIg(BoostC::vector<DadosIg> &vetDadosIg, NS_parametros::Parametros &parametros);
+    void atualizaTempoSaidaInstancia(Solucao &solucao, Instancia &instancia);
 }
 
 #endif //INC_2E_EVRP_IG_H

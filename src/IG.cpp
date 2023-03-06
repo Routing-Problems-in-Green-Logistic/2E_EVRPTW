@@ -24,7 +24,7 @@ using namespace NS_Construtivo2;
 using namespace NS_vnd;
 using namespace NS_VetorHash;
 
-#define PRINT_IG        TRUE
+#define PRINT_IG        FALSE
 #define WRITE_SOL_PRINT FALSE
 
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
@@ -97,7 +97,6 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
 
     };
 
-// NS_parametros::Parametros &parametros
     std::unordered_set<VetorHash, VetorHash::HashFunc> hashSolSetCorrente;    // Solucao Corrente
     int numSolCorrente = 0;
 
@@ -107,8 +106,6 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
 
     // Gera uma sol inicial com grasp
     NS_parametros::ParametrosSaida parametrosSaidaGrasp = parametrosSaida;
-    //ParametrosGrasp parametrosGrasp = parametros;
-    //parametrosGrasp.numIteGrasp = 300;
 
     Solucao *solG = grasp(instancia, parametrosGrasp, estat, true, matClienteSat, vetMvValor, vetMvValor1Nivel, parametrosSaidaGrasp);
 
@@ -143,7 +140,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     const int numEvN_Vazias = temp;
 
     //Parametros
-    const float alfa  = 0.15; //0.8
+    const float alfa  = 0.15; //0.15
     const float beta  = 0.8;
 
     int numEvRm = min(int(0.1*numEvN_Vazias+1), 5);
@@ -152,14 +149,11 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     int numSolG = 1;
     int numFuncDestroi = 0;
     int numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRm)));
-    //const int numChamadasDestroi0 = 1;
 
 #if PRINT_IG
     cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n";
     cout<<"num rotas removidas: "<<numEvRm<<"\n";
 #endif
-
-    //cout<<"NUM EV: "<<numEvRm<<"\n\n";
 
     // Escolhe aleatoriamente numRotas nao vazias e as removem da solucao
     auto funcDestroi0 = [&](Solucao &sol, const int numRotas)
@@ -210,18 +204,8 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
                     // Remove carga do ev do sat e da sol
                     sat.demanda -= evRoute.demanda;
                     int temp = evRoute.idRota;
-
-                    //string strRota;
-                    //evRoute.print(strRota, instancia, true);
-                    //cout<<"ROTA ANTES: "<<strRota<<"\n";
-
                     sat.vetEvRoute[ev] = EvRoute(satId, evRoute.idRota, evRoute.routeSizeMax, instancia);
                     sat.vetEvRoute[ev].idRota = temp;
-
-                    //strRota = "";
-                    //evRoute.print(strRota, instancia, true);
-                    //cout<<"ROTA DEPOIS: "<<strRota<<"\n\n";
-
                     sol.numEv -= 1;
                     sol.rotaEvAtualizada(satId, ev);
                     break;
@@ -280,48 +264,6 @@ if(i%200 == 0)
     cout<<"ITERACAO: "<<i<<"\n";
 #endif
 
-        /*
-        if((i-ultimaA) == numItSemMelhoraResetSolC)
-        {
-            solG = nullptr;
-            while(solG == nullptr)
-            {
-                solG = grasp(instancia, parametrosGrasp, estat, true, matClienteSat, vetMvValor, vetMvValor1Nivel, parametrosSaidaGrasp);
-            }
-
-            if(!solG->viavel)
-            {
-                cout<<"SOL INVIAVEL!\n";
-                throw "ERRO";
-            }
-
-            rvnd(*solG, instancia, beta, vetMvValor, vetMvValor1Nivel);
-
-
-            solC = Solucao(instancia);
-            solC.copia(*solG);
-            ultimaA = i;
-            numFuncDestroi = 0;
-            delete solG;
-        }
-        else if
-        */
-
-        /*
-        if(i == 501)
-        {
-            cout<<"NUM SOL GERADAS: "<<numSolG<<"\n";
-            cout<<"numSolG/i: "<<(float)numSolG/i<<"\n";
-            float fator = (float)numSolG/i;
-            if(fator < 0.55)
-            {
-                numEvRm = max(1, numEvRm/2);
-                cout<<"Reduiz o num de rotas destruidas para: "<<numEvRm<<"\n";
-                numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRm)));
-            }
-        }
-        */
-
 #if WRITE_SOL_PRINT
 
         if(i == 500 || i == 1000 || i == 1500 || i == 2000 || i == 2499)
@@ -347,10 +289,10 @@ if(i%200 == 0)
         dadosIg.it = i;
         dadosIg.solCorrente = solC.distancia;
 
-//cout<<"SOL "<<i<<": "<<solC.distancia<<"\n";
-
         Solucao solC_copia(instancia);
         solC_copia.copia(solC);
+
+        NameS_IG::atualizaTempoSaidaInstancia(solC, instancia);
 
         if(numFuncDestroi < numChamadasDestroi0)
         {
@@ -365,15 +307,11 @@ if(i%200 == 0)
             numFuncDestroi = 0;
         }
 
-//cout<<"***********************************\n\n";
 
-        //solC.todasRotasEvAtualizadas();
-        NS_Construtivo::construtivo(solC, instancia, alfa, beta, matClienteSat, true,
+        NS_Construtivo3::construtivo(solC, instancia, alfa, beta, matClienteSat, true,
                                      false, false, &vetInviabilidate);
         //construtivo2(solC, instancia, alfa, beta, matClienteSat, true, true);
 
-        //cout<<"FUNCIONOU!!\n";
-        //exit(-1);
 
         if(!solC.viavel)
         {
@@ -382,7 +320,6 @@ if(i%200 == 0)
 
             solC = Solucao(instancia);
             solC.copia(solC_copia);
-//cout<<"\tSOL INVIAVEL\n";
 
         }
         else
@@ -423,8 +360,6 @@ if(i%200 == 0)
 
             hashSolSetVnd.insert(VetorHash(solC, instancia));
             dadosIg.solVnd   = solC.distancia;
-
-//cout<<"\tSOL VIAVEL "<<i<<": "<<solC.distancia<<"\n";
         }
 
 
@@ -460,9 +395,6 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
     double fatorSolConst = (double(hashSolSetConst.size())/numSolConstVia) * 100;
     double fatorSolVnd = (double(hashSolSetVnd.size())/numSolConstVia) * 100;
 
-//cout<<"Sol Corrente: "<<fatorSolCorr<<"\n";
-//cout<<"Sol Construtivo: "<<fatorSolConst<<"\n";
-//cout<<"Sol VND: "<<fatorSolVnd<<"\n\n";
 
     auto funcAddParaSaidaDouble = [&](string &&strParm, double val)
     {
@@ -490,17 +422,17 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
     funcAddParaSaidaInt("invTw", vetInviabilidate[NS_Auxiliary::Inv_tw]);
     funcAddParaSaidaInt("invBat", vetInviabilidate[NS_Auxiliary::Inv_bat]);
     funcAddParaSaidaInt("inv1Nivel", vetInviabilidate[NS_Auxiliary::Inv_1_Nivel]);
+    funcAddParaSaidaInt("inv1NivelUnico", vetInviabilidate[NS_Auxiliary::Inv_1_Nivel_unico]);
     funcAddParaSaidaInt("invNaoRs", vetInviabilidate[NS_Auxiliary::Inv_nao_ev_rs]);
 
 
 #if PRINT_IG
-
     cout<<"INVIABILIDADE CARGA: \t"<<vetInviabilidate[NS_Auxiliary::Inv_Carga]<<"\n";
     cout<<"INVIABILIDADE JANELA: \t"<<vetInviabilidate[NS_Auxiliary::Inv_tw]<<"\n";
     cout<<"INVIABILIDADE BAT: \t"<<vetInviabilidate[NS_Auxiliary::Inv_bat]<<"\n";
     cout<<"INVIABILIDADE 1º NIVEL: \t"<<vetInviabilidate[NS_Auxiliary::Inv_1_Nivel]<<"\n";
+    cout<<"INVIABILIDADE 1º NIVEL UNICO: \t"<<vetInviabilidate[NS_Auxiliary::Inv_1_Nivel_unico]<<"\n";
     cout<<"INVIABILIDADE NAO EXISTE RS: \t"<<vetInviabilidate[NS_Auxiliary::Inv_nao_ev_rs]<<"\n";
-
 #endif
 
     string erro;
@@ -597,6 +529,17 @@ void NameS_IG::printVetDadosIg(BoostC::vector<DadosIg> &vetDadosIg, NS_parametro
     else
     {
         cout<<"NAO FOI POSSIVEL ABRIR O ARQUIVO: "<<strSaida<<"\n";
+    }
+
+}
+
+void NameS_IG::atualizaTempoSaidaInstancia(Solucao &solucao, Instancia &instancia)
+{
+
+    BoostC::vector<double> &vetTempoSaida = instancia.vetTempoSaida;
+    for(int sat=1; sat <= instancia.numSats; ++sat)
+    {
+        vetTempoSaida[sat] = max(solucao.satTempoChegMax[sat], vetTempoSaida[sat]);
     }
 
 }
