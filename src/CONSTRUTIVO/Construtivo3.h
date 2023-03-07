@@ -105,6 +105,14 @@ namespace NS_Construtivo3
 
     };
 
+    class CoordCandMat
+    {
+    public:
+
+        int sat     = -1;
+        int ev      = -1;
+        int cliente = -1;
+    };
 
     bool construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha,
                                    const ublas::matrix<int> &matClienteSat, bool listaRestTam, const float beta,

@@ -22,6 +22,7 @@ using namespace boost::numeric;
 
 #define PRINT_DEBUG_CONST FALSE
 
+typedef std::list<CandidatoEV>::iterator ItListCand;
 
 // Roteamento dos veiculos eletricos
 bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha,
@@ -47,8 +48,8 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
     std::list<CandidatoEV> listaCandidatos;
     std::list<int> clientesSemCandidato;
 
-    static bool primeiraChamada = true;
-    BoostC::vector<CandidatoEV*> vetCandPtr(instance.getNClients(), nullptr);
+    // POSSUI SOMENTE O NUMERO DE CLIENTES! UTILIZAR transformaIdCliente
+    BoostC::vector<std::list<ItListCand>> vetCliItListCand(instance.getNClients(), std::list<ItListCand>());
 
     const int numLinhasMat      = instance.getN_Evs();
     const int numColMat         = instance.getNClients();
@@ -58,7 +59,10 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
     auto transformaIdEv       = [&](const int id){return (id-idPrimeiroEv);};
 
 
-    const int fistSat = instance.getFirstSatIndex();
+    //COLUNAS DA MATRIZ POSSUEM SOMENTE A QUANTIDADE DE CLIENTES!!  UTILIZAR transformaIdCliente
+    static BoostC::vector<ublas::matrix<CandidatoEV*>> matCandidato(1 + instance.getNSats());
+    std::fill(matCandidato.begin(), matCandidato.end(), ublas::zero_matrix<CandidatoEV*>(numLinhasMat, numColMat));
+
 //    int satId = sat;
 
     auto criaListaCandidatosP_Cliente = [&](const int cliente, const bool numEvMax) -> std::list<CandidatoEV>
