@@ -67,6 +67,7 @@ using namespace std;
 
 extern const double DOUBLE_INF;
 
+typedef int8_t Int8;
 
 #define SIZE_ENUM_INV 6
 

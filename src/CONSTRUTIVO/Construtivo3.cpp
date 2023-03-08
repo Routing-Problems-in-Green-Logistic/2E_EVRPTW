@@ -48,9 +48,6 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
     std::list<CandidatoEV> listaCandidatos;
     std::list<int> clientesSemCandidato;
 
-    // POSSUI SOMENTE O NUMERO DE CLIENTES! UTILIZAR transformaIdCliente
-    BoostC::vector<std::list<ItListCand>> vetCliItListCand(instance.getNClients(), std::list<ItListCand>());
-
     const int numLinhasMat      = instance.getN_Evs();
     const int numColMat         = instance.getNClients();
     const int idPrimeiroCliente = instance.getFirstClientIndex();
@@ -59,11 +56,12 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
     auto transformaIdEv       = [&](const int id){return (id-idPrimeiroEv);};
 
 
-    //COLUNAS DA MATRIZ POSSUEM SOMENTE A QUANTIDADE DE CLIENTES!!  UTILIZAR transformaIdCliente
-    static BoostC::vector<ublas::matrix<CandidatoEV*>> matCandidato(1 + instance.getNSats());
-    std::fill(matCandidato.begin(), matCandidato.end(), ublas::zero_matrix<CandidatoEV*>(numLinhasMat, numColMat));
+    // POSSUI SOMENTE O NUMERO DE CLIENTES! UTILIZAR transformaIdCliente
+    //BoostC::vector<std::list<ItListCand>> vetCliItListCand(instance.getNClients(), std::list<ItListCand>());
 
-//    int satId = sat;
+    //COLUNAS DA MATRIZ POSSUEM SOMENTE A QUANTIDADE DE CLIENTES!!  UTILIZAR transformaIdCliente
+    static BoostC::vector<ublas::matrix<ItListCand>> matCandidato(1 + instance.getNSats());
+    std::fill(matCandidato.begin(), matCandidato.end(), ublas::matrix<ItListCand>(numLinhasMat, numColMat, listaCandidatos.end()));
 
     auto criaListaCandidatosP_Cliente = [&](const int cliente, const bool numEvMax) -> std::list<CandidatoEV>
     {
@@ -105,7 +103,6 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
                 if(candidatoEvAux.pos != -1)
                 {
 
-
 #if PRINT_DEBUG_CONST
 if(cliente == 94 &&satId == 1 && route.idRota == 3)
 {
@@ -114,14 +111,16 @@ if(cliente == 94 &&satId == 1 && route.idRota == 3)
     cout << "cliente="<<cliente<<"; sat="<<satId<<"; idRota="<<route.idRota<<": POS: " << candidatoEvAux.pos <<"; rota: "<<strRota<<"\n";
 }
 #endif
+                    listaCandCliente.push_front(candidatoEvAux);
+                    auto it = listaCandCliente.begin();
+                    //vetCliItListCand[transformaIdCliente(cliente)].push_front(it);
+                    matCandidato[satId](routeId, transformaIdCliente(cliente)) = it;
 
-                    listaCandCliente.push_back(candidatoEvAux);
                 }
             }
         }
 
         return listaCandCliente;
-
     };
 
     // Cria um candidato para cada cliente e armazena em matCandidato
@@ -164,6 +163,8 @@ cout<<"CLIENTE("<<clientId<<") ROTA ESCOLHIDA: "<<strRota<<"; pos: "<<candPtr->p
 #if PRINT_DEBUG_CONST
 cout<<"\nNUMERO DE CANDIDATOS: "<<listaCandidatos.size()<<"\n\n";
 #endif
+
+    bool numEvMaxAcionado = false;
 
     while(!visitAllClientes(visitedClients, instance) && !listaCandidatos.empty())
     {
@@ -243,11 +244,21 @@ cout<<"\n\n";
             cout<<"\tESCOLHIDO: "<<topItem->clientId<<";"<<topItem->incrP<<"\n\n";
 
         CandidatoEV *candEvPtr = &(*topItem);
+
+        if(visitedClients[topItem->clientId] == Int8(1))
+        {
+            PRINT_DEBUG("", "");
+            cout<<"ERRO, CLIENTE: "<<topItem->clientId<<" JA ESTA NA SOLUCAO\n";
+            throw "ERRO";
+        }
+
         visitedClients[topItem->clientId] = int8_t(1);
         sol.vetClientesAtend[topItem->clientId] = int8_t(1);
         Satelite *satelite = sol.getSatelite(topItem->satId);
         satelite->demanda += topItem->demand;
         EvRoute &evRoute = satelite->getRoute(topItem->routeId);
+
+        const bool evRouteCandVazio = (evRoute.routeSize <= 2);
 
 /*        // Atualiza o numero de EVs
         if(evRoute.routeSize <= 2)
@@ -268,13 +279,45 @@ cout<<"\tROTA: "<<strRota<<"\n\n";
 #endif
 
         bool resultadoTopItem = insert(evRoute, *topItem, instance, vetTempoSaida[topItem->satId], sol);
-
         sol.rotaEvAtualizada(topItem->satId, topItem->routeId);
 
         if(!resultadoTopItem)
         {
             PRINT_DEBUG("", "ERRO, INSERT RETORNOU FALSE!!!\n\n");
             throw "ERRO";
+        }
+
+
+        const bool numEvMax = sol.numEv >= sol.numEvMax;
+//cout<<"NUM EV MAX: "<<numEvMax<<"\n";
+
+        // Remove candidatos com ev vazio
+        if(numEvMax && !numEvMaxAcionado)
+        {
+            numEvMaxAcionado = true;
+            for(ItListCand it = listaCandidatos.begin(); it != listaCandidatos.end(); )
+            {
+                bool incIt = true;
+                if(it->clientId != topItem->clientId)
+                {
+//cout<<"satId: "<<it->satId<<"\n";
+//cout<<"clienteId: "<<it->clientId<<"\n\n";
+
+                    Satelite &sateliteTemp = sol.satelites[it->satId];
+                    EvRoute &evRouteTemp   = sateliteTemp.vetEvRoute[it->routeId];
+
+                    if(evRouteTemp.routeSize <= 2)
+                    {
+                        matCandidato[it->satId](it->routeId, transformaIdCliente(it->clientId)) = listaCandidatos.end();
+                        it = listaCandidatos.erase(it);
+                        incIt = false;
+                        //cout<<"ERASE CANDIDATO COM EV VAZIO!\n";
+                    }
+                }
+
+                if(incIt)
+                    ++it;
+            }
         }
 
         // Corrigi a lista de candidatos
@@ -376,9 +419,14 @@ cout<<"\tCLIENTE("<<clientId<<") ESTA SENDO REAVALIADO\n";
         }
         */
 
+        /*
         listaCandidatos = std::list<CandidatoEV>();
-        //cout<<"TAM LISTA DE CANDIDATOS: "<<listaCandidatos.size()<<"\n";
+        std::fill(matCandidato.begin(), matCandidato.end(), ublas::zero_matrix<CandidatoEV*>(numLinhasMat, numColMat));
+        std::fill(vetCliItListCand.begin(), vetCliItListCand.end(), std::list<ItListCand>());
+        */
 
+
+        /*
         for(int clientId=instance.getFirstClientIndex(); clientId <= instance.getEndClientIndex(); ++clientId)
         {
             if(visitedClients[clientId] == int8_t(0))
@@ -400,8 +448,77 @@ cout<<"CLIENTE("<<clientId<<") ROTA ESCOLHIDA: "<<strRota<<"; pos: "<<candPtr->p
                     clientesSemCandidato.push_back(clientId);
             }
         }
+        */
 
-        //bool clientesAntendidos = visitAllClientes(visitedClients, instance);
+        const bool clientesAntendidos = visitAllClientes(visitedClients, instance);
+
+        if(!clientesAntendidos)
+        {
+            const int evIdCand  = candEvPtr->routeId;
+            const int satIdCand = candEvPtr->satId;
+            const int cliIdCand = candEvPtr->clientId;
+
+            for(int i=instance.getFirstClientIndex(); i <= instance.getEndClientIndex(); ++i)
+            {
+
+                if(visitedClients[i] == int8_t(1) || i == cliIdCand)
+                    continue;
+
+                ItListCand candItAux = matCandidato[satIdCand](evIdCand, transformaIdCliente(i));
+                if(candItAux == listaCandidatos.end())
+                    continue;
+
+                // Gera a melhor insersao para i na nova rota
+                EvRoute &evRouteCand = sol.satelites[satIdCand].vetEvRoute[evIdCand];
+                (*candItAux) = CandidatoEV(evIdCand);
+
+                canInsert(evRouteCand, i, instance, *candItAux, satIdCand,
+                          vetTempoSaida[satIdCand], evRouteAux, vetInviabilidade);
+
+                if(candItAux->pos != -1)
+                    candItAux->routeId = evIdCand;
+                else
+                {
+                    //vetCliItListCand[transformaIdCliente(i)].remove(candItAux);
+                    listaCandidatos.erase(candItAux);
+                    matCandidato[satIdCand](evIdCand, transformaIdCliente(i)) = listaCandidatos.end();
+                }
+
+                // Caso a rota antiga era vazia, um novo candidato em uma rota vazia eh criado
+                if(evRouteCandVazio && !numEvMax)
+                {
+
+                    // Encontra uma rota vazia
+                    int idRotaVazia = -1;
+                    for(int ev=0; ev < instance.numEv; ++ev)
+                    {
+                        EvRoute &evRoute1 = sat->vetEvRoute[ev];
+                        if(evRoute1.routeSize <= 2)
+                        {
+                            idRotaVazia = ev;
+                            break;
+                        }
+                    }
+
+                    if(idRotaVazia == -1)
+                        continue;
+
+                    EvRoute &evRouteVazia = sat->vetEvRoute[idRotaVazia];
+                    CandidatoEV candidatoEv(idRotaVazia);
+                    canInsert(evRouteVazia, i, instance, candidatoEv, satIdCand,
+                              vetTempoSaida[satIdCand], evRouteAux, vetInviabilidade);
+
+                    if(candidatoEv.pos != -1)
+                    {
+                        candidatoEv.routeId = idRotaVazia;
+                        listaCandidatos.push_front(candidatoEv);
+                        ItListCand it = listaCandidatos.begin();
+                        matCandidato[satIdCand](idRotaVazia, transformaIdCliente(i)) = it;
+                        //vetCliItListCand[transformaIdCliente(i)].push_front(it);
+                    }
+                }
+            }
+        }
 
         /*
         if(!clientesAntendidos)
@@ -442,10 +559,36 @@ cout<<"CLIENTE("<<*itCliente<<") SEM CANDIDADO, REAVALIADO: \n";
         }
 
         */
+        const int cliente = topItem->clientId;
 
-        // Remove candidato escolhido
-        //vetCandPtr[transformaIdCliente(topItem->clientId)] = nullptr;
-        //listaCandidatos.erase(topItem);
+        {
+            ItListCand it0 = listaCandidatos.begin();
+            ItListCand it1 = it0;
+            ++it1;
+
+            if(it1 != listaCandidatos.end())
+            {
+                while(it0 != listaCandidatos.end())
+                {
+                    if(it0->clientId == cliente)
+                    {
+                        it0 = listaCandidatos.erase(it0);
+                        ++it1;
+                    }
+                    else
+                    {
+                        ++it0;
+                        ++it1;
+                    }
+                }
+            }
+            else
+            {
+                if(it0->clientId == cliente)
+                    listaCandidatos.erase(it0);
+            }
+        }
+        //vetCliItListCand[transformaIdCliente(cliente)] = std::list<ItListCand>();
 
         if(listaCandidatos.empty())
         {
