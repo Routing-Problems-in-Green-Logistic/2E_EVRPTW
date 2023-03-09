@@ -143,16 +143,28 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     const float alfa  = 0.15; //0.15
     const float beta  = 0.8;
 
-    int numEvRm = min(int(0.1*numEvN_Vazias+1), 5);
+    const int numEvRmMin                = min(int(0.1*numEvN_Vazias+1), 5);
+    int numEvRmCorrente                 = numEvRmMin;
+    const int numEvRmMax                = min(int(0.4*numEvN_Vazias+1), numEvN_Vazias);
+    const int numEvInc                  = 1;
+    const int numItSemMelhoraIncNumEvRm = 80;
+
     const int numItSemMelhoraResetSolC = 20;
     int ultimaA = 0;
+    int ultimaABest = 0;
     int numSolG = 1;
     int numFuncDestroi = 0;
-    int numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRm)));
+    int numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)));
+
+    auto funcAtualNumChamDest0 = [&](){numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)));};
+
 
 #if PRINT_IG
     cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n";
-    cout<<"num rotas removidas: "<<numEvRm<<"\n";
+    cout<<"num rotas removidas min: "<<numEvRmMin<<"\n";
+    cout<<"num rotas removidas max: "<<numEvRmMax<<"\n";
+    cout<<"num rotas nao vazias: "<<numEvN_Vazias<<"\n";
+    cout<<"num rotas incremento: "<<numEvInc<<"\n\n";
 #endif
 
     // Escolhe aleatoriamente numRotas nao vazias e as removem da solucao
@@ -261,7 +273,11 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
 #if PRINT_IG
 if(i%200 == 0)
-    cout<<"ITERACAO: "<<i<<"\n";
+{
+    cout << "ITERACAO: " << i << "\n";
+    cout<<"num rotas removidas corrente: "<<numEvRmCorrente<<"\n";
+    cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n\n";
+}
 #endif
 
 #if WRITE_SOL_PRINT
@@ -296,13 +312,13 @@ if(i%200 == 0)
 
         if(numFuncDestroi < numChamadasDestroi0)
         {
-            funcDestroi0(solC, numEvRm);
+            funcDestroi0(solC, numEvRmCorrente);
             numFuncDestroi += 1;
         }
         else if(numFuncDestroi == numChamadasDestroi0)
         {
             if(!funcDestroi1(solC))
-                funcDestroi0(solC, numEvRm);
+                funcDestroi0(solC, numEvRmCorrente);
 
             numFuncDestroi = 0;
         }
@@ -380,6 +396,9 @@ if(i%200 == 0)
             numFuncDestroi = 0;
             ultimaA = i;
 
+            ultimaABest = i;
+            numEvRmCorrente = numEvRmMin;
+            funcAtualNumChamDest0();
 #if PRINT_IG
 cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 #endif
@@ -388,6 +407,17 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 
         dadosIg.solBest = solBest.distancia;
         vetDadosIg.push_back(dadosIg);
+
+        const int temp = i-ultimaABest;
+        if((temp % numItSemMelhoraIncNumEvRm == 0) && temp != 0)
+        {
+            numEvRmCorrente += numEvInc;
+            if(numEvRmCorrente > numEvRmMax)
+                numEvRmCorrente = numEvRmMin;
+
+            funcAtualNumChamDest0();
+            ultimaABest = i;
+        }
 
     } // END for ig
 
