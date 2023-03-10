@@ -180,7 +180,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
             bool escolheRota = false;
 
             // Percorre os sat
-            const int satIdPrim = rand_u32() % instancia.numSats;
+            const int satIdPrim = 1 + (rand_u32() % instancia.numSats);
             int satId = satIdPrim;
 
             do
@@ -188,7 +188,10 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
                 if(satId == 0)
                 {
                     satId = 1;
-                    continue;
+                    if(satIdPrim == satId)
+                        break;
+                    else
+                        continue;
                 }
 
                 Satelite &sat = sol.satelites[satId];
@@ -238,7 +241,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
                 if(escolheRota)
                     break;
 
-                satId = (satId+1) % instancia.numSats;
+                satId = (satId+1) % (instancia.numSats+1);
             }while(satId != satIdPrim);
         }
 
