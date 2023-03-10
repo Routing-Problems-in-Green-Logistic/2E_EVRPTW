@@ -97,9 +97,15 @@ namespace NS_Auxiliary
     void shiftVectorDir(BoostC::vector<T> &vector, const int pos, const int quant, const int sizeVector)
     {
 
+        if(((sizeVector-1)+quant) >= vector.size())
+        {
+            PRINT_DEBUG("", "");
+            throw "ERRO";
+        }
+
         for(int i=sizeVector-1; i >= pos; --i)
         {
-            vector[i + quant] = vector[i];
+            vector[i+quant] = vector[i];
         }
 
     }

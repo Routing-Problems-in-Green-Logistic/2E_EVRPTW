@@ -625,11 +625,22 @@ bool NS_Construtivo3::visitAllClientes(BoostC::vector<int8_t> &visitedClients, c
 
 void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam)
 {
+    sol.reseta1Nivel(instance);
+    //cout<<"*******************************INICIO CONSTRUTIVO3 1º NIVEL*******************************\n\n";
     // Cria o vetor com a demanda de cada satellite
     BoostC::vector<double> demandaNaoAtendidaSat;
     demandaNaoAtendidaSat.reserve(sol.getNSatelites()+1);
     int satId = 1;
     demandaNaoAtendidaSat.push_back(0.0);
+
+
+/*    {
+
+        Route &route = sol.primeiroNivel[0];
+        string strRota;
+        std::cout<<"ROUTE 0: ";
+        route.print(strRota);
+    }*/
 
     for(int sat=instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
     {
@@ -649,7 +660,11 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
         for(int i=1; i < NumSatMaisDep; ++i)
         {
             Satelite &satelite = sol.satelites.at(i);
+/*            if(i==1)
+            {
 
+                std::cout<<"1º: DEM NAO ATEND(1): "<<demandaNaoAtendidaSat[1]<<"\n\n";
+            }*/
             // Verifica se a demanda não atendida eh positiva
             if(demandaNaoAtendidaSat.at(i) > 0.0)
             {
@@ -744,6 +759,14 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
 
             // Insere candidato na solucao
             Route &route = sol.primeiroNivel.at(candidato.rotaId);
+            // AQUI
+
+/*            string strRota;
+            route.print(strRota);
+            std::cout<<"ROTA ID: "<<candidato.rotaId<<"\n";
+            std::cout<<strRota<<"\n";
+            std::cout<<"DEM SAT(1): "<<sol.satelites[1].demanda<<"\n";
+            std::cout<<"DEM NAO ATEND(1): "<<demandaNaoAtendidaSat[1]<<"\n\n";*/
 
             shiftVectorDir(route.rota, candidato.pos + 1, 1, route.routeSize);
             route.rota.at(candidato.pos+1).satellite = candidato.satelliteId;
@@ -792,6 +815,9 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
 
     if(sol.viavel)
         sol.atualizaVetSatTempoChegMax(instance);
+
+
+    //cout<<"*******************************FIM CONSTRUTIVO3 1º NIVEL*******************************\n\n";
 
 }
 
@@ -1067,7 +1093,6 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
 
                 satUtilizados[satMin] = 0;
                 sol.resetaSat(satMin, instancia, clientesSat);
-                sol.reseta1Nivel(instancia);
 
                 //sol = Solucao(instancia);
                 numSatZero += 1;
@@ -1076,6 +1101,7 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
                                                          satUtilizados, false, *vetInviabilidate);
                 if(segundoNivel)
                 {
+                    //std::cout<<"1 NIVEL INVIAVEL!!!\n\n";
                     construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam);
                 }
                 else

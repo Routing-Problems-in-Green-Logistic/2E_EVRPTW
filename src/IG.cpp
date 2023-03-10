@@ -140,8 +140,12 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     const int numEvN_Vazias = temp;
 
     //Parametros
-    const float alfa  = 0.15; //0.15
-    const float beta  = 0.8;
+    //const float alfa  = 0.8; //0.15
+    //const float beta  = 0.8;
+
+
+    const float alfa  = 0.8; //0.15      // Primeiro Nivel
+    const float beta  = 0.8;             // Segundo  Nivel
 
     const int numEvRmMin                = min(int(0.1*numEvN_Vazias+1), 5);
     int numEvRmCorrente                 = numEvRmMin;
@@ -150,6 +154,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     const int numItSemMelhoraIncNumEvRm = 80;
 
     const int numItSemMelhoraResetSolC = 20;
+
     int ultimaA = 0;
     int ultimaABest = 0;
     int numSolG = 1;
@@ -180,6 +185,12 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
             do
             {
+                if(satId == 0)
+                {
+                    satId = 1;
+                    continue;
+                }
+
                 Satelite &sat = sol.satelites[satId];
 
                 // Percorre os EVs
@@ -233,6 +244,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
         sol.reseta1Nivel(instancia);
         sol.resetaIndiceEv(instancia);
+        //cout<<"********************\n\n";
 
     };
 
@@ -408,6 +420,7 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
         dadosIg.solBest = solBest.distancia;
         vetDadosIg.push_back(dadosIg);
 
+        /*
         const int temp = i-ultimaABest;
         if((temp % numItSemMelhoraIncNumEvRm == 0) && temp != 0)
         {
@@ -418,6 +431,7 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
             funcAtualNumChamDest0();
             ultimaABest = i;
         }
+        */
 
     } // END for ig
 

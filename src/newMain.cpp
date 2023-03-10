@@ -47,7 +47,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    string commite = "87fa99bb3fda863d4e7fa0bcee0cd672d4398eb9";
+    string commite = "d0bf1121e16b0a1c40c7a5720a446f679f020cff";
     parametros.commit = commite;
 
     try
@@ -65,7 +65,6 @@ int main(int argc, char* argv[])
 
         caregaParametros(parametros, argc-1, &argv[1]);
         Instancia instancia(parametros.instancia, parametros.nomeInstancia);
-
 
         dijkstraSatCli(instancia);
         instancia.calculaVetVoltaRS_sat();

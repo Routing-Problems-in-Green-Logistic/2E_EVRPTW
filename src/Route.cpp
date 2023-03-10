@@ -124,5 +124,4 @@ void Route::resetaRoute()
     totalDistence = 0.0;
     totalDemand = 0.0;
     std::fill(satelliteDemand.begin(), satelliteDemand.end(), 0.0);
-
 }
