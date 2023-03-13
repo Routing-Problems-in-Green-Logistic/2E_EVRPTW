@@ -24,7 +24,7 @@ using namespace NS_Construtivo2;
 using namespace NS_vnd;
 using namespace NS_VetorHash;
 
-#define PRINT_IG        FALSE
+#define PRINT_IG        TRUE
 #define WRITE_SOL_PRINT FALSE
 
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
@@ -145,13 +145,15 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
 
     const float alfa  = 0.15; //0.15      // Primeiro Nivel
-    const float beta  = 0.8;             // Segundo  Nivel
+    const float beta  = 0.8;  //0.8       // Segundo  Nivel
 
     const int numEvRmMin                = min(int(0.1*numEvN_Vazias+1), 5);
     int numEvRmCorrente                 = numEvRmMin;
     const int numEvRmMax                = min(int(0.4*numEvN_Vazias+1), numEvN_Vazias);
     const int numEvInc                  = 1;
     const int numItSemMelhoraIncNumEvRm = 80;
+
+    const int numClientesRm              = max(int(NS_Auxiliary::upperVal(0.4*instancia.numClients)), 1);
 
     const int numItSemMelhoraResetSolC = 20;
 
@@ -163,14 +165,22 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
     auto funcAtualNumChamDest0 = [&](){numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)));};
 
+    // Estrategia 0: removeEv, Estrategia 1: remove cliente
+    const Int8 estrategia = (instancia.numEv > 5) ? Int8(0):Int8(1);
 
 #if PRINT_IG
     cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n";
     cout<<"num rotas removidas min: "<<numEvRmMin<<"\n";
     cout<<"num rotas removidas max: "<<numEvRmMax<<"\n";
     cout<<"num rotas nao vazias: "<<numEvN_Vazias<<"\n";
-    cout<<"num rotas incremento: "<<numEvInc<<"\n\n";
+    cout<<"num rotas incremento: "<<numEvInc<<"\n";
+    cout<<"num clientes removidos: "<<numClientesRm<<"\n";
+    cout<<"Estrategia: "<<int(estrategia)<<"\n\n";
 #endif
+
+
+    // Quarda o numero de inviabilidades
+    BoostC::vector<int> vetInviabilidate(SIZE_ENUM_INV, 0);
 
     // Escolhe aleatoriamente numRotas nao vazias e as removem da solucao
     auto funcDestroi0 = [&](Solucao &sol, const int numRotas)
@@ -275,11 +285,168 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
         return true;
     };
 
+    // Remove numClientes clientes da solução
+    auto funcDestroi2 = [&](Solucao &sol, const int numClientes)
+    {
+
+/*
+std::cout<<"FUNCAO funcDestroi2\n\n";
+
+string solStr;
+sol.print(solStr, instancia);
+std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
+*/
+
+        std::list<RotaInfo> listRotaInfo;
+
+        int rmClientes = 0;
+        while(rmClientes != numClientes)
+        {
+            const int numClieIt = rmClientes;
+
+            // Percorre os sat
+            int sat = 1 + (rand_u32()%instancia.numSats);
+            const int satIni = sat;
+            do
+            {
+                Satelite &satelite = sol.satelites[sat];
+
+                // Percorre as rotas
+                int ev = rand_u32()%instancia.numEv;
+                const int evIni = ev;
+                do
+                {
+                    EvRoute &evRoute = satelite.vetEvRoute[ev];
+                    if(evRoute.routeSize <= 2)
+                    {
+                        ev = (ev+1)%instancia.numEv;
+                        continue;
+                    }
+
+                    // Verifica se existe mais de um cliente na rota
+                    int numClientesEv = 0;
+                    for(int i=1; i < (evRoute.routeSize-1); ++i)
+                    {
+                        if(instancia.isClient(evRoute[i].cliente))
+                            numClientesEv += 1;
+                    }
+
+                    if(numClientesEv <= 1)
+                    {
+                        ev = (ev+1)%instancia.numEv;
+                        continue;
+                    }
+
+                    // Encontra pos para retirar o cliente
+                    int pos = rand_u32()%evRoute.routeSize;
+                    const int posIni = pos;
+
+                    while(!instancia.isClient(evRoute[pos].cliente))
+                    {
+                        pos = (pos+1)%evRoute.routeSize;
+                        if(pos == posIni)
+                        {
+                            PRINT_DEBUG("", "");
+                            cout<<"ERRO, Percorreu todo ev e nao encontrou um cliente!!\nROTA: ";
+                            string strRota;
+                            evRoute.print(strRota, instancia, true);
+                            cout<<strRota<<"\n\n";
+                            throw "ERRO";
+                        }
+                    }
+
+                    const int clienteRm = evRoute[pos].cliente;
+                    const double demClienteRm = instancia.getDemand(clienteRm);
+                    sol.vetClientesAtend[clienteRm] = Int8(0);
+
+                    NS_Auxiliary::shiftVectorClienteEsq(evRoute.route, pos, evRoute.routeSize);
+                    evRoute.routeSize -= 1;
+                    evRoute.demanda -= demClienteRm;
+                    satelite.demanda -= demClienteRm;
+
+                    listRotaInfo.emplace_back(sat, ev);
+                    rmClientes += 1;
+
+                    break;
+
+                }while(ev != evIni);
+
+                if(numClieIt != rmClientes)
+                    break;
+
+                sat = 1 + ((sat+1)%instancia.numSats);
+
+            }
+            while(sat != satIni);
+
+            // Verifica se a iteracao atual removeu um cliente
+            if(numClieIt == rmClientes)
+                break;
+        }
+
+        // Corrigir as rotas de listRotaInfo
+        for(auto itRotaInfo:listRotaInfo)
+        {
+            Satelite &satelite = sol.satelites[itRotaInfo.satId];
+            EvRoute &evRoute   = satelite.vetEvRoute[itRotaInfo.evRouteId];
+
+            sol.distancia -= evRoute.distancia;
+            satelite.distancia -= evRoute.distancia;
+
+
+            // Remove RS repetida
+            bool fimEv = false;
+            int i = 1;
+            //while((i+1) < evRoute.routeSize)
+            {
+                for(; (i+1) < evRoute.routeSize; ++i)
+                {
+                    const int clienteI = evRoute[i].cliente;
+                    const int clienteII = evRoute[i+1].cliente;
+
+                    if(clienteI == clienteII)
+                    {
+                        NS_Auxiliary::shiftVectorClienteEsq(evRoute.route, i+1, evRoute.routeSize);
+                        evRoute.routeSize -= 1;
+                    }
+                }
+            }
+
+            const double custo = NS_viabRotaEv::testaRota(evRoute, evRoute.routeSize, instancia, true,
+                                                    instancia.vetTempoSaida[itRotaInfo.satId], 0, nullptr, &vetInviabilidate);
+
+            if(custo <= 0.0)
+            {
+                PRINT_DEBUG("", "");
+                std::cout<<"\n\nROTA EV ID: "<<itRotaInfo.evRouteId<<"; SAT: "<<itRotaInfo.satId<<"\n";
+                string rotaStr;
+                evRoute.print(rotaStr, instancia, true);
+                cout<<"ROTA: "<<rotaStr<<"\n\n";
+
+                throw "ERRO";
+            }
+
+            evRoute.distancia = custo;
+            satelite.distancia += custo;
+            solC.distancia += custo;
+
+            evRoute.atualizaParametrosRota(instancia);
+            sol.rotaEvAtualizada(itRotaInfo.satId, itRotaInfo.evRouteId);
+        }
+
+        sol.reseta1Nivel(instancia);
+        sol.resetaIndiceEv(instancia);
+
+        /*
+        solStr = "";
+        sol.print(solStr, instancia);
+        std::cout<<"SOLUCAO DEPOIS: \n"<<solStr<<"\n";
+        */
+
+    };
+
     BoostC::vector<DadosIg> vetDadosIg;
     vetDadosIg.reserve(parametrosGrasp.numIteGrasp);
-
-    // Quarda o numero de inviabilidades
-    BoostC::vector<int> vetInviabilidate(SIZE_ENUM_INV, 0);
 
     bool escreveSol = false;
 
@@ -290,8 +457,8 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 if(i%200 == 0)
 {
     cout << "ITERACAO: " << i << "\n";
-    cout<<"num rotas removidas corrente: "<<numEvRmCorrente<<"\n";
-    cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n\n";
+    //cout<<"num rotas removidas corrente: "<<numEvRmCorrente<<"\n";
+    //cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n\n";
 }
 #endif
 
@@ -325,23 +492,27 @@ if(i%200 == 0)
 
         NameS_IG::atualizaTempoSaidaInstancia(solC, instancia);
 
-        if(numFuncDestroi < numChamadasDestroi0)
+        if(estrategia == Int8(0))
         {
-            funcDestroi0(solC, numEvRmCorrente);
-            numFuncDestroi += 1;
-        }
-        else if(numFuncDestroi == numChamadasDestroi0)
-        {
-            if(!funcDestroi1(solC))
+            if(numFuncDestroi < numChamadasDestroi0)
+            {
                 funcDestroi0(solC, numEvRmCorrente);
+                numFuncDestroi += 1;
+            } else if(numFuncDestroi == numChamadasDestroi0)
+            {
+                if(!funcDestroi1(solC))
+                    funcDestroi0(solC, numEvRmCorrente);
 
-            numFuncDestroi = 0;
+                numFuncDestroi = 0;
+            }
+        }
+        else
+        {
+            funcDestroi2(solC, numClientesRm);
         }
 
 
-        NS_Construtivo3::construtivo(solC, instancia, alfa, beta, matClienteSat, true,
-                                     false, false, &vetInviabilidate);
-        //construtivo2(solC, instancia, alfa, beta, matClienteSat, true, true);
+        NS_Construtivo3::construtivo(solC, instancia, alfa, beta, matClienteSat, true, false, false, &vetInviabilidate);
 
 
         if(!solC.viavel)
@@ -435,6 +606,8 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
             ultimaABest = i;
         }
         */
+
+        //throw "NAO EH ERRO!";
 
     } // END for ig
 

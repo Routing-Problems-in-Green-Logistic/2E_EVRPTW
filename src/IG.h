@@ -33,6 +33,19 @@ namespace NameS_IG
         }
     };
 
+    struct RotaInfo
+    {
+        int satId       = -1;
+        int evRouteId   = -1;
+
+        RotaInfo(){}
+        RotaInfo(int sat, int ev)
+        {
+            satId = sat;
+            evRouteId = ev;
+        }
+    };
+
     Solucao* iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
                             const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
                             BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida, NS_parametros::Parametros &parametros);
