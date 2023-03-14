@@ -16,6 +16,7 @@
 #include <sys/stat.h>
 #include <fstream>
 #include "Construtivo3.h"
+#include "Construtivo4.h"
 
 using namespace NameS_IG;
 using namespace NameS_Grasp;
@@ -24,7 +25,7 @@ using namespace NS_Construtivo2;
 using namespace NS_vnd;
 using namespace NS_VetorHash;
 
-#define PRINT_IG        TRUE
+#define PRINT_IG        FALSE
 #define WRITE_SOL_PRINT FALSE
 
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
@@ -145,7 +146,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
 
     const float alfa  = 0.15; //0.15      // Primeiro Nivel
-    const float beta  = 0.8;  //0.8       // Segundo  Nivel
+    float beta  = 0.8;  //0.8       // Segundo  Nivel
 
     const int numEvRmMin                = min(int(0.1*numEvN_Vazias+1), 5);
     int numEvRmCorrente                 = numEvRmMin;
@@ -168,6 +169,9 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     // Estrategia 0: removeEv, Estrategia 1: remove cliente
     const Int8 estrategia = (instancia.numEv > 5) ? Int8(0):Int8(1);
 
+    if(estrategia == Int8(1))
+        beta  = 0.8;
+
 #if PRINT_IG
     cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n";
     cout<<"num rotas removidas min: "<<numEvRmMin<<"\n";
@@ -175,7 +179,8 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     cout<<"num rotas nao vazias: "<<numEvN_Vazias<<"\n";
     cout<<"num rotas incremento: "<<numEvInc<<"\n";
     cout<<"num clientes removidos: "<<numClientesRm<<"\n";
-    cout<<"Estrategia: "<<int(estrategia)<<"\n\n";
+    cout<<"Estrategia: "<<int(estrategia)<<"\n";
+    cout<<"ALFA: "<<alfa<<"\nBETA: "<<beta<<"\n\n";
 #endif
 
 
@@ -299,6 +304,8 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
 
         std::list<RotaInfo> listRotaInfo;
 
+        //cout<<"CLIENTES RM: ";
+
         int rmClientes = 0;
         while(rmClientes != numClientes)
         {
@@ -356,6 +363,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
                     }
 
                     const int clienteRm = evRoute[pos].cliente;
+                    //cout<<clienteRm<<" ";
                     const double demClienteRm = instancia.getDemand(clienteRm);
                     sol.vetClientesAtend[clienteRm] = Int8(0);
 
@@ -383,6 +391,8 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
             if(numClieIt == rmClientes)
                 break;
         }
+
+        //cout<<"\n\n";
 
         // Corrigir as rotas de listRotaInfo
         for(auto itRotaInfo:listRotaInfo)
@@ -512,7 +522,10 @@ if(i%200 == 0)
         }
 
 
-        NS_Construtivo3::construtivo(solC, instancia, alfa, beta, matClienteSat, true, false, false, &vetInviabilidate);
+        if(estrategia == int8_t(0))
+            NS_Construtivo3::construtivo(solC, instancia, alfa, beta, matClienteSat, true, false, false, &vetInviabilidate);
+        else
+            NS_Construtivo4::construtivo(solC, instancia, alfa, beta, matClienteSat, true, false, false, &vetInviabilidate);
 
 
         if(!solC.viavel)
@@ -526,6 +539,9 @@ if(i%200 == 0)
         }
         else
         {
+
+            //cout<<"SOLUCAO VIAVEL\n";
+
             string strSolConst;
             if(escreveSol)
             {
@@ -589,6 +605,8 @@ if(i%200 == 0)
 cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 #endif
 
+            //throw "FUNCIONOU! NAO EH ERRO";
+
         }
 
         dadosIg.solBest = solBest.distancia;
@@ -612,9 +630,16 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
     } // END for ig
 
     double fatorSolCorr = (double(hashSolSetCorrente.size())/numSolCorrente) * 100;
-    double fatorSolConst = (double(hashSolSetConst.size())/numSolConstVia) * 100;
-    double fatorSolVnd = (double(hashSolSetVnd.size())/numSolConstVia) * 100;
+    if(numSolCorrente == 0)
+        fatorSolCorr = 0.0;
 
+    double fatorSolConst = (double(hashSolSetConst.size())/numSolConstVia) * 100;
+    if(numSolConstVia == 0)
+        fatorSolConst = 0.0;
+
+    double fatorSolVnd = (double(hashSolSetVnd.size())/numSolConstVia) * 100;
+    if(numSolConstVia == 0)
+        fatorSolVnd = 0.0;
 
     auto funcAddParaSaidaDouble = [&](string &&strParm, double val)
     {
