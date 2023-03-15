@@ -249,14 +249,15 @@ cout<<"\nNUMERO DE CANDIDATOS: "<<listaCandidatos.size()<<"\n\n";
 #endif
 
     bool numEvMaxAcionado = false;
+    bool printTam = true;
 
     while(!visitAllClientes(visitedClients, instance))
     {
-        BoostC::vector<int8_t> clientesVisitadosAux = BoostC::vector(visitedClients);
+        //BoostC::vector<int8_t> clientesVisitadosAux = BoostC::vector(visitedClients);
         listaCandidatos = std::list<CandidatoEV>();
-        int clienteCand = instance.getFirstClientIndex() + (rand_u32()%instance.numClients);
+        //int clienteCand = instance.getFirstClientIndex() + (rand_u32()%instance.numClients);
 
-        do
+/*        do
         {
 
             const int priCliente = clienteCand;
@@ -272,7 +273,17 @@ cout<<"\nNUMERO DE CANDIDATOS: "<<listaCandidatos.size()<<"\n\n";
             clientesVisitadosAux[clienteCand] = int8_t(1);
 
         }
-        while(listaCandidatos.empty());
+        while(listaCandidatos.empty());*/
+
+
+        for(int i=instance.getFirstClientIndex(); i <= instance.getEndClientIndex(); ++i)
+        {
+            if(visitedClients[i] == int8_t(0))
+            {
+                listaCandidatos.splice(listaCandidatos.end(), criaListaCandidatosP_Cliente(i, (sol.numEv>=sol.numEvMax)));
+            }
+        }
+
 
         if(listaCandidatos.empty())
         {
@@ -281,6 +292,12 @@ cout<<"\nNUMERO DE CANDIDATOS: "<<listaCandidatos.size()<<"\n\n";
         }
 
         listaCandidatos.sort();
+
+/*        if(printTam)
+        {
+            cout<<"\t\tTAM LISTA DE CANDIDATOS: "<<listaCandidatos.size()<<"\n";
+            printTam = false;
+        }*/
 
 #if PRINT_DEBUG_CONST
 cout<<"LISTA DE CANDIDATOS: \n";
