@@ -109,7 +109,8 @@ cout<<"INICIO criaListaCandidatosP_Cliente CLIENTE: "<<cliente<<"\n\n";
                 }
 
 
-                copiaVector(evRoute.route, evRouteAux.route, evRoute.routeSize);
+                //copiaVector(evRoute.route, evRouteAux.route, evRoute.routeSize);
+                evRouteAux.copia(evRoute, false, nullptr);
                 shiftVectorDir(evRouteAux.route, 1, 1, evRoute.routeSize);
                 evRouteAux.routeSize = evRoute.routeSize+1;
                 evRouteAux[0].bateriaRestante = instance.getEvBattery(evRoute.idRota);
