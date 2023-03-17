@@ -25,7 +25,7 @@ using namespace boost::numeric;
 typedef std::list<CandidatoEV>::iterator ItListCand;
 
 // Roteamento dos veiculos eletricos
-bool NS_Construtivo4::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha,
+bool NS_Construtivo4::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, float alpha,
                                                 const ublas::matrix<int> &matClienteSat, bool listaRestTam,
                                                 const float beta, const BoostC::vector<int> &satUtilizados, bool print,
                                                 BoostC::vector<int> &vetInviabilidade)
@@ -251,6 +251,7 @@ cout<<"\nNUMERO DE CANDIDATOS: "<<listaCandidatos.size()<<"\n\n";
 
     bool numEvMaxAcionado = false;
     bool printTam = true;
+    bool primeiraChamada = true;
 
     while(!visitAllClientes(visitedClients, instance))
     {
@@ -290,6 +291,31 @@ cout<<"\nNUMERO DE CANDIDATOS: "<<listaCandidatos.size()<<"\n\n";
         {
             //std::cout<<"LISTA VAZIA\n";
             break;
+        }
+
+        if(primeiraChamada)
+        {
+            primeiraChamada = false;
+            const int tam = listaCandidatos.size();
+
+            if(tam <= 10)
+                alpha = 0.9;
+            else if(tam <= 40)
+                alpha = 0.85;
+            else if(tam <= 80)
+                alpha = 0.80;
+            else if(tam <= 100)
+                alpha = 0.75;
+            else if(tam <= 140)
+                alpha = 0.7;
+            else if(tam <= 180)
+                alpha = 0.65;
+            else if(tam <= 200)
+                alpha = 0.6;
+            else// if(tam <= 240)
+                alpha = 0.55;
+
+
         }
 
         listaCandidatos.sort();

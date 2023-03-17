@@ -114,7 +114,7 @@ namespace NS_Construtivo4
         int cliente = -1;
     };
 
-    bool construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha,
+    bool construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, float alpha,
                                    const ublas::matrix<int> &matClienteSat, bool listaRestTam, const float beta,
                                    const BoostC::vector<int> &satUtilizados, bool print,
                                    BoostC::vector<int> &vetInviabilidade);

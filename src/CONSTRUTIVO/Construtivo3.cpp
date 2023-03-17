@@ -25,7 +25,7 @@ using namespace boost::numeric;
 typedef std::list<CandidatoEV>::iterator ItListCand;
 
 // Roteamento dos veiculos eletricos
-bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha,
+bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, float alpha,
                                                 const ublas::matrix<int> &matClienteSat, bool listaRestTam,
                                                 const float beta, const BoostC::vector<int> &satUtilizados, bool print,
                                                 BoostC::vector<int> &vetInviabilidade)
@@ -158,6 +158,19 @@ cout<<"CLIENTE("<<clientId<<") ROTA ESCOLHIDA: "<<strRota<<"; pos: "<<candPtr->p
         } else
             clientesSemCandidato.push_back(clientId);
     }
+
+    const int tam = listaCandidatos.size();
+
+    if(tam <= 50)
+        alpha = 0.55;
+    else if(tam <= 100)
+        alpha = 0.45;
+    else if(tam <= 150)
+        alpha = 0.35;
+    else if(tam <= 200)
+        alpha = 0.25;
+    else
+        alpha = 0.15;
 
 
 #if PRINT_DEBUG_CONST
@@ -1011,7 +1024,7 @@ void NS_Construtivo3::setSatParaCliente(Instancia &instancia, vector<int> &vetSa
  * @param listaRestTam
  * @param iniSatUtil      Indica se os satelites devem ser zerados de acordo com a sol parcial (Para utilizacao do IG)
  */
-void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const float alpha, const float beta, const ublas::matrix<int> &matClienteSat,
+void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, float alpha, const float beta, const ublas::matrix<int> &matClienteSat,
                                   bool listaRestTam, bool iniSatUtil, bool print, BoostC::vector<int> *vetInviabilidate)
 {
 

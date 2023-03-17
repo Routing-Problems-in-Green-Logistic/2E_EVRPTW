@@ -114,13 +114,13 @@ namespace NS_Construtivo3
         int cliente = -1;
     };
 
-    bool construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alpha,
+    bool construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, float alpha,
                                    const ublas::matrix<int> &matClienteSat, bool listaRestTam, const float beta,
                                    const BoostC::vector<int> &satUtilizados, bool print,
                                    BoostC::vector<int> &vetInviabilidade);
 
     void construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam);
-    void construtivo(Solucao &Sol, Instancia &instancia, const float alpha, const float beta,
+    void construtivo(Solucao &Sol, Instancia &instancia, float alpha, const float beta,
                      const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil, bool print,
                      BoostC::vector<int> *vetInviabilidate);
     bool visitAllClientes(BoostC::vector<int8_t> &visitedClients, const Instancia &instance);
