@@ -5,19 +5,23 @@ import pandas as pd
 import math
 import time
 
+
 if(len(sys.argv) < 2 and len(sys.argv) > 3):
     print("NUMERO DE ARGUMENTOS ESTA ERRADO.\npython3 teste.py caminho")
     exit(-1)
-    
+   
 print("PID: ",os.getpid())
 print("\n")
 
+instanciasTeste = "instanciasTeste.txt"
+#instanciasTeste = ""
+
 #tamanhoInst = ['15']#, '100_0']
-tamanhoInst = ['5', '10', '15'] #, '100_0']#, '100_1', '100_2']
+#tamanhoInst = ['5', '10', '15'] #, '100_0']#, '100_1', '100_2']
 #tamanhoInst = ['15', '100_0']
 #tamanhoInst = ['100_0']
 #tamanhoInst = ['100_1']
-#tamanhoInst = ['100_2']
+tamanhoInst = ['100_2']
 #tamanhoInst = ['100_1', '100_2']
 
 
@@ -32,20 +36,38 @@ strInstancias = ""
 for i in tamanhoInst:
     strInstancias += i + " "
     
-print("INSTANCIAS: ", strInstancias, "\n")
+
 
 diretorioIni = 'instancias/2e-vrp-tw/'
 instanciasVet = []
 numExecucoesVet = []
 
-for i in tamanhoInst:
-    caminho = diretorioIni + 'Customer_' + str(i) + '/'
-    files = os.listdir(caminho)
-    files.sort()
+print(instanciasTeste)
 
-    for f in files:
-        instanciasVet.append(caminho+f)
-        numExecucoesVet.append(0)
+if not instanciasTeste:
+
+	print("INSTANCIAS: ", strInstancias, "\n")
+
+	for i in tamanhoInst:
+    		caminho = diretorioIni + 'Customer_' + str(i) + '/'
+    		files = os.listdir(caminho)
+	files.sort()
+
+	for f in files:
+        	instanciasVet.append(caminho+f)
+        	numExecucoesVet.append(0)
+
+else:
+	inst = pd.read_csv(instanciasTeste)
+	n = len(inst.index)
+	strInst = "\t"
+	for i in range(n):
+		strInst = strInst + inst.loc[i,'inst'] + "\n\t"
+		caminho = diretorioIni + 'all/' + inst.loc[i,'inst'] + '.txt'
+		instanciasVet.append(caminho)
+		numExecucoesVet.append(0)
+		
+	print('Instancias:\n', strInst)
 
 
 instancias = pd.DataFrame()

@@ -161,7 +161,7 @@ cout<<"CLIENTE("<<clientId<<") ROTA ESCOLHIDA: "<<strRota<<"; pos: "<<candPtr->p
 
     const int tam = listaCandidatos.size();
 
-    if(tam <= 50)
+/*    if(tam <= 50)
         alpha = 0.55;
     else if(tam <= 100)
         alpha = 0.45;
@@ -170,7 +170,7 @@ cout<<"CLIENTE("<<clientId<<") ROTA ESCOLHIDA: "<<strRota<<"; pos: "<<candPtr->p
     else if(tam <= 200)
         alpha = 0.25;
     else
-        alpha = 0.15;
+        alpha = 0.15;*/
 
 
 #if PRINT_DEBUG_CONST
@@ -201,12 +201,13 @@ for(auto it:listaCandidatos)
 cout<<"\n\n";
 #endif
 
-        auto funcGetIncremento = [&](const int i) -> double
+        // Torneio ternario
+
+ /*       auto funcGetIncremento = [&](const int i) -> double
         {
             auto it = std::next(listaCandidatos.begin(), i);
             return it->incremento;
         };
-
         auto funcGetItCand = [&](auto itI, auto itJ, auto itK)
         {
             const auto itI_Primeiro = itI;
@@ -228,7 +229,6 @@ cout<<"\n\n";
             return itI;
 
         };
-
         const int size = max(int(alpha * listaCandidatos.size()), 1);
 
         const int escolhido0 = rand_u32()%size;
@@ -255,6 +255,12 @@ cout<<"\n\n";
 
         if(print)
             cout<<"\tESCOLHIDO: "<<topItem->clientId<<";"<<topItem->incrP<<"\n\n";
+*/
+
+        // Tradicional
+        const int size = max(int(alpha * listaCandidatos.size()), 1);
+        int randIndex = rand_u32()%size;
+        auto topItem = std::next(listaCandidatos.begin(), randIndex);
 
         CandidatoEV *candEvPtr = &(*topItem);
 

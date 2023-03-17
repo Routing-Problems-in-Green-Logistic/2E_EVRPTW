@@ -145,8 +145,8 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     //const float beta  = 0.8;
 
 
-    const float alfa  = 0.8; //0.15       // Segundo Nivel
-    float beta  = 0.8;  //0.8             // Primeiro  Nivel
+    const float alfa  = 0.6; //0.15       // Segundo Nivel
+    float beta  = 0.15;  //0.8             // Primeiro  Nivel
 
     const int numEvRmMin                = min(int(0.1*numEvN_Vazias+1), 5);
     int numEvRmCorrente                 = numEvRmMin;
@@ -167,7 +167,8 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     auto funcAtualNumChamDest0 = [&](){numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)));};
 
     // Estrategia 0: removeEv, Estrategia 1: remove cliente
-    const Int8 estrategia = (instancia.numEv > 5) ? Int8(0):Int8(1);
+    //const Int8 estrategia = (instancia.numEv > 5) ? Int8(0):Int8(1);
+    const Int8 estrategia = Int8(0);
 
     if(estrategia == Int8(1))
         beta  = 0.8;
