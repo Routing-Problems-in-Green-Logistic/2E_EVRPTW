@@ -28,6 +28,9 @@ using namespace NS_VetorHash;
 #define PRINT_IG        FALSE
 #define WRITE_SOL_PRINT FALSE
 
+std::string NameS_IG::strDescricaoIg =
+        "Teste do novo construtivo(Construtivo4) para numero de clientes <= 15";
+
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
                                   const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
                                   BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida,
@@ -145,7 +148,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     //const float beta  = 0.8;
 
 
-    const float alfa  = 0.6; //0.15       // Segundo Nivel
+    const float alfa  = 0.15; //0.15       // Segundo Nivel
     float beta  = 0.15;  //0.8             // Primeiro  Nivel
 
     const int numEvRmMin                = min(int(0.1*numEvN_Vazias+1), 5);
@@ -167,8 +170,8 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     auto funcAtualNumChamDest0 = [&](){numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)));};
 
     // Estrategia 0: removeEv, Estrategia 1: remove cliente
-    //const Int8 estrategia = (instancia.numEv > 5) ? Int8(0):Int8(1);
-    const Int8 estrategia = Int8(0);
+    const Int8 estrategia = (instancia.numClients > 15) ? Int8(0):Int8(1);
+    //const Int8 estrategia = Int8(0);
 
     if(estrategia == Int8(1))
         beta  = 0.8;

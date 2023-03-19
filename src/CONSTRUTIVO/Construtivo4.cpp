@@ -293,14 +293,12 @@ cout<<"\nNUMERO DE CANDIDATOS: "<<listaCandidatos.size()<<"\n\n";
             break;
         }
 
+        /*
         if(primeiraChamada)
         {
             primeiraChamada = false;
             const int tam = listaCandidatos.size();
-[1;10]: 0.9; (10;40]: 0.85
 
-tam<=10; 0.9
-+40, -0.05
             if(tam <= 10)
                 alpha = 0.9;
             else if(tam <= 40)
@@ -320,6 +318,7 @@ tam<=10; 0.9
 
 
         }
+        */
 
         listaCandidatos.sort();
 

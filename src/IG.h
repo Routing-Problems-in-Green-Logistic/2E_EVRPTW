@@ -52,6 +52,8 @@ namespace NameS_IG
 
     void printVetDadosIg(BoostC::vector<DadosIg> &vetDadosIg, NS_parametros::Parametros &parametros);
     void atualizaTempoSaidaInstancia(Solucao &solucao, Instancia &instancia);
+
+    extern std::string strDescricaoIg;
 }
 
 #endif //INC_2E_EVRP_IG_H
