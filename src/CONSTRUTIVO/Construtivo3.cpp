@@ -28,7 +28,7 @@ typedef std::list<CandidatoEV>::iterator ItListCand;
 bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, float alpha,
                                                 const ublas::matrix<int> &matClienteSat, bool listaRestTam,
                                                 const float beta, const BoostC::vector<int> &satUtilizados, bool print,
-                                                BoostC::vector<int> &vetInviabilidade)
+                                                BoostC::vector<int> &vetInviabilidade, const bool torneio)
 {
 #if PRINT_DEBUG_CONST
     print = true;
@@ -200,10 +200,11 @@ for(auto it:listaCandidatos)
 }
 cout<<"\n\n";
 #endif
+        auto topItem = listaCandidatos.begin();
 
         // Torneio ternario
 
- /*       auto funcGetIncremento = [&](const int i) -> double
+        auto funcGetIncremento = [&](const int i) -> double
         {
             auto it = std::next(listaCandidatos.begin(), i);
             return it->incremento;
@@ -229,41 +230,44 @@ cout<<"\n\n";
             return itI;
 
         };
-        const int size = max(int(alpha * listaCandidatos.size()), 1);
 
-        const int escolhido0 = rand_u32()%size;
-        const int escolhido1 = rand_u32()%size;
-        const int escolhido2 = rand_u32()%size;
+        if(torneio)
+        {
+            const int size = max(int(alpha * listaCandidatos.size()), 1);
 
-        auto it0 = std::next(listaCandidatos.begin(), escolhido0);
-        auto it1 = std::next(listaCandidatos.begin(), escolhido1);
-        auto it2 = std::next(listaCandidatos.begin(), escolhido2);
+            const int escolhido0 = rand_u32() % size;
+            const int escolhido1 = rand_u32() % size;
+            const int escolhido2 = rand_u32() % size;
 
-        it1 = funcGetItCand(it1, it0, it2);
-        it2 = funcGetItCand(it2, it0, it1);
+            auto it0 = std::next(listaCandidatos.begin(), escolhido0);
+            auto it1 = std::next(listaCandidatos.begin(), escolhido1);
+            auto it2 = std::next(listaCandidatos.begin(), escolhido2);
 
-        auto topItem = it0;
+            it1 = funcGetItCand(it1, it0, it2);
+            it2 = funcGetItCand(it2, it0, it1);
 
-        const double val0 = it0->incremento;
-        const double val1 = it1->incremento;
-        const double val2 = it2->incremento;
+            topItem = it0;
 
-        if(val1 < val0 && val1 < val2)
-            topItem = it1;
-        else if(val2 < val0 && val2 < val1)
-            topItem = it2;
+            const double val0 = it0->incremento;
+            const double val1 = it1->incremento;
+            const double val2 = it2->incremento;
 
-        if(print)
-            cout<<"\tESCOLHIDO: "<<topItem->clientId<<";"<<topItem->incrP<<"\n\n";
-*/
+            if(val1 < val0 && val1 < val2)
+                topItem = it1;
+            else if(val2 < val0 && val2 < val1)
+                topItem = it2;
+        }
+        else
+        {
+            // Tradicional
 
-        // Tradicional
-        const int size = max(int(alpha * listaCandidatos.size()), 1);
-        int randIndex = rand_u32()%size;
-        auto topItem = std::next(listaCandidatos.begin(), randIndex);
+            const int size = max(int(alpha * listaCandidatos.size()), 1);
+            int randIndex = rand_u32()%size;
+            topItem = std::next(listaCandidatos.begin(), randIndex);
+        }
+
 
         CandidatoEV *candEvPtr = &(*topItem);
-
         if(visitedClients[topItem->clientId] == Int8(1))
         {
             PRINT_DEBUG("", "");
@@ -1030,8 +1034,9 @@ void NS_Construtivo3::setSatParaCliente(Instancia &instancia, vector<int> &vetSa
  * @param listaRestTam
  * @param iniSatUtil      Indica se os satelites devem ser zerados de acordo com a sol parcial (Para utilizacao do IG)
  */
-void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, float alpha, const float beta, const ublas::matrix<int> &matClienteSat,
-                                  bool listaRestTam, bool iniSatUtil, bool print, BoostC::vector<int> *vetInviabilidate)
+void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, float alpha, const float beta,
+                                  const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil,
+                                  bool print, BoostC::vector<int> *vetInviabilidate, const bool torneio)
 {
 
 
@@ -1056,7 +1061,8 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, float alph
     //satUtilizados[3] = 0;
 
 
-    bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat, listaRestTam, beta, satUtilizados, print, *vetInviabilidate);
+    bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat, listaRestTam, beta,
+                                                  satUtilizados, print, *vetInviabilidate, torneio);
 
     ublas::matrix<int> matClienteSat2 = matClienteSat;
     const int zero_max = max(1, instancia.numSats-2);
@@ -1117,7 +1123,7 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, float alph
                 numSatZero += 1;
 
                 segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat2, listaRestTam, beta,
-                                                         satUtilizados, false, *vetInviabilidate);
+                                                         satUtilizados, false, *vetInviabilidate, torneio);
                 if(segundoNivel)
                 {
                     //std::cout<<"1 NIVEL INVIAVEL!!!\n\n";

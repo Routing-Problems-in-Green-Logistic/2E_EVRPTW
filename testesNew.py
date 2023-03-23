@@ -6,9 +6,11 @@ import math
 import time
 
 
+#'''
 if(len(sys.argv) < 2 and len(sys.argv) > 3):
     print("NUMERO DE ARGUMENTOS ESTA ERRADO.\npython3 teste.py caminho")
     exit(-1)
+#'''
    
 print("PID: ",os.getpid())
 print("\n")
@@ -21,20 +23,19 @@ instanciasTeste = "instanciasTeste.txt"
 #tamanhoInst = ['15', '100_0']
 #tamanhoInst = ['100_0']
 #tamanhoInst = ['100_1']
-tamanhoInst = ['100_2']
+#tamanhoInst = ['100_2']
 #tamanhoInst = ['100_1', '100_2']
 
 
 
 numExecucoes = 30
 caminhoDir = str(sys.argv[1])
+#caminhoDir = ''
 metodo = "IG"
 parametros = " --pasta '" + caminhoDir+ "' --mt '"+str(metodo) +"' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --numItTotal 2500 --execAtual "
 
 print("PARAMETROS: \n", parametros, "\n")
-strInstancias = ""
-for i in tamanhoInst:
-    strInstancias += i + " "
+
     
 
 
@@ -46,22 +47,32 @@ print(instanciasTeste)
 
 if not instanciasTeste:
 
-	print("INSTANCIAS: ", strInstancias, "\n")
-
+	strInstancias = ""
 	for i in tamanhoInst:
-    		caminho = diretorioIni + 'Customer_' + str(i) + '/'
-    		files = os.listdir(caminho)
-	files.sort()
+    		strInstancias += i + " "
 
-	for f in files:
-        	instanciasVet.append(caminho+f)
-        	numExecucoesVet.append(0)
+	#print("INSTANCIAS: ", strInstancias, "\n")
+	files = []
+	for i in tamanhoInst:
+		#print('Customer_' + str(i))
+		caminho = diretorioIni + 'Customer_' + str(i) + '/'
+		print(caminho)
+		files = os.listdir(caminho)
+		files.sort()
+
+		for f in files:
+			instanciasVet.append(caminho+f)
+			numExecucoesVet.append(0)
 
 else:
 	inst = pd.read_csv(instanciasTeste)
 	n = len(inst.index)
 	strInst = "\t"
 	for i in range(n):
+		strTemp = inst.loc[i,'inst']
+		if strTemp[0] == '#':
+			continue
+		
 		strInst = strInst + inst.loc[i,'inst'] + "\n\t"
 		caminho = diretorioIni + 'all/' + inst.loc[i,'inst'] + '.txt'
 		instanciasVet.append(caminho)

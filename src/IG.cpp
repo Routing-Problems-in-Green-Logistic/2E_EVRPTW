@@ -29,7 +29,7 @@ using namespace NS_VetorHash;
 #define WRITE_SOL_PRINT FALSE
 
 std::string NameS_IG::strDescricaoIg =
-        "Teste do novo construtivo(Construtivo4) para numero de clientes <= 15";
+        "Teste do construtivo(Construtivo2) com torneio para numero de clientes == 100\nALFA: 0.6";
 
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
                                   const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
@@ -148,8 +148,8 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     //const float beta  = 0.8;
 
 
-    const float alfa  = 0.15; //0.15       // Segundo Nivel
-    float beta  = 0.15;  //0.8             // Primeiro  Nivel
+    float alfa  = 0.2; //0.15       // Segundo Nivel
+    const float beta  = 0.15;  //0.8             // Primeiro  Nivel
 
     const int numEvRmMin                = min(int(0.1*numEvN_Vazias+1), 5);
     int numEvRmCorrente                 = numEvRmMin;
@@ -171,10 +171,14 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
     // Estrategia 0: removeEv, Estrategia 1: remove cliente
     const Int8 estrategia = (instancia.numClients > 15) ? Int8(0):Int8(1);
+    bool torneio = true;
+    if(estrategia == Int8(1))
+        torneio = false;
+
     //const Int8 estrategia = Int8(0);
 
     if(estrategia == Int8(1))
-        beta  = 0.8;
+        alfa = 0.4;
 
 #if PRINT_IG
     cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n";
@@ -184,7 +188,8 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     cout<<"num rotas incremento: "<<numEvInc<<"\n";
     cout<<"num clientes removidos: "<<numClientesRm<<"\n";
     cout<<"Estrategia: "<<int(estrategia)<<"\n";
-    cout<<"ALFA: "<<alfa<<"\nBETA: "<<beta<<"\n\n";
+    cout<<"ALFA: "<<alfa<<"\nBETA: "<<beta<<"\n";
+    cout<<"TORNEIO: "<<torneio<<"\n\n";
 #endif
 
 
@@ -526,11 +531,13 @@ if(i%200 == 0)
         }
 
 
-        if(estrategia == int8_t(0))
-            NS_Construtivo3::construtivo(solC, instancia, alfa, beta, matClienteSat, true, false, false, &vetInviabilidate);
-        else
+        //if(estrategia == int8_t(0))
+        NS_Construtivo3::construtivo(solC, instancia, alfa, beta, matClienteSat, true, false,
+                                     false, &vetInviabilidate, torneio);
+        /*
+         * else
             NS_Construtivo4::construtivo(solC, instancia, alfa, beta, matClienteSat, true, false, false, &vetInviabilidate);
-
+        */
 
         if(!solC.viavel)
         {

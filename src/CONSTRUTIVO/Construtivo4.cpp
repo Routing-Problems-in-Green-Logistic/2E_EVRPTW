@@ -349,6 +349,7 @@ for(auto it:listaCandidatos)
 cout<<"\n\n";
 #endif
 
+
         auto funcGetIncremento = [&](const int i) -> double
         {
             auto it = std::next(listaCandidatos.begin(), i);
@@ -377,7 +378,9 @@ cout<<"\n\n";
 
         };
 
+
         const int size = max(int(alpha * listaCandidatos.size()), 1);
+
 
         const int escolhido0 = rand_u32()%size;
         const int escolhido1 = rand_u32()%size;
@@ -401,6 +404,10 @@ cout<<"\n\n";
         else if(val2 < val0 && val2 < val1)
             topItem = it2;
 
+/*
+        int randIndex = rand_u32()%size;
+        auto topItem = std::next(listaCandidatos.begin(), randIndex);
+*/
 #if PRINT_DEBUG_CONST
 cout<<"\tESCOLHIDO: "<<topItem->clientId<<";"<<topItem->incrP<<"\n\n";
 #endif
