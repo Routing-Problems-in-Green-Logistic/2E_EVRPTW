@@ -49,6 +49,7 @@ namespace NS_parametros
         string instancia;
         string nomeInstancia;
         string data;
+        string paramIg;
         int metodo = METODO_GRASP;
         string commit;
 

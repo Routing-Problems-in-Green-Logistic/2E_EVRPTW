@@ -47,7 +47,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    string commite = "c1c45c29f966a488583283f20c7d9ba67ac631a4";
+    string commite = "29a96755fc44feebbba7dab99a144266840b744e";
     parametros.commit = commite;
 
     try
@@ -65,6 +65,7 @@ int main(int argc, char* argv[])
         }
 
         caregaParametros(parametros, argc-1, &argv[1]);
+
         Instancia instancia(parametros.instancia, parametros.nomeInstancia);
 
         dijkstraSatCli(instancia);
@@ -102,9 +103,6 @@ int main(int argc, char* argv[])
 
         if(best.viavel)
         {
-/*            cout << "BEST: " << best.distancia << "\n";
-            cout<<"2º Nivel: "<<best.getDist2Nivel()<<"\n";
-            cout<<"1º Nivel: "<<best.getDist1Nivel()<<"\n\n";*/
 
 
             string erro;
@@ -127,16 +125,6 @@ int main(int argc, char* argv[])
         //string numSol;
         //parametrosSaida.mapNoSaida["numSol"].getVal(numSol);
         //cout<<"NUM SOL: "<<numSol<<"\n";
-
-        /*
-        double tempoCpuSum = 0.0;
-        for(int i=0; i < NUM_MV; ++i)
-        {
-            cout << "TEMPO CPU MV " << i << ": " << NS_TimeMV::vetTempoCpuMV[i] << "\n";
-            tempoCpuSum += NS_TimeMV::vetTempoCpuMV[i];
-        }
-        cout<<"*****************************\nSUM: "<<tempoCpuSum<<"\n";
-         */
         
 
     }
@@ -151,6 +139,7 @@ int main(int argc, char* argv[])
         //std::cerr<<"Semente: "<<semente<<"\n";
         exit(-1);
     }
+
 
     return 0;
 }

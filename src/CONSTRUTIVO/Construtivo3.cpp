@@ -25,9 +25,9 @@ using namespace boost::numeric;
 typedef std::list<CandidatoEV>::iterator ItListCand;
 
 // Roteamento dos veiculos eletricos
-bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, float alpha,
+bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alfaSeg,
                                                 const ublas::matrix<int> &matClienteSat, bool listaRestTam,
-                                                const float beta, const BoostC::vector<int> &satUtilizados, bool print,
+                                                const BoostC::vector<int> &satUtilizados, bool print,
                                                 BoostC::vector<int> &vetInviabilidade, const bool torneio)
 {
 #if PRINT_DEBUG_CONST
@@ -233,7 +233,7 @@ cout<<"\n\n";
 
         if(torneio)
         {
-            const int size = max(int(alpha * listaCandidatos.size()), 1);
+            const int size = max(int(alfaSeg * listaCandidatos.size()), 1);
 
             const int escolhido0 = rand_u32() % size;
             const int escolhido1 = rand_u32() % size;
@@ -261,7 +261,7 @@ cout<<"\n\n";
         {
             // Tradicional
 
-            const int size = max(int(alpha * listaCandidatos.size()), 1);
+            const int size = max(int(alfaSeg * listaCandidatos.size()), 1);
             int randIndex = rand_u32()%size;
             topItem = std::next(listaCandidatos.begin(), randIndex);
         }
@@ -646,7 +646,7 @@ bool NS_Construtivo3::visitAllClientes(BoostC::vector<int8_t> &visitedClients, c
 
 }
 
-void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam)
+void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float betaPrim, bool listaRestTam)
 {
     sol.reseta1Nivel(instance);
     //cout<<"*******************************INICIO CONSTRUTIVO3 1º NIVEL*******************************\n\n";
@@ -772,7 +772,7 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
             listaCandidatos.sort();
 
             // Escolhe 3 candidados da lista restrita para o torneio ternario
-            const int size = max(int(beta * listaCandidatos.size()), 1);
+            const int size = max(int(betaPrim * listaCandidatos.size()), 1);
 
             int escolhido = rand_u32() % size;
             auto it = listaCandidatos.begin();
@@ -1028,13 +1028,13 @@ void NS_Construtivo3::setSatParaCliente(Instancia &instancia, vector<int> &vetSa
  *
  * @param sol
  * @param instancia
- * @param alpha           Parametro de aleatoriedade  do segundo nivel
- * @param beta            Parametro de aleatoriedade  do primeiro nivel
+ * @param alfaSeg           Parametro de aleatoriedade  do segundo nivel
+ * @param betaPrim            Parametro de aleatoriedade  do primeiro nivel
  * @param matClienteSat
  * @param listaRestTam
  * @param iniSatUtil      Indica se os satelites devem ser zerados de acordo com a sol parcial (Para utilizacao do IG)
  */
-void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, float alpha, const float beta,
+void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const float alfaSeg, const float betaPrim,
                                   const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil,
                                   bool print, BoostC::vector<int> *vetInviabilidate, const bool torneio)
 {
@@ -1061,15 +1061,15 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, float alph
     //satUtilizados[3] = 0;
 
 
-    bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat, listaRestTam, beta,
-                                                  satUtilizados, print, *vetInviabilidate, torneio);
+    bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alfaSeg, matClienteSat, listaRestTam, satUtilizados,
+                                                  print, *vetInviabilidate, torneio);
 
     ublas::matrix<int> matClienteSat2 = matClienteSat;
     const int zero_max = max(1, instancia.numSats-2);
 
     if(segundoNivel)
     {
-        construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam);
+        construtivoPrimeiroNivel(sol, instancia, betaPrim, listaRestTam);
 
         if(!sol.viavel && instancia.numSats > 2)
         {
@@ -1122,12 +1122,12 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, float alph
                 //sol = Solucao(instancia);
                 numSatZero += 1;
 
-                segundoNivel = construtivoSegundoNivelEV(sol, instancia, alpha, matClienteSat2, listaRestTam, beta,
+                segundoNivel = construtivoSegundoNivelEV(sol, instancia, alfaSeg, matClienteSat2, listaRestTam,
                                                          satUtilizados, false, *vetInviabilidate, torneio);
                 if(segundoNivel)
                 {
                     //std::cout<<"1 NIVEL INVIAVEL!!!\n\n";
-                    construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam);
+                    construtivoPrimeiroNivel(sol, instancia, betaPrim, listaRestTam);
                 }
                 else
                 {

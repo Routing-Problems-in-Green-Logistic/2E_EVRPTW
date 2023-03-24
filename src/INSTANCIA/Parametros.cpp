@@ -493,6 +493,10 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
                         throw "ERRO";
                     }
                 }
+                else if(opcao == "--paramIg")
+                {
+                    paramEntrada.paramIg = string(argv[i+1]);
+                }
                 else
                 {
                     cout<<"ERRO ENTRADA: OPCAO("<<opcao<<") EH INVALIDA\n";

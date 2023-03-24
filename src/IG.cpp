@@ -28,14 +28,21 @@ using namespace NS_VetorHash;
 #define PRINT_IG        FALSE
 #define WRITE_SOL_PRINT FALSE
 
-std::string NameS_IG::strDescricaoIg =
-        "Teste do construtivo(Construtivo2) com torneio para numero de clientes == 100\nALFA: 0.6";
+
+enum Estrategia{Est100, Est15};
+
+std::string NameS_IG::strDescricaoIg = "";
+        //"Teste do construtivo(Construtivo2) com torneio para numero de clientes == 100\nALFA: 0.6";
 
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
                                   const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
                                   BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida,
                                   NS_parametros::Parametros &parametros)
 {
+
+
+    ParametrosIG parametrosIg(parametros.paramIg);
+
     // Cria o diretorio plotInter
     const string dirPlotInter = parametros.caminhoPasta+"/plotInter";
 
@@ -142,14 +149,21 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     }
 
     const int numEvN_Vazias = temp;
+    const int estrategia = (instancia.numClients > 15) ? Int8(Est100):Int8(Est15);
 
-    //Parametros
-    //const float alfa  = 0.8; //0.15
-    //const float beta  = 0.8;
+    float tempAlfaSeg   = parametrosIg.alfaSeg100;
+    float tempBetaPrim      = parametrosIg.betaPrim100;
+
+    if(estrategia == Est15)
+    {
+        tempAlfaSeg     = parametrosIg.alfaSeg15;
+        tempBetaPrim    = parametrosIg.betaPrim15;
+    }
 
 
-    float alfa  = 0.2; //0.15       // Segundo Nivel
-    const float beta  = 0.15;  //0.8             // Primeiro  Nivel
+    const float alfaSeg  = tempAlfaSeg;         // Segundo Nivel
+    const float betaPrim = tempBetaPrim;        // Primeiro  Nivel
+
 
     const int numEvRmMin                = min(int(0.1*numEvN_Vazias+1), 5);
     int numEvRmCorrente                 = numEvRmMin;
@@ -170,17 +184,27 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     auto funcAtualNumChamDest0 = [&](){numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)));};
 
     // Estrategia 0: removeEv, Estrategia 1: remove cliente
-    const Int8 estrategia = (instancia.numClients > 15) ? Int8(0):Int8(1);
-    bool torneio = true;
-    if(estrategia == Int8(1))
-        torneio = false;
+
+    bool tempTorneio = parametrosIg.torneio100;
+    if(estrategia == Est15)
+        tempTorneio = parametrosIg.torneio15;
+
+    const bool torneio = tempTorneio;
+
+    int tempTipoConst = CONSTRUTIVO1;
+    if(estrategia == Est15)
+        tempTipoConst = parametrosIg.tipoConstrutivo15;
+
+    const int tipoConst = tempTipoConst;
+
 
     //const Int8 estrategia = Int8(0);
 
-    if(estrategia == Int8(1))
-        alfa = 0.4;
 
 #if PRINT_IG
+
+    cout<<"ParametrosIG: \n"<<parametrosIg.printParam()<<"\n\n";
+
     cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n";
     cout<<"num rotas removidas min: "<<numEvRmMin<<"\n";
     cout<<"num rotas removidas max: "<<numEvRmMax<<"\n";
@@ -188,7 +212,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     cout<<"num rotas incremento: "<<numEvInc<<"\n";
     cout<<"num clientes removidos: "<<numClientesRm<<"\n";
     cout<<"Estrategia: "<<int(estrategia)<<"\n";
-    cout<<"ALFA: "<<alfa<<"\nBETA: "<<beta<<"\n";
+    cout << "ALFA: " << alfaSeg << "\nBETA: " << betaPrim << "\n";
     cout<<"TORNEIO: "<<torneio<<"\n\n";
 #endif
 
@@ -531,13 +555,14 @@ if(i%200 == 0)
         }
 
 
-        //if(estrategia == int8_t(0))
-        NS_Construtivo3::construtivo(solC, instancia, alfa, beta, matClienteSat, true, false,
-                                     false, &vetInviabilidate, torneio);
-        /*
-         * else
-            NS_Construtivo4::construtivo(solC, instancia, alfa, beta, matClienteSat, true, false, false, &vetInviabilidate);
-        */
+        if(tipoConst == CONSTRUTIVO1)
+            NS_Construtivo3::construtivo(solC, instancia, alfaSeg, betaPrim, matClienteSat, true, false,
+                                         false, &vetInviabilidate, torneio);
+
+        else
+            NS_Construtivo4::construtivo(solC, instancia, alfaSeg, betaPrim, matClienteSat, true, false, false,
+                                         &vetInviabilidate, torneio);
+
 
         if(!solC.viavel)
         {
@@ -574,7 +599,7 @@ if(i%200 == 0)
             dadosIg.solConst = solC.distancia;
 
             numSolG += 1;
-            rvnd(solC, instancia, beta, vetMvValor, vetMvValor1Nivel);
+            rvnd(solC, instancia, betaPrim, vetMvValor, vetMvValor1Nivel);
 
 
             if(escreveSol)
@@ -798,4 +823,61 @@ void NameS_IG::atualizaTempoSaidaInstancia(Solucao &solucao, Instancia &instanci
         vetTempoSaida[sat] = max(solucao.satTempoChegMax[sat], vetTempoSaida[sat]);
     }
 
+}
+
+NameS_IG::ParametrosIG::ParametrosIG(const std::string& fileStr)
+{
+    if(fileStr.empty())
+    {
+        ParametrosIG();
+        return;
+    }
+
+    std::ifstream file(fileStr);
+    if(!file.is_open())
+    {
+        std::cout<<"Nao foi possuivel abrir arquivo: "<<fileStr<<"\n";
+        PRINT_DEBUG("","");
+        throw "ERRO";
+    }
+
+
+    std::map<std::string, std::string> entradaParam;
+
+    while(file.peek() != EOF)
+    {
+        std::string param, val;
+        file>>param>>val;
+        entradaParam[param] = val;
+    }
+
+    alfaSeg100 = std::stof(entradaParam["alfaSeg100"]);
+    alfaSeg15  = std::stof(entradaParam["alfaSeg15"]);
+
+    betaPrim100 = std::stof(entradaParam["betaPrim100"]);
+    betaPrim15  = std::stof(entradaParam["betaPrim15"]);
+
+    torneio100  = (std::stoi(entradaParam["torneio100"]) == 1);
+    torneio15   = (std::stoi(entradaParam["torneio15"]) == 1);
+
+    tipoConstrutivo15 = static_cast<TipoConstrutivo>(std::stoi(entradaParam["tipoConstrutivo15"]));
+
+    file.close();
+}
+
+std::string ParametrosIG::printParam()
+{
+   std::string saida;
+
+   saida += "alfaSeg100 \t\t " + std::to_string(alfaSeg100);
+   saida += "\nalfaSeg15 \t\t " + std::to_string(alfaSeg15);
+   saida += "\nbetaPrim100 \t\t " + std::to_string(betaPrim100);
+   saida += "\nbetaPrim15 \t\t " + std::to_string(betaPrim15);
+
+   saida += "\ntorneio100 \t\t " + std::to_string(torneio100);
+   saida += "\ntorneio15 \t\t " + std::to_string(torneio15);
+
+   saida += "\ntipoConstrutivo15 \t " + std::to_string(tipoConstrutivo15);
+
+   return saida;
 }

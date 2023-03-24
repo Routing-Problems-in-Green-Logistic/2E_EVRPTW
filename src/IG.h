@@ -54,6 +54,28 @@ namespace NameS_IG
     void atualizaTempoSaidaInstancia(Solucao &solucao, Instancia &instancia);
 
     extern std::string strDescricaoIg;
+
+    enum TipoConstrutivo{CONSTRUTIVO1, CONSTRUTIVO2};
+
+    class ParametrosIG
+    {
+    public:
+
+        float alfaSeg100    = 0.2;                          // Valor do parametro alfa do segundo nivel para inst de 100 clientes
+        float alfaSeg15     = 0.6;                          // Valor do parametro alfa do segundo nivel para inst <= 15 clientes
+
+        float betaPrim100   = 0.15;                         // Valor do parametro beta do primeiro nivel para inst de 100 clientes
+        float betaPrim15    = 0.15;                         // Valor do parametro beta do primeiro nivel para inst <= 15 clientes
+
+        bool  torneio100    = true;                         // Utilizacao de torneio em inst de 100 clientes
+        bool  torneio15     = false;                        // Utilizacao de torneio em inst <= 15 clientes
+
+        TipoConstrutivo tipoConstrutivo15 = CONSTRUTIVO1;   // Tipo de construtivo para inst <= 15
+
+        ParametrosIG()=default;
+        ParametrosIG(const std::string& fileStr);
+        std::string printParam();
+    };
 }
 
 #endif //INC_2E_EVRP_IG_H
