@@ -623,6 +623,7 @@ ParametrosSaida NS_parametros::getParametros()
     parametrosSaida.mapNoSaida["numSatVazios"] = NoSaida("numSatVazios");
     parametrosSaida.mapNoSaida["numEV"] = NoSaida("numEV");
 
+/*
     for(int k=0; k < NUM_MV_LS; ++k)
     {
         string nome  = "mv_"+ to_string(k);
@@ -640,8 +641,6 @@ ParametrosSaida NS_parametros::getParametros()
 
         parametrosSaida.mapNoSaida[nome2].addSaida(SAIDA_EXEC_VAL);
         parametrosSaida.mapNoSaida[nome3].addSaida(SAIDA_EXEC_VAL);
-
-
     }
 
     parametrosSaida.mapNoSaida["mv_4_1Nivel"] = NoSaida("mv_4_1Nivel");
@@ -649,11 +648,13 @@ ParametrosSaida NS_parametros::getParametros()
     parametrosSaida.mapNoSaida["mv_6_1Nivel"] = NoSaida("mv_6_1Nivel");
     parametrosSaida.mapNoSaida["mv_6_1Nivel"].addSaida(SAIDA_EXEC_VAL);
 
-
     parametrosSaida.mapNoSaida["mv_4_1Nivel_num"] = NoSaida("mv_4_1Nivel_num");
     parametrosSaida.mapNoSaida["mv_4_1Nivel_num"].addSaida(SAIDA_EXEC_VAL);
     parametrosSaida.mapNoSaida["mv_6_1Nivel_num"] = NoSaida("mv_6_1Nivel_num");
     parametrosSaida.mapNoSaida["mv_6_1Nivel_num"].addSaida(SAIDA_EXEC_VAL);
+*/
+
+
 
     parametrosSaida.mapNoSaida["dist"].addSaida(SAIDA_EXEC_VAL);
     parametrosSaida.mapNoSaida["t(s)"].addSaida(SAIDA_EXEC_VAL);

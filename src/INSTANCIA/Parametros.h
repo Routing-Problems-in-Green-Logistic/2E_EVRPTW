@@ -311,7 +311,7 @@ namespace NS_parametros
         parametrosSaida.mapNoSaida["numEV"](best.getNumEvNaoVazios());
 
 
-        for(int k=0; k < NUM_MV_LS; ++k)
+/*        for(int k=0; k < NUM_MV_LS; ++k)
         {
             string nome  = "mv_"+ to_string(k);
             string nome1 = nome+"_num";
@@ -328,9 +328,9 @@ namespace NS_parametros
         parametrosSaida.mapNoSaida["mv_4_1Nivel"](vetMvValor1Nivel[0].getMedia());
         parametrosSaida.mapNoSaida["mv_4_1Nivel_num"](vetMvValor1Nivel[0].quant);
 
-
         parametrosSaida.mapNoSaida["mv_6_1Nivel"](vetMvValor1Nivel[1].getMedia());
         parametrosSaida.mapNoSaida["mv_6_1Nivel_num"](vetMvValor1Nivel[1].quant);
+        */
 
 
         //  numSatVazios numEV
