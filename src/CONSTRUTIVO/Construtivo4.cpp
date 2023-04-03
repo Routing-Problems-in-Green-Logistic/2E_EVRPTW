@@ -294,6 +294,14 @@ cout<<"\nNUMERO DE CANDIDATOS: "<<listaCandidatos.size()<<"\n\n";
             break;
         }
 
+        if(primeiraChamada)
+        {
+            VarAuxiliaresIgNs::sumQuantCand += listaCandidatos.size();
+            VarAuxiliaresIgNs::num_sumQuantCand += 1;
+
+            primeiraChamada = false;
+        }
+
         /*
         if(primeiraChamada)
         {
@@ -768,8 +776,11 @@ void NS_Construtivo4::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
 
             listaCandidatos.sort();
 
-            // Escolhe 3 candidados da lista restrita para o torneio ternario
-            const int size = max(int(betaPrim * listaCandidatos.size()), 1);
+            int sizeTemp = min(2, int(listaCandidatos.size()));
+            if(instance.numSats > 2)
+                sizeTemp = max(int(betaPrim * listaCandidatos.size()), 1);
+
+            const int size = sizeTemp;
 
             int escolhido = rand_u32() % size;
             auto it = listaCandidatos.begin();

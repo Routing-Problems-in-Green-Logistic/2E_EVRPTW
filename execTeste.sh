@@ -23,7 +23,7 @@ else
     data=${data//$find/$replace}
 
     size=${#data}
-    size=$((size - 4))
+    size=$((size - 1))
     data=${data:0:$size}
 
 
@@ -33,8 +33,12 @@ else
 
     mkdir $dir
     cp src/cmake-build-debug/run $dir
-
+    cp parametrosIg.txt $dir
+   
     echo $data
+    
+    echo "Parametros IG:"
+    cat $dir/parametrosIg.txt
     
     python3 testesNew.py $dir | tee $dir2
 fi

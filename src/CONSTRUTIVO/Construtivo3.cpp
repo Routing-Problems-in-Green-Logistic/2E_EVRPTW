@@ -160,6 +160,8 @@ cout<<"CLIENTE("<<clientId<<") ROTA ESCOLHIDA: "<<strRota<<"; pos: "<<candPtr->p
     }
 
     const int tam = listaCandidatos.size();
+    VarAuxiliaresIgNs::sumQuantCand += tam;
+    VarAuxiliaresIgNs::num_sumQuantCand += 1;
 
 /*    if(tam <= 50)
         alpha = 0.55;

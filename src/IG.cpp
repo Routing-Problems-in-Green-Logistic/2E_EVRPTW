@@ -43,6 +43,12 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
 
     ParametrosIG parametrosIg(parametros.paramIg);
 
+    // Zera variaveis globais
+    VarAuxiliaresIgNs::num_sumQuantCand     = 0;
+    VarAuxiliaresIgNs::num_sumQuantCliRm    = 0;
+    VarAuxiliaresIgNs::sumQuantCand         = 0;
+    VarAuxiliaresIgNs::sumQuantCliRm        = 0;
+
     // Cria o diretorio plotInter
     const string dirPlotInter = parametros.caminhoPasta+"/plotInter";
 
@@ -223,6 +229,8 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     // Escolhe aleatoriamente numRotas nao vazias e as removem da solucao
     auto funcDestroi0 = [&](Solucao &sol, const int numRotas)
     {
+        bool rmPeloMenosUmCli = false;
+
         for(int i=0; i < numRotas; ++i)
         {
             bool escolheRota = false;
@@ -265,6 +273,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
                         if(instancia.isClient(evRoute[j].cliente))
                         {
                             sol.vetClientesAtend[evRoute[j].cliente] = int8_t(0);
+                            VarAuxiliaresIgNs::sumQuantCliRm += 1;
                             //cout<<evRoute[j].cliente<<" ";
                         }
                     }
@@ -287,11 +296,16 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
                 }while(ev != evPrim);
 
                 if(escolheRota)
+                {   rmPeloMenosUmCli = true;
                     break;
+                }
 
                 satId = (satId+1) % (instancia.numSats+1);
             }while(satId != satIdPrim);
         }
+
+        if(rmPeloMenosUmCli)
+            VarAuxiliaresIgNs::num_sumQuantCliRm += 1;
 
         sol.reseta1Nivel(instancia);
         sol.resetaIndiceEv(instancia);
@@ -326,6 +340,9 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     // Remove numClientes clientes da solução
     auto funcDestroi2 = [&](Solucao &sol, const int numClientes)
     {
+
+        VarAuxiliaresIgNs::sumQuantCliRm += numClientes;
+        VarAuxiliaresIgNs::num_sumQuantCliRm += 1;
 
 /*
 std::cout<<"FUNCAO funcDestroi2\n\n";
@@ -685,10 +702,15 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
     };
 
 
+    const double mediaQuantCand = double(VarAuxiliaresIgNs::sumQuantCand)/VarAuxiliaresIgNs::num_sumQuantCand;
+    const double mediaCliRm     = double(VarAuxiliaresIgNs::sumQuantCliRm)/VarAuxiliaresIgNs::num_sumQuantCliRm;
+
     funcAddParaSaidaDouble("numSol", numSolG);
     funcAddParaSaidaDouble("fatorSolCorr", fatorSolCorr);
     funcAddParaSaidaDouble("fatorSolConst", fatorSolConst);
     funcAddParaSaidaDouble("fatorSolVnd", fatorSolVnd);
+    funcAddParaSaidaDouble("mediaQuantCand", mediaQuantCand);
+    funcAddParaSaidaDouble("mediaCliRm", mediaCliRm);
 
 
     auto funcAddParaSaidaInt = [&](string &&strParm, int val)
@@ -713,7 +735,9 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
     cout<<"INVIABILIDADE BAT: \t"<<vetInviabilidate[NS_Auxiliary::Inv_bat]<<"\n";
     cout<<"INVIABILIDADE 1º NIVEL: \t"<<vetInviabilidate[NS_Auxiliary::Inv_1_Nivel]<<"\n";
     cout<<"INVIABILIDADE 1º NIVEL UNICO: \t"<<vetInviabilidate[NS_Auxiliary::Inv_1_Nivel_unico]<<"\n";
-    cout<<"INVIABILIDADE NAO EXISTE RS: \t"<<vetInviabilidate[NS_Auxiliary::Inv_nao_ev_rs]<<"\n";
+    cout<<"INVIABILIDADE NAO EXISTE RS: \t"<<vetInviabilidate[NS_Auxiliary::Inv_nao_ev_rs]<<"\n\n";
+    cout<<"MEDIA QUANTIDADE DE CANDIDATOS: "<< double(VarAuxiliaresIgNs::sumQuantCand)/VarAuxiliaresIgNs::num_sumQuantCand<<"\n";
+    cout<<"MEDIA QUANTIDADE DE CLIENTES REMOVIDOS: "<<double(VarAuxiliaresIgNs::sumQuantCliRm)/VarAuxiliaresIgNs::num_sumQuantCliRm<<"\n";
 #endif
 
     string erro;
@@ -827,11 +851,6 @@ void NameS_IG::atualizaTempoSaidaInstancia(Solucao &solucao, Instancia &instanci
 
 NameS_IG::ParametrosIG::ParametrosIG(const std::string& fileStr)
 {
-    if(fileStr.empty())
-    {
-        ParametrosIG();
-        return;
-    }
 
     std::ifstream file(fileStr);
     if(!file.is_open())

@@ -243,4 +243,14 @@ namespace NS_Auxiliary
     void criaDiretorio(const string& caminho);
 }
 
+
+namespace VarAuxiliaresIgNs
+{
+    inline u_int64_t sumQuantCand       = 0;
+    inline u_int64_t num_sumQuantCand   = 0;
+
+    inline u_int64_t sumQuantCliRm      = 0;
+    inline u_int64_t num_sumQuantCliRm  = 0;
+}
+
 #endif //INC_2E_EVRP_AUXILIARY_H
