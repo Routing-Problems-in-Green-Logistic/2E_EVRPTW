@@ -554,6 +554,9 @@ if(i%200 == 0)
 
         if(estrategia == Int8(0))
         {
+            funcDestroi0(solC, numEvRmCorrente);
+
+            /*
             if(numFuncDestroi < numChamadasDestroi0)
             {
                 funcDestroi0(solC, numEvRmCorrente);
@@ -565,6 +568,7 @@ if(i%200 == 0)
 
                 numFuncDestroi = 0;
             }
+            */
         }
         else
         {
