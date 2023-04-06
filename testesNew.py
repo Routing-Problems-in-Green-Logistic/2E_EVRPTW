@@ -19,11 +19,11 @@ print("\n")
 instanciasTeste = ""
 
 #tamanhoInst = ['15']#, '100_0']
-tamanhoInst = ['5', '10', '15'] #, '100_0']#, '100_1', '100_2']
+#tamanhoInst = ['5', '10', '15'] #, '100_0']#, '100_1', '100_2']
 #tamanhoInst = ['15', '100_0']
 #tamanhoInst = ['100_0']
 #tamanhoInst = ['100_1']
-#tamanhoInst = ['100_2']
+tamanhoInst = ['100_2']
 #tamanhoInst = ['100_1', '100_2']
 
 

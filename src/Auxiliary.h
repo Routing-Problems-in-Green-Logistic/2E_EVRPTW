@@ -241,6 +241,8 @@ namespace NS_Auxiliary
     }
 
     void criaDiretorio(const string& caminho);
+    string float_to_string(float num, int numCasas);
+    string float_to_string(double num, int numCasas);
 }
 
 

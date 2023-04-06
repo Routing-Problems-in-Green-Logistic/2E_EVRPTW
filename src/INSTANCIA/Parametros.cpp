@@ -672,3 +672,89 @@ string NS_parametros::Parametros::getParametros()
                    "  \n\t--execAtual: execucao atual \n\t--resulCSV: nome do arquivo csv para escrever os resultados consolidados \n\t --mt: metodo((Grasp ou G) para GRASP, (ACO)\n\t --numItTotal: numero total de iteracoes\n\n";
     return saida;
 }
+
+void NS_parametros::NoSaida::getVal(string &saidaStr)
+{
+    BoostC::vector<double> vectorSaida(listVal.size());
+    std::copy(listVal.begin(), listVal.end(), vectorSaida.begin());
+    double min = DOUBLE_MAX;
+    double max = DOUBLE_MIN;
+    double avg = 0.0;
+
+    for(const double i:vectorSaida)
+    {
+        if(i < min)
+            min = i;
+
+        if(i > max)
+            max = i;
+
+        avg += i;
+    }
+
+    avg = avg/double(vectorSaida.size());
+    double std = 0.0;
+    const int numCasas = 3;
+
+    for(int &saida:saidaExec)
+    {
+
+        switch(saida)
+        {
+            case SAIDA_EXEC_MIN:
+                if(tipo == SAIDA_TIPO_FLOAT)
+                    saidaStr += NS_Auxiliary::float_to_string(min, numCasas) + " \t ";
+                else
+                    saidaStr += to_string(int(min)) + " \t ";
+
+                break;
+
+            case SAIDA_EXEC_MAX:
+                if(tipo == SAIDA_TIPO_FLOAT)
+                    saidaStr += NS_Auxiliary::float_to_string(max, numCasas) + " \t ";
+                else
+                    saidaStr += to_string(int(max)) + " \t ";
+                break;
+
+            case SAIDA_EXEC_AVG:
+                saidaStr += NS_Auxiliary::float_to_string(avg, numCasas) + " \t ";
+                break;
+
+            case SAIDA_EXEC_STD:
+
+                for(const double i:vectorSaida)
+                    std += pow(i-avg, double(2));
+
+                std = sqrt(std/vectorSaida.size());
+                saidaStr += NS_Auxiliary::float_to_string(std, numCasas) + " \t ";
+                break;
+
+            case SAIDA_EXEC_VAL:
+
+                if(listVal.size() > 1)
+                {
+
+                    cout<<"OPCAO(SAIDA_EXEC_VAL) SO PODE SER UTILIZADA SOZINHA!\n";
+                    throw "ERRO";
+                }
+
+                if(tipo == SAIDA_TIPO_FLOAT)
+                    saidaStr += NS_Auxiliary::float_to_string(min, numCasas) + " \t ";
+                else
+                    saidaStr += to_string(int(min)) + " \t ";
+
+                break;
+
+            case SAIDA_EXEC_SEM:
+
+                if(saidaExec.size() > 1)
+                {
+                    cout<<"OPCAO(SAIDA_EXEC_SEM) SO PODE SER UTILIZADA SOZINHA!\n";
+                    throw "ERRO";
+                }
+
+                saidaStr += to_string(semente)+" \t ";
+                break;
+        }
+    }
+}
