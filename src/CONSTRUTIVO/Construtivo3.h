@@ -120,7 +120,8 @@ namespace NS_Construtivo3
                               const BoostC::vector<int> &satUtilizados, bool print,
                               BoostC::vector<int> &vetInviabilidade, const bool torneio);
 
-    void construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float betaPrim, bool listaRestTam);
+    void
+    construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float betaPrim, bool listaRestTam, bool solStart);
     void construtivo(Solucao &sol, Instancia &instancia, const float alfaSeg, const float betaPrim,
                      const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil, bool print,
                      BoostC::vector<int> *vetInviabilidate, const bool torneio);

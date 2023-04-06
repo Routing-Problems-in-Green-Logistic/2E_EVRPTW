@@ -15,15 +15,15 @@ if(len(sys.argv) < 2 and len(sys.argv) > 3):
 print("PID: ",os.getpid())
 print("\n")
 
-#instanciasTeste = "instanciasTeste.txt"
-instanciasTeste = ""
+instanciasTeste = "instanciasTeste.txt"
+#instanciasTeste = ""
 
 #tamanhoInst = ['15']#, '100_0']
 #tamanhoInst = ['5', '10', '15'] #, '100_0']#, '100_1', '100_2']
 #tamanhoInst = ['15', '100_0']
 #tamanhoInst = ['100_0']
 #tamanhoInst = ['100_1']
-tamanhoInst = ['100_2']
+#tamanhoInst = ['100_2']
 #tamanhoInst = ['100_1', '100_2']
 
 

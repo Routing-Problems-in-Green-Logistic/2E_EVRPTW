@@ -505,6 +505,12 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
 
     };
 
+    // Remove uma rota de caminhao(primeiro nivel)
+    auto funcDestroi3 = [&](Solucao &sol) -> bool
+    {
+
+    };
+
     BoostC::vector<DadosIg> vetDadosIg;
     vetDadosIg.reserve(parametrosGrasp.numIteGrasp);
 

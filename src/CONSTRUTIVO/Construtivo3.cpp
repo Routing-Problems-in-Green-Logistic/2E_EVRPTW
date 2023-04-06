@@ -648,9 +648,11 @@ bool NS_Construtivo3::visitAllClientes(BoostC::vector<int8_t> &visitedClients, c
 
 }
 
-void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float betaPrim, bool listaRestTam)
+void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float betaPrim, bool listaRestTam, bool solStart)
 {
-    sol.reseta1Nivel(instance);
+    if(!solStart)
+        sol.reseta1Nivel(instance);
+
     //cout<<"*******************************INICIO CONSTRUTIVO3 1º NIVEL*******************************\n\n";
     // Cria o vetor com a demanda de cada satellite
     BoostC::vector<double> demandaNaoAtendidaSat;
@@ -669,7 +671,17 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
 
     for(int sat=instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
     {
-        demandaNaoAtendidaSat.push_back(sol.satelites.at(sat).demanda);
+        demandaNaoAtendidaSat.push_back(sol.satelites[sat].demanda);
+    }
+
+    if(solStart)
+    {
+        for(auto &route: sol.primeiroNivel)
+        {
+            for(int sat = instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
+                demandaNaoAtendidaSat[sat] -= route.satelliteDemand[sat];
+
+        }
     }
 
     const int NumSatMaisDep = sol.getNSatelites()+1;
@@ -691,7 +703,7 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
                 std::cout<<"1º: DEM NAO ATEND(1): "<<demandaNaoAtendidaSat[1]<<"\n\n";
             }*/
             // Verifica se a demanda não atendida eh positiva
-            if(demandaNaoAtendidaSat.at(i) > 0.0)
+            if(demandaNaoAtendidaSat[i] > 0.0)
             {
                 // Percorre todas as rotas
                 for(int rotaId = 0; rotaId < sol.primeiroNivel.size(); ++rotaId)
@@ -828,7 +840,7 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
             route.satelliteDemand[candidato.satelliteId] = candidato.demand;
             route.totalDistence += candidato.incrementoDistancia;
 
-            demandaNaoAtendidaSat.at(candidato.satelliteId) -= candidato.demand;
+            demandaNaoAtendidaSat[candidato.satelliteId] -= candidato.demand;
 
         }
         else
@@ -1063,15 +1075,14 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
     //satUtilizados[3] = 0;
 
 
-    bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alfaSeg, matClienteSat, listaRestTam, satUtilizados,
-                                                  print, *vetInviabilidate, torneio);
+    bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alfaSeg, matClienteSat, listaRestTam, satUtilizados, print, *vetInviabilidate, torneio);
 
     ublas::matrix<int> matClienteSat2 = matClienteSat;
     const int zero_max = max(1, instancia.numSats-2);
 
     if(segundoNivel)
     {
-        construtivoPrimeiroNivel(sol, instancia, betaPrim, listaRestTam);
+        construtivoPrimeiroNivel(sol, instancia, betaPrim, listaRestTam, false);
 
         if(!sol.viavel && instancia.numSats > 2)
         {
@@ -1129,7 +1140,7 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
                 if(segundoNivel)
                 {
                     //std::cout<<"1 NIVEL INVIAVEL!!!\n\n";
-                    construtivoPrimeiroNivel(sol, instancia, betaPrim, listaRestTam);
+                    construtivoPrimeiroNivel(sol, instancia, betaPrim, listaRestTam, false);
                 }
                 else
                 {
