@@ -159,6 +159,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
     float tempAlfaSeg   = parametrosIg.alfaSeg100;
     float tempBetaPrim      = parametrosIg.betaPrim100;
+    const double difMax = 0.1;
 
     if(estrategia == Est15)
     {
@@ -506,15 +507,41 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     };
 
     // Remove uma rota de caminhao(primeiro nivel)
-    auto funcDestroi3 = [&](Solucao &sol) -> bool
+    auto funcDestroi3 = [&](Solucao &sol, int numRouteRm) -> bool
     {
+/*        for(int i=0; i < numRouteRm; ++i)
+        {
+            int route = rand_u32() % instancia.numTruck;
+            const int routeIni = route;
 
+            while(sol.primeiroNivel[route].routeSize <= 2)
+            {
+                route = (route + 1) % instancia.numTruck;
+                if(route == routeIni)
+                {
+                    PRINT_DEBUG("", "");
+                    cout << "Nao foi possivel achar uma rota!\n";
+                    string strRota;
+                    sol.print(strRota, instancia);
+                    cout << "Solucao:\n" << strRota << "\n\n";
+                    throw "ERRO";
+                }
+            }
+
+            sol.distancia -= sol.primeiroNivel[route].totalDistence;
+            sol.primeiroNivel[route].resetaRoute();
+        }*/
+
+        sol.reseta1Nivel(instancia);
+
+        return true;
     };
 
     BoostC::vector<DadosIg> vetDadosIg;
     vetDadosIg.reserve(parametrosGrasp.numIteGrasp);
 
     bool escreveSol = false;
+    int segFuncDest = 0;
 
     for(int i=0; i < parametrosGrasp.numIteGrasp; ++i)
     {
@@ -536,7 +563,10 @@ if(i%200 == 0)
         }
 #endif
 
-        if((i-ultimaA) % numItSemMelhoraResetSolC == 0 && i!=ultimaA)
+        const double dif = (solC.distancia-solBest.distancia)/solBest.distancia;
+
+        //if((i-ultimaA) % numItSemMelhoraResetSolC == 0 && i!=ultimaA)
+        if(dif > difMax)
         {
             solC = Solucao(instancia);
             solC.copia(solBest);
@@ -557,12 +587,11 @@ if(i%200 == 0)
         solC_copia.copia(solC);
 
         NameS_IG::atualizaTempoSaidaInstancia(solC, instancia);
+        bool construtivoFull = true;
 
         if(estrategia == Int8(0))
         {
-            funcDestroi0(solC, numEvRmCorrente);
 
-            /*
             if(numFuncDestroi < numChamadasDestroi0)
             {
                 funcDestroi0(solC, numEvRmCorrente);
@@ -572,24 +601,48 @@ if(i%200 == 0)
                 if(!funcDestroi1(solC))
                     funcDestroi0(solC, numEvRmCorrente);
 
+                /*
+                if(segFuncDest == 0)
+                {
+                    if(!funcDestroi1(solC))
+                        funcDestroi0(solC, numEvRmCorrente);
+
+                    segFuncDest = 1;
+                }
+                else
+                {
+                    if(funcDestroi3(solC, 2))
+                    {
+                        NS_Construtivo3::construtivoPrimeiroNivel(solC, instancia, betaPrim, true, false);
+                        construtivoFull = false;
+                        solC.todasRotasEvAtualizadas();
+                        //cout<<"FuncDestroi3 ";
+                    }
+
+                    segFuncDest = 0;
+                }
+                */
+
                 numFuncDestroi = 0;
             }
-            */
+
         }
         else
         {
             funcDestroi2(solC, numClientesRm);
         }
 
+        if(construtivoFull)
+        {
+            if(tipoConst == CONSTRUTIVO1)
+                NS_Construtivo3::construtivo(solC, instancia, alfaSeg, betaPrim, matClienteSat, true, false, false,
+                                             &vetInviabilidate, torneio);
 
-        if(tipoConst == CONSTRUTIVO1)
-            NS_Construtivo3::construtivo(solC, instancia, alfaSeg, betaPrim, matClienteSat, true, false,
-                                         false, &vetInviabilidate, torneio);
+            else
+                NS_Construtivo4::construtivo(solC, instancia, alfaSeg, betaPrim, matClienteSat, true, false, false,
+                                             &vetInviabilidate, torneio);
 
-        else
-            NS_Construtivo4::construtivo(solC, instancia, alfaSeg, betaPrim, matClienteSat, true, false, false,
-                                         &vetInviabilidate, torneio);
-
+        }
 
         if(!solC.viavel)
         {
@@ -603,7 +656,8 @@ if(i%200 == 0)
         else
         {
 
-            //cout<<"SOLUCAO VIAVEL\n";
+            //if(!construtivoFull)
+            //    cout<<"SOLUCAO VIAVEL\n";
 
             string strSolConst;
             if(escreveSol)
@@ -617,6 +671,10 @@ if(i%200 == 0)
                 PRINT_DEBUG("", "");
                 cout<<"ERRO NO IG APOS O CONSTRUTIVO\nERRO:\n\n";
                 cout<<strErro<<"\n\n";
+                cout<<"Sol: \n";
+                string strSol;
+                solC.print(strSol, instancia);
+                cout<<strSol<<"\n";
                 throw "ERRO";
             }
 

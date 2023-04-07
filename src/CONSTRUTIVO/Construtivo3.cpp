@@ -684,6 +684,12 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
         }
     }
 
+/*    cout<<"Demanda nao atendida: ";
+    for(int sat = instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
+        cout<<sat<<": "<<demandaNaoAtendidaSat[sat]<<"; ";
+
+    cout<<"\n\n";*/
+
     const int NumSatMaisDep = sol.getNSatelites()+1;
 
 
@@ -694,21 +700,25 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
         std::list<CandidatoVeicComb> listaCandidatos;
 
         // Percorre os satellites
-        for(int i=1; i < NumSatMaisDep; ++i)
+        for(int sat=1; sat < NumSatMaisDep; ++sat)
         {
-            Satelite &satelite = sol.satelites.at(i);
+            Satelite &satelite = sol.satelites.at(sat);
 /*            if(i==1)
             {
 
                 std::cout<<"1º: DEM NAO ATEND(1): "<<demandaNaoAtendidaSat[1]<<"\n\n";
             }*/
             // Verifica se a demanda não atendida eh positiva
-            if(demandaNaoAtendidaSat[i] > 0.0)
+            if(demandaNaoAtendidaSat[sat] > 0.0)
             {
                 // Percorre todas as rotas
                 for(int rotaId = 0; rotaId < sol.primeiroNivel.size(); ++rotaId)
                 {
-                    Route &route = sol.primeiroNivel.at(rotaId);
+                    Route &route = sol.primeiroNivel[rotaId];
+
+                    // Verifica se route ja atende satelite
+                    if(route.satelliteDemand[sat] > 0.0)
+                        continue;
 
                     // Verifica se veiculo esta 100% da capacidade
                     if(route.totalDemand < instance.getTruckCap(rotaId))
@@ -717,11 +727,11 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
                         double capacidade = instance.getTruckCap(rotaId) - route.totalDemand;
                         double demandaAtendida = capacidade;
 
-                        if(demandaNaoAtendidaSat.at(i) < capacidade)
-                            demandaAtendida = demandaNaoAtendidaSat.at(i);
+                        if(demandaNaoAtendidaSat.at(sat) < capacidade)
+                            demandaAtendida = demandaNaoAtendidaSat.at(sat);
 
 
-                        CandidatoVeicComb candidato(rotaId, i, demandaAtendida, DOUBLE_MAX);
+                        CandidatoVeicComb candidato(rotaId, sat, demandaAtendida, DOUBLE_MAX);
 
                         // Percorre todas as posicoes da rota
                         for(int p=0; (p+1) < route.routeSize; ++p)
@@ -734,18 +744,18 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
 
                             // Calcula o incremento da distancia (Sempre positivo, desigualdade triangular)
                             incrementoDist -= instance.getDistance(clienteP.satellite, clientePP.satellite);
-                            incrementoDist = incrementoDist + instance.getDistance(clienteP.satellite, i) + instance.getDistance(i, clientePP.satellite);
+                            incrementoDist = incrementoDist + instance.getDistance(clienteP.satellite, sat) + instance.getDistance(sat, clientePP.satellite);
 
                             if(incrementoDist < candidato.incrementoDistancia)
                             {
                                 // Calcula o tempo de chegada e verifica a janela de tempo
-                                const double tempoChegCand = clienteP.tempoChegada + instance.getDistance(clienteP.satellite, i);
+                                const double tempoChegCand = clienteP.tempoChegada + instance.getDistance(clienteP.satellite, sat);
 
                                 bool satViavel = true;
 
                                 if(verificaViabilidadeSatelite(tempoChegCand, satelite, instance, false))
                                 {
-                                    double tempoChegTemp = tempoChegCand + instance.getDistance(i, clientePP.satellite);
+                                    double tempoChegTemp = tempoChegCand + instance.getDistance(sat, clientePP.satellite);
 
                                     // Verificar viabilidade dos outros satelites
                                     for(int t=p+1; (t+1) < (route.routeSize); ++t)
