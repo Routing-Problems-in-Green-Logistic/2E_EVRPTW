@@ -174,9 +174,9 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
     const int numEvRmMin                = min(int(0.1*numEvN_Vazias+1), 5);
     int numEvRmCorrente                 = numEvRmMin;
-    const int numEvRmMax                = min(int(0.4*numEvN_Vazias+1), numEvN_Vazias);
-    const int numEvInc                  = 1;
-    const int numItSemMelhoraIncNumEvRm = 80;
+    //const int numEvRmMax                = min(int(0.4*numEvN_Vazias+1), numEvN_Vazias);
+    //const int numEvInc                  = 1;
+    //const int numItSemMelhoraIncNumEvRm = 80;
 
     const int numClientesRm              = max(int(NS_Auxiliary::upperVal(0.4*instancia.numClients)), 1);
 
@@ -214,9 +214,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
     cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n";
     cout<<"num rotas removidas min: "<<numEvRmMin<<"\n";
-    cout<<"num rotas removidas max: "<<numEvRmMax<<"\n";
     cout<<"num rotas nao vazias: "<<numEvN_Vazias<<"\n";
-    cout<<"num rotas incremento: "<<numEvInc<<"\n";
     cout<<"num clientes removidos: "<<numClientesRm<<"\n";
     cout<<"Estrategia: "<<int(estrategia)<<"\n";
     cout << "ALFA: " << alfaSeg << "\nBETA: " << betaPrim << "\n";
@@ -509,7 +507,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     // Remove uma rota de caminhao(primeiro nivel)
     auto funcDestroi3 = [&](Solucao &sol, int numRouteRm) -> bool
     {
-/*        for(int i=0; i < numRouteRm; ++i)
+        for(int i=0; i < numRouteRm; ++i)
         {
             int route = rand_u32() % instancia.numTruck;
             const int routeIni = route;
@@ -519,20 +517,21 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
                 route = (route + 1) % instancia.numTruck;
                 if(route == routeIni)
                 {
-                    PRINT_DEBUG("", "");
+/*                    PRINT_DEBUG("", "");
                     cout << "Nao foi possivel achar uma rota!\n";
                     string strRota;
                     sol.print(strRota, instancia);
                     cout << "Solucao:\n" << strRota << "\n\n";
-                    throw "ERRO";
+                    throw "ERRO";*/
+                    return true;
                 }
             }
 
             sol.distancia -= sol.primeiroNivel[route].totalDistence;
             sol.primeiroNivel[route].resetaRoute();
-        }*/
+        }
 
-        sol.reseta1Nivel(instancia);
+        //sol.reseta1Nivel(instancia);
 
         return true;
     };
@@ -598,10 +597,10 @@ if(i%200 == 0)
                 numFuncDestroi += 1;
             } else if(numFuncDestroi == numChamadasDestroi0)
             {
-                if(!funcDestroi1(solC))
-                    funcDestroi0(solC, numEvRmCorrente);
+                //if(!funcDestroi1(solC))
+                //    funcDestroi0(solC, numEvRmCorrente);
 
-                /*
+
                 if(segFuncDest == 0)
                 {
                     if(!funcDestroi1(solC))
@@ -611,6 +610,10 @@ if(i%200 == 0)
                 }
                 else
                 {
+
+                    solC = Solucao(instancia);
+                    solC.copia(solBest);
+
                     if(funcDestroi3(solC, 2))
                     {
                         NS_Construtivo3::construtivoPrimeiroNivel(solC, instancia, betaPrim, true, false);
@@ -621,7 +624,6 @@ if(i%200 == 0)
 
                     segFuncDest = 0;
                 }
-                */
 
                 numFuncDestroi = 0;
             }

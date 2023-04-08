@@ -15,7 +15,7 @@ if(len(sys.argv) < 2 and len(sys.argv) > 3):
 print("PID: ",os.getpid())
 print("\n")
 
-instanciasTeste = "instanciasTeste.txt"
+instanciasTeste = "instanciasTesteRC.txt"
 #instanciasTeste = ""
 
 #tamanhoInst = ['15']#, '100_0']
