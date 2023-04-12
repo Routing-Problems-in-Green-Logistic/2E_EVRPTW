@@ -20,7 +20,7 @@ error() {
 
 # Path to the ACOTSP executable (this path is relative to the execution directory `execDir` specified in the scenario).
 # EXE="~/bin/acotsp"
-EXE="run"
+EXE="/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/Irace/execDir/run"
 
 # Fixed parameters that should be always passed to ACOTSP.
 # The time to be used is always 10 seconds, and we want only one run:
