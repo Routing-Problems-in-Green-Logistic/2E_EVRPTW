@@ -35,8 +35,28 @@ using namespace std;
 
 #define SAIDA_ULTIMO     SAIDA_EXEC_SEM
 
+
+enum TipoConstrutivo{CONSTRUTIVO1, CONSTRUTIVO2};
+
 namespace NS_parametros
 {
+    class ParametrosIG
+    {
+    public:
+
+        float alfaSeg    = 0.2;                          // Valor do parametro alfa do segundo nivel EV
+        float betaPrim   = 0.15;                         // Valor do parametro beta do primeiro nivel ~EV
+        double difBest   = 0.1;
+        bool  torneio    = true;                         // Utilizacao de torneio em inst de 100 clientes
+        TipoConstrutivo tipoConstrutivo15 = CONSTRUTIVO1;   // Tipo de construtivo para inst <= 15
+
+        double taxaRm    = 0.1;
+        std::string fileSaida;                           // Arquivo para salvar o valor da solucao no Irace!
+
+        ParametrosIG()=default;
+        ParametrosIG(const std::string& fileStr);
+        std::string printParam();
+    };
 
     struct Parametros
     {
@@ -49,9 +69,10 @@ namespace NS_parametros
         string instancia;
         string nomeInstancia;
         string data;
-        string paramIg;
+        string paramIgFile;
         int metodo = METODO_GRASP;
         string commit;
+        ParametrosIG paramIg;
 
         string getParametros();
 

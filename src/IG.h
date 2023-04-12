@@ -55,9 +55,9 @@ namespace NameS_IG
 
     extern std::string strDescricaoIg;
 
-    enum TipoConstrutivo{CONSTRUTIVO1, CONSTRUTIVO2};
+//    enum TipoConstrutivo{CONSTRUTIVO1, CONSTRUTIVO2};
 
-    class ParametrosIG
+/*    class ParametrosIG
     {
     public:
 
@@ -75,7 +75,12 @@ namespace NameS_IG
         ParametrosIG()=default;
         ParametrosIG(const std::string& fileStr);
         std::string printParam();
-    };
+    };*/
+}
+
+namespace ValBestNs
+{
+    inline double distBest = -1.0;
 }
 
 #endif //INC_2E_EVRP_IG_H

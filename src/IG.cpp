@@ -17,6 +17,7 @@
 #include <fstream>
 #include "Construtivo3.h"
 #include "Construtivo4.h"
+#include "Parametros.h"
 
 using namespace NameS_IG;
 using namespace NameS_Grasp;
@@ -24,6 +25,7 @@ using namespace NS_Construtivo;
 using namespace NS_Construtivo2;
 using namespace NS_vnd;
 using namespace NS_VetorHash;
+using namespace NS_parametros;
 
 #define PRINT_IG        FALSE
 #define WRITE_SOL_PRINT FALSE
@@ -41,7 +43,8 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
 {
 
 
-    ParametrosIG parametrosIg(parametros.paramIg);
+    //ParametrosIG parametrosIg(parametros.paramIgFile);
+    ParametrosIG parametrosIg = parametros.paramIg;
 
     // Zera variaveis globais
     VarAuxiliaresIgNs::num_sumQuantCand     = 0;
@@ -133,6 +136,8 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
 
     Solucao solBest(instancia);
     solBest.copia(*solG);
+    ValBestNs::distBest = solBest.distancia;
+
     delete solG;
     solG = nullptr;
 
@@ -157,30 +162,32 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     const int numEvN_Vazias = temp;
     const int estrategia = (instancia.numClients > 15) ? Int8(Est100):Int8(Est15);
 
-    float tempAlfaSeg   = parametrosIg.alfaSeg100;
-    float tempBetaPrim      = parametrosIg.betaPrim100;
+    float tempAlfaSeg   = parametrosIg.alfaSeg;
+    float tempBetaPrim  = parametrosIg.betaPrim;
     const double difMax = 0.1;
 
+/*
     if(estrategia == Est15)
     {
         tempAlfaSeg     = parametrosIg.alfaSeg15;
         tempBetaPrim    = parametrosIg.betaPrim15;
     }
+*/
 
 
     const float alfaSeg  = tempAlfaSeg;         // Segundo Nivel
     const float betaPrim = tempBetaPrim;        // Primeiro  Nivel
 
 
-    const int numEvRmMin                = min(int(0.1*numEvN_Vazias+1), 5);
+    const int numEvRmMin                = min(int(parametrosIg.taxaRm * numEvN_Vazias + 1), numEvN_Vazias);
     int numEvRmCorrente                 = numEvRmMin;
     //const int numEvRmMax                = min(int(0.4*numEvN_Vazias+1), numEvN_Vazias);
     //const int numEvInc                  = 1;
     //const int numItSemMelhoraIncNumEvRm = 80;
 
-    const int numClientesRm              = max(int(NS_Auxiliary::upperVal(0.4*instancia.numClients)), 1);
+    const int numClientesRm              = max(int(NS_Auxiliary::upperVal(parametrosIg.taxaRm*instancia.numClients)), 1);
 
-    const int numItSemMelhoraResetSolC = 20;
+    //const int numItSemMelhoraResetSolC = 20;
 
     int ultimaA = 0;
     int ultimaABest = 0;
@@ -192,10 +199,12 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
     // Estrategia 0: removeEv, Estrategia 1: remove cliente
 
-    bool tempTorneio = parametrosIg.torneio100;
-    if(estrategia == Est15)
-        tempTorneio = parametrosIg.torneio15;
+    bool tempTorneio = parametrosIg.torneio;
 
+/*    if(estrategia == Est15)
+        tempTorneio = parametrosIg.torneio15;*/
+
+    //const bool torneio = tempTorneio;
     const bool torneio = tempTorneio;
 
     int tempTipoConst = CONSTRUTIVO1;
@@ -565,7 +574,7 @@ if(i%200 == 0)
         const double dif = (solC.distancia-solBest.distancia)/solBest.distancia;
 
         //if((i-ultimaA) % numItSemMelhoraResetSolC == 0 && i!=ultimaA)
-        if(dif > difMax)
+        if(dif > parametrosIg.difBest)
         {
             solC = Solucao(instancia);
             solC.copia(solBest);
@@ -714,6 +723,8 @@ if(i%200 == 0)
                 cout<<erro<<"\n\n";
                 throw "ERRO";
             }
+
+            ValBestNs::distBest = solC.distancia;
 
             solBest = Solucao(instancia);
             solBest.copia(solC);
@@ -919,7 +930,7 @@ void NameS_IG::atualizaTempoSaidaInstancia(Solucao &solucao, Instancia &instanci
 
 }
 
-NameS_IG::ParametrosIG::ParametrosIG(const std::string& fileStr)
+/*NameS_IG::ParametrosIG::ParametrosIG(const std::string& fileStr)
 {
 
     std::ifstream file(fileStr);
@@ -969,4 +980,4 @@ std::string ParametrosIG::printParam()
    saida += "\ntipoConstrutivo15 \t " + std::to_string(tipoConstrutivo15);
 
    return saida;
-}
+}*/

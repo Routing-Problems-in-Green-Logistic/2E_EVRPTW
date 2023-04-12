@@ -22,6 +22,7 @@
 #include "Grasp.h"
 #include "Construtivo.h"
 #include "IG.h"
+#include <sys/stat.h>
 
 using namespace std;
 using namespace NS_parametros;
@@ -37,6 +38,7 @@ void aco(Instancia &instancia, Parametros &parametros, ParametrosGrasp &parm, So
 void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida);
 void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida);
 void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const Parametros &parametros);
+void escreveDistFile(double dist, const std::string &file);
 
 namespace N_gamb
 {
@@ -118,8 +120,10 @@ int main(int argc, char* argv[])
             cout<<"SOLUCAO INVIAVEL!\n";
 
 
-        setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
-        saida(parametros, parametrosSaida, best, instancia);
+        //setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
+        //saida(parametros, parametrosSaida, best, instancia);
+        //cout<<best.distancia<<"\n";
+        escreveDistFile(best.distancia, parametros.paramIg.fileSaida);
 
        // cout<<"TEMPO CPU: "<<parametrosSaida.tempo<<" S\n";
         //string numSol;
@@ -130,14 +134,21 @@ int main(int argc, char* argv[])
     }
     catch(const char *erro)
     {
-        cout<<"\n\n*************************************************\n\nCOMMITE: "<<parametros.commit<<"\n";
+/*        cout<<"\n\n*************************************************\n\nCOMMITE: "<<parametros.commit<<"\n";
         cout<<"Compilado em: "<<__DATE__<<", "<<__TIME__<<".\n";
         cout<<"SEMENTE: "<<parametros.semente<<"\n\n";
 
         std::cerr<<"CATCH ERRO\n";
         std::cerr<<erro<<"\n\n";
         //std::cerr<<"Semente: "<<semente<<"\n";
-        exit(-1);
+        exit(-1);*/
+
+        if(ValBestNs::distBest <= 0.0)
+        {
+            return -1;
+        }
+        else
+            escreveDistFile(ValBestNs::distBest, parametros.paramIg.fileSaida);
     }
 
 
@@ -198,4 +209,25 @@ void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const
 
     parametrosGrasp = ParametrosGrasp(parametros.numItTotal, 300, vetAlfa,
                                       250, num, 0.1, parametros.numItTotal+100);
+}
+
+void escreveDistFile(double dist, const std::string &fileStr)
+{
+
+    struct stat buffer;
+    if(stat(fileStr.c_str(), &buffer) == 0)
+    {
+        cout<<"File: "<<fileStr<<" ja existe!!\n\n";
+        exit(-1);
+    }
+
+    fstream file(fileStr, ios::out);
+    if(!file.is_open())
+    {
+        cout<<"Nao foi possivel abrir arquivo: "<<fileStr<<"\n";
+        exit(-1);
+    }
+
+    file<<dist<<"\n";
+    file.close();
 }

@@ -429,7 +429,8 @@ void NS_parametros::saida(Parametros &paramEntrada, ParametrosSaida &paramSaida,
 
 }
 
-// argv[0] eh a instancia
+
+/*
 void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* argv[])
 {
 
@@ -506,15 +507,6 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
 
             }
 
-/*            if(paramEntrada.caminhoPasta != "")
-            {
-                if(paramEntrada.numExecucoesTotais == 0 || paramEntrada.execucaoAtual == -1)
-                {
-                    cout<<"ERRO: OPCOES(--execTotal e --execAtual) TEM QUE SER UTILIZADAS EM CONJUNTO COM --pasta\n\n";
-                    throw "ERRO";
-                }
-            }*/
-
             if(paramEntrada.numExecucoesTotais != 0 && paramEntrada.execucaoAtual == -1)
             {
                 cout<<"ERRO: OPCAO(--execAtual) TEM QUE SER UTILIZADA COM --execTotal\n";
@@ -542,6 +534,94 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
 
         if(!semente)
             paramEntrada.semente = duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+
+    }
+    else
+    {
+        cout<<"ERRO ENTRADA; FALTA A INSTANCIA!\n";
+        cout<<paramEntrada.getParametros()<<"\n\n";
+
+        throw "ERRO";
+    }
+
+    std::time_t result = duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    auto data = std::asctime(std::localtime(&result));
+    paramEntrada.data = string(data);
+
+    seed(paramEntrada.semente);
+
+    string sementeStr;
+    sementeStr += "INSTANCIA: " + string(paramEntrada.nomeInstancia) + "\t";
+    sementeStr += "SEMENTE: " + to_string(paramEntrada.semente)  + "\t"+data;
+
+    cout<<sementeStr;
+
+    //exit(-1);
+
+}
+
+*/
+// argv[0] eh a instancia
+void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* argv[])
+{
+
+    bool semente = false;
+
+    if(argc >= 1)
+    {
+        paramEntrada.instancia = string(argv[0]);
+        paramEntrada.nomeInstancia = getNomeInstancia(paramEntrada.instancia);
+
+        if(argc > 1)
+        {
+            std::unordered_map<std::string, std::string> mapParam;
+            for(int i=1; i < argc; i+=2)
+            {
+                mapParam[string(argv[i])] = string(argv[i+1]);
+
+            }
+
+            auto getKey = [&](string key) -> std::string
+            {
+                if(mapParam.count(key) > 0)
+                    return mapParam[key];
+                else
+                {
+                    cout<<"Erro, parametro: "<<key<<" faltando !\n";
+                    throw "ERRO";
+                }
+
+            };
+
+            paramEntrada.numItTotal          = std::stoi(getKey("--numItIG"));
+            paramEntrada.semente             = std::stoll(getKey("--seed"));
+            paramEntrada.paramIg.alfaSeg     = std::stof(getKey("--alphaSeg"));
+            paramEntrada.paramIg.betaPrim    = std::stof(getKey("--betaPrim"));
+            paramEntrada.paramIg.difBest     = std::stod(getKey("--difBest"));
+            paramEntrada.paramIg.torneio     = bool(std::stoi(getKey("--torneio")));
+            paramEntrada.paramIg.taxaRm      = std::stod(getKey("--taxaRm"));
+            paramEntrada.paramIg.fileSaida   = getKey("--fileSaida");
+
+            cout<<paramEntrada.paramIg.printParam()<<"\n\n";
+            //cout<<"seed \t\t"<<paramEntrada.semente<<"\n";
+
+            //return;
+
+/*            if(paramEntrada.caminhoPasta != "")
+            {
+                if(paramEntrada.numExecucoesTotais == 0 || paramEntrada.execucaoAtual == -1)
+                {
+                    cout<<"ERRO: OPCOES(--execTotal e --execAtual) TEM QUE SER UTILIZADAS EM CONJUNTO COM --pasta\n\n";
+                    throw "ERRO";
+                }
+            }*/
+
+
+        }
+
+
+        //if(!semente)
+        //    paramEntrada.semente = duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
     }
     else
@@ -758,3 +838,59 @@ void NS_parametros::NoSaida::getVal(string &saidaStr)
         }
     }
 }
+
+ParametrosIG::ParametrosIG(const std::string& fileStr)
+{
+
+    std::ifstream file(fileStr);
+    if(!file.is_open())
+    {
+        std::cout<<"Nao foi possuivel abrir arquivo: "<<fileStr<<"\n";
+        PRINT_DEBUG("","");
+        throw "ERRO";
+    }
+
+
+    std::map<std::string, std::string> entradaParam;
+
+    while(file.peek() != EOF)
+    {
+        std::string param, val;
+        file>>param>>val;
+        entradaParam[param] = val;
+    }
+
+    alfaSeg  = std::stof(entradaParam["alfaSeg"]);
+    betaPrim = std::stof(entradaParam["betaPrim"]);
+    difBest  = std::stof(entradaParam["difBest"]);
+    torneio  = (std::stoi(entradaParam["torneio"]) == 1);
+    taxaRm   = std::stod(entradaParam["taxaRm"]);
+    tipoConstrutivo15 = static_cast<TipoConstrutivo>(std::stoi(entradaParam["tipoConstrutivo15"]));
+
+    file.close();
+}
+
+std::string ParametrosIG::printParam()
+{
+    std::string saida;
+
+    saida += "alfaSeg \t\t " + std::to_string(alfaSeg);
+    saida += "\nbetaPrim \t\t " + std::to_string(betaPrim);
+    saida += "\ntorneio \t\t " + std::to_string(torneio);
+    saida += "\ntipoConstrutivo15 \t " + std::to_string(tipoConstrutivo15);
+    saida += "\ndifBest \t\t " + std::to_string(difBest);
+    saida += "\ntaxaEvRm \t\t " + to_string(taxaRm);
+    saida += "\nfileSaida \t\t "+ fileSaida;
+
+
+    return saida;
+}
+
+
+/*
+ *
+ * --pasta
+--execTotal
+--execAtual
+--resulCSV
+ */

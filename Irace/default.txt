@@ -1,0 +1,2 @@
+alphaSeg betaPrim difBest numItIG torneio taxaRm
+0.15 0.8 0.1 2500 1 0.1
