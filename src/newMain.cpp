@@ -38,7 +38,7 @@ void aco(Instancia &instancia, Parametros &parametros, ParametrosGrasp &parm, So
 void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida);
 void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida);
 void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const Parametros &parametros);
-void escreveDistFile(double dist, const std::string &file);
+void escreveDistFile(double dist, double tempo, const std::string &file);
 
 namespace N_gamb
 {
@@ -49,8 +49,9 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    const string commite = "074f659dbe10bf05ae976a4a291aa58eceb15d89";
+    const string commite = "124b9465afd855973de6e85b9c8a0fd96196f7d9";
     parametros.commit = commite;
+    auto startA = std::chrono::high_resolution_clock::now();
 
     try
     {
@@ -81,13 +82,16 @@ int main(int argc, char* argv[])
 
         auto start = std::chrono::high_resolution_clock::now();
 
-        switch(parametros.metodo)
+        ig(instancia, parametros, best, parametrosSaida);
+
+        /*switch(parametros.metodo)
         {
             case METODO_ACO:
                 aco(instancia, parametros, parametrosGrasp, best);
                 break;
 
             case METODO_GRASP:
+                cout<<"GRASP!!\n";
                 grasp(instancia, parametros, best, parametrosSaida);
                 break;
 
@@ -99,7 +103,7 @@ int main(int argc, char* argv[])
                 cout<<"METODO: "<<parametros.metodo<<" NAO EXISTE\n"<<parametros.getParametros()<<"\n\n";
                 throw "ERRO";
                 break;
-        }
+        }*/
 
         auto end = std::chrono::high_resolution_clock::now();
 
@@ -120,10 +124,13 @@ int main(int argc, char* argv[])
             cout<<"SOLUCAO INVIAVEL!\n";
 
 
+        std::chrono::duration<double> tempoAux = end - start;
+        double tempo = tempoAux.count();
+
         //setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
         //saida(parametros, parametrosSaida, best, instancia);
         //cout<<best.distancia<<"\n";
-        escreveDistFile(best.distancia, parametros.paramIg.fileSaida);
+        escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
 
        // cout<<"TEMPO CPU: "<<parametrosSaida.tempo<<" S\n";
         //string numSol;
@@ -148,7 +155,14 @@ int main(int argc, char* argv[])
             return -1;
         }
         else
-            escreveDistFile(ValBestNs::distBest, parametros.paramIg.fileSaida);
+        {
+            auto end = std::chrono::high_resolution_clock::now();
+
+            std::chrono::duration<double> tempoAux = end - startA;
+            double tempo = tempoAux.count();
+
+            escreveDistFile(ValBestNs::distBest, tempo, parametros.paramIg.fileSaida);
+        }
     }
 
 
@@ -211,7 +225,7 @@ void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const
                                       250, num, 0.1, parametros.numItTotal+100);
 }
 
-void escreveDistFile(double dist, const std::string &fileStr)
+void escreveDistFile(double dist, double tempo, const std::string &fileStr)
 {
 
     struct stat buffer;
@@ -228,6 +242,6 @@ void escreveDistFile(double dist, const std::string &fileStr)
         exit(-1);
     }
 
-    file<<dist<<"\n";
+    file<<dist<<" "<<tempo<<"\n";
     file.close();
 }

@@ -636,6 +636,9 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
     auto data = std::asctime(std::localtime(&result));
     paramEntrada.data = string(data);
 
+    if(paramEntrada.semente == 0)
+        paramEntrada.semente = result;
+
     seed(paramEntrada.semente);
 
     string sementeStr;
