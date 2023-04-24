@@ -23,7 +23,7 @@ instanciasTeste = ""
 #tamanhoInst = ['15', '100_0']
 #tamanhoInst = ['100_0']
 #tamanhoInst = ['100_1']
-#tamanhoInst = ['100_2']
+tamanhoInst = ['100_2']
 #tamanhoInst = ['100_1', '100_2']
 
 
@@ -32,7 +32,7 @@ numExecucoes = 30
 caminhoDir = str(sys.argv[1])
 #caminhoDir = ''
 
-parametros = " --pasta '" + caminhoDir+ "' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --alphaSeg 0.05 --betaPrim 0.8 --difBest 0.01 --numItIG 100 --torneio 0 --taxaRm 0.2" + " --execAtual "
+parametros = " --pasta '" + caminhoDir+ "' --resulCSV 'resultados.csv' --execTotal "+str(numExecucoes)+ " --alphaSeg 0.05 --betaPrim 0.8 --difBest 0.01 --numItIG 3000 --torneio 0 --taxaRm 0.2" + " --execAtual "
 
 print("PARAMETROS: \n", parametros, "\n")
 
