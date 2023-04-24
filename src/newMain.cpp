@@ -49,7 +49,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    const string commite = "124b9465afd855973de6e85b9c8a0fd96196f7d9";
+    const string commite = "e7331aebd1b27378e9650e48d8d02389f9d333ab";
     parametros.commit = commite;
     auto startA = std::chrono::high_resolution_clock::now();
 
@@ -127,10 +127,10 @@ int main(int argc, char* argv[])
         std::chrono::duration<double> tempoAux = end - start;
         double tempo = tempoAux.count();
 
-        //setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
-        //saida(parametros, parametrosSaida, best, instancia);
+        setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
+        saida(parametros, parametrosSaida, best, instancia);
         //cout<<best.distancia<<"\n";
-        escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
+        //escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
 
        // cout<<"TEMPO CPU: "<<parametrosSaida.tempo<<" S\n";
         //string numSol;

@@ -594,15 +594,30 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
             };
 
             paramEntrada.numItTotal          = std::stoi(getKey("--numItIG"));
-            paramEntrada.semente             = std::stoll(getKey("--seed"));
+            //paramEntrada.semente             = std::stoll(getKey("--seed"));
             paramEntrada.paramIg.alfaSeg     = std::stof(getKey("--alphaSeg"));
             paramEntrada.paramIg.betaPrim    = std::stof(getKey("--betaPrim"));
             paramEntrada.paramIg.difBest     = std::stod(getKey("--difBest"));
             paramEntrada.paramIg.torneio     = bool(std::stoi(getKey("--torneio")));
             paramEntrada.paramIg.taxaRm      = std::stod(getKey("--taxaRm"));
-            paramEntrada.paramIg.fileSaida   = getKey("--fileSaida");
 
-            cout<<paramEntrada.paramIg.printParam()<<"\n\n";
+            paramEntrada.execucaoAtual       = std::stoi(getKey("--execAtual"));
+            paramEntrada.numExecucoesTotais  = std::stoi(getKey("--execTotal"));
+            paramEntrada.resultadoCSV        = getKey("--resulCSV");
+            paramEntrada.caminhoPasta        = getKey("--pasta");
+
+
+            if(mapParam.count("--seed") > 0)
+            {
+                paramEntrada.semente = std::stoll(mapParam["--seed"]);
+                semente = true;
+            }
+            else
+                semente = false;
+
+            //paramEntrada.paramIg.fileSaida   = getKey("--fileSaida");
+
+            //cout<<paramEntrada.paramIg.printParam()<<"\n\n";
             //cout<<"seed \t\t"<<paramEntrada.semente<<"\n";
 
             //return;
