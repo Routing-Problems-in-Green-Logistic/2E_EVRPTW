@@ -33,14 +33,14 @@ else
 
     mkdir $dir
     cp src/cmake-build-debug/run $dir
-    cp parametrosIg.txt $dir
+    #cp parametrosIg.txt $dir
    
     echo $data
     
-    echo "Parametros IG:"
-    cat $dir/parametrosIg.txt
+    #echo "Parametros IG:"
+    #cat $dir/parametrosIg.txt
     
-    python3 testesNew.py $dir | tee $dir2
+    python3 testes15.py $dir | tee $dir2
 fi
 
 #echo $size

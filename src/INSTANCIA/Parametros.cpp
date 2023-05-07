@@ -255,14 +255,13 @@ void NS_parametros::consolidaResultados(Parametros &paramEntrada, ParametrosSaid
 
                     if(param == "ultimaA")
                         paramConsol.mapNoSaida[param].tipo = SAIDA_TIPO_INT;
-                    else
+                    else if(param == "dist")
                     {
-                        if(param == "dist")
-                        {
-                            paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_MIN);
-                            paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_STD);
-                        }
+                        paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_MIN);
+                        paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_STD);
                     }
+                    else if(param == "t(s)")
+                        paramConsol.mapNoSaida[param].addSaida(SAIDA_EXEC_STD);
                 }
             }
 
