@@ -40,11 +40,11 @@ fig = plt.figure(dpi=800)
 ax = fig.gca()
 
 
-plt.grid(visible=True, alpha=0.3)
+#plt.grid(visible=True, alpha=0.3)
 #plt.legend(prop={'size': 6})
 #plt.legend()
-#plt.xlabel("x")
-#plt.ylabel("y")
+plt.xlabel("x")
+plt.ylabel("y")
 
 if len(sys.argv) < 4:
     print('Utilizacao:\npython3 plotSolution.py instancia.txt solucao.txt numSat <nos para excluir>')
@@ -147,7 +147,7 @@ for i in range(len(nodeId)):
     if nodeType[i] == 'D':
         marker = 's'
         color = '#ff0000'
-    plt.scatter(x[i], y[i], c=color, marker=marker, s=65, zorder= 5, edgecolors='#222222')
+    plt.scatter(x[i], y[i], c=color, marker=marker, s=15, zorder= 5, edgecolors='#222222')
 
 
 #print('*******************************************')
@@ -173,4 +173,4 @@ for route in routes:
         print(route[i], ' ', route[i+1])
         drawArrow(x[route[i]], x[route[i+1]], y[route[i]], y[route[i+1]], 0, color, tipoRota)
 
-plt.savefig('solution__' + ''+ '.png')
+plt.savefig('solution__' + ''+ '.pdf')

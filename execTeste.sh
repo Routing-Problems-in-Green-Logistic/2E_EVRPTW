@@ -15,7 +15,7 @@ then
     dir2=$dir"/log.txt"
     echo "Continuacao teste: "$data
     
-    python3 testesNew.py $dir 1 | tee -a $dir2
+    python3 testes15.py $dir 1 | tee -a $dir2
     
 else
     find=" "
