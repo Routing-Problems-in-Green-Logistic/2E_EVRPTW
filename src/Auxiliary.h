@@ -1,5 +1,5 @@
 //
-// Created by igor on 19/11/2021.
+// Created by ****** on 19/11/2021.
 //
 
 #ifndef INC_2E_EVRP_AUXILIARY_H
