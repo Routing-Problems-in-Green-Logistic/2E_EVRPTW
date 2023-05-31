@@ -159,53 +159,24 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
         }
     }
 
-    const int numEvN_Vazias = temp;
-    const int estrategia = (instancia.numClients > 15) ? Int8(Est100):Int8(Est15);
+    const int numEvN_Vazias  = temp;
+    const int estrategia     = (instancia.numClients > 15) ? Int8(Est100):Int8(Est15);
+    const double difMax      = 0.1;
+    const float alfaSeg      = parametrosIg.alfaSeg;         // Segundo Nivel
+    const float betaPrim     = parametrosIg.betaPrim;        // Primeiro  Nivel
+    const int numEvRmMin     = min(int(parametrosIg.taxaRm * numEvN_Vazias + 1), numEvN_Vazias);
+    int numEvRmCorrente      = numEvRmMin;
+    const int numClientesRm  = max(int(NS_Auxiliary::upperVal(parametrosIg.taxaRm*instancia.numClients)), 1);
 
-    float tempAlfaSeg   = parametrosIg.alfaSeg;
-    float tempBetaPrim  = parametrosIg.betaPrim;
-    const double difMax = 0.1;
-
-/*
-    if(estrategia == Est15)
-    {
-        tempAlfaSeg     = parametrosIg.alfaSeg15;
-        tempBetaPrim    = parametrosIg.betaPrim15;
-    }
-*/
-
-
-    const float alfaSeg  = tempAlfaSeg;         // Segundo Nivel
-    const float betaPrim = tempBetaPrim;        // Primeiro  Nivel
-
-
-    const int numEvRmMin                = min(int(parametrosIg.taxaRm * numEvN_Vazias + 1), numEvN_Vazias);
-    int numEvRmCorrente                 = numEvRmMin;
-    //const int numEvRmMax                = min(int(0.4*numEvN_Vazias+1), numEvN_Vazias);
-    //const int numEvInc                  = 1;
-    //const int numItSemMelhoraIncNumEvRm = 80;
-
-    const int numClientesRm              = max(int(NS_Auxiliary::upperVal(parametrosIg.taxaRm*instancia.numClients)), 1);
-
-    //const int numItSemMelhoraResetSolC = 20;
-
-    int ultimaA = 0;
-    int ultimaABest = 0;
-    int numSolG = 1;
-    int numFuncDestroi = 0;
+    int ultimaA             = 0;
+    int ultimaABest         = 0;
+    int numSolG             = 1;
+    int numFuncDestroi      = 0;
     int numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)));
 
     auto funcAtualNumChamDest0 = [&](){numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)));};
 
-    // Estrategia 0: removeEv, Estrategia 1: remove cliente
-
-    bool tempTorneio = parametrosIg.torneio;
-
-/*    if(estrategia == Est15)
-        tempTorneio = parametrosIg.torneio15;*/
-
-    //const bool torneio = tempTorneio;
-    const bool torneio = tempTorneio;
+    const bool torneio = parametrosIg.torneio;
 
     int tempTipoConst = CONSTRUTIVO1;
     if(estrategia == Est15)
@@ -513,6 +484,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
 
     };
 
+
     // Remove uma rota de caminhao(primeiro nivel)
     auto funcDestroi3 = [&](Solucao &sol, int numRouteRm) -> bool
     {
@@ -606,9 +578,6 @@ if(i%200 == 0)
                 numFuncDestroi += 1;
             } else if(numFuncDestroi == numChamadasDestroi0)
             {
-                //if(!funcDestroi1(solC))
-                //    funcDestroi0(solC, numEvRmCorrente);
-
 
                 if(segFuncDest == 0)
                 {
@@ -619,13 +588,12 @@ if(i%200 == 0)
                 }
                 else
                 {
-
                     solC = Solucao(instancia);
                     solC.copia(solBest);
 
                     if(funcDestroi3(solC, 2))
                     {
-                        NS_Construtivo3::construtivoPrimeiroNivel(solC, instancia, betaPrim, true, false);
+                        NS_Construtivo3::construtivoPrimeiroNivel(solC, instancia, betaPrim, true, true);
                         construtivoFull = false;
                         solC.todasRotasEvAtualizadas();
                         //cout<<"FuncDestroi3 ";
@@ -666,10 +634,6 @@ if(i%200 == 0)
         }
         else
         {
-
-            //if(!construtivoFull)
-            //    cout<<"SOLUCAO VIAVEL\n";
-
             string strSolConst;
             if(escreveSol)
             {
@@ -702,8 +666,6 @@ if(i%200 == 0)
             {
                 string strSolVnd;
                 solC.printPlot(strSolVnd, instancia);
-
-
                 writeSol(dirPlotInter, i, strSolC, strSolConst, strSolVnd);
                 escreveSol = false;
             }
@@ -715,6 +677,11 @@ if(i%200 == 0)
 
         if(NS_Auxiliary::menor(solC.distancia, solBest.distancia))
         {
+            if(!construtivoFull)
+            {
+                cout<<"Destruicao utilizada melhorou a sol. dist: "<<solC.distancia<<"\n";
+            }
+
             string erro;
             if(!solC.checkSolution(erro, instancia))
             {
@@ -735,9 +702,9 @@ if(i%200 == 0)
             ultimaABest = i;
             numEvRmCorrente = numEvRmMin;
             funcAtualNumChamDest0();
-#if PRINT_IG
+//#if PRINT_IG
 cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
-#endif
+//#endif
 
             //throw "FUNCIONOU! NAO EH ERRO";
 
@@ -745,21 +712,6 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 
         dadosIg.solBest = solBest.distancia;
         vetDadosIg.push_back(dadosIg);
-
-        /*
-        const int temp = i-ultimaABest;
-        if((temp % numItSemMelhoraIncNumEvRm == 0) && temp != 0)
-        {
-            numEvRmCorrente += numEvInc;
-            if(numEvRmCorrente > numEvRmMax)
-                numEvRmCorrente = numEvRmMin;
-
-            funcAtualNumChamDest0();
-            ultimaABest = i;
-        }
-        */
-
-        //throw "NAO EH ERRO!";
 
     } // END for ig
 
@@ -801,25 +753,12 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
         parametrosSaida.mapNoSaida[strParm](val);
     };
 
-
     funcAddParaSaidaInt("invCarga", vetInviabilidate[NS_Auxiliary::Inv_Carga]);
     funcAddParaSaidaInt("invTw", vetInviabilidate[NS_Auxiliary::Inv_tw]);
     funcAddParaSaidaInt("invBat", vetInviabilidate[NS_Auxiliary::Inv_bat]);
     funcAddParaSaidaInt("inv1Nivel", vetInviabilidate[NS_Auxiliary::Inv_1_Nivel]);
     funcAddParaSaidaInt("inv1NivelUnico", vetInviabilidate[NS_Auxiliary::Inv_1_Nivel_unico]);
     funcAddParaSaidaInt("invNaoRs", vetInviabilidate[NS_Auxiliary::Inv_nao_ev_rs]);
-
-
-#if PRINT_IG
-    cout<<"INVIABILIDADE CARGA: \t"<<vetInviabilidate[NS_Auxiliary::Inv_Carga]<<"\n";
-    cout<<"INVIABILIDADE JANELA: \t"<<vetInviabilidate[NS_Auxiliary::Inv_tw]<<"\n";
-    cout<<"INVIABILIDADE BAT: \t"<<vetInviabilidate[NS_Auxiliary::Inv_bat]<<"\n";
-    cout<<"INVIABILIDADE 1º NIVEL: \t"<<vetInviabilidate[NS_Auxiliary::Inv_1_Nivel]<<"\n";
-    cout<<"INVIABILIDADE 1º NIVEL UNICO: \t"<<vetInviabilidate[NS_Auxiliary::Inv_1_Nivel_unico]<<"\n";
-    cout<<"INVIABILIDADE NAO EXISTE RS: \t"<<vetInviabilidate[NS_Auxiliary::Inv_nao_ev_rs]<<"\n\n";
-    cout<<"MEDIA QUANTIDADE DE CANDIDATOS: "<< double(VarAuxiliaresIgNs::sumQuantCand)/VarAuxiliaresIgNs::num_sumQuantCand<<"\n";
-    cout<<"MEDIA QUANTIDADE DE CLIENTES REMOVIDOS: "<<double(VarAuxiliaresIgNs::sumQuantCliRm)/VarAuxiliaresIgNs::num_sumQuantCliRm<<"\n";
-#endif
 
     string erro;
     if(!solBest.checkSolution(erro, instancia))
@@ -830,10 +769,6 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
         cout<<erro<<"\n\n";
         throw "ERRO";
     }
-
-#if PRINT_IG
-cout<<"IG: "<<solBest.distancia<<"\n\n";
-#endif
 
     printVetDadosIg(vetDadosIg, parametros);
 

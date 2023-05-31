@@ -6,6 +6,12 @@
  * ****************************************
  * ****************************************/
 
+// Parametros para inst de 100 clientes:
+// --alphaSeg 0.05 --betaPrim 0.75 --difBest 0.05 --numItIG 2500 --torneio 1 --taxaRm 0.25
+
+// Parametros para inst menor de 15 clientes:
+// --alphaSeg 0.9 --betaPrim 0.9 --difBest 0.03 --numItIG 2500 --torneio 0 --taxaRm 0.6
+
 #include <iostream>
 #include <chrono>
 #include <limits>
