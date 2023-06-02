@@ -677,11 +677,12 @@ if(i%200 == 0)
 
         if(NS_Auxiliary::menor(solC.distancia, solBest.distancia))
         {
+#if PRINT_IG
             if(!construtivoFull)
             {
                 cout<<"Destruicao utilizada melhorou a sol. dist: "<<solC.distancia<<"\n";
             }
-
+#endif
             string erro;
             if(!solC.checkSolution(erro, instancia))
             {
@@ -702,11 +703,10 @@ if(i%200 == 0)
             ultimaABest = i;
             numEvRmCorrente = numEvRmMin;
             funcAtualNumChamDest0();
-//#if PRINT_IG
+#if PRINT_IG
 cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
-//#endif
+#endif
 
-            //throw "FUNCIONOU! NAO EH ERRO";
 
         }
 
@@ -714,6 +714,8 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
         vetDadosIg.push_back(dadosIg);
 
     } // END for ig
+
+    cout<<"\tDist: "<<solBest.distancia<<"\n\n";
 
     double fatorSolCorr = (double(hashSolSetCorrente.size())/numSolCorrente) * 100;
     if(numSolCorrente == 0)

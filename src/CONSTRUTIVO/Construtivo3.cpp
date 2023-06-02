@@ -703,12 +703,7 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
         for(int sat=1; sat < NumSatMaisDep; ++sat)
         {
             Satelite &satelite = sol.satelites.at(sat);
-/*            if(i==1)
-            {
 
-                std::cout<<"1º: DEM NAO ATEND(1): "<<demandaNaoAtendidaSat[1]<<"\n\n";
-            }*/
-            // Verifica se a demanda não atendida eh positiva
             if(demandaNaoAtendidaSat[sat] > 0.0)
             {
                 // Percorre todas as rotas
@@ -716,7 +711,7 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
                 {
                     Route &route = sol.primeiroNivel[rotaId];
 
-                    // Verifica se route ja atende satelite
+                    // Verifica se route ja atende esse satelite
                     if(route.satelliteDemand[sat] > 0.0)
                         continue;
 
@@ -746,7 +741,7 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
                             incrementoDist -= instance.getDistance(clienteP.satellite, clientePP.satellite);
                             incrementoDist = incrementoDist + instance.getDistance(clienteP.satellite, sat) + instance.getDistance(sat, clientePP.satellite);
 
-                            if(incrementoDist < candidato.incrementoDistancia)
+                            if(incrementoDist < candidato.incrementoDistancia || solStart)
                             {
                                 // Calcula o tempo de chegada e verifica a janela de tempo
                                 const double tempoChegCand = clienteP.tempoChegada + instance.getDistance(clienteP.satellite, sat);
@@ -776,14 +771,26 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
 
                                 if(satViavel)
                                 {
-                                    candidato.incrementoDistancia = incrementoDist;
-                                    candidato.pos = p;
-                                    candidato.tempoSaida = tempoChegCand;
+                                    if(!solStart)
+                                    {
+                                        candidato.incrementoDistancia = incrementoDist;
+                                        candidato.pos = p;
+                                        candidato.tempoSaida = tempoChegCand;
+                                    }
+                                    else
+                                    {
+                                        CandidatoVeicComb candidatoTemp(rotaId, sat, demandaAtendida, DOUBLE_MAX);
+                                        candidatoTemp.incrementoDistancia = incrementoDist;
+                                        candidatoTemp.pos = p;
+                                        candidatoTemp.tempoSaida = tempoChegCand;
+
+                                        listaCandidatos.push_back(candidatoTemp);
+                                    }
                                 }
                             }
                         }
 
-                        if(candidato.pos >= 0)
+                        if(candidato.pos >= 0 && !solStart)
                             listaCandidatos.push_back(candidato);
                     }
                 }
