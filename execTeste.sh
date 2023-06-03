@@ -15,7 +15,7 @@ then
     dir2=$dir"/log.txt"
     echo "Continuacao teste: "$data
     
-    python3 testes15.py $dir 1 | tee -a $dir2
+    python3 testes00.py $dir 1 | tee -a $dir2
     
 else
     find=" "
@@ -40,7 +40,7 @@ else
     #echo "Parametros IG:"
     #cat $dir/parametrosIg.txt
     
-    python3 testes15.py $dir | tee $dir2
+    python3 testes100.py $dir | tee $dir2
 fi
 
 #echo $size

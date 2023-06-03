@@ -579,14 +579,17 @@ if(i%200 == 0)
             } else if(numFuncDestroi == numChamadasDestroi0)
             {
 
+                solC = Solucao(instancia);
+                solC.copia(solBest);
+
                 if(segFuncDest == 0)
                 {
                     if(!funcDestroi1(solC))
                         funcDestroi0(solC, numEvRmCorrente);
 
-                    segFuncDest = 1;
+                    //segFuncDest = 1;
                 }
-                else
+/*                else
                 {
                     solC = Solucao(instancia);
                     solC.copia(solBest);
@@ -600,7 +603,7 @@ if(i%200 == 0)
                     }
 
                     segFuncDest = 0;
-                }
+                }*/
 
                 numFuncDestroi = 0;
             }
@@ -715,7 +718,7 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 
     } // END for ig
 
-    cout<<"\tDist: "<<solBest.distancia<<"\n\n";
+    //cout<<"\tDist: "<<solBest.distancia<<"\n\n";
 
     double fatorSolCorr = (double(hashSolSetCorrente.size())/numSolCorrente) * 100;
     if(numSolCorrente == 0)

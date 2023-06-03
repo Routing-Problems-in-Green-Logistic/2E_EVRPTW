@@ -70,12 +70,12 @@ int Instancia::getN_Trucks() const
     return numTruck;
 }
 
-inline double Instancia::getDistance(int n1, int n2) const {
+double Instancia::getDistance(int n1, int n2) const {
 
     return matDist(n1,n2);
 }
 
-inline int Instancia::getFirstClientIndex() const {
+int Instancia::getFirstClientIndex() const {
     return 1 + numSats + numRechargingS;
 
 }

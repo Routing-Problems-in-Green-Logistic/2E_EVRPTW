@@ -2,24 +2,15 @@ set(CMAKE_CXX_STANDARD 20)
 cmake_minimum_required(VERSION 3.20)
 project(2E_EVRP)
 
-set(CMAKE_CXX_FLAGS_RELEASE "-g3")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-set(CMAKE_CXX_FLAGS_RELEASE "-march=native")
+#set(CMAKE_CXX_FLAGS "-g3")
+set(CMAKE_CXX_FLAGS "-O3")
+#set(CMAKE_CXX_FLAGS "-march=native")
 
-#set(CMAKE_CXX_FLAGS_RELEASE "-g3")
-#set(CMAKE_CXX_FLAGS_RELEASE "-ggdb")
+#set(CMAKE_CXX_FLAGS "-g3")
+#set(CMAKE_CXX_FLAGS "-ggdb")
 #set(CMAKE_BUILD_TYPE Debug)
-
-set(CMAKE_CXX_FLAGS_RELEASE "-Wall")
-set(CMAKE_CXX_FLAGS_RELEASE "-Wextra")
-set(CMAKE_CXX_FLAGS_RELEASE "-Wnull-dereference")
-set(CMAKE_CXX_FLAGS_RELEASE "-fdelete-null-pointer-checks")
-set(CMAKE_CXX_FLAGS_RELEASE "-Wuninitialized")
-set(CMAKE_CXX_FLAGS_RELEASE "-Winit-self")
-set(CMAKE_CXX_FLAGS_RELEASE "-Wmisleading-indentation")
-set(CMAKE_CXX_FLAGS_RELEASE "-Wunknown-pragmas")
-set(CMAKE_CXX_FLAGS_RELEASE "-Wfloat-equal")
-set(CMAKE_CXX_FLAGS_RELEASE "-Wconversion")
+#set(CMAKE_CXX_FLAGS "-Wall")
+#set(CMAKE_CXX_FLAGS "-Wall") set(CMAKE_CXX_FLAGS "-Wextra") set(CMAKE_CXX_FLAGS "-Wnull-dereference") set(CMAKE_CXX_FLAGS "-fdelete-null-pointer-checks") set(CMAKE_CXX_FLAGS "-Wuninitialized") set(CMAKE_CXX_FLAGS "-Winit-self") set(CMAKE_CXX_FLAGS "-Wmisleading-indentation") set(CMAKE_CXX_FLAGS "-Wunknown-pragmas") set(CMAKE_CXX_FLAGS "-Wfloat-equal") set(CMAKE_CXX_FLAGS "-Wconversion")
 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D __FILENAME__='\"$(subst  ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
@@ -62,10 +53,10 @@ add_executable(run ${SOURCES})# INSTANCIA/ParametrosEntrada.cpp INSTANCIA/Parame
 #target_include_directories(run PUBLIC "ACO")
 #add_subdirectory("ACO")
 
-
+add_subdirectory("INSTANCIA")
 target_include_directories(run PUBLIC "INSTANCIA")
 link_directories("INSTANCIA")
-add_subdirectory("INSTANCIA")
+
 
 target_sources(run PUBLIC ${SOURCES})
 

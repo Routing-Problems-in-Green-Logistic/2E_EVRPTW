@@ -1,7 +1,7 @@
 #ifndef ROUTE_H
 #define ROUTE_H
 
-#include "Instancia.h"
+#include "INSTANCIA/Instancia.h"
 #include <boost/container/vector.hpp>
 namespace BoostC = boost::container;
 #include <iostream>
