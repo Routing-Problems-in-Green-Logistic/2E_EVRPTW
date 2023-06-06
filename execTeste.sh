@@ -15,11 +15,13 @@ then
     dir2=$dir"/log.txt"
     echo "Continuacao teste: "$data
     
-    python3 testes00.py $dir 1 | tee -a $dir2
+    python3 testes100.py $dir 1 | tee -a $dir2
     
 else
     find=" "
     replace="_"
+    data=${data//$find/$replace}
+    find=":"
     data=${data//$find/$replace}
 
     size=${#data}

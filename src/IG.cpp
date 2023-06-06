@@ -172,9 +172,10 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     int ultimaABest         = 0;
     int numSolG             = 1;
     int numFuncDestroi      = 0;
-    int numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)));
+    const int numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)))*parametrosIg.fatorNumChamadas;
+    //cout<<"numChamadasDestroi: "<<numChamadasDestroi0<<"\n";
 
-    auto funcAtualNumChamDest0 = [&](){numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)));};
+    //auto funcAtualNumChamDest0 = [&](){numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)));};
 
     const bool torneio = parametrosIg.torneio;
 
@@ -521,7 +522,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     vetDadosIg.reserve(parametrosGrasp.numIteGrasp);
 
     bool escreveSol = false;
-    int segFuncDest = 0;
+    const int segFuncDest = 1;
 
     for(int i=0; i < parametrosGrasp.numIteGrasp; ++i)
     {
@@ -542,6 +543,11 @@ if(i%200 == 0)
             escreveSol = true;
         }
 #endif
+
+/*-        if(i > 0 && ((i)%100)==0)
+        {
+            segFuncDest = (segFuncDest+1)%2;
+        }*/
 
         const double dif = (solC.distancia-solBest.distancia)/solBest.distancia;
 
@@ -576,7 +582,47 @@ if(i%200 == 0)
             {
                 funcDestroi0(solC, numEvRmCorrente);
                 numFuncDestroi += 1;
-            } else if(numFuncDestroi == numChamadasDestroi0)
+            }
+            else if(numFuncDestroi >= numChamadasDestroi0)// && numFuncDestroi < (numChamadasDestroi0*2))
+            {
+//                if(numFuncDestroi == numChamadasDestroi0)
+                {
+                    solC = Solucao(instancia);
+                    solC.copia(solBest);
+                }
+
+                if(!funcDestroi1(solC))
+                    funcDestroi0(solC, numEvRmCorrente);
+
+                numFuncDestroi = 0;
+
+            }
+            else if(numFuncDestroi >= (numChamadasDestroi0*2) && numFuncDestroi < (numChamadasDestroi0*3))
+            {
+/*                if(numFuncDestroi == numChamadasDestroi0*2)
+                {
+                    solC = Solucao(instancia);
+                    solC.copia(solBest);
+                }*/
+
+                if(funcDestroi3(solC, 2))
+                {
+                    NS_Construtivo3::construtivoPrimeiroNivel(solC, instancia, betaPrim, true, true);
+                    construtivoFull = false;
+                    solC.todasRotasEvAtualizadas();
+                    //cout<<"FuncDestroi3 ";
+                }
+
+                numFuncDestroi += 1;
+
+            }
+
+
+            //numFuncDestroi = numFuncDestroi%(3*numChamadasDestroi0);
+
+
+            /*
+            else if(numFuncDestroi == numChamadasDestroi0)
             {
 
                 solC = Solucao(instancia);
@@ -589,10 +635,8 @@ if(i%200 == 0)
 
                     //segFuncDest = 1;
                 }
-/*                else
+                else
                 {
-                    solC = Solucao(instancia);
-                    solC.copia(solBest);
 
                     if(funcDestroi3(solC, 2))
                     {
@@ -602,11 +646,12 @@ if(i%200 == 0)
                         //cout<<"FuncDestroi3 ";
                     }
 
-                    segFuncDest = 0;
-                }*/
+                    //segFuncDest = 0;
+                }
 
                 numFuncDestroi = 0;
             }
+            */
 
         }
         else
@@ -680,6 +725,7 @@ if(i%200 == 0)
 
         if(NS_Auxiliary::menor(solC.distancia, solBest.distancia))
         {
+
 #if PRINT_IG
             if(!construtivoFull)
             {
@@ -705,7 +751,7 @@ if(i%200 == 0)
 
             ultimaABest = i;
             numEvRmCorrente = numEvRmMin;
-            funcAtualNumChamDest0();
+            //funcAtualNumChamDest0();
 #if PRINT_IG
 cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 #endif
