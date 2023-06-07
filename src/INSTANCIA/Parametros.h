@@ -47,7 +47,7 @@ namespace NS_parametros
         float alfaSeg    = 0.2;                          // Valor do parametro alfa do segundo nivel EV
         float betaPrim   = 0.15;                         // Valor do parametro beta do primeiro nivel ~EV
         double difBest   = 0.1;
-        double fatorNumChamadas = 1.5;
+        double fatorNumChamadas = 2;
         bool  torneio    = true;                         // Utilizacao de torneio em inst de 100 clientes
         TipoConstrutivo tipoConstrutivo15 = CONSTRUTIVO1;   // Tipo de construtivo para inst <= 15
 
