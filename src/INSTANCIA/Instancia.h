@@ -78,7 +78,7 @@ public:
     Instancia(const std::string &file, const std::string &nome_);
     Instancia()=default;
     ~Instancia();
-    double getDemand(int node) const; // the const means that the method promises not to alter any members of the class.
+    double getDemand(int node) const;
     [[nodiscard]] double getDistance(int n1, int n2) const;
 
     static int getDepotIndex() {return 0;}
@@ -155,6 +155,10 @@ public:
     // Guarda a distancia ate o satelite de forma ordenada para cada cliete
     vector<vector<DistSatelite>> vetVetDistClienteSatelite;
 
+    // Guarda para cada sat os sat mais proximos
+    BoostC::vector<BoostC::vector<DistSatelite>> vetVetDistSatSat;
+
+
     // Guarda para cada par (sat, RS)  se eh possivel voltar ao sat
     vector<int8_t> vetVoltaRS_sat;
 
@@ -164,6 +168,7 @@ public:
     bool nivel2Viavel = false;
 
     void calculaVetVoltaRS_sat();
+
 
 };
 

@@ -22,6 +22,7 @@
 
 namespace NS_LocalSearch2
 {
+    bool mvShifitEvs_interRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux);
 
     bool mvEvShifit2Nos_interRotasIntraSat(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1);
     bool mvEvShifit2Nos_interRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0,
@@ -273,7 +274,7 @@ namespace NS_LocalSearch2
         return false;
     }
 
-    bool mvSplitCarga(Solucao &satId, Instancia &instancia);
+    //bool mvSplitCarga(Solucao &satId, Instancia &instancia);
 
     class RotaTempoCh
     {

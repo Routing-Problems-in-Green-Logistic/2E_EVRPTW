@@ -97,7 +97,7 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
             double val = solution.distancia;
             //cout << "\t\tMV: " << vetMv[i] << "\n";
 
-            auto start = std::chrono::high_resolution_clock::now();
+            //auto start = std::chrono::high_resolution_clock::now();
 
             switch(vetMv[i])
             {
@@ -153,12 +153,13 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
                     cout << "ERRO: MV(" << vetMv[i] << ") NAO EXISTE\n";
                     throw "ERRO";
                     break;
-
             }
 
+            /*
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> tempoAux = end - start;
             NS_TimeMV::vetTempoCpuMV[vetMv[i]] += tempoAux.count();
+            */
 
             vetMvValor[vetMv[i]].quantChamadas += 1;
 
