@@ -2,25 +2,19 @@ set(CMAKE_CXX_STANDARD 20)
 cmake_minimum_required(VERSION 3.20)
 project(2E_EVRP)
 
-#set(CMAKE_CXX_FLAGS "-g3")
 set(CMAKE_CXX_FLAGS "-O3")
 #set(CMAKE_CXX_FLAGS "-march=native")
 
-#set(CMAKE_CXX_FLAGS "-g3")
-#set(CMAKE_CXX_FLAGS "-ggdb")
+#set(CMAKE_CXX_FLAGS "-g3 -ggdb")
 #set(CMAKE_BUILD_TYPE Debug)
-#set(CMAKE_CXX_FLAGS "-Wall")
-#set(CMAKE_CXX_FLAGS "-Wall") set(CMAKE_CXX_FLAGS "-Wextra") set(CMAKE_CXX_FLAGS "-Wnull-dereference") set(CMAKE_CXX_FLAGS "-fdelete-null-pointer-checks") set(CMAKE_CXX_FLAGS "-Wuninitialized") set(CMAKE_CXX_FLAGS "-Winit-self") set(CMAKE_CXX_FLAGS "-Wmisleading-indentation") set(CMAKE_CXX_FLAGS "-Wunknown-pragmas") set(CMAKE_CXX_FLAGS "-Wfloat-equal") set(CMAKE_CXX_FLAGS "-Wconversion")
-
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D __FILENAME__='\"$(subst  ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
 #CXX_FLAGS+=-D__FILENAME__='\"$(subst $(SOURCE_PREFIX)/,,$(abspath $<))\"'"
 
 set(SOURCES newMain.cpp
-            #main.cpp
             Satelite.cpp
             Satelite.h
-        Auxiliary.cpp
+            Auxiliary.cpp
             Auxiliary.h
             Route.cpp
             Vnd.cpp
@@ -29,21 +23,21 @@ set(SOURCES newMain.cpp
             ViabilizadorRotaEv.h
             Teste.cpp
             Teste.h
-        Solucao.cpp
-        EvRoute.cpp
-        mersenne-twister.h
-        mersenne-twister.cpp
-        Constants.h
-        Constants.cpp
-        Grasp.cpp
-        Grasp.h
-        PreProcessamento.cpp
-        PreProcessamento.h
-        Heap.h
-        common.h
-        VetorHash.h
-        IG.h
-        IG.cpp)
+            Solucao.cpp
+            EvRoute.cpp
+            mersenne-twister.h
+            mersenne-twister.cpp
+            Constants.h
+            Constants.cpp
+            Grasp.cpp
+            Grasp.h
+            PreProcessamento.cpp
+            PreProcessamento.h
+            Heap.h
+            common.h
+            VetorHash.h
+            IG.h
+            IG.cpp)
 
 
 

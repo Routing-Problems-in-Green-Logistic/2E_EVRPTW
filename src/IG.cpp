@@ -583,13 +583,11 @@ if(i%200 == 0)
                 funcDestroi0(solC, numEvRmCorrente);
                 numFuncDestroi += 1;
             }
-            else if(numFuncDestroi >= numChamadasDestroi0)// && numFuncDestroi < (numChamadasDestroi0*2))
+            else
             {
-//                if(numFuncDestroi == numChamadasDestroi0)
-                {
-                    solC = Solucao(instancia);
-                    solC.copia(solBest);
-                }
+
+                solC = Solucao(instancia);
+                solC.copia(solBest);
 
                 if(!funcDestroi1(solC))
                     funcDestroi0(solC, numEvRmCorrente);
@@ -597,62 +595,6 @@ if(i%200 == 0)
                 numFuncDestroi = 0;
 
             }
-            else if(numFuncDestroi >= (numChamadasDestroi0*2) && numFuncDestroi < (numChamadasDestroi0*3))
-            {
-/*                if(numFuncDestroi == numChamadasDestroi0*2)
-                {
-                    solC = Solucao(instancia);
-                    solC.copia(solBest);
-                }*/
-
-                if(funcDestroi3(solC, 2))
-                {
-                    NS_Construtivo3::construtivoPrimeiroNivel(solC, instancia, betaPrim, true, true);
-                    construtivoFull = false;
-                    solC.todasRotasEvAtualizadas();
-                    //cout<<"FuncDestroi3 ";
-                }
-
-                numFuncDestroi += 1;
-
-            }
-
-
-            //numFuncDestroi = numFuncDestroi%(3*numChamadasDestroi0);
-
-
-            /*
-            else if(numFuncDestroi == numChamadasDestroi0)
-            {
-
-                solC = Solucao(instancia);
-                solC.copia(solBest);
-
-                if(segFuncDest == 0)
-                {
-                    if(!funcDestroi1(solC))
-                        funcDestroi0(solC, numEvRmCorrente);
-
-                    //segFuncDest = 1;
-                }
-                else
-                {
-
-                    if(funcDestroi3(solC, 2))
-                    {
-                        NS_Construtivo3::construtivoPrimeiroNivel(solC, instancia, betaPrim, true, true);
-                        construtivoFull = false;
-                        solC.todasRotasEvAtualizadas();
-                        //cout<<"FuncDestroi3 ";
-                    }
-
-                    //segFuncDest = 0;
-                }
-
-                numFuncDestroi = 0;
-            }
-            */
-
         }
         else
         {
