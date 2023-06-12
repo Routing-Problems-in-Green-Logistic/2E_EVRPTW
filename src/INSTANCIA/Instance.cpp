@@ -334,15 +334,24 @@ void Instancia::calculaVetVoltaRS_sat()
     {
         BoostC::vector<DistSatelite> &vetDistSat = vetVetDistSatSat[sat];
         vetDistSat.resize(numSats-1);
+        //cout<<"Sat("<<sat<<"): ";
 
         int prox = 0;
         for(int satOutro=getFirstSatIndex(); satOutro <= getEndSatIndex(); ++satOutro)
         {
-            vetDistSat[prox].satelite = satOutro;
-            vetDistSat[prox].dist     = getDistance(sat, satOutro);
+            if(satOutro != sat)
+            {
+                vetDistSat[prox].satelite = satOutro;
+                vetDistSat[prox].dist = getDistance(sat, satOutro);
+                prox += 1;
+            }
         }
 
         std::sort(vetDistSat.begin(), vetDistSat.end());
+/*        cout<<"Sat("<<sat<<"): ";
+        for(auto it:vetDistSat)
+            cout<<"("<<it.satelite<<"; "<<it.dist<<") ";
+        cout<<"\n";*/
     }
 
 }

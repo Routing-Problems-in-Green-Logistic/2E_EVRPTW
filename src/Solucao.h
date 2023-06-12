@@ -63,3 +63,4 @@ public:
 
 };
 #endif //INC_2E_EVRP_SOLUCAO_H
+//sat 7; sat novo: 6

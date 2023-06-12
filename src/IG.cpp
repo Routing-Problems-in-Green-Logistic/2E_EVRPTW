@@ -633,15 +633,26 @@ if(i%200 == 0)
             dadosIg.solConst = solC.distancia;
 
             numSolG += 1;
+            //lucao solTemp(instancia);
+            //solTemp.copia(solC);
+            string strSolAntes;
+            //solC.print(strSolAntes, instancia);
+
             rvnd(solC, instancia, betaPrim, vetMvValor, vetMvValor1Nivel);
 
-
-            if(escreveSol)
+            string erro;
+            if(!solC.checkSolution(erro, instancia))
             {
-                string strSolVnd;
-                solC.printPlot(strSolVnd, instancia);
-                writeSol(dirPlotInter, i, strSolC, strSolConst, strSolVnd);
-                escreveSol = false;
+                PRINT_DEBUG("", "");
+                cout<<"ERRO APOS NOVO MV, IG\n";
+                cout<<erro<<"\n\n";
+                erro = "";
+                solC.print(erro, instancia);
+                cout<<erro;
+                cout<<"######################################################\n\n";
+                cout<<"Sol antes rvnd: "<<strSolAntes;
+
+                throw "ERRO";
             }
 
             hashSolSetVnd.insert(VetorHash(solC, instancia));

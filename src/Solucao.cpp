@@ -307,7 +307,7 @@ void Solucao::print(std::string &saida, const Instancia &instance)
     for(int i=0; i < satTempoChegMax.size(); ++i)
         saida += str(boost::format("%.1f\t") % satTempoChegMax[i]);*/
 
-    saida += "2º NIVEL:\n";
+    saida += "!2º NIVEL:\n";
 
     for(int sat = instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
     {

@@ -438,7 +438,6 @@ bool EvRoute::checkRoute(std::string &erro, const Instancia &instance) const
 
 void EvRoute::print(std::string &strRota, const Instancia &instance, const bool somenteNo) const
 {
-    strRota += "!idRota: " + to_string(idRota) + ";  ";
     for(int i=0; i < routeSize; ++i)
     {
         if(!somenteNo)
@@ -463,7 +462,7 @@ void EvRoute::print(std::string &strRota, const Instancia &instance, const bool 
         }
     }
 
-    strRota += "\nDistance: " + to_string(distancia) + "\n";
+    strRota += "\nDistance: " + to_string(distancia) + "; Demanda: " + to_string(demanda) + "\n";
 
 }
 
@@ -647,4 +646,7 @@ void EvRoute::resetaEvRoute()
         it.utilizado = 0;
         it.recargaId = -1;
     }
+
+    distancia = 0.0;
+    demanda   = 0.0;
 }

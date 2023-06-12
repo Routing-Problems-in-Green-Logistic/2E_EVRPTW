@@ -1071,14 +1071,24 @@ cout<<"\n\n";
 }
 
 // MV
-bool NS_LocalSearch2::mvShifitEvs_interRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux)
+bool NS_LocalSearch2::mvShifitEvs_interRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux, float beta)
 {
+    if(instancia.numSats <= 1)
+        return false;
+
+    //cout<<"\n\n**************************\n\n";
+
     int sat = 1 + rand_u32()%instancia.numSats;
     const int satIni = sat;
+    InsercaoEstacao insercaoEstacao;
+    static Solucao tempSolucao(instancia);
+
+    //cout<<"Num de satellites: "<<instancia.numSats<<"\n\n";
 
     // Percorre os satellites da solucao
     do
     {
+        //cout<<"sat: "<<sat<<"\n";
         Satelite &satelite = solucao.satelites[sat];
         if(satelite.vazio())
         {
@@ -1087,6 +1097,7 @@ bool NS_LocalSearch2::mvShifitEvs_interRotasInterSats(Solucao &solucao, Instanci
             continue;
         }
 
+        // Percorre os EVs do sat
         for(int ev=0; ev < instancia.numEv; ++ev)
         {
             EvRoute &evRoute = satelite.vetEvRoute[ev];
@@ -1094,14 +1105,15 @@ bool NS_LocalSearch2::mvShifitEvs_interRotasInterSats(Solucao &solucao, Instanci
                 continue;
 
             const int primCli = evRoute[1].cliente;
-            const int ultCli  = evRoute[evRoute.routeSize-1].cliente;
+            const int ultCli  = evRoute[evRoute.routeSize-2].cliente;
 
             // Dist de evRoute menos a dist ao satelite
             const double dist = evRoute.distancia - (instancia.getDistance(sat, primCli) + instancia.getDistance(ultCli, sat));
 
+            // Percorre os sat da solucao
             for(int satId=0; satId < (instancia.numSats-1); ++satId)
             {
-                const int satOutro = (instancia.vetVetDistSatSat[sat])[satOutro].satelite;
+                const int satOutro = (instancia.vetVetDistSatSat[sat])[satId].satelite;
                 Satelite &sateliteOutro = solucao.satelites[satOutro];
 
                 if(satOutro <= 0 || satOutro > instancia.numSats)
@@ -1127,6 +1139,7 @@ bool NS_LocalSearch2::mvShifitEvs_interRotasInterSats(Solucao &solucao, Instanci
                 const double tempoSaidaSat = tempTempoSaidaSat;
 
                 const double newDist = dist + instancia.getDistance(satOutro, primCli) + instancia.getDistance(ultCli, satOutro);
+//cout<<"nova dist: "<<newDist<<"; dist evRoute: "<<evRoute.distancia<<"\n";
                 if(!menor(newDist, evRoute.distancia))
                     continue;
 
@@ -1134,18 +1147,96 @@ bool NS_LocalSearch2::mvShifitEvs_interRotasInterSats(Solucao &solucao, Instanci
                 evRouteAux.copia(evRoute, false, nullptr);
                 evRouteAux.route[0].cliente = satOutro;
                 evRouteAux.route[evRoute.routeSize-1].cliente = satOutro;
+                evRouteAux.satelite = satOutro;
                 double distNovaRota = testaRota(evRouteAux, evRouteAux.routeSize, instancia, true, tempoSaidaSat, 0, nullptr, nullptr);
-
+//cout<<"\tapos testar rota: "<<distNovaRota<<"\n\n";
                 if(distNovaRota <= 0.0)
                 {
+                    if(viabilizaRotaEv(evRouteAux, instancia, false, insercaoEstacao, evRoute.distancia, false, tempTempoSaidaSat, nullptr))
+                    {
+                        distNovaRota = insercaoEstacao.distanciaRota;
+                        if(!menor(distNovaRota, evRoute.distancia))
+                            continue;
 
+                        // Adiciona estacao a evRouteAux
+                        insereEstacaoRota(evRouteAux, insercaoEstacao, instancia, tempTempoSaidaSat);
+
+                    }
+                    else
+                        continue;
                 }
 
-                if(distNovaRota <= 0.0)
-                    continue;
+                evRouteAux.distancia = distNovaRota;
 
                 // Testar se o primeiro nivel eh viavel
+                tempSolucao.copia(solucao);
 
+                // Encontra um Ev vazio em outroSat
+                int evVazio = -1;
+                Satelite &satOutroTempSol = tempSolucao.satelites[satOutro];
+
+                for(int i=0; i < instancia.numEv; ++i)
+                {
+                    EvRoute &evRouteTemp = satOutroTempSol.vetEvRoute[i];
+                    if(evRouteTemp.routeSize <= 2)
+                    {
+                        evVazio = i;
+                        break;
+                    }
+                }
+
+                if(evVazio == -1)
+                    continue;
+
+                // Corrigi os satelites
+                Satelite &satTempSol = tempSolucao.satelites[sat];
+
+                // Corrigir evRoute de sat
+                EvRoute &evRouteTempSol = satTempSol.vetEvRoute[ev];
+                satTempSol.distancia    -= evRouteTempSol.distancia;
+                satTempSol.demanda      -= evRouteTempSol.demanda;
+
+                tempSolucao.distancia   -= evRouteTempSol.distancia;
+                evRouteTempSol.resetaEvRoute();
+
+                // Copiar evRouteTemp para evVazio em temoSolucao
+                EvRoute &evRouteTempOutro = satOutroTempSol.vetEvRoute[evVazio];
+                const int idRota = evRouteTempOutro.idRota;
+                evRouteTempOutro.copia(evRouteAux, false, nullptr);
+                evRouteTempOutro.idRota = idRota;
+
+                satOutroTempSol.demanda += evRouteTempOutro.demanda;
+                satOutroTempSol.distancia += evRouteTempOutro.distancia;
+                tempSolucao.distancia     += evRouteTempOutro.distancia;
+
+                tempSolucao.reseta1Nivel(instancia);
+                NS_Construtivo::construtivoPrimeiroNivel(tempSolucao, instancia, beta, false);
+
+                if(!tempSolucao.viavel)
+                {   //cout<<"Primeiro nivel inviavel\n";
+                    continue;
+                }
+
+                tempSolucao.recalculaDist();
+
+                if(menor(tempSolucao.distancia, solucao.distancia))
+                {
+                    string strRota;
+                    evRouteAux.print(strRota, instancia, true);
+                    //cout<<"Rota alterada: "<<strRota<<"\n\n";
+
+                    string strSol;
+                    tempSolucao.print(strSol, instancia);
+                    //cout<<"Nova SOLUCAO: "<<strSol<<"\n";
+
+                    solucao.copia(tempSolucao);
+                    //cout<<"sat: "<<sat<<"; satNovo: "<<satOutro<<"\n\n";
+                    return true;
+                }
+                else
+                {
+                    //cout<<"Nova sol eh Maior: "<<tempSolucao.distancia<<"; "<<solucao.distancia<<"\n";
+                }
             }
         }
 
@@ -1155,5 +1246,5 @@ bool NS_LocalSearch2::mvShifitEvs_interRotasInterSats(Solucao &solucao, Instanci
     while(sat != satIni);
 
 
-    return true;
+    return false;
 }

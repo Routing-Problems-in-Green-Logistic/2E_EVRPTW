@@ -51,8 +51,10 @@ using namespace std;
 #define MV_EV_CROSS_INTRA_SAT                            9
 #define MV_EV_CROSS_INTER_SATS                           10
 
-#define NUM_MV                                           11
-#define NUM_MV_LS                                        11
+#define MV_SHIFIT_EV_SATS                                11
+
+#define NUM_MV                                           12
+#define NUM_MV_LS                                        12
 
 #define TRUE  1
 #define FALSE 0

@@ -91,11 +91,15 @@ void Satelite::print(std::string &str, const Instancia &instance)
 
     for(EvRoute &evRoute:vetEvRoute)
     {
-        str += "\tROTA ID: "+ std::to_string(evRoute.idRota)+".:  ";
-        evRoute.print(str, instance, false);
-        str+= "\n";
+        if(evRoute.getDemand() > 0)
+        {
+            str += "\tROTA ID: " + std::to_string(evRoute.idRota) + ".:  ";
+            evRoute.print(str, instance, false);
+            str += "\n";
+        }
     }
 
+    str += "Dist: " + to_string(distancia) + "; Demanda: " + to_string(demanda);
     str += "\n\n";
 }
 
@@ -114,7 +118,8 @@ void Satelite::print(const Instancia &instance)
             std::cout << "\n";
         }
     }
-    cout<<"Demanda: "<<demanda;
+
+    cout<<"\n\n***********\nDemanda sat: "<<demanda<<"; dist sat: "<<distancia;
     std::cout<<"\n\n";
 }
 
