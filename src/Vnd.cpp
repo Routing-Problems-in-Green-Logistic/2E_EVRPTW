@@ -75,8 +75,8 @@ void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Boos
 #endif
 
 
-    EvRoute evRouteAux(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
-    EvRoute evRouteAux1(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
+    static EvRoute evRouteAux(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
+    static EvRoute evRouteAux1(1, instance.getFirstEvIndex(), instance.evRouteSizeMax, instance);
 
     int i = 0;
 

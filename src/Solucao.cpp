@@ -1,4 +1,5 @@
 #include <boost/format.hpp>
+#include <boost/numeric/ublas/assignment.hpp>
 #include "Solucao.h"
 #include "Auxiliary.h"
 
@@ -366,7 +367,8 @@ void Solucao::copia(Solucao &solution)
 
     //cout<<"Tempo de chegada 4º arg: "<<solution.satTempoChegMax[4]<<"; Tempo de chegada 4º copia: "<<satTempoChegMax[4]<<"\n\n";
 
-    vetMatSatEvMv = solution.vetMatSatEvMv;
+    //vetMatSatEvMv = solution.vetMatSatEvMv;
+    todasRotasEvAtualizadas();
 
 }
 
@@ -461,6 +463,35 @@ void Solucao::recalculaDist()
     {
         if(rota.routeSize > 2)
             distancia += rota.totalDistence;
+    }
+}
+
+
+void Solucao::resetaSol()
+{
+    distancia = 0.0;
+
+    for(int i=1; i < satelites.size(); ++i)
+    {
+        Satelite &satelite = satelites[i];
+        satelite.resetaSat();
+    }
+
+    for(Route &route:primeiroNivel)
+    {
+        route.resetaRoute();
+    }
+
+    todasRotasEvAtualizadas();
+}
+
+void Solucao::todasRotasEvAtualizadas()
+{
+    vetMatSatEvMv = BoostC::vector<ublas::matrix<int>>((numSats+1), ublas::matrix<int>(numEvMax, NUM_MV, 0));
+
+    for(auto it:vetMatSatEvMv)
+    {
+        it.clear();
     }
 }
 

@@ -76,6 +76,7 @@ public:
     void copia(const EvRoute &evRoute, const bool calculaDemanda, Instancia *instancia);
     void copiaN(const EvRoute &evRoute, int n, bool calculaDemanda, Instancia *instance);
     void copiaParametros(const EvRoute &outro);
+    void resetaEvRoute();
 
     EvNo & operator [](int pos)
     {

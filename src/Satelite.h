@@ -54,6 +54,7 @@ public:
     bool vazio();
     int numEv();
     double excluiSatelite(Instancia &instancia, BoostC::vector<int8_t> &vetClientesAtend);
+    void resetaSat();
 
     BoostC::vector<EvRoute> vetEvRoute;
 

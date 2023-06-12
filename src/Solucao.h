@@ -29,6 +29,7 @@ public:
     void recalculaDistSat(Instancia &instancia);
     int numSatVazios();
     int getNumEvNaoVazios();
+    void resetaSol();
     void resetaSat(int satId, Instancia &instancia, BoostC::vector<int> &vetClienteDel);    // Somente o sat eh alterado, 1 nivel nao se altera
     void reseta1Nivel(Instancia &instancia);
     void resetaIndiceEv(Instancia &instancia);
@@ -58,10 +59,7 @@ public:
      */
 
     void rotaEvAtualizada(int sat, int ev);
-    void todasRotasEvAtualizadas()
-    {
-        vetMatSatEvMv = BoostC::vector<ublas::matrix<int>>((numSats+1), ublas::matrix<int>(numEvMax, NUM_MV, 0));
-    }
+    void todasRotasEvAtualizadas();
 
 };
 #endif //INC_2E_EVRP_SOLUCAO_H

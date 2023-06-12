@@ -319,7 +319,7 @@ bool NS_LocalSearch2::mvEvShifit2Nos_interRotasInterSats(Solucao &solucao, Insta
     if(instancia.numSats == 1)
         return false;
 
-    Solucao solucaoAux(instancia);
+    static Solucao solucaoAux(instancia);
     solucaoAux.copia(solucao);
 
     auto realizaMv=[](Instancia &instancia, EvRoute &evRoute0, int posEvRoute0, EvRoute &evRoute1, int posEvRoute1,
@@ -1132,16 +1132,19 @@ bool NS_LocalSearch2::mvShifitEvs_interRotasInterSats(Solucao &solucao, Instanci
 
                 // Verifica se a nova rota eh viavel
                 evRouteAux.copia(evRoute, false, nullptr);
-
                 evRouteAux.route[0].cliente = satOutro;
                 evRouteAux.route[evRoute.routeSize-1].cliente = satOutro;
+                double distNovaRota = testaRota(evRouteAux, evRouteAux.routeSize, instancia, true, tempoSaidaSat, 0, nullptr, nullptr);
 
-                double distNovaRota = testaRota(evRouteAux, evRouteAux.routeSize, instancia, true, tempTempoSaidaSat, 0, nullptr, nullptr);
-                if(distNovaRota > 0.0)
+                if(distNovaRota <= 0.0)
                 {
 
                 }
 
+                if(distNovaRota <= 0.0)
+                    continue;
+
+                // Testar se o primeiro nivel eh viavel
 
             }
         }

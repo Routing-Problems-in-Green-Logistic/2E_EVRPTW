@@ -630,3 +630,21 @@ void EvRoute::copiaCliente(const EvRoute &outro)
         route[i].cliente = outro.route[i].cliente;
 
 }
+
+void EvRoute::resetaEvRoute()
+{
+    routeSize = 2;
+    route[0].cliente = satelite;
+    route[0].tempoSaida = -1.0;
+    route[0].tempoCheg  = -1.0;
+    route[0].posMenorFolga = -1;
+    route[0].posProxEstacao = -1;
+
+    route[1].cliente = satelite;
+
+    for(auto it:vetRecarga)
+    {
+        it.utilizado = 0;
+        it.recargaId = -1;
+    }
+}

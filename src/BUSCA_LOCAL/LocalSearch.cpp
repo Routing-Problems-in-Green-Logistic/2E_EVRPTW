@@ -1422,7 +1422,7 @@ bool NS_LocalSearch::mvEvShifitInterRotasInterSats(Solucao &solucao, Instancia &
     if(instancia.numSats == 1)
         return false;
 
-    Solucao solucaoAux(instancia);
+    static Solucao solucaoAux(instancia);
     solucaoAux.copia(solucao);
 
     const int mv = MV_EV_SHIFIT_INTER_ROTAS_INTER_SAT;
@@ -2076,7 +2076,7 @@ bool NS_LocalSearch::mvEvSwapInterRotasInterSats(Solucao &solucao, Instancia &in
         return false;
 
 
-    Solucao solucaoAux(instancia);
+    static Solucao solucaoAux(instancia);
     solucaoAux.copia(solucao);
 
     for(int sat0 = instancia.getFirstSatIndex(); sat0 <= instancia.getEndSatIndex(); ++sat0)

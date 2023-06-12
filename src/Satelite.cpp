@@ -215,3 +215,12 @@ double Satelite::excluiSatelite(Instancia &instancia, BoostC::vector<int8_t> &ve
 
     return distTemp;
 }
+
+void Satelite::resetaSat()
+{
+    demanda = 0.0;
+    distancia = 0.0;
+
+    for(EvRoute &evRoute:vetEvRoute)
+        evRoute.resetaEvRoute();
+}

@@ -519,12 +519,14 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     };
 
     BoostC::vector<DadosIg> vetDadosIg;
-    vetDadosIg.reserve(parametrosGrasp.numIteGrasp);
+    vetDadosIg.reserve(parametros.numItTotal);
 
     bool escreveSol = false;
     const int segFuncDest = 1;
 
-    for(int i=0; i < parametrosGrasp.numIteGrasp; ++i)
+    Solucao solC_copia(instancia);
+
+    for(int i=0; i < parametros.numItTotal; ++i)
     {
 
 #if PRINT_IG
@@ -536,25 +538,12 @@ if(i%200 == 0)
 }
 #endif
 
-#if WRITE_SOL_PRINT
-
-        if(i == 500 || i == 1000 || i == 1500 || i == 2000 || i == 2499)
-        {
-            escreveSol = true;
-        }
-#endif
-
-/*-        if(i > 0 && ((i)%100)==0)
-        {
-            segFuncDest = (segFuncDest+1)%2;
-        }*/
-
         const double dif = (solC.distancia-solBest.distancia)/solBest.distancia;
 
         //if((i-ultimaA) % numItSemMelhoraResetSolC == 0 && i!=ultimaA)
         if(dif > parametrosIg.difBest)
         {
-            solC = Solucao(instancia);
+            //solC = Solucao(instancia);
             solC.copia(solBest);
         }
 
@@ -569,7 +558,7 @@ if(i%200 == 0)
         dadosIg.it = i;
         dadosIg.solCorrente = solC.distancia;
 
-        Solucao solC_copia(instancia);
+        //Solucao solC_copia(instancia);
         solC_copia.copia(solC);
 
         NameS_IG::atualizaTempoSaidaInstancia(solC, instancia);
@@ -586,7 +575,7 @@ if(i%200 == 0)
             else
             {
 
-                solC = Solucao(instancia);
+                //solC = Solucao(instancia);
                 solC.copia(solBest);
 
                 if(!funcDestroi1(solC))
@@ -618,18 +607,13 @@ if(i%200 == 0)
             dadosIg.solConst = -1.0;
             dadosIg.solVnd   = -1.0;
 
-            solC = Solucao(instancia);
+            //solC = Solucao(instancia);
             solC.copia(solC_copia);
 
         }
         else
         {
             string strSolConst;
-            if(escreveSol)
-            {
-                solC.printPlot(strSolConst, instancia);
-            }
-
             string strErro;
             if(!solC.checkSolution(strErro, instancia))
             {
@@ -667,13 +651,6 @@ if(i%200 == 0)
 
         if(NS_Auxiliary::menor(solC.distancia, solBest.distancia))
         {
-
-#if PRINT_IG
-            if(!construtivoFull)
-            {
-                cout<<"Destruicao utilizada melhorou a sol. dist: "<<solC.distancia<<"\n";
-            }
-#endif
             string erro;
             if(!solC.checkSolution(erro, instancia))
             {
@@ -693,7 +670,6 @@ if(i%200 == 0)
 
             ultimaABest = i;
             numEvRmCorrente = numEvRmMin;
-            //funcAtualNumChamDest0();
 #if PRINT_IG
 cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 #endif

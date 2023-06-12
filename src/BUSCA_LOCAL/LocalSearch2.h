@@ -189,7 +189,7 @@ namespace NS_LocalSearch2
 
                                     if(resutado == 1)
                                     {
-                                        Solucao solucaoCopia(instancia);
+                                        static Solucao solucaoCopia(instancia);
                                         solucaoCopia.copia(solucao);
 
                                         EvRoute &evRoute0 = solucaoCopia.satelites[sat0].vetEvRoute[evSat0];
