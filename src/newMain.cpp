@@ -12,6 +12,9 @@
 
 // Parametros para inst menor de 15 clientes:
 // --alphaSeg 0.9 --betaPrim 0.9 --difBest 0.03 --numItIG 2500 --torneio 0 --taxaRm 0.6
+// INSTANCIA: C103_21x     SEMENTE: 1686762490     Wed Jun 14 14:08:10 2023
+
+// INSTANCIA: C105_21x     SEMENTE: 1686762520     Wed Jun 14 14:08:40 2023
 
 #include <iostream>
 #include <chrono>
@@ -56,7 +59,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    const string commite = "9a0fe785a08eaf36001b6a4b22633c2dd4ba65f6";
+    const string commite = "3e819c99feb7ecf3e1beced4943977f2899c94dd";
     parametros.commit = commite;
     auto startA = std::chrono::high_resolution_clock::now();
 
