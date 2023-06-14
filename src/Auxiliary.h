@@ -53,8 +53,8 @@ using namespace std;
 
 #define MV_SHIFIT_EV_SATS                                11
 
-#define NUM_MV                                           12
-#define NUM_MV_LS                                        12
+#define NUM_MV                                           11
+#define NUM_MV_LS                                        11
 
 #define TRUE  1
 #define FALSE 0
@@ -66,6 +66,7 @@ using namespace std;
 #define __PRETTYFILE__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 
 #define PRINT_DEBUG(inicio, texto) cout<<inicio<<"DEBUG: "<<texto<<"  FILE: "<<__PRETTYFILE__<<"  FUNC: "<<__PRETTY_FUNCTION__<<"  LINHA: "<<__LINE__<<"\n";
+#define ERRO() throw "ERRO";
 
 extern const double DOUBLE_INF;
 

@@ -1073,6 +1073,9 @@ cout<<"\n\n";
 // MV
 bool NS_LocalSearch2::mvShifitEvs_interRotasInterSats(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux, float beta)
 {
+    PRINT_DEBUG("", "Nao deveria ser chamado!");
+    ERRO();
+
     if(instancia.numSats <= 1)
         return false;
 

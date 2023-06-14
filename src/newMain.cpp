@@ -56,7 +56,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    const string commite = "ecfd8b10e4a67fa1806cd743e166064396d42592";
+    const string commite = "9a0fe785a08eaf36001b6a4b22633c2dd4ba65f6";
     parametros.commit = commite;
     auto startA = std::chrono::high_resolution_clock::now();
 
