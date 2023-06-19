@@ -368,8 +368,10 @@ void Solucao::copia(Solucao &solution)
     //cout<<"Tempo de chegada 4º arg: "<<solution.satTempoChegMax[4]<<"; Tempo de chegada 4º copia: "<<satTempoChegMax[4]<<"\n\n";
 
     //vetMatSatEvMv = solution.vetMatSatEvMv;
-    todasRotasEvAtualizadas();
 
+#if UTILIZA_MAT_MV
+    todasRotasEvAtualizadas();
+#endif
 }
 
 
@@ -404,8 +406,12 @@ int Solucao::getNumEvNaoVazios()
 
 void Solucao::rotaEvAtualizada(const int sat, const int ev)
 {
+
+
+#if UTILIZA_MAT_MV
     for(int i=0; i < NUM_MV; ++i)
         vetMatSatEvMv[sat](ev, i) = 0;
+#endif
 }
 
 void Solucao::inicializaVetClientesAtend(Instancia &instance)
@@ -482,17 +488,23 @@ void Solucao::resetaSol()
         route.resetaRoute();
     }
 
+
+#if UTILIZA_MAT_MV
     todasRotasEvAtualizadas();
+#endif
 }
 
 void Solucao::todasRotasEvAtualizadas()
 {
+
+#if UTILIZA_MAT_MV
     vetMatSatEvMv = BoostC::vector<ublas::matrix<int>>((numSats+1), ublas::matrix<int>(numEvMax, NUM_MV, 0));
 
     for(auto it:vetMatSatEvMv)
     {
         it.clear();
     }
+#endif
 }
 
 void Solucao::resetaSat(int satId, Instancia &instancia, BoostC::vector<int> &vetClienteDel)

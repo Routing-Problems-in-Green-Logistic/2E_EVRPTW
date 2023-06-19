@@ -270,7 +270,12 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
                     sat.vetEvRoute[ev] = EvRoute(satId, evRoute.idRota, evRoute.routeSizeMax, instancia);
                     sat.vetEvRoute[ev].idRota = temp;
                     sol.numEv -= 1;
+
+
+#if UTILIZA_MAT_MV
                     sol.rotaEvAtualizada(satId, ev);
+#endif
+
                     break;
 
                 }while(ev != evPrim);
@@ -294,23 +299,47 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     };
 
     // Remove aleatoriamente um sat, o sat pode estar vazio(nao faz nada)
-    auto funcDestroi1 = [&](Solucao &sol) -> bool
+    auto funcDestroi1 = [&](Solucao &sol, int numSat) -> bool
     {
         if(instancia.numSats == 1)
             return false;
 
-        int sat = 1 + (rand_u32()%instancia.numSats);
-        Satelite &satelite = sol.satelites[sat];
-        if(satelite.vazio())
-            return false;
+        bool rm = false;
 
-        const int numEvSat = satelite.numEv();
-        sol.numEv -= numEvSat;
+        for(int i=0; i < numSat; ++i)
+        {
 
-        double dist = satelite.excluiSatelite(instancia, sol.vetClientesAtend);
-        sol.distancia -= dist;
-        sol.vetMatSatEvMv[sat] =  ublas::matrix<int>(instancia.numEv, NUM_MV, 0);
+            int sat = 1 + (rand_u32() % instancia.numSats);
+            Satelite *satelite = &sol.satelites[sat];
+            const int satIni = sat;
 
+            do
+            {
+                if(!satelite->vazio())
+                    break;
+                sat = (sat+1) % instancia.numSats;
+                if(sat == 0)
+                    sat = 1;
+                satelite = &sol.satelites[sat];
+            }
+            while(satIni != sat);
+
+            if(satelite->vazio())
+                continue;
+
+
+            const int numEvSat = satelite->numEv();
+            sol.numEv -= numEvSat;
+
+            double dist = satelite->excluiSatelite(instancia, sol.vetClientesAtend);
+            sol.distancia -= dist;
+            rm = true;
+        }
+
+#if UTILIZA_MAT_MV
+        //sol.vetMatSatEvMv[sat] =  ublas::matrix<int>(instancia.numEv, NUM_MV, 0);
+        sol.todasRotasEvAtualizadas();
+#endif
         sol.reseta1Nivel(instancia);
         sol.resetaIndiceEv(instancia);
 
@@ -578,7 +607,7 @@ if(i%200 == 0)
                 //solC = Solucao(instancia);
                 solC.copia(solBest);
 
-                if(!funcDestroi1(solC))
+                if(!funcDestroi1(solC, 1))
                     funcDestroi0(solC, numEvRmCorrente);
 
                 numFuncDestroi = 0;

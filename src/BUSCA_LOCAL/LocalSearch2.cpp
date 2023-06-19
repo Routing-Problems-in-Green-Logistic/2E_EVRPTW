@@ -237,9 +237,10 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
                 if(ev0 == ev1)
                     continue;
 
+#if UTILIZA_MAT_MV
                 if(solucao.vetMatSatEvMv[sat](ev0, mv) == 1 && solucao.vetMatSatEvMv[sat](ev1, mv) == 1)
                     continue;
-
+#endif
 //cout<<"ev0: "<<evSat0<<"; ev1: "<<evSat1<<"\n";
 
                 EvRoute &evRoute1 = solucao.satelites[sat].vetEvRoute[ev1];
@@ -298,7 +299,9 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
 
             } // End for(evSat1)
 
+#if UTILIZA_MAT_MV
             solucao.vetMatSatEvMv[sat](ev0, mv) = 1;
+#endif
 
         } // End for(evSat0)
 
@@ -537,9 +540,10 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
                 for(int evSat1 = 0; evSat1 < instancia.getN_Evs(); ++evSat1)
                 {
 
+#if UTILIZA_MAT_MV
                     if(solucao.vetMatSatEvMv[sat0](evSat0, mv) == 1 && solucao.vetMatSatEvMv[sat1](evSat1, mv) == 1)
                         continue;
-
+#endif
 //cout<<"ev0: "<<evSat0<<"; ev1: "<<evSat1<<"\n";
 
                     EvRoute &evRouteSat1 = solucaoAux.satelites[sat1].vetEvRoute[evSat1];
@@ -610,8 +614,9 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
 
                 } // End for(evSat1)
 
+#if UTILIZA_MAT_MV
                 solucao.vetMatSatEvMv[sat0](evSat0, mv) = 1;
-
+#endif
             } // End for(evSat0)
 
         }// End for(sat1)

@@ -52,9 +52,10 @@ namespace NS_LocalSearch2
                     if(ev0 == ev1)
                         continue;
 
+#if UTILIZA_MAT_MV
                     if(solucao.vetMatSatEvMv[sat](ev0, mv) == 1 && solucao.vetMatSatEvMv[sat](ev1, mv) == 1)
                         continue;
-
+#endif
                     EvRoute &evRoute1 = solucao.satelites[sat].vetEvRoute[ev1];
 
                     // Selecionar as posicoes das rotas
@@ -94,8 +95,11 @@ namespace NS_LocalSearch2
                                 evRoute0.atualizaParametrosRota(instancia);
                                 evRoute1.atualizaParametrosRota(instancia);
 
+
+#if UTILIZA_MAT_MV
                                 solucao.rotaEvAtualizada(sat, ev0);
                                 solucao.rotaEvAtualizada(sat, ev1);
+#endif
 
 //cout<<"MV UPDATE\n";
 
@@ -130,7 +134,10 @@ namespace NS_LocalSearch2
                 } // End for(evSat1)
 
 
+#if UTILIZA_MAT_MV
                 solucao.vetMatSatEvMv[sat](ev0, mv) = 1;
+#endif
+
                 if(resutado == MV_POS_EV_ROUTE0_INVIAVEL)
                     continue;
 
@@ -165,8 +172,10 @@ namespace NS_LocalSearch2
                         for(int evSat1 = 0; evSat1 < instancia.getN_Evs(); ++evSat1)
                         {
 
+#if UTILIZA_MAT_MV
                             if(solucao.vetMatSatEvMv[sat0](evSat0, mv) == 1 && solucao.vetMatSatEvMv[sat1](evSat1, mv) == 1)
                                 continue;
+#endif
 
                             EvRoute &evRouteSat1 = solucao.satelites[sat1].vetEvRoute[evSat1];
 
@@ -237,9 +246,11 @@ namespace NS_LocalSearch2
 //cout<<"MV UPDATE\n";
                                             solucao.copia(solucaoCopia);
 
+
+#if UTILIZA_MAT_MV
                                             solucao.rotaEvAtualizada(sat0, evSat0);
                                             solucao.rotaEvAtualizada(sat1, evSat1);
-
+#endif
                                             return true;
                                         }
                                     }
@@ -260,7 +271,10 @@ namespace NS_LocalSearch2
 
                         } // End for(evSat1)
 
+
+#if UTILIZA_MAT_MV
                         solucao.vetMatSatEvMv[sat0](evSat0, mv) = 1;
+#endif
 
                         if(resutado == MV_POS_EV_ROUTE0_INVIAVEL)
                             continue;

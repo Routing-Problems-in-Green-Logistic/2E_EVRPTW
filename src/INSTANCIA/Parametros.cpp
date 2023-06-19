@@ -599,6 +599,7 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
             paramEntrada.paramIg.difBest     = std::stod(getKey("--difBest"));
             paramEntrada.paramIg.torneio     = bool(std::stoi(getKey("--torneio")));
             paramEntrada.paramIg.taxaRm      = std::stod(getKey("--taxaRm"));
+            paramEntrada.paramIg.fatorNumChamadas = std::stod(getKey("--fatNumCh"));
 
             paramEntrada.execucaoAtual       = std::stoi(getKey("--execAtual"));
             paramEntrada.numExecucoesTotais  = std::stoi(getKey("--execTotal"));
@@ -616,7 +617,7 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
 
             //paramEntrada.paramIg.fileSaida   = getKey("--fileSaida");
 
-            //cout<<paramEntrada.paramIg.printParam()<<"\n\n";
+            cout<<paramEntrada.paramIg.printParam()<<"\n\n";
             //cout<<"seed \t\t"<<paramEntrada.semente<<"\n";
 
             //return;
@@ -898,6 +899,7 @@ std::string ParametrosIG::printParam()
     saida += "\ndifBest \t\t " + std::to_string(difBest);
     saida += "\ntaxaEvRm \t\t " + to_string(taxaRm);
     saida += "\nfileSaida \t\t "+ fileSaida;
+    saida += "\nfatorNumCh \t\t " + to_string(fatorNumChamadas);
 
 
     return saida;

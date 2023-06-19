@@ -59,6 +59,8 @@ using namespace std;
 #define TRUE  1
 #define FALSE 0
 
+#define UTILIZA_MAT_MV TRUE
+
 #define TEMPO_FUNC_VIABILIZA_ROTA_EV TRUE
 
 #include <string.h>
