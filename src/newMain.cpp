@@ -59,7 +59,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    const string commite = "cf5e662483724b33f572963f71c150bf2d73d27c";
+    const string commite = "148bf97eb58df1ec67868b22d78f6a7685aa892c";
     parametros.commit = commite;
     auto startA = std::chrono::high_resolution_clock::now();
 
@@ -94,27 +94,6 @@ int main(int argc, char* argv[])
 
         ig(instancia, parametros, best, parametrosSaida);
 
-        /*switch(parametros.metodo)
-        {
-            case METODO_ACO:
-                aco(instancia, parametros, parametrosGrasp, best);
-                break;
-
-            case METODO_GRASP:
-                cout<<"GRASP!!\n";
-                grasp(instancia, parametros, best, parametrosSaida);
-                break;
-
-            case METODO_IG:
-                ig(instancia, parametros, best, parametrosSaida);
-                break;
-
-            default:
-                cout<<"METODO: "<<parametros.metodo<<" NAO EXISTE\n"<<parametros.getParametros()<<"\n\n";
-                throw "ERRO";
-                break;
-        }*/
-
         auto end = std::chrono::high_resolution_clock::now();
 
         if(best.viavel)
@@ -137,15 +116,11 @@ int main(int argc, char* argv[])
         std::chrono::duration<double> tempoAux = end - start;
         double tempo = tempoAux.count();
 
-        setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
-        saida(parametros, parametrosSaida, best, instancia);
-        //cout<<best.distancia<<"\n";
-        //escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
+        //setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
+        //saida(parametros, parametrosSaida, best, instancia);
 
-       // cout<<"TEMPO CPU: "<<parametrosSaida.tempo<<" S\n";
-        //string numSol;
-        //parametrosSaida.mapNoSaida["numSol"].getVal(numSol);
-        //cout<<"NUM SOL: "<<numSol<<"\n";
+        escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
+
         
 
     }

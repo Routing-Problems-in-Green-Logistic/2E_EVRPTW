@@ -593,19 +593,21 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
             };
 
             paramEntrada.numItTotal          = std::stoi(getKey("--numItIG"));
-            //paramEntrada.semente             = std::stoll(getKey("--seed"));
+            paramEntrada.semente             = std::stoll(getKey("--seed"));
             paramEntrada.paramIg.alfaSeg     = std::stof(getKey("--alphaSeg"));
             paramEntrada.paramIg.betaPrim    = std::stof(getKey("--betaPrim"));
             paramEntrada.paramIg.difBest     = std::stod(getKey("--difBest"));
             paramEntrada.paramIg.torneio     = bool(std::stoi(getKey("--torneio")));
             paramEntrada.paramIg.taxaRm      = std::stod(getKey("--taxaRm"));
             paramEntrada.paramIg.fatorNumChamadas = std::stod(getKey("--fatNumCh"));
+            paramEntrada.paramIg.fileSaida   = string(getKey("--fileSaida"));
 
+            /*
             paramEntrada.execucaoAtual       = std::stoi(getKey("--execAtual"));
             paramEntrada.numExecucoesTotais  = std::stoi(getKey("--execTotal"));
             paramEntrada.resultadoCSV        = getKey("--resulCSV");
             paramEntrada.caminhoPasta        = getKey("--pasta");
-
+            */
 
             if(mapParam.count("--seed") > 0)
             {
@@ -614,23 +616,6 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
             }
             else
                 semente = false;
-
-            //paramEntrada.paramIg.fileSaida   = getKey("--fileSaida");
-
-            cout<<paramEntrada.paramIg.printParam()<<"\n\n";
-            //cout<<"seed \t\t"<<paramEntrada.semente<<"\n";
-
-            //return;
-
-/*            if(paramEntrada.caminhoPasta != "")
-            {
-                if(paramEntrada.numExecucoesTotais == 0 || paramEntrada.execucaoAtual == -1)
-                {
-                    cout<<"ERRO: OPCOES(--execTotal e --execAtual) TEM QUE SER UTILIZADAS EM CONJUNTO COM --pasta\n\n";
-                    throw "ERRO";
-                }
-            }*/
-
 
         }
 

@@ -552,8 +552,10 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
 
     bool escreveSol = false;
     const int segFuncDest = 1;
+    int numSatRm = 1;
 
     Solucao solC_copia(instancia);
+
 
     for(int i=0; i < parametros.numItTotal; ++i)
     {
@@ -566,6 +568,12 @@ if(i%200 == 0)
     //cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n\n";
 }
 #endif
+
+/*        if(instancia.numSats > 1 && numSatRm == 1 && (i-ultimaA) == 500)
+        {
+            numSatRm = 2;
+            cout<<"numSatRm: "<<numSatRm<<"\n\a\a\a";
+        }*/
 
         const double dif = (solC.distancia-solBest.distancia)/solBest.distancia;
 
@@ -607,7 +615,7 @@ if(i%200 == 0)
                 //solC = Solucao(instancia);
                 solC.copia(solBest);
 
-                if(!funcDestroi1(solC, 1))
+                if(!funcDestroi1(solC, numSatRm))
                     funcDestroi0(solC, numEvRmCorrente);
 
                 numFuncDestroi = 0;
