@@ -201,8 +201,8 @@ namespace NS_parametros
         template<class T>
         void setTempo(T start, T end)
         {
-            std::chrono::duration<double> tempoAux = end - start;
-            tempo = tempoAux.count();
+            //std::chrono::duration<double> tempoAux = end - start;
+            tempo = double(end - start) / double(CLOCKS_PER_SEC);
         }
 
         void getCabecalho(string &saida)

@@ -59,7 +59,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    const string commite = "148bf97eb58df1ec67868b22d78f6a7685aa892c";
+    const string commite = "61328bfbda5fb1a659da5b798525a6e69d5e14d5";
     parametros.commit = commite;
     auto startA = std::chrono::high_resolution_clock::now();
 
@@ -90,11 +90,13 @@ int main(int argc, char* argv[])
 
         ParametrosSaida parametrosSaida = getParametros();
 
-        auto start = std::chrono::high_resolution_clock::now();
+        //auto start = std::chrono::high_resolution_clock::now();
+        clock_t start = clock();
 
         ig(instancia, parametros, best, parametrosSaida);
 
-        auto end = std::chrono::high_resolution_clock::now();
+        clock_t end = clock();
+        //auto end = std::chrono::high_resolution_clock::now();
 
         if(best.viavel)
         {
@@ -113,13 +115,13 @@ int main(int argc, char* argv[])
             cout<<"SOLUCAO INVIAVEL!\n";
 
 
-        std::chrono::duration<double> tempoAux = end - start;
-        double tempo = tempoAux.count();
+        //std::chrono::duration<double> tempoAux = end - start;
+        //double tempo = tempoAux.count();
 
-        //setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
-        //saida(parametros, parametrosSaida, best, instancia);
+        setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
+        saida(parametros, parametrosSaida, best, instancia);
 
-        escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
+        //escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
 
         
 

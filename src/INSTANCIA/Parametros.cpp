@@ -589,25 +589,25 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
                     cout<<"Erro, parametro: "<<key<<" faltando !\n";
                     throw "ERRO";
                 }
-
             };
 
             paramEntrada.numItTotal          = std::stoi(getKey("--numItIG"));
-            paramEntrada.semente             = std::stoll(getKey("--seed"));
+            //paramEntrada.semente             = std::stoll(getKey("--seed"));
             paramEntrada.paramIg.alfaSeg     = std::stof(getKey("--alphaSeg"));
             paramEntrada.paramIg.betaPrim    = std::stof(getKey("--betaPrim"));
             paramEntrada.paramIg.difBest     = std::stod(getKey("--difBest"));
             paramEntrada.paramIg.torneio     = bool(std::stoi(getKey("--torneio")));
             paramEntrada.paramIg.taxaRm      = std::stod(getKey("--taxaRm"));
             paramEntrada.paramIg.fatorNumChamadas = std::stod(getKey("--fatNumCh"));
-            paramEntrada.paramIg.fileSaida   = string(getKey("--fileSaida"));
 
-            /*
+            //paramEntrada.paramIg.fileSaida   = string(getKey("--fileSaida"));
+
+
             paramEntrada.execucaoAtual       = std::stoi(getKey("--execAtual"));
             paramEntrada.numExecucoesTotais  = std::stoi(getKey("--execTotal"));
             paramEntrada.resultadoCSV        = getKey("--resulCSV");
             paramEntrada.caminhoPasta        = getKey("--pasta");
-            */
+
 
             if(mapParam.count("--seed") > 0)
             {
@@ -620,8 +620,8 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
         }
 
 
-        //if(!semente)
-        //    paramEntrada.semente = duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        if(!semente)
+            paramEntrada.semente = duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 
     }
     else
