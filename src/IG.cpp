@@ -366,6 +366,10 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
         //cout<<"CLIENTES RM: ";
 
         int rmClientes = 0;
+
+        string strSol;
+        sol.print(strSol, instancia);
+
         while(rmClientes != numClientes)
         {
             const int numClieIt = rmClientes;
@@ -458,6 +462,8 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
         {
             Satelite &satelite = sol.satelites[itRotaInfo.satId];
             EvRoute &evRoute   = satelite.vetEvRoute[itRotaInfo.evRouteId];
+            //string evRotaStr;
+            //evRoute.print(evRotaStr, instancia, true);
 
             sol.distancia -= evRoute.distancia;
             satelite.distancia -= evRoute.distancia;
@@ -480,9 +486,9 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
                     }
                 }
             }
-
+            string strDebug;
             const double custo = NS_viabRotaEv::testaRota(evRoute, evRoute.routeSize, instancia, true,
-                                                    instancia.vetTempoSaida[itRotaInfo.satId], 0, nullptr, &vetInviabilidate);
+                                                    evRoute.route[0].tempoSaida, 0, &strDebug, &vetInviabilidate);
 
             if(custo <= 0.0)
             {
@@ -491,6 +497,9 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
                 string rotaStr;
                 evRoute.print(rotaStr, instancia, true);
                 cout<<"ROTA: "<<rotaStr<<"\n\n";
+                cout<<"Sol: \n"<<strSol<<"\n";
+                cout<<"debug: "<<strDebug<<"\n\n";
+                cout<<"Tempo saida sat: "<<instancia.vetTempoSaida[itRotaInfo.satId]<<"\n\n";
 
                 throw "ERRO";
             }
