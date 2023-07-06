@@ -208,8 +208,7 @@ void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const
     if(num == 0)
         num = 1;
 
-    parametrosGrasp = ParametrosGrasp(parametros.numItTotal, 300, vetAlfa,
-                                      250, num, 0.1, parametros.numItTotal+100);
+    parametrosGrasp = ParametrosGrasp(parametros.numItTotal, 300, vetAlfa, 250, num, 0.1, parametros.numItTotal+100);
 }
 
 void escreveDistFile(double dist, double tempo, const std::string &fileStr)
