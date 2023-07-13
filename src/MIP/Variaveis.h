@@ -20,6 +20,7 @@ namespace VariaveisNs
     class MatrixGRBVar
     {
     private:
+        bool inicializado = false;
         GRBVar *vetVar = nullptr;
         int numLin, numCol;
         char typeVar;
@@ -29,7 +30,10 @@ namespace VariaveisNs
         MatrixGRBVar(GRBModel &model, int numLin, int numCol, const string &&nome, char type);
         MatrixGRBVar()=default;
         MatrixGRBVar(const MatrixGRBVar&)=delete;
-        ~MatrixGRBVar(){delete []vetVar;}
+        void operator = (MatrixGRBVar &)=delete;
+        void inicializa(GRBModel &model, int numLin, int numCol, const string &&nome, char type);
+
+        ~MatrixGRBVar(){delete []vetVar; vetVar=nullptr;}
         inline __attribute__((always_inline)) GRBVar& operator ()(const int indexI, const int indexJ)
         {
 
@@ -58,6 +62,7 @@ namespace VariaveisNs
     class VectorGRBVar
     {
     private:
+        bool inicializado = false;
         GRBVar *vetVar = nullptr;
         int num;
         char typeVar;
@@ -65,9 +70,12 @@ namespace VariaveisNs
     public:
 
         VectorGRBVar(GRBModel &model, int num_, const string &&nome, char type);
+        void inicializa(GRBModel &model, int num_, const string &&nome, char type);
+
         VectorGRBVar()=default;
         VectorGRBVar(const MatrixGRBVar&)=delete;
-        ~VectorGRBVar(){delete []vetVar;}
+        void operator = (const VectorGRBVar &)=delete;
+        ~VectorGRBVar(){delete []vetVar; vetVar= nullptr;}
         inline __attribute__((always_inline)) GRBVar& operator ()(const int indexI)
         {
 
@@ -98,7 +106,7 @@ namespace VariaveisNs
         VectorGRBVar vetY, vetZ, vetT;
 
         explicit Variaveis(const Instancia &instancia, GRBModel &modelo);
-        ~Variaveis();
+        ~Variaveis()=default;
     };
 
 }

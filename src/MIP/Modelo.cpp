@@ -13,7 +13,7 @@
 using namespace ModeloNs;
 using namespace VariaveisNs;
 
-void ModeloNs::modelo()
+void ModeloNs::modelo(const Instancia &instancia)
 {
     try
     {
@@ -22,10 +22,8 @@ void ModeloNs::modelo()
         GRBModel model = GRBModel(env);
         setParametrosModelo(model);
 
-        MatrixGRBVar matrix(model, 2, 2, "x", 'B');
+        Variaveis variaveis(instancia, model);
         model.update();
-
-        matrix.printVars();
 
         model.optimize();
     }

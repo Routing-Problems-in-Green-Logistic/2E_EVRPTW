@@ -60,9 +60,6 @@ namespace N_gamb
 
 int main(int argc, char* argv[])
 {
-    modelo();
-    ERRO();
-
     Parametros parametros;
     const string commite = "bf3151d77eaa4974c3e82823bd02cc617cef07dc";
     parametros.commit = commite;
@@ -85,6 +82,10 @@ int main(int argc, char* argv[])
         caregaParametros(parametros, argc-1, &argv[1]);
 
         Instancia instancia(parametros.instancia, parametros.nomeInstancia);
+
+
+        modelo(instancia);
+        ERRO();
 
         dijkstraSatCli(instancia);
         instancia.calculaVetVoltaRS_sat();
