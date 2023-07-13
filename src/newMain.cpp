@@ -32,6 +32,7 @@
 #include "Grasp.h"
 #include "Construtivo.h"
 #include "IG.h"
+#include "Modelo.h"
 #include <sys/stat.h>
 
 using namespace std;
@@ -43,6 +44,7 @@ using namespace N_k_means;
 using namespace NS_VetorHash;
 using namespace NS_Hash;
 using namespace NameS_IG;
+using namespace ModeloNs;
 
 void aco(Instancia &instancia, Parametros &parametros, ParametrosGrasp &parm, Solucao &best);
 void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida);
@@ -58,6 +60,9 @@ namespace N_gamb
 
 int main(int argc, char* argv[])
 {
+    modelo();
+    ERRO();
+
     Parametros parametros;
     const string commite = "bf3151d77eaa4974c3e82823bd02cc617cef07dc";
     parametros.commit = commite;
