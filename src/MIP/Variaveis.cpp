@@ -186,6 +186,6 @@ void VectorGRBVar::inicializa(GRBModel &model, int num_, const string &&nome, ch
     vetVar  = model.addVars(num, type);
 
     for(int i=0; i < num; ++i)
-        vetVar[num].set(GRB_StringAttr_VarName, nome+"_("+ to_string(i)+")");
+        vetVar[i].set(GRB_StringAttr_VarName, nome+"_("+ to_string(i)+")");
 
 }

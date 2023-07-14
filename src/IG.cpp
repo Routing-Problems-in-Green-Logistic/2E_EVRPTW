@@ -18,6 +18,7 @@
 #include "Construtivo3.h"
 #include "Construtivo4.h"
 #include "Parametros.h"
+#include "Modelo.h"
 
 using namespace NameS_IG;
 using namespace NameS_Grasp;
@@ -26,6 +27,10 @@ using namespace NS_Construtivo2;
 using namespace NS_vnd;
 using namespace NS_VetorHash;
 using namespace NS_parametros;
+using namespace ModeloNs;
+
+
+typedef std::unordered_set<NS_VetorHash::VetorHash, NS_VetorHash::VetorHash::HashFunc> SetVetorHash;
 
 #define PRINT_IG        FALSE
 #define WRITE_SOL_PRINT FALSE
@@ -117,11 +122,34 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
 
     };
 
-    std::unordered_set<VetorHash, VetorHash::HashFunc> hashSolSetCorrente;    // Solucao Corrente
+    SetVetorHash hashSolSetCorrente;    // Solucao Corrente
     int numSolCorrente = 0;
 
-    std::unordered_set<VetorHash, VetorHash::HashFunc> hashSolSetConst;       // Apos construtivo
-    std::unordered_set<VetorHash, VetorHash::HashFunc> hashSolSetVnd;         // Apos vnd
+    SetVetorHash hashSolSetConst;       // Apos construtivo
+    SetVetorHash hashSolSetVnd;         // Apos vnd
+
+    SetVetorHash hashRotaEv;
+
+    auto funcAddRotasHash = [](const Instancia &instancia, SetVetorHash &hash, const Solucao &solucao)
+    {
+        for(int sat=1; sat < instancia.numSats; ++sat)
+        {
+            const Satelite &satelite = solucao.satelites[sat];
+
+            if(satelite.demanda <= 0.0)
+                continue;
+
+            for(int ev=0; ev < instancia.numEv; ++ev)
+            {
+                const EvRoute &evRoute = satelite.vetEvRoute[ev];
+                if(evRoute.routeSize <= 2)
+                    continue;
+
+                hash.insert(VetorHash(evRoute));
+            }
+        }
+    };
+
     int numSolConstVia = 0;
 
     // Gera uma sol inicial com grasp
@@ -738,6 +766,13 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
         vetDadosIg.push_back(dadosIg);
 
     } // END for ig
+
+    cout<<"FIM IG\n";
+
+    // Inicio MIP model
+    modelo(instancia, hashSolSetVnd, solBest);
+    // Fim MIP model
+
 
     //cout<<"\tDist: "<<solBest.distancia<<"\n\n";
 

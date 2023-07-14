@@ -32,7 +32,6 @@
 #include "Grasp.h"
 #include "Construtivo.h"
 #include "IG.h"
-#include "Modelo.h"
 #include <sys/stat.h>
 
 using namespace std;
@@ -44,7 +43,7 @@ using namespace N_k_means;
 using namespace NS_VetorHash;
 using namespace NS_Hash;
 using namespace NameS_IG;
-using namespace ModeloNs;
+
 
 void aco(Instancia &instancia, Parametros &parametros, ParametrosGrasp &parm, Solucao &best);
 void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida);
@@ -65,7 +64,7 @@ int main(int argc, char* argv[])
     parametros.commit = commite;
     auto startA = std::chrono::high_resolution_clock::now();
 
-    try
+    //try
     {
 
         if(argc == 1)
@@ -82,10 +81,6 @@ int main(int argc, char* argv[])
         caregaParametros(parametros, argc-1, &argv[1]);
 
         Instancia instancia(parametros.instancia, parametros.nomeInstancia);
-
-
-        modelo(instancia);
-        ERRO();
 
         dijkstraSatCli(instancia);
         instancia.calculaVetVoltaRS_sat();
@@ -132,16 +127,9 @@ int main(int argc, char* argv[])
         
 
     }
+    /*
     catch(const char *erro)
     {
-/*        cout<<"\n\n*************************************************\n\nCOMMITE: "<<parametros.commit<<"\n";
-        cout<<"Compilado em: "<<__DATE__<<", "<<__TIME__<<".\n";
-        cout<<"SEMENTE: "<<parametros.semente<<"\n\n";
-
-        std::cerr<<"CATCH ERRO\n";
-        std::cerr<<erro<<"\n\n";
-        //std::cerr<<"Semente: "<<semente<<"\n";
-        exit(-1);*/
 
         if(ValBestNs::distBest <= 0.0)
         {
@@ -157,7 +145,7 @@ int main(int argc, char* argv[])
             escreveDistFile(ValBestNs::distBest, tempo, parametros.paramIg.fileSaida);
         }
     }
-
+    */
 
     return 0;
 }
