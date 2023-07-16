@@ -421,6 +421,7 @@ double NS_viabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Inst
     {
         evRoute[0].tempoSaida = tempoSaidaSat;
         evRoute[0].bateriaRestante = instance.getEvBattery(evRoute.idRota);
+        bateriaRestante = evRoute[0].bateriaRestante;
     }
 
     if(rotaBtDebug)
@@ -438,7 +439,6 @@ double NS_viabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Inst
         if(tempo < clienteInstProx.inicioJanelaTempo)
         {
             tempo = clienteInstProx.inicioJanelaTempo;
-
         }
 
         //if(rotaBtDebug)

@@ -12,6 +12,7 @@
 #include "gurobi_c++.h"
 #include "../Auxiliary.h"
 #include "Instancia.h"
+#include "../VetorHash.h"
 
 #define MATRIX_SANITY_CHECK TRUE
 
@@ -69,6 +70,7 @@ namespace VariaveisNs
 
     public:
 
+        inline __attribute__((always_inline)) int getNum(){return num;}
         VectorGRBVar(GRBModel &model, int num_, const string &&nome, char type);
         void inicializa(GRBModel &model, int num_, const string &&nome, char type);
 
@@ -95,6 +97,26 @@ namespace VariaveisNs
         void printVars();
     };
 
+
+    class RotaEvMip
+    {
+    private:
+        bool inicializado = false;
+
+    public:
+
+        EvRoute evRoute;
+        double tempoSaidaMax;
+        BoostC::vector<Int8> vetAtend;      // indica se um cliente eh atendido
+        int sat;
+
+        RotaEvMip(const Instancia &instancia, const NS_VetorHash::VetorHash &vetorHash);
+        RotaEvMip()= default;
+        RotaEvMip(const Instancia &instancia, const EvRoute &evRoute_);//: evRoute(evRoute_){}
+        explicit RotaEvMip(int evRouteSizeMax, const Instancia &instancia);
+        void inicializa(const Instancia &instancia, const NS_VetorHash::VetorHash &vetorHash);
+    };
+
     class Variaveis
     {
     public:
@@ -105,7 +127,7 @@ namespace VariaveisNs
         MatrixGRBVar matrixDem;
         VectorGRBVar vetY, vetZ, vetT;
 
-        explicit Variaveis(const Instancia &instancia, GRBModel &modelo);
+        Variaveis(const Instancia &instancia, GRBModel &modelo, const BoostC::vector<RotaEvMip> &vetRotasEv);
         ~Variaveis()=default;
     };
 

@@ -18,22 +18,47 @@ using namespace NS_VetorHash;
 
 void ModeloNs::modelo(const Instancia &instancia, const SetVetorHash &hashSolSet, const Solucao &solucao)
 {
+    //cout<<"Hash size: "<<hashSolSet.size()<<"\n\n";
+
+    /*
     BoostC::vector<RotaEvMip> vetHashSol(hashSolSet.size(), RotaEvMip(instancia.evRouteSizeMax, instancia));
     auto itHashSol = hashSolSet.begin();
-
     for(int i=0; i < hashSolSet.size(); ++i)
     {
-
-        cout<<"hash: "<<(*itHashSol).valHash<<"\n";
         vetHashSol[i].inicializa(instancia, (*itHashSol));
         ++itHashSol;
+    }
+    */
 
+    BoostC::vector<RotaEvMip> vetRotasEv;
+    vetRotasEv.reserve(instancia.numEv);
 
-        if(i==1)
-            break;
+    for(int sat=1; sat <= instancia.numSats; ++sat)
+    {
+        const Satelite &satelite = solucao.satelites[sat];
+
+        if(satelite.demanda <= 0.0)
+            continue;
+
+        for(int ev=0; ev < instancia.numEv; ++ev)
+        {
+            const EvRoute &evRoute = satelite.vetEvRoute[ev];
+            if(evRoute.routeSize <= 2)
+                continue;
+
+            // Verificar se a rota atende pelo menos um cliente
+            for(int i=1; i < evRoute.routeSize; ++i)
+            {
+                if(instancia.isClient(evRoute.route[i].cliente))
+                {
+                    vetRotasEv.push_back(RotaEvMip(instancia, evRoute));
+                    break;
+                }
+            }
+        }
     }
 
-    ERRO();
+    cout << "vetSol size: " << vetRotasEv.size() << "\n";
 
     try
     {
@@ -42,9 +67,13 @@ void ModeloNs::modelo(const Instancia &instancia, const SetVetorHash &hashSolSet
         GRBModel model = GRBModel(env);
         setParametrosModelo(model);
 
-        Variaveis variaveis(instancia, model);
-        model.update();
+        Variaveis variaveis(instancia, model, vetRotasEv);
 
+        criaFuncObj(instancia, model, variaveis, vetRotasEv);
+        criaRestParaRotasEVs(instancia, model, variaveis, vetRotasEv);
+
+        model.update();
+        model.write("modelo.lp");
         model.optimize();
     }
     catch(GRBException &grbException)
@@ -61,114 +90,82 @@ void ModeloNs::setParametrosModelo(GRBModel &model)
 
 }
 
-RotaEvMip::RotaEvMip(const Instancia &instancia, const NS_VetorHash::VetorHash &vetorHash):evRoute(vetorHash.vet[0], -1, instancia.evRouteSizeMax, instancia)
+// $\textbf{Min}$:  $z = \sum\limits_{r \in Rota} D_r . y_r$  + $\sum\limits_{(i,j) \in A1} Dist_{(i,j)} . x_{(i,j)}$
+void ModeloNs::criaFuncObj(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis, const BoostC::vector<RotaEvMip> &vetRotaEv)
 {
-    inicializado = true;
+    GRBLinExpr obj;
 
-    // Copia rota
-    evRoute[0].cliente = vetorHash.vet[0];
-    evRoute[0].tempoSaida = instancia.getDistance(0, evRoute[0].cliente);
-    sat = evRoute[0].cliente;
+    // Parte das variaveis y(rotas) da func. obj.
+    for(int r=0; r < variaveis.vetY.getNum(); ++r)
+        obj += vetRotaEv[r].evRoute.distancia*variaveis.vetY(r);
 
-    for(int i=1; i < instancia.evRouteSizeMax; ++i)
+    // Parte das variaveis x(i,j)
+    for(int i=0; i <= instancia.numSats; ++i)
     {
-        const int cliente = vetorHash.vet[i];
-        evRoute[i].cliente = cliente;
-        evRoute.demanda += instancia.getDemand(cliente);
-
-        if(evRoute[i].cliente == evRoute[0].cliente)
+        for(int j=0; j <= instancia.numSats; ++j)
         {
-            evRoute.routeSize = i+1;
-            break;
+            if(j==i)
+                continue;
+
+            obj += instancia.getDistance(i,j)*variaveis.matrix_x(i,j);
         }
     }
 
-    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instancia, true, evRoute[0].tempoSaida, 0, nullptr, nullptr);
-    if(evRoute.distancia <= 0.0)
-    {
-        PRINT_DEBUG("", "");
-        cout<<"ERRO, rota ev eh inviavel\n";
-        ERRO();
-    }
-
-    const int idMenorFolga  = evRoute[0].posMenorFolga;
-    const int clienteMenorF = evRoute[idMenorFolga].cliente;
-
-    const double inc = instancia.getFimJanelaTempoCliente(clienteMenorF) - evRoute[idMenorFolga].tempoCheg;
-    if(inc < -1E-3)
-    {
-        PRINT_DEBUG("", "");
-        cout<<"Possivel erro: inc("<<inc<<") < 0\n";
-        ERRO();
-    }
-
-    tempoSaidaMax = evRoute[0].tempoSaida+inc;
-
-    //string strRota;
-    //evRoute.print(strRota, instancia, true);
-    //cout<<"Rota: "<<strRota<<"\n";
-    //cout<<"tempoSaidaMax: "<<tempoSaidaMax<<"\n";
-
-
-    //ERRO();
+    modelo.setObjective(obj, GRB_MINIMIZE);
 }
 
-RotaEvMip::RotaEvMip(int evRouteSizeMax, const Instancia &instancia): evRoute(1, instancia.getFirstEvIndex(), evRouteSizeMax, instancia){}
-
-void RotaEvMip::inicializa(const Instancia &instancia, const VetorHash &vetorHash)
+/*
+ * Cria as restricoes relacionadas a variavel y(rotas EVs)
+ *
+ * $\sum\limits_{r\in Rota} Atend_r^i . y_r \geq 1$     $\forall i \in V_c$
+ * $\sum\limits_{r' \in Rotas^i} y_r \leq z_i . |EV|$   $\forall i \in V_s$
+ * $\sum\limits_{r \in Rotas} y_r \leq |EV|$
+ *
+ * @param instancia
+ * @param modelo
+ * @param variaveis
+ */
+void ModeloNs::criaRestParaRotasEVs(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis, const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv)
 {
-    if(inicializado)
+    // Pre processamento, cria para cada cliente as rotas que o possuem
+    ublas::matrix<int> matrix(instancia.numClients, variaveis.vetY.getNum());
+    BoostC::vector<int>   vetNumRotas(instancia.numClients, 0);
+    const int firstClientIndex = instancia.getFirstClientIndex();
+    const int endClientIndex   = instancia.getEndClientIndex();
+
+    auto funcConveteClienteIdex = [&](int i){return (i-firstClientIndex);};
+
+    for(int r=0; r < vetRotaEv.size(); ++r)
     {
-        PRINT_DEBUG("", "");
-        cout<<"RotaEvMip ja foi inicializado!";
-        ERRO();
-    }
+        const RotaEvMip &rotaEvMip = vetRotaEv[r];
 
-    inicializado = true;
-
-    // Copia rota
-    evRoute[0].cliente    = vetorHash.vet[0];
-    evRoute.satelite      = vetorHash.vet[0];
-    evRoute[0].tempoSaida = instancia.getDistance(0, evRoute[0].cliente);
-    sat = evRoute[0].cliente;
-
-    for(int i=1; i < instancia.evRouteSizeMax; ++i)
-    {
-        const int cliente = vetorHash.vet[i];
-        evRoute[i].cliente = cliente;
-        evRoute.demanda += instancia.getDemand(cliente);
-
-        if(evRoute[i].cliente == evRoute[0].cliente)
+        for(int i=firstClientIndex; i <= endClientIndex; ++i)
         {
-            evRoute.routeSize = i+1;
-            break;
+            if(rotaEvMip.vetAtend[i] == Int8(1))
+            {
+                const int convI = funcConveteClienteIdex(i);
+
+                matrix(convI, vetNumRotas[convI]) = r;
+                vetNumRotas[convI] += 1;
+            }
         }
     }
 
-    evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instancia, true, evRoute[0].tempoSaida, 0, nullptr, nullptr);
-    if(evRoute.distancia <= 0.0)
+    // 1º Restricao: $\sum\limits_{r\in Rota} Atend_r^i . y_r \geq 1$     $\forall i \in V_c$
+
+    for(int i=firstClientIndex; i <= endClientIndex; ++i)
     {
-        PRINT_DEBUG("", "");
-        cout<<"ERRO, rota ev eh inviavel\n";
-        ERRO();
+        const int convI = funcConveteClienteIdex(i);
+        GRBLinExpr linExpr;
+
+        for(int posJ=0; posJ < vetNumRotas[convI]; ++posJ)
+        {
+            const int r = matrix(convI, posJ);
+            linExpr += variaveis.vetY(r);
+        }
+
+        modelo.addConstr(linExpr, '>', 1.0, "RotasEv_rest0_"+ to_string(i));
     }
 
-    const int idMenorFolga  = evRoute[0].posMenorFolga;
-    const int clienteMenorF = evRoute[idMenorFolga].cliente;
-
-    const double inc = instancia.getFimJanelaTempoCliente(clienteMenorF) - evRoute[idMenorFolga].tempoCheg;
-    if(inc < -1E-3)
-    {
-        PRINT_DEBUG("", "");
-        cout<<"Possivel erro: inc("<<inc<<") < 0\n";
-        ERRO();
-    }
-
-    tempoSaidaMax = evRoute[0].tempoSaida+inc;
-
-
-    string strRota;
-    evRoute.print(strRota, instancia, true);
-    cout<<"Rota: "<<strRota<<"\n";
-    cout<<"tempoSaidaMax: "<<tempoSaidaMax<<"\n**************************\n\n";
+    // 2º Restricao:
 }

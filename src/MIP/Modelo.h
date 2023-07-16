@@ -13,31 +13,15 @@
 #include "gurobi_c++.h"
 #include "../Solucao.h"
 #include "../VetorHash.h"
+#include "Variaveis.h"
 
 typedef std::unordered_set<NS_VetorHash::VetorHash, NS_VetorHash::VetorHash::HashFunc> SetVetorHash;
 
 namespace ModeloNs
 {
-
-    class RotaEvMip
-    {
-    private:
-        bool inicializado = false;
-
-    public:
-
-        EvRoute evRoute;
-        double tempoSaidaMax;
-        BoostC::vector<Int8> vetAtend;      // indica se um cliente eh atendido
-        int sat;
-
-        RotaEvMip(const Instancia &instancia, const NS_VetorHash::VetorHash &vetorHash);
-        RotaEvMip()= default;
-        explicit RotaEvMip(int evRouteSizeMax, const Instancia &instancia);
-        void inicializa(const Instancia &instancia, const NS_VetorHash::VetorHash &vetorHash);
-    };
-
     void modelo(const Instancia &instancia, const SetVetorHash &hashSolSet, const Solucao &solucao);
+    void criaFuncObj(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis, const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv);
+    void criaRestParaRotasEVs(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis, const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv);
     void setParametrosModelo(GRBModel &model);
 }
 

@@ -128,11 +128,11 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
     SetVetorHash hashSolSetConst;       // Apos construtivo
     SetVetorHash hashSolSetVnd;         // Apos vnd
 
-    SetVetorHash hashRotaEv;
+    SetVetorHash hashRotaEv;            // Hash de rotasEv
 
     auto funcAddRotasHash = [](const Instancia &instancia, SetVetorHash &hash, const Solucao &solucao)
     {
-        for(int sat=1; sat < instancia.numSats; ++sat)
+        for(int sat=1; sat <= instancia.numSats; ++sat)
         {
             const Satelite &satelite = solucao.satelites[sat];
 
@@ -145,9 +145,19 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
                 if(evRoute.routeSize <= 2)
                     continue;
 
-                hash.insert(VetorHash(evRoute));
+                // Verificar se a rota atende pelo menos um cliente
+                for(int i=1; i < evRoute.routeSize; ++i)
+                {
+                    if(instancia.isClient(evRoute.route[i].cliente))
+                    {
+                        hash.insert(VetorHash(evRoute));
+                        break;
+                    }
+                }
             }
         }
+
+
     };
 
     int numSolConstVia = 0;
@@ -551,7 +561,6 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
 
     };
 
-
     // Remove uma rota de caminhao(primeiro nivel)
     auto funcDestroi3 = [&](Solucao &sol, int numRouteRm) -> bool
     {
@@ -730,6 +739,8 @@ if(i%200 == 0)
             }
 
             hashSolSetVnd.insert(VetorHash(solC, instancia));
+            funcAddRotasHash(instancia, hashRotaEv, solC);
+
             dadosIg.solVnd   = solC.distancia;
         }
 
@@ -770,7 +781,7 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
     cout<<"FIM IG\n";
 
     // Inicio MIP model
-    modelo(instancia, hashSolSetVnd, solBest);
+    modelo(instancia, hashRotaEv, solBest);
     // Fim MIP model
 
 
