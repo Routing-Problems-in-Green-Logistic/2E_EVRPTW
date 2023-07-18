@@ -124,6 +124,8 @@ VariaveisNs::Variaveis::Variaveis(const Instancia &instancia, GRBModel &modelo, 
 
     modelo.update();
 
+    vetZ.setUB_LB(0.0, 0.0, 0);
+
     matrix_x.printVars();
     matrixDem.printVars();
 
@@ -133,6 +135,15 @@ VariaveisNs::Variaveis::Variaveis(const Instancia &instancia, GRBModel &modelo, 
     vetZ.printVars();
     vetT.printVars();
 
+}
+
+void Variaveis::setVetDoubleAttr_X(GRBModel &model)
+{
+    matrix_x.setVetDoubleAttr_X(model);
+    matrixDem.setVetDoubleAttr_X(model);
+    vetZ.setVetDoubleAttr_X(model);
+    vetY.setVetDoubleAttr_X(model);
+    vetT.setVetDoubleAttr_X(model);
 }
 
 VectorGRBVar::VectorGRBVar(GRBModel &model, int num_, const string &&nome, char type)
@@ -165,6 +176,13 @@ void VectorGRBVar::setUB_LB(double ub, double lb)
         vetVar[i].set(GRB_DoubleAttr_UB, lb);
         vetVar[i].set(GRB_DoubleAttr_UB, ub);
     }
+}
+
+
+void VectorGRBVar::setUB_LB(double ub, double lb, int i)
+{
+    vetVar[i].set(GRB_DoubleAttr_UB, lb);
+    vetVar[i].set(GRB_DoubleAttr_UB, ub);
 }
 
 void VectorGRBVar::printVars()
@@ -335,4 +353,41 @@ RotaEvMip::RotaEvMip(const Instancia &instancia, const EvRoute &evRoute_):evRout
             vetAtend[cliente] = Int8(1);
     }
 
+    sat = evRoute_.route[0].cliente;
+
+    const int idMenorFolga  = evRoute[0].posMenorFolga;
+    const int clienteMenorF = evRoute[idMenorFolga].cliente;
+
+    const double inc = instancia.getFimJanelaTempoCliente(clienteMenorF) - evRoute[idMenorFolga].tempoCheg;
+    if(inc < -1E-3)
+    {
+        PRINT_DEBUG("", "");
+        cout<<"Possivel erro: inc("<<inc<<") < 0\n";
+        ERRO();
+    }
+
+    tempoSaidaMax = evRoute[0].tempoSaida+inc;
+
+}
+
+MatrixGRBVar::~MatrixGRBVar()
+{
+    delete []vetVar;
+    vetVar = nullptr;
+
+    delete []vetDoubleAttr_X;
+    vetDoubleAttr_X = nullptr;
+}
+
+void MatrixGRBVar::setVetDoubleAttr_X(GRBModel &model)
+{
+    delete []vetDoubleAttr_X;
+    vetDoubleAttr_X = model.get(GRB_DoubleAttr_X, vetVar, numCol * numLin);
+}
+
+
+void VectorGRBVar::setVetDoubleAttr_X(GRBModel &model)
+{
+    delete []vetDoubleAttr_X;
+    vetDoubleAttr_X = model.get(GRB_DoubleAttr_X, vetVar, num);
 }

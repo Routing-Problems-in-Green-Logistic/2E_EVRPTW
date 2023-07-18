@@ -214,6 +214,33 @@ namespace NS_Auxiliary
     }
 
 
+    template<typename T>
+    T menorElem(const BoostC::vector<T> &vector, const size_t tam)
+    {
+        T menor = vector[0];
+        for(int i=1; i < tam; ++i)
+        {
+            if(vector[i] < menor)
+                menor = vector[i];
+        }
+
+        return menor;
+    }
+
+
+    template<typename T>
+    T maiorElem(const BoostC::vector<T> &vector, const size_t tam)
+    {
+        T maior = vector[0];
+        for(int i=1; i < tam; ++i)
+        {
+            if(vector[i] > maior)
+                maior = vector[i];
+        }
+
+        return maior;
+    }
+
     inline bool menor(double x, double y)
     {
         if((x-y) < -TOLERANCIA_DIF_ROTAS)

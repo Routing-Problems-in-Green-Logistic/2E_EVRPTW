@@ -121,10 +121,10 @@ void Route::resetaRoute()
     routeSize = 2;
     //cout<<"vet size: "<<rota.size()<<"\n\n";
     rota[0].satellite = 0;
-    rota[0].tempoChegada = -1.0;
+    rota[0].tempoChegada = 0.0;
 
     rota[1].satellite = 0;
-    rota[1].tempoChegada = -1.0;
+    rota[1].tempoChegada = 0.0;
 
     totalDistence = 0.0;
     totalDemand = 0.0;

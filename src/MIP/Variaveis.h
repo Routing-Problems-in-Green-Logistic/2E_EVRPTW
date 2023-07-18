@@ -23,6 +23,7 @@ namespace VariaveisNs
     private:
         bool inicializado = false;
         GRBVar *vetVar = nullptr;
+        double *vetDoubleAttr_X = nullptr;
         int numLin, numCol;
         char typeVar;
 
@@ -34,7 +35,7 @@ namespace VariaveisNs
         void operator = (MatrixGRBVar &)=delete;
         void inicializa(GRBModel &model, int numLin, int numCol, const string &&nome, char type);
 
-        ~MatrixGRBVar(){delete []vetVar; vetVar=nullptr;}
+        ~MatrixGRBVar();
         inline __attribute__((always_inline)) GRBVar& operator ()(const int indexI, const int indexJ)
         {
 
@@ -54,10 +55,40 @@ namespace VariaveisNs
 
             return vetVar[indexI*numCol+indexJ];
         }
+
+        inline __attribute__((always_inline)) double getX_value(const int indexI, const int indexJ)
+        {
+            if(vetDoubleAttr_X == nullptr)
+            {
+                cout<<"ERRO, vetDoubleAttr eh igual a nullptr\n";
+                ERRO();
+            }
+
+
+#if MATRIX_SANITY_CHECK
+            if(indexI >= numLin || indexI < 0)
+            {
+                std::cout<<"Erro indice i: "<<indexI<<" esta errado para matrix de tam "<<numLin<<" x "<<numCol<<"\n";
+                throw std::out_of_range("");
+            }
+
+            if(indexJ >= numCol)
+            {
+                std::cout<<"Erro indice j: "<<indexJ<<" esta errado para matrix de tam "<<numLin<<" x "<<numCol<<"\n";
+                throw std::out_of_range("");
+            }
+#endif
+
+            return vetDoubleAttr_X[indexI * numCol + indexJ];
+        }
+
         void setUB(double ub);
         void setLB(double lb);
         void setUB_LB(double ub, double lb);
         void printVars();
+
+        void setVetDoubleAttr_X(GRBModel &model);
+
     };
 
     class VectorGRBVar
@@ -65,6 +96,7 @@ namespace VariaveisNs
     private:
         bool inicializado = false;
         GRBVar *vetVar = nullptr;
+        double *vetDoubleAttr_X = nullptr;
         int num;
         char typeVar;
 
@@ -91,10 +123,34 @@ namespace VariaveisNs
 
             return vetVar[indexI];
         }
+
+        inline __attribute__((always_inline)) double getX_value(int indexI)
+        {
+
+            if(vetDoubleAttr_X == nullptr)
+            {
+                cout<<"ERRO, vetDoubleAttr eh igual a nullptr\n";
+                ERRO();
+            }
+
+#if MATRIX_SANITY_CHECK
+            if(indexI >= num || indexI < 0)
+            {
+                std::cout<<"Erro indice i: "<<indexI<<" esta errado para vector de tam "<<num<<"\n";
+                throw std::out_of_range("");
+            }
+#endif
+
+            return vetDoubleAttr_X[indexI];
+        }
+
         void setUB(double ub);
         void setLB(double lb);
         void setUB_LB(double ub, double lb);
+        void setUB_LB(double ub, double lb, int i);
         void printVars();
+
+        void setVetDoubleAttr_X(GRBModel &model);
     };
 
 
@@ -129,6 +185,7 @@ namespace VariaveisNs
 
         Variaveis(const Instancia &instancia, GRBModel &modelo, const BoostC::vector<RotaEvMip> &vetRotasEv);
         ~Variaveis()=default;
+        void setVetDoubleAttr_X(GRBModel &model);
     };
 
 }
