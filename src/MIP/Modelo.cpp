@@ -24,18 +24,19 @@ void ModeloNs::modelo(Instancia &instancia, const SetVetorHash &hashSolSet, cons
 
     //cout<<"Hash size: "<<hashSolSet.size()<<"\n\n";
 
-    /*
-    BoostC::vector<RotaEvMip> vetHashSol(hashSolSet.size(), RotaEvMip(instancia.evRouteSizeMax, instancia));
+
+    BoostC::vector<RotaEvMip> vetRotasEv(hashSolSet.size(), RotaEvMip(instancia.evRouteSizeMax, instancia));
     auto itHashSol = hashSolSet.begin();
     for(int i=0; i < hashSolSet.size(); ++i)
     {
-        vetHashSol[i].inicializa(instancia, (*itHashSol));
+        vetRotasEv[i].inicializa(instancia, (*itHashSol));
         ++itHashSol;
     }
-    */
 
-    BoostC::vector<RotaEvMip> vetRotasEv;
-    vetRotasEv.reserve(instancia.numEv);
+
+    //BoostC::vector<RotaEvMip> vetRotasEv;
+    //vetRotasEv.reserve(instancia.numEv);
+
 
     for(int sat=1; sat <= instancia.numSats; ++sat)
     {
@@ -294,7 +295,7 @@ void ModeloNs::criaRestVar_X(const Instancia &instancia, GRBModel &modelo, Varia
     }
 
 
-    for(int i=1; i <= instancia.numSats; ++i)
+/*    for(int i=1; i <= instancia.numSats; ++i)
     {
         GRBLinExpr linExpr;
 
@@ -308,7 +309,7 @@ void ModeloNs::criaRestVar_X(const Instancia &instancia, GRBModel &modelo, Varia
             linExpr += variaveis.matrix_x(j,i);
             modelo.addConstr(linExpr, '<', 1);
         }
-    }
+    }*/
 }
 
 
@@ -416,7 +417,7 @@ void ModeloNs::criaRestVar_T(const Instancia &instancia, GRBModel &modelo, Varia
             linExpr += variaveis.vetT(sat);
             linExpr += -vetRotasEv[r].tempoSaidaMax*variaveis.vetY(r);
 
-            modelo.addConstr(linExpr, '<', 0, "VarT_rest1_"+ to_string(sat) + "_" + to_string(r));
+            modelo.addConstr(linExpr, '>', 0, "VarT_rest1_"+ to_string(sat) + "_" + to_string(r));
         }
     }
 }
