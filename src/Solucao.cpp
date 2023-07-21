@@ -75,7 +75,7 @@ void Solucao::recalculaDistSat(Instancia &instancia)
     }
 }
 
-void Solucao::atualizaVetSatTempoChegMax(Instancia &instance)
+void Solucao::atualizaVetSatTempoChegMax(const Instancia &instance)
 {
 
     // Inicializa vetor
@@ -118,7 +118,7 @@ Satelite* Solucao::getSatelite(int index) {
 }
 
 // Retorna true se a solucao eh vialvel
-bool Solucao::checkSolution(std::string &erro, Instancia &inst)
+bool Solucao::checkSolution(std::string &erro, const Instancia &inst)
 {
     double distanciaAux = 0.0;
 

@@ -19,22 +19,51 @@ typedef std::unordered_set<NS_VetorHash::VetorHash, NS_VetorHash::VetorHash::Has
 
 namespace ModeloNs
 {
-    void modelo(Instancia &instancia, const SetVetorHash &hashSolSet, const Solucao &solucao);
-    void criaFuncObj(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis, const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv);
-    void criaRestParaRotasEVs(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis, const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv);
-    void criaRestVar_X(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis);
-    void criaRestVar_Dem(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis,
-                         const ublas::matrix<int> &matrixSat, const BoostC::vector<int> &vetNumRotasSat,
+    void modelo(Instancia &instancia,
+                const SetVetorHash &hashSolSet,
+                const Solucao &solucao);
+
+    void criaFuncObj(const Instancia &instancia,
+                     GRBModel &modelo,
+                     VariaveisNs::Variaveis &variaveis,
+                     const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv);
+
+    void criaRestParaRotasEVs(const Instancia &instancia,
+                              GRBModel &modelo,
+                              VariaveisNs::Variaveis &variaveis,
+                              const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv);
+
+    void criaRestVar_X(const Instancia &instancia,
+                       GRBModel &modelo,
+                       VariaveisNs::Variaveis &variaveis);
+
+    void criaRestVar_Dem(const Instancia &instancia,
+                         GRBModel &modelo,
+                         VariaveisNs::Variaveis &variaveis,
+                         const ublas::matrix<int> &matrixSat,
+                         const BoostC::vector<int> &vetNumRotasSat,
                          const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv);
 
-    void criaRestVar_T(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis,
-                       const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv, const ublas::matrix<int> &matrixSat,
+    void criaRestVar_T(const Instancia &instancia,
+                       GRBModel &modelo,
+                       VariaveisNs::Variaveis &variaveis,
+                       const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
+                       const ublas::matrix<int> &matrixSat,
                        const BoostC::vector<int> &vetNumRotasSat);
 
-    void recuperaSolucao(GRBModel &modelo, VariaveisNs::Variaveis &variaveis, Solucao &solucao, const Instancia &instancia,
+    void recuperaSolucao(GRBModel &modelo,
+                         VariaveisNs::Variaveis &variaveis,
+                         Solucao &solucao,
+                         const Instancia &instancia,
                          const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv);
 
     void setParametrosModelo(GRBModel &model);
+
+    void setSolIniMpi(GRBModel &model,
+                      const Solucao &solucao,
+                      const int idRotaEvSolIni,
+                      VariaveisNs::Variaveis &variaveis,
+                      const Instancia &instancia);
 }
 
 #endif //INC_2E_EVRP_MODELO_H

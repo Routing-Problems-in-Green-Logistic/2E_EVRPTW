@@ -126,6 +126,7 @@ VariaveisNs::Variaveis::Variaveis(const Instancia &instancia, GRBModel &modelo, 
 
     vetZ.setUB_LB(0.0, 0.0, 0);
 
+    /*
     matrix_x.printVars();
     matrixDem.printVars();
 
@@ -134,6 +135,7 @@ VariaveisNs::Variaveis::Variaveis(const Instancia &instancia, GRBModel &modelo, 
     vetY.printVars();
     vetZ.printVars();
     vetT.printVars();
+     */
 
 }
 

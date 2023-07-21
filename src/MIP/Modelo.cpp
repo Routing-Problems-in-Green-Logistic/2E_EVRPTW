@@ -18,11 +18,15 @@ using namespace NS_viabRotaEv;
 using namespace NS_VetorHash;
 using namespace NS_Auxiliary;
 
-void ModeloNs::modelo(Instancia &instancia, const SetVetorHash &hashSolSet, const Solucao &solucao)
+void ModeloNs::modelo(Instancia &instancia,
+                      const SetVetorHash &hashSolSet,
+                      const Solucao &solucao)
 {
     cout<<"Solucao IG: "<<solucao.distancia<<"\n";
 
     //cout<<"Hash size: "<<hashSolSet.size()<<"\n\n";
+
+    clock_t clockStart = clock();
 
 
     BoostC::vector<RotaEvMip> vetRotasEv(hashSolSet.size(), RotaEvMip(instancia.evRouteSizeMax, instancia));
@@ -37,6 +41,7 @@ void ModeloNs::modelo(Instancia &instancia, const SetVetorHash &hashSolSet, cons
     //BoostC::vector<RotaEvMip> vetRotasEv;
     //vetRotasEv.reserve(instancia.numEv);
 
+    const int idRotaEvSolIni = vetRotasEv.size();
 
     for(int sat=1; sat <= instancia.numSats; ++sat)
     {
@@ -105,6 +110,7 @@ void ModeloNs::modelo(Instancia &instancia, const SetVetorHash &hashSolSet, cons
         criaRestVar_X(instancia, model, variaveis);
         criaRestVar_Dem(instancia, model, variaveis, matrixSat, vetNumRotasSat, vetRotasEv);
         criaRestVar_T(instancia, model, variaveis, vetRotasEv, matrixSat, vetNumRotasSat);
+        setSolIniMpi(model, solucao, idRotaEvSolIni, variaveis, instancia);
 
         model.update();
         model.write("modelo.lp");
@@ -112,6 +118,14 @@ void ModeloNs::modelo(Instancia &instancia, const SetVetorHash &hashSolSet, cons
         model.write("modelo.sol");
 
         recuperaSolucao(model, variaveis, solModelo, instancia, vetRotasEv);
+        cout<<"Solucao IG: "<<solucao.distancia<<"\n";
+
+
+        clock_t clockEnd = clock();
+        cout<<"Tempo total: "<<double(clockEnd-clockStart)/CLOCKS_PER_SEC<<" S\n";
+        double gap = ((solModelo.distancia-solucao.distancia)/solucao.distancia)*100.0;
+        cout<<"GAP: "<<gap<<"%\n\n";
+
     }
     catch(GRBException &grbException)
     {
@@ -122,13 +136,17 @@ void ModeloNs::modelo(Instancia &instancia, const SetVetorHash &hashSolSet, cons
 
 void ModeloNs::setParametrosModelo(GRBModel &model)
 {
-
+    model.set(GRB_StringAttr_ModelName, "2E_EVRP_TW__SET_COVER");
     model.set(GRB_IntParam_Threads, 1);
-
+    //model.set(GRB_DoubleParam_MIPGap, 0.047);
+    //model.set(GRB_IntParam_MIPFocus, GRB_MIPFOCUS_BESTBOUND);
 }
 
 // $\textbf{Min}$:  $z = \sum\limits_{r \in Rota} D_r . y_r$  + $\sum\limits_{(i,j) \in A1} Dist_{(i,j)} . x_{(i,j)}$
-void ModeloNs::criaFuncObj(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis, const BoostC::vector<RotaEvMip> &vetRotaEv)
+void ModeloNs::criaFuncObj(const Instancia &instancia,
+                           GRBModel &modelo,
+                           VariaveisNs::Variaveis &variaveis,
+                           const BoostC::vector<RotaEvMip> &vetRotaEv)
 {
     GRBLinExpr obj;
 
@@ -162,7 +180,10 @@ void ModeloNs::criaFuncObj(const Instancia &instancia, GRBModel &modelo, Variave
  * @param modelo
  * @param variaveis
  */
-void ModeloNs::criaRestParaRotasEVs(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis, const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv)
+void ModeloNs::criaRestParaRotasEVs(const Instancia &instancia,
+                                    GRBModel &modelo,
+                                    VariaveisNs::Variaveis &variaveis,
+                                    const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv)
 {
     // Pre processamento, cria para cada cliente as rotas que o possuem
     ublas::matrix<int> matrix(instancia.numClients, variaveis.vetY.getNum());
@@ -216,7 +237,7 @@ void ModeloNs::criaRestParaRotasEVs(const Instancia &instancia, GRBModel &modelo
             linExpr += variaveis.vetY(r);
         }
 
-        modelo.addConstr(linExpr, '>', 1.0, "RotasEv_rest0_"+ to_string(i));
+        modelo.addConstr(linExpr, '=', 1.0, "RotasEv_rest0_"+ to_string(i));
     }
 
     // 2º Restricao: $\sum\limits_{r' \in Rotas^i} y_r \leq z_i . |EV|$  $\forall i \in V_s$
@@ -242,7 +263,9 @@ void ModeloNs::criaRestParaRotasEVs(const Instancia &instancia, GRBModel &modelo
     modelo.addConstr(linExpr <= instancia.numEv, "RotasEv_rest2");
 }
 
-void ModeloNs::criaRestVar_X(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis)
+void ModeloNs::criaRestVar_X(const Instancia &instancia,
+                             GRBModel &modelo,
+                             VariaveisNs::Variaveis &variaveis)
 {
     // 4º Restricao: $CV_{min} \leq \sum\limits_{j \in V_s} x_{(0,j)} \leq |CV|$
     GRBLinExpr linExpr4;
@@ -312,9 +335,11 @@ void ModeloNs::criaRestVar_X(const Instancia &instancia, GRBModel &modelo, Varia
     }*/
 }
 
-
-void ModeloNs::criaRestVar_Dem(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis,
-                               const ublas::matrix<int> &matrixSat, const BoostC::vector<int> &vetNumRotasSat,
+void ModeloNs::criaRestVar_Dem(const Instancia &instancia,
+                               GRBModel &modelo,
+                               VariaveisNs::Variaveis &variaveis,
+                               const ublas::matrix<int> &matrixSat,
+                               const BoostC::vector<int> &vetNumRotasSat,
                                const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv)
 {
 
@@ -372,8 +397,11 @@ void ModeloNs::criaRestVar_Dem(const Instancia &instancia, GRBModel &modelo, Var
     modelo.addConstr(linExpr, '=', 0, "VarDem_rest2");
 }
 
-void ModeloNs::criaRestVar_T(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis,
-                             const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv, const ublas::matrix<int> &matrixSat,
+void ModeloNs::criaRestVar_T(const Instancia &instancia,
+                             GRBModel &modelo,
+                             VariaveisNs::Variaveis &variaveis,
+                             const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
+                             const ublas::matrix<int> &matrixSat,
                              const BoostC::vector<int> &vetNumRotasSat)
 {
     variaveis.vetT.setUB_LB(0.0, 0.0, 0);
@@ -406,7 +434,7 @@ void ModeloNs::criaRestVar_T(const Instancia &instancia, GRBModel &modelo, Varia
         }
     }
 
-    // 11º Restricao: $t^i \leq (\lceil T^{max}_r\rceil.Sat^i_r.y_r)$ $\forall i \in V_s, \forall r \in Rota$
+    // 11º Restricao: $t^i \leq ( T^{max}_r.Sat^i_r.y_r) +  M.(1 - Sat^i_r.y_r)$  $\forall i \in V_s, \forall r \in Rota$
     for(int sat=1; sat <= instancia.numSats; ++sat)
     {
 
@@ -416,14 +444,18 @@ void ModeloNs::criaRestVar_T(const Instancia &instancia, GRBModel &modelo, Varia
             linExpr = 0;
             linExpr += variaveis.vetT(sat);
             linExpr += -vetRotasEv[r].tempoSaidaMax*variaveis.vetY(r);
+            linExpr += -M*(1 - variaveis.vetY(r));
 
-            modelo.addConstr(linExpr, '>', 0, "VarT_rest1_"+ to_string(sat) + "_" + to_string(r));
+            modelo.addConstr(linExpr, '<', 0, "VarT_rest1_"+ to_string(sat) + "_" + to_string(r));
         }
     }
 }
 
 
-void ModeloNs::recuperaSolucao(GRBModel &modelo, VariaveisNs::Variaveis &variaveis, Solucao &solucao, const Instancia &instancia,
+void ModeloNs::recuperaSolucao(GRBModel &modelo,
+                               VariaveisNs::Variaveis &variaveis,
+                               Solucao &solucao,
+                               const Instancia &instancia,
                                const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv)
 {
     solucao.resetaSol();
@@ -439,8 +471,10 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo, VariaveisNs::Variaveis &variave
         {
             const int sat = vetRotasEv[r].sat;
             EvRoute &evRouteSol = solucao.satelites[sat].vetEvRoute[rotasEvPorSat[sat]];
+            const int tempId = evRouteSol.idRota;
             evRouteSol.copia(vetRotasEv[r].evRoute, false, nullptr);
-            evRouteSol.idRota = rotasEvPorSat[sat];
+            evRouteSol.idRota = tempId;
+            //evRouteSol.route[0].tempoSaida = -DOUBLE_MAX;
             solucao.satelites[sat].demanda += evRouteSol.demanda;
             solucao.satelites[sat].distancia += evRouteSol.distancia;
 
@@ -449,6 +483,7 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo, VariaveisNs::Variaveis &variave
     }
 
     int proxCV = 0;
+    BoostC::vector<double> tempoSaidaEv(instancia.numSats+1, -DOUBLE_MAX);
 
     // Recupera as rotas dos CVs
     for(int satIni=1; satIni <= instancia.numSats; ++satIni)
@@ -460,14 +495,18 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo, VariaveisNs::Variaveis &variave
         solucao.primeiroNivel[proxCV].rota[0].tempoChegada = 0;
 
         solucao.primeiroNivel[proxCV].rota[1].satellite     = satIni;
-        solucao.primeiroNivel[proxCV].rota[1].tempoChegada  = variaveis.vetT.getX_value(satIni);
+        const double tempTempo = variaveis.vetT.getX_value(satIni);
+
+        if(tempTempo > tempoSaidaEv[satIni])
+            tempoSaidaEv[satIni] = tempTempo;
+
+        solucao.primeiroNivel[proxCV].rota[1].tempoChegada = tempTempo;
         solucao.primeiroNivel[proxCV].totalDistence = instancia.getDistance(0, satIni);
         solucao.primeiroNivel[proxCV].totalDemand = solucao.satelites[satIni].demanda;
+        solucao.primeiroNivel[proxCV].satelliteDemand[satIni] = solucao.satelites[satIni].demanda;
 
         int prox = 2;
         int satI = satIni;
-
-        cout<<"0\n"<<satIni<<"\n";
 
         do
         {
@@ -477,17 +516,22 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo, VariaveisNs::Variaveis &variave
             {
                 if(satI != satJ && variaveis.matrix_x.getX_value(satI, satJ) >= 0.99)
                 {
-                    cout<<"prox: "<<prox<<"\n";
 
                     solucao.primeiroNivel[proxCV].rota[prox].satellite = satJ;
                     solucao.primeiroNivel[proxCV].rota[prox].tempoChegada = variaveis.vetT.getX_value(satJ);
 
                     solucao.primeiroNivel[proxCV].totalDistence += instancia.getDistance(satI, satJ);
                     if(satJ != 0)
+                    {
                         solucao.primeiroNivel[proxCV].totalDemand = solucao.satelites[satJ].demanda;
+                        solucao.primeiroNivel[proxCV].satelliteDemand[satJ] = solucao.satelites[satJ].demanda;
+                        const double tempTempo = variaveis.vetT.getX_value(satJ);
+
+                        if(tempTempo > tempoSaidaEv[satJ])
+                            tempoSaidaEv[satJ] = tempTempo;
+                    }
 
                     satI = satJ;
-                    cout<<satI<<"\n";
                     prox += 1;
                     encontrou = true;
                     break;
@@ -504,20 +548,97 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo, VariaveisNs::Variaveis &variave
             //ERRO();
         }
         while(satI != 0);
-        cout<<"\n\n";
+        //cout<<"\n\n";
         solucao.primeiroNivel[proxCV].routeSize = prox;
         solucao.distancia += solucao.primeiroNivel[proxCV].totalDistence;
         proxCV += 1;
-
     }
 
+    cout<<"vetor tempo saida EVs: \n";
+    for(int i=1; i <= instancia.getEndSatIndex(); ++i)
+        cout<<i<<"  "<<tempoSaidaEv[i]<<"\n";
+
+    cout<<"\n";
+
+    string strErro;
 
     for(int sat=1; sat <= instancia.numSats; ++sat)
     {
         solucao.distancia += solucao.satelites[sat].distancia;
+        if(solucao.satelites[sat].demanda <= 0.0)
+            continue;
+
+        // Conserta tempo de saida dos EVs
+        for(int ev=0; ev < instancia.numEv; ++ev)
+        {
+            EvRoute &evRoute = solucao.satelites[sat].vetEvRoute[ev];
+            if(evRoute.routeSize <= 2)
+                continue;
+
+            strErro = "";
+            //evRoute.route[0].tempoSaida = tempoSaidaEv[sat];
+
+            if(!evRoute.alteraTempoSaida(tempoSaidaEv[sat], instancia))
+            {
+
+                cout<<"ERRO na rotaEv("<<ev<<") do sat("<<sat<<")\n";
+                cout<<"Nao foi possivel alterar o tempo de saida da rota para: "<<tempoSaidaEv[sat]<<"\n";
+            }
+
+            //evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instancia, true, tempoSaidaEv[sat], 0, &strErro, nullptr);
+            /*
+            if(evRoute.distancia <= 0.0)
+            {
+                cout<<"ERRO na rotaEv("<<ev<<") do sat("<<sat<<")\n";
+                cout<<strErro<<"\n\n";
+                ERRO();
+            }
+             */
+        }
     }
 
+
     cout<<"Distancia solucao MIP: "<<solucao.distancia<<"\n";
+    cout<<"*****************************************************\n\nApos testar todas os EVs\n";
+
     solucao.print(instancia);
+
+    strErro = "";
+    if(solucao.checkSolution(strErro, instancia))
+        cout<<"Sol viavel\n";
+    else
+        cout<<"Sol inviavel!\n"<<strErro<<"\n";
+
+}
+
+void ModeloNs::setSolIniMpi(GRBModel &model,
+                            const Solucao &solucao,
+                            const int idRotaEvSolIni,
+                            VariaveisNs::Variaveis &variaveis,
+                            const Instancia &instancia)
+{
+
+    for(int i=idRotaEvSolIni; i < variaveis.vetY.getNum(); ++i)
+        variaveis.vetY(i).set(GRB_DoubleAttr_Start, 1.0);
+
+    for(int cv=0; cv < instancia.numTruck; ++cv)
+    {
+        const Route &route = solucao.primeiroNivel[cv];
+        if(route.routeSize <= 2)
+            continue;
+
+        int cliI = 0;
+        int cliJ = -1;
+
+        for(int i=1; i < route.routeSize; ++i)
+        {
+            cliJ = route.rota[i].satellite;
+            if(cliJ != 0)
+                variaveis.vetT(cliJ).set(GRB_DoubleAttr_Start, route.rota[i].tempoChegada);
+            cout<<"set ("<<cliI<<", "<<cliJ<<")\n";
+            variaveis.matrix_x(cliI, cliJ).set(GRB_DoubleAttr_Start, 1.0);
+            std::swap(cliI, cliJ);
+        }
+    }
 
 }

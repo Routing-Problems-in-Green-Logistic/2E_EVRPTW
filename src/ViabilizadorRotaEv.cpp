@@ -452,7 +452,10 @@ double NS_viabRotaEv::testaRota(EvRoute &evRoute, const int tamRoute, const Inst
                 (*rotaBtDebug) += "JANELA DE TEMPO\n";
                 (*rotaBtDebug) += "cliente: "+ to_string(evRoute[i+1].cliente)+"\n";
                 (*rotaBtDebug) += "tempo chegada: " + to_string(tempo)+"\nfinal janela de tempo: "+
-                                  to_string(clienteInstProx.fimJanelaTempo)+"\n";
+                                  to_string(clienteInstProx.fimJanelaTempo)+"\n\n";
+                string strRota;
+                evRoute.print(strRota, instance, false);
+                (*rotaBtDebug) += "Rota:\n"+strRota+"\n\n";
 
             }
 

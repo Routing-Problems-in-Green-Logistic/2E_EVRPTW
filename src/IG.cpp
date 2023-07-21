@@ -713,6 +713,8 @@ if(i%200 == 0)
             hashSolSetConst.insert(VetorHash(solC, instancia));
             numSolConstVia += 1;
 
+            funcAddRotasHash(instancia, hashRotaEv, solC);
+
             dadosIg.solConst = solC.distancia;
 
             numSolG += 1;

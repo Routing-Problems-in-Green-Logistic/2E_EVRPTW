@@ -7,10 +7,10 @@ enable_language(CXX)
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 set(CMAKE_BUILD_TYPE "Release")
 
-#set(CMAKE_CXX_FLAGS "-O3")
+set(CMAKE_CXX_FLAGS "-g3 -O3")
 #set(CMAKE_CXX_FLAGS "-march=native")
 
-set(CMAKE_CXX_FLAGS "-g3 -ggdb")
+#set(CMAKE_CXX_FLAGS "-g3 -ggdb")
 #set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D __FILENAME__='\"$(subst  ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
@@ -28,6 +28,7 @@ include_directories(K_MEANS)
 include_directories(CONSTRUTIVO)
 include_directories(BUSCA_LOCAL)
 include_directories(MIP)
+
 
 set(SOURCES
         INSTANCIA/Parametros.cpp
@@ -67,7 +68,9 @@ set(SOURCES
         common.h
         VetorHash.h
         IG.h
-        IG.cpp MIP/Variaveis.h MIP/Variaveis.cpp)
+        IG.cpp
+        MIP/Variaveis.h
+        MIP/Variaveis.cpp)
 
 
 
