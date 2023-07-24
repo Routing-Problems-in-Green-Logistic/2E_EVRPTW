@@ -963,7 +963,7 @@ bool NS_Construtivo3::verificaViabilidadeSatelite(const double tempoChegada, Sat
                         return false;
                     } else
                     {
-                        if(!evRoute.alteraTempoSaida(tempoChegada, instance))
+                        if(!evRoute.alteraTempoSaida(tempoChegada, instance, false))
                         {
                             string str;
                             evRoute.print(str, instance, false);

@@ -148,6 +148,16 @@ void Variaveis::setVetDoubleAttr_X(GRBModel &model)
     vetT.setVetDoubleAttr_X(model);
 }
 
+void Variaveis::setAttr_Start0()
+{
+    matrix_x.setAttr_Start0();
+    matrixDem.setAttr_Start0();
+
+    vetZ.setAttr_Start0();
+    vetT.setAttr_Start0();
+    vetY.setAttr_Start0();
+}
+
 VectorGRBVar::VectorGRBVar(GRBModel &model, int num_, const string &&nome, char type)
 {
     inicializado = true;
@@ -387,9 +397,28 @@ void MatrixGRBVar::setVetDoubleAttr_X(GRBModel &model)
     vetDoubleAttr_X = model.get(GRB_DoubleAttr_X, vetVar, numCol * numLin);
 }
 
+void MatrixGRBVar::setAttr_Start0()
+{
+
+    for(int i=0; i < numLin; ++i)
+    {
+        for(int j=0; j < numCol; ++j)
+            (*this)(i,j).set(GRB_DoubleAttr_Start, 0.0);
+
+    }
+
+}
+
 
 void VectorGRBVar::setVetDoubleAttr_X(GRBModel &model)
 {
     delete []vetDoubleAttr_X;
     vetDoubleAttr_X = model.get(GRB_DoubleAttr_X, vetVar, num);
+}
+
+void VectorGRBVar::setAttr_Start0()
+{
+
+    for(int i=0; i < num; ++i)
+        (*this)(i).set(GRB_DoubleAttr_Start, 0.0);
 }

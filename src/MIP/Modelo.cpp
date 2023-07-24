@@ -110,7 +110,7 @@ void ModeloNs::modelo(Instancia &instancia,
         criaRestVar_X(instancia, model, variaveis);
         criaRestVar_Dem(instancia, model, variaveis, matrixSat, vetNumRotasSat, vetRotasEv);
         criaRestVar_T(instancia, model, variaveis, vetRotasEv, matrixSat, vetNumRotasSat);
-        setSolIniMpi(model, solucao, idRotaEvSolIni, variaveis, instancia);
+        setSolIniMip(model, solucao, idRotaEvSolIni, variaveis, instancia);
 
         model.update();
         model.write("modelo.lp");
@@ -237,7 +237,7 @@ void ModeloNs::criaRestParaRotasEVs(const Instancia &instancia,
             linExpr += variaveis.vetY(r);
         }
 
-        modelo.addConstr(linExpr, '=', 1.0, "RotasEv_rest0_"+ to_string(i));
+        modelo.addConstr(linExpr, GRB_GREATER_EQUAL, 1.0, "RotasEv_rest0_"+ to_string(i));
     }
 
     // 2º Restricao: $\sum\limits_{r' \in Rotas^i} y_r \leq z_i . |EV|$  $\forall i \in V_s$
@@ -463,27 +463,94 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
     variaveis.setVetDoubleAttr_X(modelo);
 
     BoostC::vector<int> rotasEvPorSat(instancia.numSats+1, 0);
+    BoostC::vector<int> vetClienteAtend(instancia.numNos, 0);
+    bool solmultCli = false;
 
     // Copias as rotas EVs para solucao
     for(int r=0; r < variaveis.vetY.getNum(); ++r)
     {
-        if(variaveis.vetY.getX_value(r) >= 0.99)
+        if(variaveis.vetY.getX_value(r) < 0.99)
+            continue;
+
+        const int sat = vetRotasEv[r].sat;
+        EvRoute &evRouteSol = solucao.satelites[sat].vetEvRoute[rotasEvPorSat[sat]];
+        const int tempId = evRouteSol.idRota;
+        evRouteSol.copia(vetRotasEv[r].evRoute, false, nullptr);
+        evRouteSol.idRota = tempId;
+        bool validoEv = true;
+
+        // Percorre a rota verificando se o cliente ja esta coberto
+        int routeSize = evRouteSol.routeSize;
+        int i = 1;
+
+        while(i < routeSize)
         {
-            const int sat = vetRotasEv[r].sat;
-            EvRoute &evRouteSol = solucao.satelites[sat].vetEvRoute[rotasEvPorSat[sat]];
-            const int tempId = evRouteSol.idRota;
-            evRouteSol.copia(vetRotasEv[r].evRoute, false, nullptr);
-            evRouteSol.idRota = tempId;
-            //evRouteSol.route[0].tempoSaida = -DOUBLE_MAX;
+            const int cliente = evRouteSol[i].cliente;
+
+            if(!instancia.isClient(cliente))
+            {
+                i += 1;
+                continue;
+            }
+
+            if(vetClienteAtend[cliente] == 0)
+            {
+                i += 1;
+                vetClienteAtend[cliente] = 1;
+                continue;
+            }
+
+            // evRoute resultante eh vazio
+            if(evRouteSol.routeSize == 3)
+            {
+                evRouteSol.routeSize = 2;
+                evRouteSol[1].cliente = sat;
+                evRouteSol.distancia = 0.0;
+                evRouteSol.demanda = 0.0;
+
+                validoEv = false;
+                break;
+            }
+
+
+            solmultCli = true;
+
+            // Exclui cliente
+            shiftVectorClienteEsq(evRouteSol.route, i, evRouteSol.routeSize);
+            evRouteSol.routeSize -= 1;
+
+            // Verifica se existe uma rs duplicada
+            if(evRouteSol[i - 1].cliente == evRouteSol[i].cliente)
+            {
+                shiftVectorClienteEsq(evRouteSol.route, i, evRouteSol.routeSize);
+                evRouteSol.routeSize -= 1;
+            }
+
+            // Atualiza routeSize e exclui demanda de cliente
+            routeSize = evRouteSol.routeSize;
+            evRouteSol.demanda -= instancia.getDemand(cliente);
+        }
+
+        if(validoEv)
+        {
             solucao.satelites[sat].demanda += evRouteSol.demanda;
-            solucao.satelites[sat].distancia += evRouteSol.distancia;
+            //solucao.satelites[sat].distancia += evRouteSol.distancia;
 
             rotasEvPorSat[sat] += 1;
         }
+
     }
+
 
     int proxCV = 0;
     BoostC::vector<double> tempoSaidaEv(instancia.numSats+1, -DOUBLE_MAX);
+
+    solucao.distancia = 0.0;
+
+    if(solmultCli)
+        cout<<"\n\nSolucao mip com mais de um ev atendendo cada cliente\n";
+    else
+        cout<<"\n\nSolucao mip com 1 ev atendendo cada cliente\n";
 
     // Recupera as rotas dos CVs
     for(int satIni=1; satIni <= instancia.numSats; ++satIni)
@@ -554,9 +621,9 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
         proxCV += 1;
     }
 
-    cout<<"vetor tempo saida EVs: \n";
-    for(int i=1; i <= instancia.getEndSatIndex(); ++i)
-        cout<<i<<"  "<<tempoSaidaEv[i]<<"\n";
+    //cout<<"vetor tempo saida EVs: \n";
+    //for(int i=1; i <= instancia.getEndSatIndex(); ++i)
+    //    cout<<i<<"  "<<tempoSaidaEv[i]<<"\n";
 
     cout<<"\n";
 
@@ -564,7 +631,8 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
 
     for(int sat=1; sat <= instancia.numSats; ++sat)
     {
-        solucao.distancia += solucao.satelites[sat].distancia;
+        solucao.satelites[sat].distancia = 0.0;
+
         if(solucao.satelites[sat].demanda <= 0.0)
             continue;
 
@@ -578,30 +646,24 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
             strErro = "";
             //evRoute.route[0].tempoSaida = tempoSaidaEv[sat];
 
-            if(!evRoute.alteraTempoSaida(tempoSaidaEv[sat], instancia))
+            if(!evRoute.alteraTempoSaida(tempoSaidaEv[sat], instancia, true))
             {
 
                 cout<<"ERRO na rotaEv("<<ev<<") do sat("<<sat<<")\n";
                 cout<<"Nao foi possivel alterar o tempo de saida da rota para: "<<tempoSaidaEv[sat]<<"\n";
             }
 
-            //evRoute.distancia = testaRota(evRoute, evRoute.routeSize, instancia, true, tempoSaidaEv[sat], 0, &strErro, nullptr);
-            /*
-            if(evRoute.distancia <= 0.0)
-            {
-                cout<<"ERRO na rotaEv("<<ev<<") do sat("<<sat<<")\n";
-                cout<<strErro<<"\n\n";
-                ERRO();
-            }
-             */
+            solucao.satelites[sat].distancia += evRoute.distancia;
         }
+
+        solucao.distancia += solucao.satelites[sat].distancia;
     }
 
 
     cout<<"Distancia solucao MIP: "<<solucao.distancia<<"\n";
     cout<<"*****************************************************\n\nApos testar todas os EVs\n";
 
-    solucao.print(instancia);
+    //solucao.print(instancia);
 
     strErro = "";
     if(solucao.checkSolution(strErro, instancia))
@@ -611,12 +673,14 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
 
 }
 
-void ModeloNs::setSolIniMpi(GRBModel &model,
-                            const Solucao &solucao,
+void ModeloNs::setSolIniMip(GRBModel &model,
+                            Solucao &solucao,
                             const int idRotaEvSolIni,
                             VariaveisNs::Variaveis &variaveis,
                             const Instancia &instancia)
 {
+
+    variaveis.setAttr_Start0();
 
     for(int i=idRotaEvSolIni; i < variaveis.vetY.getNum(); ++i)
         variaveis.vetY(i).set(GRB_DoubleAttr_Start, 1.0);
@@ -630,15 +694,39 @@ void ModeloNs::setSolIniMpi(GRBModel &model,
         int cliI = 0;
         int cliJ = -1;
 
+        double carga = 0.0;
+
         for(int i=1; i < route.routeSize; ++i)
         {
             cliJ = route.rota[i].satellite;
+            variaveis.matrixDem(cliI, cliJ).set(GRB_DoubleAttr_Start, carga);
+
+cout<<"set: ("<<cliI<<", "<<cliJ<<"); ";
+
             if(cliJ != 0)
+            {
                 variaveis.vetT(cliJ).set(GRB_DoubleAttr_Start, route.rota[i].tempoChegada);
-            cout<<"set ("<<cliI<<", "<<cliJ<<")\n";
+                variaveis.vetZ(cliJ).set(GRB_DoubleAttr_Start, 1.0);
+                carga += route.satelliteDemand[cliJ];
+
+cout<<"T("<<cliJ<<"): "<<route.rota[i].tempoChegada;
+
+            }
+
             variaveis.matrix_x(cliI, cliJ).set(GRB_DoubleAttr_Start, 1.0);
             std::swap(cliI, cliJ);
+
+cout<<"\n";
+
         }
+    }
+
+    string erroStr;
+
+    if(!solucao.checkSolution(erroStr, instancia))
+    {
+        PRINT_DEBUG("", "");
+
     }
 
 }

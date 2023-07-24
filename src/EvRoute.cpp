@@ -512,7 +512,7 @@ void EvRoute::atualizaParametrosRota(const Instancia &instance)
     }
 }
 
-bool EvRoute::alteraTempoSaida(const double novoTempoSaida, const Instancia &instance)
+bool EvRoute::alteraTempoSaida(const double novoTempoSaida, const Instancia &instance, const bool recalculaDist)
 {
 
 
@@ -522,12 +522,17 @@ bool EvRoute::alteraTempoSaida(const double novoTempoSaida, const Instancia &ins
     route[0].tempoSaida = novoTempoSaida;
     route[0].bateriaRestante = instance.getEvBattery(idRota);
 
+    if(recalculaDist)
+        distancia = 0.0;
 
     for(int i=0; (i+1) < routeSize; ++i)
     {
         const double dist = instance.getDistance(route[i].cliente, route[i+1].cliente);
         //route[i+1].tempoCheg = route[i].tempoSaida + dist;
         route[i+1].bateriaRestante = route[i].bateriaRestante - dist;
+
+        if(recalculaDist)
+            distancia += dist;
 
         if(!(route[i+1].bateriaRestante >= -TOLERANCIA_BATERIA))
         {

@@ -70,7 +70,7 @@ public:
     bool checkRoute(std::string &erro, const Instancia &instance) const;
     void atualizaParametrosRota(const Instancia &instance);
     double getCurrentTime();
-    bool alteraTempoSaida(double novoTempoSaida, const Instancia &instance);
+    bool alteraTempoSaida(const double novoTempoSaida, const Instancia &instance, const bool recalculaDist);
 
     void copiaCliente(const EvRoute &outro);
     void copia(const EvRoute &evRoute, const bool calculaDemanda, Instancia *instancia);
