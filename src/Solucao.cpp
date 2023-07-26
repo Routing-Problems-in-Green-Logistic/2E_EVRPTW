@@ -198,6 +198,7 @@ bool Solucao::checkSolution(std::string &erro, const Instancia &inst)
                     std::to_string(inst.getTruckCap(t)) + "\n";
 
             erroB = true;
+            break;
         }
 
         double dist = 0.0;
@@ -209,37 +210,68 @@ bool Solucao::checkSolution(std::string &erro, const Instancia &inst)
             break;
         }
 
+        if(route.routeSize > 2)
+        {
+            if(route.rota[0].tempoChegada != 0.0)
+            {
+                erro += "ERRO, TRUCK NAO VAZIO "+ to_string(t)+" SAI NO TEMPO(" + to_string(route.rota[0].tempoChegada)+
+                        ") != 0";
+                erroB = true;
+                break;
+            }
+
+            for(int i=1; i < route.routeSize; ++i)
+            {
+                double tempo = route.rota[i-1].tempoChegada + inst.getDistance(route.rota[i-1].satellite, route.rota[i].satellite);
+                if(tempo != route.rota[i].tempoChegada)
+                {
+                    erro += "ERRO, TRUCK("+to_string(t)+" TEMPO CHEGADA DIF, CALCULADO("+ to_string(tempo)+"), ROTA("+
+                            to_string(route.rota[i].tempoChegada)+")";
+                    erroB = true;
+                    break;
+                }
+            }
+
+        }
+
+        if(erroB)
+            break;
+
         distanciaAux += dist;
 
         for(int c=1; (c+1) < inst.getNSats() + 1; ++c)
             satelliteDemand[c] += route.satelliteDemand[c];
     }
 
-    // Verifica satelite
 
-    for(int c=1; (c+1) < inst.getNSats() + 1; ++c)
-    {
-
-
-        if(!satelites[c].checkSatellite(erro, inst))
-        {
-            erro += "SATELITE "+ to_string(c)+" ERRO: "+erro+"\n";
-            erroB = true;
-            break;
-        }
-
-        if(std::abs(satelliteDemand[c]- satelites[c].demanda) > TOLERANCIA_DEMANDA)
-        {
-            erro += "!SATELLITE: "+ to_string(c)+"NAO FOI TOTALMENTE ATENDIDO. DEMANDA: "+ to_string(satelites[c].demanda) +
-                    "; ATENDIDO: "+to_string(satelliteDemand[c])+"\n";
-
-            erroB = true;
-            break;
-        }
-    }
 
     if(!erroB)
     {
+
+
+        // Verifica satelite
+
+        for(int c = 1; (c + 1) < inst.getNSats() + 1; ++c)
+        {
+
+
+            if(!satelites[c].checkSatellite(erro, inst))
+            {
+                erro += "SATELITE " + to_string(c) + " ERRO: " + erro + "\n";
+                erroB = true;
+                break;
+            }
+
+            if(std::abs(satelliteDemand[c] - satelites[c].demanda) > TOLERANCIA_DEMANDA)
+            {
+                erro += "!SATELLITE: " + to_string(c) + "NAO FOI TOTALMENTE ATENDIDO. DEMANDA: " +
+                        to_string(satelites[c].demanda) + "; ATENDIDO: " + to_string(satelliteDemand[c]) + "\n";
+
+                erroB = true;
+                break;
+            }
+        }
+
         // Verifica a sincronização entre o primeiro e o segundo nivel
 
         atualizaVetSatTempoChegMax(inst);
@@ -247,7 +279,7 @@ bool Solucao::checkSolution(std::string &erro, const Instancia &inst)
         // vet satTempo contem o tempo de chegada mais tarde de um veiculo do primeiro nivel para o i° satelite
         // Todos os tempos de saida do i° satelite tem que ser após o tempo em satTempo
 
-        for(int sat = 1; sat < inst.getNSats()+1; ++sat)
+        for(int sat = 1; sat < inst.getNSats() + 1; ++sat)
         {
             const double tempo = satTempoChegMax[sat];
             Satelite &satelite = satelites[sat];
@@ -263,7 +295,7 @@ bool Solucao::checkSolution(std::string &erro, const Instancia &inst)
                         evRoute.print(strRota, inst, true);
                         erro += "ERRO SATELITE: " + to_string(sat) + " O TEMPO DE SAIDA DA ROTA: " + strRota +
                                 " EH MENOR DO QUE O TEMPO DE CHEGADA DA ULTIMA ROTA DO 1° NIVEL: " + to_string(tempo) +
-                                "\nsaida: "+to_string(evRoute[0].tempoSaida)+"; tempo max ~EV: "+ to_string(tempo);
+                                "\nsaida: " + to_string(evRoute[0].tempoSaida) + "; tempo max ~EV: " + to_string(tempo);
                         erroB = true;
                         break;
                     }

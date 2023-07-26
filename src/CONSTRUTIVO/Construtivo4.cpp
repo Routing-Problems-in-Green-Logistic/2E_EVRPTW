@@ -825,8 +825,11 @@ void NS_Construtivo4::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
                     throw "ERRO!";
                 }
 
+                route.rota[i].tempoChegada = tempoSaida;
                 tempoSaida += instance.getDistance(satTemp, route.rota[i+1].satellite);
             }
+
+            route.rota[route.routeSize-1].tempoChegada = tempoSaida;
 
             // Atualiza demanda, vetor de demanda e distancia
             route.totalDemand += candidato.demand;

@@ -780,10 +780,10 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 
     } // END for ig
 
-    cout<<"FIM IG\n";
+    //cout<<"FIM IG\n";
 
     // Inicio MIP model
-    modelo(instancia, hashRotaEv, solBest);
+    //modelo(instancia, hashRotaEv, solBest);
     // Fim MIP model
 
 

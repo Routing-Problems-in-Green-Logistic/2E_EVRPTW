@@ -823,8 +823,8 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
             std::cout<<"DEM NAO ATEND(1): "<<demandaNaoAtendidaSat[1]<<"\n\n";*/
 
             shiftVectorDir(route.rota, candidato.pos + 1, 1, route.routeSize);
-            route.rota.at(candidato.pos+1).satellite = candidato.satelliteId;
-            route.rota.at(candidato.pos+1).tempoChegada = candidato.tempoSaida;
+            route.rota[candidato.pos+1].satellite = candidato.satelliteId;
+            route.rota[candidato.pos+1].tempoChegada = candidato.tempoSaida;
             route.routeSize += 1;
             double tempoSaida = candidato.tempoSaida;
 
@@ -834,22 +834,20 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
 
                 if(!verificaViabilidadeSatelite(tempoSaida, sol.satelites[satTemp], instance, true))
                 {
-
-
                     sol.viavel = false;
                     break;
 
                     string satStr;
                     sol.satelites[satTemp].print(satStr, instance);
-
-
                     sol.print(instance);
-
                     throw "ERRO!";
                 }
 
+                route.rota[i].tempoChegada = tempoSaida;
                 tempoSaida += instance.getDistance(satTemp, route.rota[i+1].satellite);
             }
+
+            route.rota[route.routeSize-1].tempoChegada = tempoSaida;
 
             // Atualiza demanda, vetor de demanda e distancia
             route.totalDemand += candidato.demand;

@@ -56,7 +56,7 @@ namespace ModeloNs
     void setParametrosModelo(GRBModel &model);
 
     void setSolIniMip(GRBModel &model,
-                      Solucao &solucao,
+                      const Solucao &solucao,
                       const int idRotaEvSolIni,
                       VariaveisNs::Variaveis &variaveis,
                       const Instancia &instancia);

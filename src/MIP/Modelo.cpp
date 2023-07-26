@@ -674,7 +674,7 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
 }
 
 void ModeloNs::setSolIniMip(GRBModel &model,
-                            Solucao &solucao,
+                            const Solucao &solucao,
                             const int idRotaEvSolIni,
                             VariaveisNs::Variaveis &variaveis,
                             const Instancia &instancia)
@@ -720,13 +720,4 @@ cout<<"\n";
 
         }
     }
-
-    string erroStr;
-
-    if(!solucao.checkSolution(erroStr, instancia))
-    {
-        PRINT_DEBUG("", "");
-
-    }
-
 }

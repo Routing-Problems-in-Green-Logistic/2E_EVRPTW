@@ -522,14 +522,14 @@ void NS_Construtivo::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance,
 
             shiftVectorDir(route.rota, candidato.pos + 1, 1, route.routeSize);
 
-            route.rota.at(candidato.pos+1).satellite = candidato.satelliteId;
-            route.rota.at(candidato.pos+1).tempoChegada = candidato.tempoSaida;
+            route.rota[candidato.pos+1].satellite = candidato.satelliteId;
+            route.rota[candidato.pos+1].tempoChegada = candidato.tempoSaida;
             route.routeSize += 1;
             double tempoSaida = candidato.tempoSaida;
 
             for(int i=candidato.pos+1; (i+1) < route.routeSize; ++i)
             {
-                const int satTemp = route.rota.at(i).satellite;
+                const int satTemp = route.rota[i].satellite;
 
                 if(!verificaViabilidadeSatelite(tempoSaida, sol.satelites[satTemp], instance, true))
                 {
@@ -542,8 +542,11 @@ void NS_Construtivo::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance,
                     throw "ERRO!";
                 }
 
+                route.rota[i].tempoChegada = tempoSaida;
                 tempoSaida += instance.getDistance(satTemp, route.rota[i+1].satellite);
             }
+
+            route.rota[route.routeSize-1].tempoChegada = tempoSaida;
 
             // Atualiza demanda, vetor de demanda e distancia
             route.totalDemand += candidato.demand;
@@ -551,7 +554,7 @@ void NS_Construtivo::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance,
             route.satelliteDemand[candidato.satelliteId] = candidato.demand;
             route.totalDistence += candidato.incrementoDistancia;
 
-            demandaNaoAtendidaSat.at(candidato.satelliteId) -= candidato.demand;
+            demandaNaoAtendidaSat[candidato.satelliteId] -= candidato.demand;
 
         }
         else
