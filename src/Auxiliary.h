@@ -23,6 +23,7 @@ using namespace std;
 #define TOLERANCIA_DEMANDA          1E-5
 #define INCREM_DIST                 1E-2
 #define TOLERANCIA_DIF_ROTAS        1E-2
+#define TOLERANCIA                  1E-3
 
 #define FLOAT_MAX                   FLT_MAX
 #define FLOAT_MIN                   FLT_MIN
@@ -270,6 +271,11 @@ namespace NS_Auxiliary
     inline double lowerVal(double x)
     {
         return std::floor(x);
+    }
+
+    inline bool numerosIguais(double d0, double d1)
+    {
+        return abs(d0-d1) <= TOLERANCIA;
     }
 
     void criaDiretorio(const string& caminho);

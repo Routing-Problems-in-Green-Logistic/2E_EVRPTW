@@ -782,10 +782,16 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 
     //cout<<"FIM IG\n";
 
+    const double distIg = solBest.distancia;
+
+    clock_t start = clock();
+
     // Inicio MIP model
-    //modelo(instancia, hashRotaEv, solBest);
+    modelo(instancia, hashRotaEv, solBest);
     // Fim MIP model
 
+    clock_t end = clock();
+    const double cpuMip = double(end-start)/CLOCKS_PER_SEC;
 
     //cout<<"\tDist: "<<solBest.distancia<<"\n\n";
 
@@ -818,7 +824,8 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
     funcAddParaSaidaDouble("fatorSolVnd", fatorSolVnd);
     funcAddParaSaidaDouble("mediaQuantCand", mediaQuantCand);
     funcAddParaSaidaDouble("mediaCliRm", mediaCliRm);
-
+    funcAddParaSaidaDouble("distIg", distIg);
+    funcAddParaSaidaDouble("cpuMip", cpuMip);
 
     auto funcAddParaSaidaInt = [&](string &&strParm, int val)
     {

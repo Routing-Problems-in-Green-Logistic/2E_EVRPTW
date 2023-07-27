@@ -223,7 +223,9 @@ bool Solucao::checkSolution(std::string &erro, const Instancia &inst)
             for(int i=1; i < route.routeSize; ++i)
             {
                 double tempo = route.rota[i-1].tempoChegada + inst.getDistance(route.rota[i-1].satellite, route.rota[i].satellite);
-                if(tempo != route.rota[i].tempoChegada)
+
+                //if(tempo != route.rota[i].tempoChegada)
+                if(!NS_Auxiliary::numerosIguais(tempo, route.rota[i].tempoChegada))
                 {
                     erro += "ERRO, TRUCK("+to_string(t)+" TEMPO CHEGADA DIF, CALCULADO("+ to_string(tempo)+"), ROTA("+
                             to_string(route.rota[i].tempoChegada)+")";
@@ -289,7 +291,7 @@ bool Solucao::checkSolution(std::string &erro, const Instancia &inst)
             {
                 if(evRoute.routeSize > 2)
                 {
-                    if(evRoute[0].tempoSaida < tempo)
+                    if(evRoute[0].tempoSaida < tempo && !NS_Auxiliary::numerosIguais(evRoute[0].tempoSaida, tempo))
                     {
                         string strRota;
                         evRoute.print(strRota, inst, true);

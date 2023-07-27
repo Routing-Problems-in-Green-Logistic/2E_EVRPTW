@@ -36,7 +36,7 @@ else
     mkdir $dir
     cp src/cmake-build-debug/run $dir
     #cp parametrosIg.txt $dir
-   
+
     echo $data
     
     #echo "Parametros IG:"

@@ -20,7 +20,7 @@ using namespace NS_Auxiliary;
 
 void ModeloNs::modelo(Instancia &instancia,
                       const SetVetorHash &hashSolSet,
-                      const Solucao &solucao)
+                      Solucao &solucao)
 {
     cout<<"Solucao IG: "<<solucao.distancia<<"\n";
 
@@ -113,18 +113,23 @@ void ModeloNs::modelo(Instancia &instancia,
         setSolIniMip(model, solucao, idRotaEvSolIni, variaveis, instancia);
 
         model.update();
-        model.write("modelo.lp");
+        //model.write("modelo.lp");
         model.optimize();
-        model.write("modelo.sol");
+        //model.write("modelo.sol");
 
         recuperaSolucao(model, variaveis, solModelo, instancia, vetRotasEv);
         cout<<"Solucao IG: "<<solucao.distancia<<"\n";
-
 
         clock_t clockEnd = clock();
         cout<<"Tempo total: "<<double(clockEnd-clockStart)/CLOCKS_PER_SEC<<" S\n";
         double gap = ((solModelo.distancia-solucao.distancia)/solucao.distancia)*100.0;
         cout<<"GAP: "<<gap<<"%\n\n";
+
+        if(solModelo.distancia < solucao.distancia)
+        {
+            solucao.copia(solModelo);
+            solucao.ultimaA = 2499;
+        }
 
     }
     catch(GRBException &grbException)
@@ -559,7 +564,7 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
             continue;
 
         solucao.primeiroNivel[proxCV].rota[0].satellite = 0;
-        solucao.primeiroNivel[proxCV].rota[0].tempoChegada = 0;
+        solucao.primeiroNivel[proxCV].rota[0].tempoChegada = 0.0;
 
         solucao.primeiroNivel[proxCV].rota[1].satellite     = satIni;
         const double tempTempo = variaveis.vetT.getX_value(satIni);
@@ -567,7 +572,7 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
         if(tempTempo > tempoSaidaEv[satIni])
             tempoSaidaEv[satIni] = tempTempo;
 
-        solucao.primeiroNivel[proxCV].rota[1].tempoChegada = tempTempo;
+        solucao.primeiroNivel[proxCV].rota[1].tempoChegada = instancia.getDistance(0, satIni);
         solucao.primeiroNivel[proxCV].totalDistence = instancia.getDistance(0, satIni);
         solucao.primeiroNivel[proxCV].totalDemand = solucao.satelites[satIni].demanda;
         solucao.primeiroNivel[proxCV].satelliteDemand[satIni] = solucao.satelites[satIni].demanda;
@@ -585,14 +590,17 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
                 {
 
                     solucao.primeiroNivel[proxCV].rota[prox].satellite = satJ;
-                    solucao.primeiroNivel[proxCV].rota[prox].tempoChegada = variaveis.vetT.getX_value(satJ);
+                    //solucao.primeiroNivel[proxCV].rota[prox].tempoChegada = variaveis.vetT.getX_value(satJ);
+                    solucao.primeiroNivel[proxCV].rota[prox].tempoChegada = (solucao.primeiroNivel[proxCV].rota[prox-1].tempoChegada +
+                                                                             + instancia.getDistance(satI, satJ));
 
                     solucao.primeiroNivel[proxCV].totalDistence += instancia.getDistance(satI, satJ);
                     if(satJ != 0)
                     {
                         solucao.primeiroNivel[proxCV].totalDemand = solucao.satelites[satJ].demanda;
                         solucao.primeiroNivel[proxCV].satelliteDemand[satJ] = solucao.satelites[satJ].demanda;
-                        const double tempTempo = variaveis.vetT.getX_value(satJ);
+                        //const double tempTempo = variaveis.vetT.getX_value(satJ);
+                        const double tempTempo = solucao.primeiroNivel[proxCV].rota[prox].tempoChegada;
 
                         if(tempTempo > tempoSaidaEv[satJ])
                             tempoSaidaEv[satJ] = tempTempo;
@@ -669,7 +677,11 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
     if(solucao.checkSolution(strErro, instancia))
         cout<<"Sol viavel\n";
     else
-        cout<<"Sol inviavel!\n"<<strErro<<"\n";
+    {
+        cout << "Sol inviavel!\n" << strErro << "\n";
+        PRINT_DEBUG("", "");
+        ERRO();
+    }
 
 }
 
@@ -701,7 +713,7 @@ void ModeloNs::setSolIniMip(GRBModel &model,
             cliJ = route.rota[i].satellite;
             variaveis.matrixDem(cliI, cliJ).set(GRB_DoubleAttr_Start, carga);
 
-cout<<"set: ("<<cliI<<", "<<cliJ<<"); ";
+//cout<<"set: ("<<cliI<<", "<<cliJ<<"); ";
 
             if(cliJ != 0)
             {
@@ -709,7 +721,7 @@ cout<<"set: ("<<cliI<<", "<<cliJ<<"); ";
                 variaveis.vetZ(cliJ).set(GRB_DoubleAttr_Start, 1.0);
                 carga += route.satelliteDemand[cliJ];
 
-cout<<"T("<<cliJ<<"): "<<route.rota[i].tempoChegada;
+//cout<<"T("<<cliJ<<"): "<<route.rota[i].tempoChegada;
 
             }
 

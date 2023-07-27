@@ -19,7 +19,7 @@ typedef std::unordered_set<NS_VetorHash::VetorHash, NS_VetorHash::VetorHash::Has
 
 namespace ModeloNs
 {
-    void modelo(Instancia &instancia, const SetVetorHash &hashSolSet, const Solucao &solucao);
+    void modelo(Instancia &instancia, const SetVetorHash &hashSolSet, Solucao &solucao);
 
     void criaFuncObj(const Instancia &instancia,
                      GRBModel &modelo,
