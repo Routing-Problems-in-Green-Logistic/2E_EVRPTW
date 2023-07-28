@@ -72,10 +72,19 @@ void ModeloNs::modelo(Instancia &instancia,
 
     //cria para cada sat o num de rotas existentes
     BoostC::vector<int> vetNumRotasSat(instancia.numSats+1, 0);
+    BoostC::vector<std::list<int>> vetRotasPorCliente(instancia.numNos);
+
     for(int r=0; r < vetRotasEv.size(); ++r)
     {
         const RotaEvMip &rotaEvMip = vetRotasEv[r];
         vetNumRotasSat[rotaEvMip.sat] += 1;
+
+        for(int i=1; i < (rotaEvMip.evRoute.routeSize-1); ++i)
+        {
+            const int cliente = rotaEvMip.evRoute.route[i].cliente;
+            if(instancia.isClient(cliente))
+                vetRotasPorCliente[cliente].push_back(r);
+        }
     }
 
 
@@ -109,7 +118,7 @@ void ModeloNs::modelo(Instancia &instancia,
         criaRestParaRotasEVs(instancia, model, variaveis, vetRotasEv);
         criaRestVar_X(instancia, model, variaveis);
         criaRestVar_Dem(instancia, model, variaveis, matrixSat, vetNumRotasSat, vetRotasEv);
-        criaRestVar_T(instancia, model, variaveis, vetRotasEv, matrixSat, vetNumRotasSat);
+        criaRestVar_T(instancia, model, variaveis, vetRotasEv, matrixSat, vetNumRotasSat, vetRotasPorCliente);
         setSolIniMip(model, solucao, idRotaEvSolIni, variaveis, instancia);
 
         model.update();
@@ -229,7 +238,7 @@ void ModeloNs::criaRestParaRotasEVs(const Instancia &instancia,
         vetNumRotasSat[sat] += 1;
     }
 
-    // 1º Restricao: $\sum\limits_{r\in Rota} Atend_r^i . y_r \geq 1$     $\forall i \in V_c$
+    // 1º Restricao: $\sum\limits_{r\in Rota} Atend_r^i . y_r = 1$     $\forall i \in V_c$
 
     for(int i=firstClientIndex; i <= endClientIndex; ++i)
     {
@@ -242,7 +251,7 @@ void ModeloNs::criaRestParaRotasEVs(const Instancia &instancia,
             linExpr += variaveis.vetY(r);
         }
 
-        modelo.addConstr(linExpr, GRB_GREATER_EQUAL, 1.0, "RotasEv_rest0_"+ to_string(i));
+        modelo.addConstr(linExpr, GRB_EQUAL, 1.0, "RotasEv_rest0_"+ to_string(i));
     }
 
     // 2º Restricao: $\sum\limits_{r' \in Rotas^i} y_r \leq z_i . |EV|$  $\forall i \in V_s$
@@ -407,7 +416,8 @@ void ModeloNs::criaRestVar_T(const Instancia &instancia,
                              VariaveisNs::Variaveis &variaveis,
                              const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
                              const ublas::matrix<int> &matrixSat,
-                             const BoostC::vector<int> &vetNumRotasSat)
+                             const BoostC::vector<int> &vetNumRotasSat,
+                             const BoostC::vector<std::list<int>> &vetRotasPorCliente)
 {
     variaveis.vetT.setUB_LB(0.0, 0.0, 0);
 
