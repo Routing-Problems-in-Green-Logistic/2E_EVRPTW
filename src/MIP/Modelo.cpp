@@ -22,7 +22,7 @@ void ModeloNs::modelo(Instancia &instancia,
                       const SetVetorHash &hashSolSet,
                       Solucao &solucao)
 {
-    cout<<"Solucao IG: "<<solucao.distancia<<"\n";
+    //cout<<"Solucao IG: "<<solucao.distancia<<"\n";
 
     //cout<<"Hash size: "<<hashSolSet.size()<<"\n\n";
 
@@ -72,7 +72,7 @@ void ModeloNs::modelo(Instancia &instancia,
 
     //cria para cada sat o num de rotas existentes
     BoostC::vector<int> vetNumRotasSat(instancia.numSats+1, 0);
-    BoostC::vector<std::list<int>> vetRotasPorCliente(instancia.numNos);
+    ublas::matrix<std::list<int>> matRotasCliSat(instancia.numNos, (instancia.numSats+1));
 
     for(int r=0; r < vetRotasEv.size(); ++r)
     {
@@ -83,7 +83,7 @@ void ModeloNs::modelo(Instancia &instancia,
         {
             const int cliente = rotaEvMip.evRoute.route[i].cliente;
             if(instancia.isClient(cliente))
-                vetRotasPorCliente[cliente].push_back(r);
+                matRotasCliSat(cliente, rotaEvMip.sat).push_back(r);
         }
     }
 
@@ -101,7 +101,7 @@ void ModeloNs::modelo(Instancia &instancia,
     }
 
 
-    cout << "vetSol size: " << vetRotasEv.size() << "\n";
+    //cout << "vetSol size: " << vetRotasEv.size() << "\n";
 
     Solucao solModelo(instancia);
 
@@ -118,7 +118,7 @@ void ModeloNs::modelo(Instancia &instancia,
         criaRestParaRotasEVs(instancia, model, variaveis, vetRotasEv);
         criaRestVar_X(instancia, model, variaveis);
         criaRestVar_Dem(instancia, model, variaveis, matrixSat, vetNumRotasSat, vetRotasEv);
-        criaRestVar_T(instancia, model, variaveis, vetRotasEv, matrixSat, vetNumRotasSat, vetRotasPorCliente);
+        criaRestVar_T(instancia, model, variaveis, vetRotasEv, matrixSat, vetNumRotasSat, matRotasCliSat);
         setSolIniMip(model, solucao, idRotaEvSolIni, variaveis, instancia);
 
         model.update();
@@ -127,12 +127,12 @@ void ModeloNs::modelo(Instancia &instancia,
         //model.write("modelo.sol");
 
         recuperaSolucao(model, variaveis, solModelo, instancia, vetRotasEv);
-        cout<<"Solucao IG: "<<solucao.distancia<<"\n";
+        //cout<<"Solucao IG: "<<solucao.distancia<<"\n";
 
         clock_t clockEnd = clock();
-        cout<<"Tempo total: "<<double(clockEnd-clockStart)/CLOCKS_PER_SEC<<" S\n";
-        double gap = ((solModelo.distancia-solucao.distancia)/solucao.distancia)*100.0;
-        cout<<"GAP: "<<gap<<"%\n\n";
+        //cout<<"Tempo total: "<<double(clockEnd-clockStart)/CLOCKS_PER_SEC<<" S\n";
+        //double gap = ((solModelo.distancia-solucao.distancia)/solucao.distancia)*100.0;
+        //cout<<"GAP: "<<gap<<"%\n\n";
 
         if(solModelo.distancia < solucao.distancia)
         {
@@ -150,8 +150,11 @@ void ModeloNs::modelo(Instancia &instancia,
 
 void ModeloNs::setParametrosModelo(GRBModel &model)
 {
+
+    model.set(GRB_IntParam_OutputFlag, 0);
     model.set(GRB_StringAttr_ModelName, "2E_EVRP_TW__SET_COVER");
     model.set(GRB_IntParam_Threads, 1);
+
     //model.set(GRB_DoubleParam_MIPGap, 0.047);
     //model.set(GRB_IntParam_MIPFocus, GRB_MIPFOCUS_BESTBOUND);
 }
@@ -417,7 +420,7 @@ void ModeloNs::criaRestVar_T(const Instancia &instancia,
                              const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
                              const ublas::matrix<int> &matrixSat,
                              const BoostC::vector<int> &vetNumRotasSat,
-                             const BoostC::vector<std::list<int>> &vetRotasPorCliente)
+                             const ublas::matrix<std::list<int>> &matRotasCliSat)
 {
     variaveis.vetT.setUB_LB(0.0, 0.0, 0);
 
@@ -429,7 +432,7 @@ void ModeloNs::criaRestVar_T(const Instancia &instancia,
             M = vetRotasEv[r].tempoSaidaMax;
     }
 
-    // 10º Restricao: $t^j \leq t^i + (Dist_{(i,j)}.x_{i,j}) + M.(1-x_{(i,j)})$ $\forall i \in V_s^0, \forall j \in V_s$
+    // 9º Restricao: $t^j \leq t^i + (Dist_{(i,j)}.x_{i,j}) + M.(1-x_{(i,j)})$ $\forall i \in V_s^0, \forall j \in V_s$
     for(int i=0; i <= instancia.numSats; ++i)
     {
 
@@ -449,7 +452,7 @@ void ModeloNs::criaRestVar_T(const Instancia &instancia,
         }
     }
 
-    // 11º Restricao: $t^i \leq ( T^{max}_r.Sat^i_r.y_r) +  M.(1 - Sat^i_r.y_r)$  $\forall i \in V_s, \forall r \in Rota$
+    // 10º Restricao: $t^i \leq ( T^{max}_r.Sat^i_r.y_r) +  M.(1 - Sat^i_r.y_r)$  $\forall i \in V_s, \forall r \in Rota$
     for(int sat=1; sat <= instancia.numSats; ++sat)
     {
 
@@ -464,6 +467,32 @@ void ModeloNs::criaRestVar_T(const Instancia &instancia,
             modelo.addConstr(linExpr, '<', 0, "VarT_rest1_"+ to_string(sat) + "_" + to_string(r));
         }
     }
+
+    // 10º Restricao: $t_i \leq \sum\limits_{r \in Rota_{c}^{cli} \cap Rota_{i}^{sat}} T^{max}_r . y_r + \sum\limits_{r \in Rota_{c}^{cli} \setminus Rota_{i}^{sat}}  M.y_r
+    // \forall i \in V_s, \forall c \in V_c$
+
+/*    for(int sat=1; sat <= instancia.numSats; ++sat)
+    {
+        for(int c=instancia.getFirstClientIndex(); c <= instancia.getEndClientIndex(); ++c)
+        {
+            linExpr = 0;
+            for(int r:matRotasCliSat(c, sat))
+                linExpr += -vetRotasEv[r].tempoSaidaMax*variaveis.vetY(r);
+
+            for(int sat2=1; sat2 <= instancia.numSats; ++sat2)
+            {
+                if(sat == sat2)
+                    continue;
+
+                for(int r:matRotasCliSat(c, sat2))
+                    linExpr += -M*variaveis.vetY(r);
+            }
+
+            linExpr += variaveis.vetT(sat);
+            modelo.addConstr(linExpr, GRB_LESS_EQUAL, 0, "VarT_rest1_"+ to_string(sat)+"_"+ to_string(c));
+
+        }
+    }*/
 }
 
 
@@ -562,10 +591,10 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
 
     solucao.distancia = 0.0;
 
-    if(solmultCli)
+/*    if(solmultCli)
         cout<<"\n\nSolucao mip com mais de um ev atendendo cada cliente\n";
     else
-        cout<<"\n\nSolucao mip com 1 ev atendendo cada cliente\n";
+        cout<<"\n\nSolucao mip com 1 ev atendendo cada cliente\n";*/
 
     // Recupera as rotas dos CVs
     for(int satIni=1; satIni <= instancia.numSats; ++satIni)
@@ -643,7 +672,7 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
     //for(int i=1; i <= instancia.getEndSatIndex(); ++i)
     //    cout<<i<<"  "<<tempoSaidaEv[i]<<"\n";
 
-    cout<<"\n";
+    //cout<<"\n";
 
     string strErro;
 
@@ -678,15 +707,13 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
     }
 
 
-    cout<<"Distancia solucao MIP: "<<solucao.distancia<<"\n";
-    cout<<"*****************************************************\n\nApos testar todas os EVs\n";
+    //cout<<"Distancia solucao MIP: "<<solucao.distancia<<"\n";
+    //cout<<"*****************************************************\n\nApos testar todas os EVs\n";
 
     //solucao.print(instancia);
 
     strErro = "";
-    if(solucao.checkSolution(strErro, instancia))
-        cout<<"Sol viavel\n";
-    else
+    if(!solucao.checkSolution(strErro, instancia))
     {
         cout << "Sol inviavel!\n" << strErro << "\n";
         PRINT_DEBUG("", "");
@@ -738,7 +765,7 @@ void ModeloNs::setSolIniMip(GRBModel &model,
             variaveis.matrix_x(cliI, cliJ).set(GRB_DoubleAttr_Start, 1.0);
             std::swap(cliI, cliJ);
 
-cout<<"\n";
+//cout<<"\n";
 
         }
     }

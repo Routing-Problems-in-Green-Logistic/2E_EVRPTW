@@ -46,7 +46,7 @@ namespace ModeloNs
                        const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
                        const ublas::matrix<int> &matrixSat,
                        const BoostC::vector<int> &vetNumRotasSat,
-                       const BoostC::vector<std::list<int>> &vetRotasPorCliente);
+                       const ublas::matrix<std::list<int>> &matRotasCliSat);
 
     void recuperaSolucao(GRBModel &modelo,
                          VariaveisNs::Variaveis &variaveis,
