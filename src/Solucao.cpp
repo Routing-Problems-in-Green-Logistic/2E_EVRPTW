@@ -656,3 +656,27 @@ void Solucao::printPlot(string &saida, const Instancia &instance)
 
     }
 }
+
+bool Solucao::ehSplit(const Instancia &instancia)const
+{
+    static BoostC::vector<int> vetSat(instancia.numSats+1);
+    NS_Auxiliary::vetSetAll(vetSat, 0);
+    int sat=0;
+
+    for(const Route &route:primeiroNivel)
+    {
+        if(route.routeSize <= 2)
+            continue;
+
+        for(int i=1; i < (route.routeSize-1); ++i)
+        {
+            sat = route.rota[i].satellite;
+            vetSat[sat] += 1;
+            if(vetSat[sat] > 1)
+                return true;
+        }
+
+    }
+
+    return false;
+}

@@ -59,6 +59,32 @@ namespace NS_parametros
         std::string printParam();
     };
 
+    struct ParametrosMip
+    {
+        /*
+         * presolve(--mip_presolve)   -1 0 1 2
+         * cuts(--mip_cuts)           -1 0 1 2 3
+         * mipGap(--mip_gap)          0 0.01 0.05 0.1 0.15
+         * restT(--mip_restTempo)     0 1
+         *
+         */
+
+        int presolve   = -1;
+        int cuts       = -1;
+        double mipGap  = 0.0;
+        int restTempo  = 0;
+        int outputFlag = 1;
+
+        void print()
+        {
+            cout<<"presolve: \t"    <<presolve<<"\n";
+            cout<<"cuts: \t\t"        <<cuts<<"\n";
+            cout<<"mipGap: \t"      <<mipGap<<"\n";
+            cout<<"restTempo: \t"   <<restTempo<<"\n";
+            cout<<"outputFlag: \t"  <<outputFlag<<"\n\n";
+        }
+    };
+
     struct Parametros
     {
         int64_t semente        = 0;                 // --seed  semente
@@ -74,6 +100,7 @@ namespace NS_parametros
         int metodo = METODO_GRASP;
         string commit;
         ParametrosIG paramIg;
+        ParametrosMip parametrosMip;
 
         string getParametros();
 

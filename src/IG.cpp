@@ -787,7 +787,7 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
     clock_t start = clock();
 
     // Inicio MIP model
-    modelo(instancia, hashRotaEv, solBest);
+    modelo(instancia, hashRotaEv, solBest, parametros.parametrosMip);
     // Fim MIP model
 
     clock_t end = clock();

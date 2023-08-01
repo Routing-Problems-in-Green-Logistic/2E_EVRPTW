@@ -14,12 +14,13 @@
 #include "../Solucao.h"
 #include "../VetorHash.h"
 #include "Variaveis.h"
+#include "Parametros.h"
 
 typedef std::unordered_set<NS_VetorHash::VetorHash, NS_VetorHash::VetorHash::HashFunc> SetVetorHash;
 
 namespace ModeloNs
 {
-    void modelo(Instancia &instancia, const SetVetorHash &hashSolSet, Solucao &solucao);
+    void modelo(Instancia &instancia, const SetVetorHash &hashSolSet, Solucao &solucao, NS_parametros::ParametrosMip paramMip);
 
     void criaFuncObj(const Instancia &instancia,
                      GRBModel &modelo,
@@ -46,7 +47,8 @@ namespace ModeloNs
                        const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
                        const ublas::matrix<int> &matrixSat,
                        const BoostC::vector<int> &vetNumRotasSat,
-                       const ublas::matrix<std::list<int>> &matRotasCliSat);
+                       const ublas::matrix<std::list<int>> &matRotasCliSat,
+                       NS_parametros::ParametrosMip paramMip);
 
     void recuperaSolucao(GRBModel &modelo,
                          VariaveisNs::Variaveis &variaveis,
@@ -54,7 +56,7 @@ namespace ModeloNs
                          const Instancia &instancia,
                          const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv);
 
-    void setParametrosModelo(GRBModel &model);
+    void setParametrosModelo(GRBModel &model, NS_parametros::ParametrosMip paramMip);
 
     void setSolIniMip(GRBModel &model,
                       const Solucao &solucao,

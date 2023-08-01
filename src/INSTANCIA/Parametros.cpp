@@ -617,6 +617,24 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
             else
                 semente = false;
 
+            if(mapParam.count("--mip_presolve"))
+                paramEntrada.parametrosMip.presolve = std::stoi(getKey("--mip_presolve"));
+
+            if(mapParam.count("--mip_cuts"))
+                paramEntrada.parametrosMip.cuts = std::stoi(getKey("--mip_cuts"));
+
+            if(mapParam.count("--mip_gap"))
+                paramEntrada.parametrosMip.mipGap = std::stod(getKey("--mip_gap"));
+
+            if(mapParam.count("--mip_outputFlag"))
+                paramEntrada.parametrosMip.outputFlag = std::stoi(getKey("--mip_outputFlag"));
+
+            if(mapParam.count("--mip_restTempo"))
+                paramEntrada.parametrosMip.restTempo = std::stoi(getKey("--mip_restTempo"));
+
+            paramEntrada.parametrosMip.print();
+
+
         }
 
 

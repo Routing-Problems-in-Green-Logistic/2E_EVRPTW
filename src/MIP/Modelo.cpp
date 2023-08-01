@@ -18,9 +18,8 @@ using namespace NS_viabRotaEv;
 using namespace NS_VetorHash;
 using namespace NS_Auxiliary;
 
-void ModeloNs::modelo(Instancia &instancia,
-                      const SetVetorHash &hashSolSet,
-                      Solucao &solucao)
+void ModeloNs::modelo(Instancia &instancia, const SetVetorHash &hashSolSet, Solucao &solucao,
+                      NS_parametros::ParametrosMip paramMip)
 {
     //cout<<"Solucao IG: "<<solucao.distancia<<"\n";
 
@@ -110,7 +109,7 @@ void ModeloNs::modelo(Instancia &instancia,
 
         GRBEnv env = GRBEnv();
         GRBModel model = GRBModel(env);
-        setParametrosModelo(model);
+        setParametrosModelo(model, paramMip);
 
         Variaveis variaveis(instancia, model, vetRotasEv);
 
@@ -118,7 +117,7 @@ void ModeloNs::modelo(Instancia &instancia,
         criaRestParaRotasEVs(instancia, model, variaveis, vetRotasEv);
         criaRestVar_X(instancia, model, variaveis);
         criaRestVar_Dem(instancia, model, variaveis, matrixSat, vetNumRotasSat, vetRotasEv);
-        criaRestVar_T(instancia, model, variaveis, vetRotasEv, matrixSat, vetNumRotasSat, matRotasCliSat);
+        criaRestVar_T(instancia, model, variaveis, vetRotasEv, matrixSat, vetNumRotasSat, matRotasCliSat, paramMip);
         setSolIniMip(model, solucao, idRotaEvSolIni, variaveis, instancia);
 
         model.update();
@@ -148,14 +147,17 @@ void ModeloNs::modelo(Instancia &instancia,
     }
 }
 
-void ModeloNs::setParametrosModelo(GRBModel &model)
+void ModeloNs::setParametrosModelo(GRBModel &model, NS_parametros::ParametrosMip paramMip)
 {
 
-    model.set(GRB_IntParam_OutputFlag, 0);
+    model.set(GRB_IntParam_OutputFlag, paramMip.outputFlag);
     model.set(GRB_StringAttr_ModelName, "2E_EVRP_TW__SET_COVER");
     model.set(GRB_IntParam_Threads, 1);
 
-    //model.set(GRB_DoubleParam_MIPGap, 0.047);
+    model.set(GRB_IntParam_Presolve, paramMip.presolve);
+    model.set(GRB_IntParam_Cuts, paramMip.cuts);
+
+    model.set(GRB_DoubleParam_MIPGap, paramMip.mipGap);
     //model.set(GRB_IntParam_MIPFocus, GRB_MIPFOCUS_BESTBOUND);
 }
 
@@ -420,7 +422,8 @@ void ModeloNs::criaRestVar_T(const Instancia &instancia,
                              const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
                              const ublas::matrix<int> &matrixSat,
                              const BoostC::vector<int> &vetNumRotasSat,
-                             const ublas::matrix<std::list<int>> &matRotasCliSat)
+                             const ublas::matrix<std::list<int>> &matRotasCliSat,
+                             const NS_parametros::ParametrosMip paramMip)
 {
     variaveis.vetT.setUB_LB(0.0, 0.0, 0);
 
@@ -452,47 +455,53 @@ void ModeloNs::criaRestVar_T(const Instancia &instancia,
         }
     }
 
-    // 10º Restricao: $t^i \leq ( T^{max}_r.Sat^i_r.y_r) +  M.(1 - Sat^i_r.y_r)$  $\forall i \in V_s, \forall r \in Rota$
-    for(int sat=1; sat <= instancia.numSats; ++sat)
-    {
-
-        for(int idR=0; idR < vetNumRotasSat[sat]; ++idR)
+    if(paramMip.restTempo == 0)
+    {   cout<<"restTempo 0\n";
+        // 10º Restricao: $t^i \leq ( T^{max}_r.Sat^i_r.y_r) +  M.(1 - Sat^i_r.y_r)$  $\forall i \in V_s, \forall r \in Rota$
+        for(int sat = 1; sat <= instancia.numSats; ++sat)
         {
-            const int r = matrixSat(sat, idR);
-            linExpr = 0;
-            linExpr += variaveis.vetT(sat);
-            linExpr += -vetRotasEv[r].tempoSaidaMax*variaveis.vetY(r);
-            linExpr += -M*(1 - variaveis.vetY(r));
 
-            modelo.addConstr(linExpr, '<', 0, "VarT_rest1_"+ to_string(sat) + "_" + to_string(r));
+            for(int idR = 0; idR < vetNumRotasSat[sat]; ++idR)
+            {
+                const int r = matrixSat(sat, idR);
+                linExpr = 0;
+                linExpr += variaveis.vetT(sat);
+                linExpr += -vetRotasEv[r].tempoSaidaMax * variaveis.vetY(r);
+                linExpr += -M * (1 - variaveis.vetY(r));
+
+                modelo.addConstr(linExpr, '<', 0, "VarT_rest1_" + to_string(sat) + "_" + to_string(r));
+            }
         }
     }
-
-    // 10º Restricao: $t_i \leq \sum\limits_{r \in Rota_{c}^{cli} \cap Rota_{i}^{sat}} T^{max}_r . y_r + \sum\limits_{r \in Rota_{c}^{cli} \setminus Rota_{i}^{sat}}  M.y_r
-    // \forall i \in V_s, \forall c \in V_c$
-
-/*    for(int sat=1; sat <= instancia.numSats; ++sat)
+    else
     {
-        for(int c=instancia.getFirstClientIndex(); c <= instancia.getEndClientIndex(); ++c)
+        cout<<"restTempo 1\n";
+        // 10º Restricao: $t_i \leq \sum\limits_{r \in Rota_{c}^{cli} \cap Rota_{i}^{sat}} T^{max}_r . y_r + \sum\limits_{r \in Rota_{c}^{cli} \setminus Rota_{i}^{sat}}  M.y_r
+        // \forall i \in V_s, \forall c \in V_c$
+
+        for(int sat = 1; sat <= instancia.numSats; ++sat)
         {
-            linExpr = 0;
-            for(int r:matRotasCliSat(c, sat))
-                linExpr += -vetRotasEv[r].tempoSaidaMax*variaveis.vetY(r);
-
-            for(int sat2=1; sat2 <= instancia.numSats; ++sat2)
+            for(int c = instancia.getFirstClientIndex(); c <= instancia.getEndClientIndex(); ++c)
             {
-                if(sat == sat2)
-                    continue;
+                linExpr = 0;
+                for(int r: matRotasCliSat(c, sat))
+                    linExpr += -vetRotasEv[r].tempoSaidaMax * variaveis.vetY(r);
 
-                for(int r:matRotasCliSat(c, sat2))
-                    linExpr += -M*variaveis.vetY(r);
+                for(int sat2 = 1; sat2 <= instancia.numSats; ++sat2)
+                {
+                    if(sat == sat2)
+                        continue;
+
+                    for(int r: matRotasCliSat(c, sat2))
+                        linExpr += -M * variaveis.vetY(r);
+                }
+
+                linExpr += variaveis.vetT(sat);
+                modelo.addConstr(linExpr, GRB_LESS_EQUAL, 0, "VarT_rest1_" + to_string(sat) + "_" + to_string(c));
+
             }
-
-            linExpr += variaveis.vetT(sat);
-            modelo.addConstr(linExpr, GRB_LESS_EQUAL, 0, "VarT_rest1_"+ to_string(sat)+"_"+ to_string(c));
-
         }
-    }*/
+    }
 }
 
 
@@ -728,11 +737,18 @@ void ModeloNs::setSolIniMip(GRBModel &model,
                             VariaveisNs::Variaveis &variaveis,
                             const Instancia &instancia)
 {
+    const bool solEhSplit = solucao.ehSplit(instancia);
 
-    variaveis.setAttr_Start0();
+    if(!solEhSplit)
+        variaveis.setAttr_Start0();
 
     for(int i=idRotaEvSolIni; i < variaveis.vetY.getNum(); ++i)
         variaveis.vetY(i).set(GRB_DoubleAttr_Start, 1.0);
+
+    if(solucao.ehSplit(instancia))
+    {
+        return;
+    }
 
     for(int cv=0; cv < instancia.numTruck; ++cv)
     {

@@ -281,6 +281,14 @@ namespace NS_Auxiliary
     void criaDiretorio(const string& caminho);
     string float_to_string(float num, int numCasas);
     string float_to_string(double num, int numCasas);
+
+    template<typename T>
+    void vetSetAll(BoostC::vector<T> &vet, T val, int size=-1)
+    {
+        const int tam = max(size, int(vet.size()));
+        for(int i=0; i < tam; ++i)
+            vet[i] = val;
+    }
 }
 
 
