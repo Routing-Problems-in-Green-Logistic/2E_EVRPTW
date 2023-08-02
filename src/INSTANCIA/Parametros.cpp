@@ -592,7 +592,6 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
             };
 
             paramEntrada.numItTotal          = std::stoi(getKey("--numItIG"));
-            //paramEntrada.semente             = std::stoll(getKey("--seed"));
             paramEntrada.paramIg.alfaSeg     = std::stof(getKey("--alphaSeg"));
             paramEntrada.paramIg.betaPrim    = std::stof(getKey("--betaPrim"));
             paramEntrada.paramIg.difBest     = std::stod(getKey("--difBest"));
@@ -600,39 +599,40 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
             paramEntrada.paramIg.taxaRm      = std::stod(getKey("--taxaRm"));
             paramEntrada.paramIg.fatorNumChamadas = std::stod(getKey("--fatNumCh"));
 
-            //paramEntrada.paramIg.fileSaida   = string(getKey("--fileSaida"));
+            paramEntrada.paramIg.fileSaida   = string(getKey("--fileSaida"));
 
 
+            /*
             paramEntrada.execucaoAtual       = std::stoi(getKey("--execAtual"));
             paramEntrada.numExecucoesTotais  = std::stoi(getKey("--execTotal"));
             paramEntrada.resultadoCSV        = getKey("--resulCSV");
             paramEntrada.caminhoPasta        = getKey("--pasta");
+            */
 
-
-            if(mapParam.count("--seed") > 0)
+            //if(mapParam.count("--seed") > 0)
             {
                 paramEntrada.semente = std::stoll(mapParam["--seed"]);
                 semente = true;
             }
-            else
-                semente = false;
+/*            else
+                semente = false;*/
 
-            if(mapParam.count("--mip_presolve"))
+            //if(mapParam.count("--mip_presolve"))
                 paramEntrada.parametrosMip.presolve = std::stoi(getKey("--mip_presolve"));
 
-            if(mapParam.count("--mip_cuts"))
+            //if(mapParam.count("--mip_cuts"))
                 paramEntrada.parametrosMip.cuts = std::stoi(getKey("--mip_cuts"));
 
-            if(mapParam.count("--mip_gap"))
+            //if(mapParam.count("--mip_gap"))
                 paramEntrada.parametrosMip.mipGap = std::stod(getKey("--mip_gap"));
 
-            if(mapParam.count("--mip_outputFlag"))
-                paramEntrada.parametrosMip.outputFlag = std::stoi(getKey("--mip_outputFlag"));
+            //if(mapParam.count("--mip_outputFlag"))
+                paramEntrada.parametrosMip.outputFlag = 0;//std::stoi(getKey("--mip_outputFlag"));
 
-            if(mapParam.count("--mip_restTempo"))
+            //if(mapParam.count("--mip_restTempo"))
                 paramEntrada.parametrosMip.restTempo = std::stoi(getKey("--mip_restTempo"));
 
-            paramEntrada.parametrosMip.print();
+            //paramEntrada.parametrosMip.print();
 
 
         }

@@ -64,7 +64,7 @@ namespace NS_parametros
         /*
          * presolve(--mip_presolve)   -1 0 1 2
          * cuts(--mip_cuts)           -1 0 1 2 3
-         * mipGap(--mip_gap)          0 0.01 0.05 0.1 0.15
+         * mipGap(--mip_gap)          0.0 0.01 0.03 0.05 0.1 0.15
          * restT(--mip_restTempo)     0 1
          *
          */

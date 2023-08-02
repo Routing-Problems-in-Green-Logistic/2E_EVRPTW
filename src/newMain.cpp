@@ -62,9 +62,9 @@ int main(int argc, char* argv[])
     Parametros parametros;
     const string commite = "c286286c00b2c0adb17a9e5124b955e26b6acd1d";
     parametros.commit = commite;
-    auto startA = std::chrono::high_resolution_clock::now();
+    clock_t startA = clock();
 
-    //try
+    try
     {
 
         if(argc == 1)
@@ -117,17 +117,16 @@ int main(int argc, char* argv[])
 
 
         //std::chrono::duration<double> tempoAux = end - start;
-        //double tempo = tempoAux.count();
+        double tempo = double(end-start)/CLOCKS_PER_SEC;
 
-        setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
-        saida(parametros, parametrosSaida, best, instancia);
+        //setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
+        //saida(parametros, parametrosSaida, best, instancia);
 
-        //escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
+        escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
 
         
 
     }
-    /*
     catch(const char *erro)
     {
 
@@ -137,15 +136,12 @@ int main(int argc, char* argv[])
         }
         else
         {
-            auto end = std::chrono::high_resolution_clock::now();
-
-            std::chrono::duration<double> tempoAux = end - startA;
-            double tempo = tempoAux.count();
-
+            clock_t end = clock();
+            double tempo = double(end-startA)/CLOCKS_PER_SEC;
             escreveDistFile(ValBestNs::distBest, tempo, parametros.paramIg.fileSaida);
         }
     }
-    */
+
 
     return 0;
 }

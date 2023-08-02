@@ -456,7 +456,7 @@ void ModeloNs::criaRestVar_T(const Instancia &instancia,
     }
 
     if(paramMip.restTempo == 0)
-    {   cout<<"restTempo 0\n";
+    {   //cout<<"restTempo 0\n";
         // 10º Restricao: $t^i \leq ( T^{max}_r.Sat^i_r.y_r) +  M.(1 - Sat^i_r.y_r)$  $\forall i \in V_s, \forall r \in Rota$
         for(int sat = 1; sat <= instancia.numSats; ++sat)
         {
@@ -475,7 +475,7 @@ void ModeloNs::criaRestVar_T(const Instancia &instancia,
     }
     else
     {
-        cout<<"restTempo 1\n";
+        //cout<<"restTempo 1\n";
         // 10º Restricao: $t_i \leq \sum\limits_{r \in Rota_{c}^{cli} \cap Rota_{i}^{sat}} T^{max}_r . y_r + \sum\limits_{r \in Rota_{c}^{cli} \setminus Rota_{i}^{sat}}  M.y_r
         // \forall i \in V_s, \forall c \in V_c$
 

@@ -1,7 +1,11 @@
 # name       switch           type values               [conditions (using R syntax)]
 alphaSeg        "--alphaSeg "       o    (0.005, 0.01, 0.05, 0.1, 0.15, 0.25, 0.35, 0.45, 0.65, 0.9)
 betaPrim        "--betaPrim "       o    (0.15, 0.25, 0.4, 0.5, 0.65, 0.75, 0.8, 0.85, 0.9)
-difBest         "--difBest "        o    (0.005, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.07, 0.1)
+difBest         "--difBest "        o    (0.005, 0.01, 0.015, 0.02, 0.03, 0.04, 0.05, 0.07, 0.1, 0.15, 0.2, 0.3, 0.4, 0.6, 0.8)
 numItIG         "--numItIG "        c    (2500)
 torneio         "--torneio "        c    (0, 1)
 taxaRm          "--taxaRm "         o    (0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6)
+mip_presolve    "--mip_presolve"    c    (-1 0 1 2)
+mip_cuts        "--mip_cuts"        c    (-1 0 1 2 3)
+mip_restTempo   "--mip_restTempo"   c    (0 1)
+mipGap          "--mip_gap"         o    (0.0 0.01 0.03 0.05 0.1 0.15)

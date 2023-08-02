@@ -788,6 +788,10 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 
     // Inicio MIP model
     modelo(instancia, hashRotaEv, solBest, parametros.parametrosMip);
+    const double distMip = solBest.distancia;
+    solBest.todasRotasEvAtualizadas();
+    rvnd(solBest, instancia, betaPrim, vetMvValor, vetMvValor1Nivel);
+
     // Fim MIP model
 
     clock_t end = clock();
@@ -825,7 +829,9 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
     funcAddParaSaidaDouble("mediaQuantCand", mediaQuantCand);
     funcAddParaSaidaDouble("mediaCliRm", mediaCliRm);
     funcAddParaSaidaDouble("distIg", distIg);
+    funcAddParaSaidaDouble("distIgMip", distMip);
     funcAddParaSaidaDouble("cpuMip", cpuMip);
+
 
     auto funcAddParaSaidaInt = [&](string &&strParm, int val)
     {

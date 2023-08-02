@@ -13,11 +13,11 @@ execDir = "./execDir"
 
 ## Directory where tuning instances are located, either absolute path or
 ## relative to current directory.
-trainInstancesDir = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/instancias/2e-vrp-tw/instIrace"
+trainInstancesDir = "/home/igor/Documentos/Projetos/2E-EVRP-TW/Código/Irace/Irace_inst_100"
 
 ## The maximum number of runs (invocations of targetRunner) that will performed. It
 ## determines the (maximum) budget of experiments for the tuning.
-maxExperiments = 1000
+maxExperiments = 4000
 
 ## File that contains a set of initial configurations. If empty or NULL,
 ## all initial configurations are randomly generated.
