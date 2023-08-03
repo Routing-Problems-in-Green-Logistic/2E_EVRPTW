@@ -823,11 +823,15 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
     const double mediaCliRm     = double(VarAuxiliaresIgNs::sumQuantCliRm)/VarAuxiliaresIgNs::num_sumQuantCliRm;
 
     funcAddParaSaidaDouble("numSol", numSolG);
+
+    /*
     funcAddParaSaidaDouble("fatorSolCorr", fatorSolCorr);
     funcAddParaSaidaDouble("fatorSolConst", fatorSolConst);
     funcAddParaSaidaDouble("fatorSolVnd", fatorSolVnd);
     funcAddParaSaidaDouble("mediaQuantCand", mediaQuantCand);
     funcAddParaSaidaDouble("mediaCliRm", mediaCliRm);
+    */
+
     funcAddParaSaidaDouble("distIg", distIg);
     funcAddParaSaidaDouble("distIgMip", distMip);
     funcAddParaSaidaDouble("cpuMip", cpuMip);
@@ -840,12 +844,14 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
         parametrosSaida.mapNoSaida[strParm](val);
     };
 
+    /*
     funcAddParaSaidaInt("invCarga", vetInviabilidate[NS_Auxiliary::Inv_Carga]);
     funcAddParaSaidaInt("invTw", vetInviabilidate[NS_Auxiliary::Inv_tw]);
     funcAddParaSaidaInt("invBat", vetInviabilidate[NS_Auxiliary::Inv_bat]);
     funcAddParaSaidaInt("inv1Nivel", vetInviabilidate[NS_Auxiliary::Inv_1_Nivel]);
     funcAddParaSaidaInt("inv1NivelUnico", vetInviabilidate[NS_Auxiliary::Inv_1_Nivel_unico]);
     funcAddParaSaidaInt("invNaoRs", vetInviabilidate[NS_Auxiliary::Inv_nao_ev_rs]);
+    */
 
     string erro;
     if(!solBest.checkSolution(erro, instancia))
@@ -857,7 +863,7 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
         throw "ERRO";
     }
 
-    printVetDadosIg(vetDadosIg, parametros);
+    //printVetDadosIg(vetDadosIg, parametros);
 
     Solucao *solPtr = new Solucao(instancia);
     solPtr->copia(solBest);

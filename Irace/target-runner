@@ -59,5 +59,5 @@ cat ${STDOUT}
 
 # We are done with our duty. Clean files and exit with 0 (no error).
 rm -f "${STDOUT}"
-#rm -f best.* stat.* cmp.*
+rm -f best.* stat.* cmp.*
 exit 0

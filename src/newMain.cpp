@@ -60,7 +60,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    const string commite = "c286286c00b2c0adb17a9e5124b955e26b6acd1d";
+    const string commite = "38c802041c2d1c0aceab56fd76ba176bb24fbc18";
     parametros.commit = commite;
     clock_t startA = clock();
 
@@ -119,10 +119,10 @@ int main(int argc, char* argv[])
         //std::chrono::duration<double> tempoAux = end - start;
         double tempo = double(end-start)/CLOCKS_PER_SEC;
 
-        //setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
-        //saida(parametros, parametrosSaida, best, instancia);
+        setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
+        saida(parametros, parametrosSaida, best, instancia);
 
-        escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
+        //escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
 
         
 
