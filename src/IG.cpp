@@ -32,7 +32,7 @@ using namespace ModeloNs;
 
 typedef std::unordered_set<NS_VetorHash::VetorHash, NS_VetorHash::VetorHash::HashFunc> SetVetorHash;
 
-#define PRINT_IG        FALSE
+#define PRINT_IG        TRUE
 #define WRITE_SOL_PRINT FALSE
 
 
@@ -602,17 +602,18 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
 
     Solucao solC_copia(instancia);
 
-
-    for(int i=0; i < parametros.numItTotal; ++i)
+    auto igLoop = [&](const int numIt)
     {
+        for(int i = 0; i < numIt; ++i)
+        {
 
 #if PRINT_IG
-if(i%200 == 0)
-{
-    cout << "ITERACAO: " << i << "\n";
-    //cout<<"num rotas removidas corrente: "<<numEvRmCorrente<<"\n";
-    //cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n\n";
-}
+            if(i%200 == 0)
+            {
+                cout << "ITERACAO: " << i << "\n";
+                //cout<<"num rotas removidas corrente: "<<numEvRmCorrente<<"\n";
+                //cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n\n";
+            }
 #endif
 
 /*        if(instancia.numSats > 1 && numSatRm == 1 && (i-ultimaA) == 500)
@@ -621,164 +622,165 @@ if(i%200 == 0)
             cout<<"numSatRm: "<<numSatRm<<"\n\a\a\a";
         }*/
 
-        const double dif = (solC.distancia-solBest.distancia)/solBest.distancia;
+            const double dif = (solC.distancia - solBest.distancia) / solBest.distancia;
 
-        //if((i-ultimaA) % numItSemMelhoraResetSolC == 0 && i!=ultimaA)
-        if(dif > parametrosIg.difBest)
-        {
-            //solC = Solucao(instancia);
-            solC.copia(solBest);
-        }
-
-        string strSolC;
-        if(escreveSol)
-            solC.printPlot(strSolC, instancia);
-
-        hashSolSetCorrente.insert(VetorHash(solC, instancia));
-        numSolCorrente += 1;
-        DadosIg dadosIg;
-
-        dadosIg.it = i;
-        dadosIg.solCorrente = solC.distancia;
-
-        //Solucao solC_copia(instancia);
-        solC_copia.copia(solC);
-
-        NameS_IG::atualizaTempoSaidaInstancia(solC, instancia);
-        bool construtivoFull = true;
-
-        if(estrategia == Int8(0))
-        {
-
-            if(numFuncDestroi < numChamadasDestroi0)
+            //if((i-ultimaA) % numItSemMelhoraResetSolC == 0 && i!=ultimaA)
+            if(dif > parametrosIg.difBest)
             {
-                funcDestroi0(solC, numEvRmCorrente);
-                numFuncDestroi += 1;
-            }
-            else
-            {
-
                 //solC = Solucao(instancia);
                 solC.copia(solBest);
+            }
 
-                if(!funcDestroi1(solC, numSatRm))
+            string strSolC;
+            if(escreveSol)
+                solC.printPlot(strSolC, instancia);
+
+            hashSolSetCorrente.insert(VetorHash(solC, instancia));
+            numSolCorrente += 1;
+            DadosIg dadosIg;
+
+            dadosIg.it = i;
+            dadosIg.solCorrente = solC.distancia;
+
+            //Solucao solC_copia(instancia);
+            solC_copia.copia(solC);
+
+            NameS_IG::atualizaTempoSaidaInstancia(solC, instancia);
+            bool construtivoFull = true;
+
+            if(estrategia == Int8(0))
+            {
+
+                if(numFuncDestroi < numChamadasDestroi0)
+                {
                     funcDestroi0(solC, numEvRmCorrente);
+                    numFuncDestroi += 1;
+                } else
+                {
 
+                    //solC = Solucao(instancia);
+                    solC.copia(solBest);
+
+                    if(!funcDestroi1(solC, numSatRm))
+                        funcDestroi0(solC, numEvRmCorrente);
+
+                    numFuncDestroi = 0;
+
+                }
+            } else
+            {
+                funcDestroi2(solC, numClientesRm);
+            }
+
+            if(construtivoFull)
+            {
+                if(tipoConst == CONSTRUTIVO1)
+                    NS_Construtivo3::construtivo(solC, instancia, alfaSeg, betaPrim, matClienteSat, true, false, false,
+                                                 &vetInviabilidate, torneio);
+
+                else
+                    NS_Construtivo4::construtivo(solC, instancia, alfaSeg, betaPrim, matClienteSat, true, false, false,
+                                                 &vetInviabilidate, torneio);
+
+            }
+
+            if(!solC.viavel)
+            {
+                dadosIg.solConst = -1.0;
+                dadosIg.solVnd = -1.0;
+
+                //solC = Solucao(instancia);
+                solC.copia(solC_copia);
+
+            } else
+            {
+                string strSolConst;
+                string strErro;
+                if(!solC.checkSolution(strErro, instancia))
+                {
+                    PRINT_DEBUG("", "");
+                    cout << "ERRO NO IG APOS O CONSTRUTIVO\nERRO:\n\n";
+                    cout << strErro << "\n\n";
+                    cout << "Sol: \n";
+                    string strSol;
+                    solC.print(strSol, instancia);
+                    cout << strSol << "\n";
+                    throw "ERRO";
+                }
+
+                hashSolSetConst.insert(VetorHash(solC, instancia));
+                numSolConstVia += 1;
+
+                funcAddRotasHash(instancia, hashRotaEv, solC);
+
+                dadosIg.solConst = solC.distancia;
+
+                numSolG += 1;
+                //lucao solTemp(instancia);
+                //solTemp.copia(solC);
+                string strSolAntes;
+                //solC.print(strSolAntes, instancia);
+
+                rvnd(solC, instancia, betaPrim, vetMvValor, vetMvValor1Nivel);
+
+                string erro;
+                if(!solC.checkSolution(erro, instancia))
+                {
+                    PRINT_DEBUG("", "");
+                    cout << "ERRO APOS NOVO MV, IG\n";
+                    cout << erro << "\n\n";
+                    erro = "";
+                    solC.print(erro, instancia);
+                    cout << erro;
+                    cout << "######################################################\n\n";
+                    cout << "Sol antes rvnd: " << strSolAntes;
+
+                    throw "ERRO";
+                }
+
+                hashSolSetVnd.insert(VetorHash(solC, instancia));
+                funcAddRotasHash(instancia, hashRotaEv, solC);
+
+                dadosIg.solVnd = solC.distancia;
+            }
+
+
+            if(NS_Auxiliary::menor(solC.distancia, solBest.distancia))
+            {
+                string erro;
+                if(!solC.checkSolution(erro, instancia))
+                {
+                    PRINT_DEBUG("", "");
+                    cout << "ERRO, IG\n";
+                    cout << erro << "\n\n";
+                    throw "ERRO";
+                }
+
+                ValBestNs::distBest = solC.distancia;
+
+                solBest = Solucao(instancia);
+                solBest.copia(solC);
+                solBest.ultimaA = i;
                 numFuncDestroi = 0;
+                ultimaA = i;
 
-            }
-        }
-        else
-        {
-            funcDestroi2(solC, numClientesRm);
-        }
-
-        if(construtivoFull)
-        {
-            if(tipoConst == CONSTRUTIVO1)
-                NS_Construtivo3::construtivo(solC, instancia, alfaSeg, betaPrim, matClienteSat, true, false, false,
-                                             &vetInviabilidate, torneio);
-
-            else
-                NS_Construtivo4::construtivo(solC, instancia, alfaSeg, betaPrim, matClienteSat, true, false, false,
-                                             &vetInviabilidate, torneio);
-
-        }
-
-        if(!solC.viavel)
-        {
-            dadosIg.solConst = -1.0;
-            dadosIg.solVnd   = -1.0;
-
-            //solC = Solucao(instancia);
-            solC.copia(solC_copia);
-
-        }
-        else
-        {
-            string strSolConst;
-            string strErro;
-            if(!solC.checkSolution(strErro, instancia))
-            {
-                PRINT_DEBUG("", "");
-                cout<<"ERRO NO IG APOS O CONSTRUTIVO\nERRO:\n\n";
-                cout<<strErro<<"\n\n";
-                cout<<"Sol: \n";
-                string strSol;
-                solC.print(strSol, instancia);
-                cout<<strSol<<"\n";
-                throw "ERRO";
-            }
-
-            hashSolSetConst.insert(VetorHash(solC, instancia));
-            numSolConstVia += 1;
-
-            funcAddRotasHash(instancia, hashRotaEv, solC);
-
-            dadosIg.solConst = solC.distancia;
-
-            numSolG += 1;
-            //lucao solTemp(instancia);
-            //solTemp.copia(solC);
-            string strSolAntes;
-            //solC.print(strSolAntes, instancia);
-
-            rvnd(solC, instancia, betaPrim, vetMvValor, vetMvValor1Nivel);
-
-            string erro;
-            if(!solC.checkSolution(erro, instancia))
-            {
-                PRINT_DEBUG("", "");
-                cout<<"ERRO APOS NOVO MV, IG\n";
-                cout<<erro<<"\n\n";
-                erro = "";
-                solC.print(erro, instancia);
-                cout<<erro;
-                cout<<"######################################################\n\n";
-                cout<<"Sol antes rvnd: "<<strSolAntes;
-
-                throw "ERRO";
-            }
-
-            hashSolSetVnd.insert(VetorHash(solC, instancia));
-            funcAddRotasHash(instancia, hashRotaEv, solC);
-
-            dadosIg.solVnd   = solC.distancia;
-        }
-
-
-        if(NS_Auxiliary::menor(solC.distancia, solBest.distancia))
-        {
-            string erro;
-            if(!solC.checkSolution(erro, instancia))
-            {
-                PRINT_DEBUG("", "");
-                cout<<"ERRO, IG\n";
-                cout<<erro<<"\n\n";
-                throw "ERRO";
-            }
-
-            ValBestNs::distBest = solC.distancia;
-
-            solBest = Solucao(instancia);
-            solBest.copia(solC);
-            solBest.ultimaA = i;
-            numFuncDestroi = 0;
-            ultimaA = i;
-
-            ultimaABest = i;
-            numEvRmCorrente = numEvRmMin;
+                ultimaABest = i;
+                numEvRmCorrente = numEvRmMin;
 #if PRINT_IG
-cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
+                cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
 #endif
 
 
-        }
+            }
 
-        dadosIg.solBest = solBest.distancia;
-        vetDadosIg.push_back(dadosIg);
+            dadosIg.solBest = solBest.distancia;
+            vetDadosIg.push_back(dadosIg);
 
-    } // END for ig
+        } // END for ig
+
+    }; // END igLoop
+
+    igLoop(parametros.numItTotal);
 
     //cout<<"FIM IG\n";
 
@@ -791,11 +793,33 @@ cout<<"ATUALIZACAO "<<i<<": "<<solBest.distancia<<"\n\n";
     const double distMip = solBest.distancia;
     solBest.todasRotasEvAtualizadas();
     rvnd(solBest, instancia, betaPrim, vetMvValor, vetMvValor1Nivel);
+    cout<<"mip: "<<solBest.distancia<<"\n";
+    solBest.todasRotasEvAtualizadas();
+    solBest.resetaIndiceEv(instancia);
+
+    string erroo;
+    if(!solBest.checkSolution(erroo, instancia))
+    {
+        cout<<"ERRO, solucao inviavel\n";
+        cout<<erroo<<"\n";
+        PRINT_DEBUG("", "");
+        ERRO();
+    }
+
+    //solBest.print(instancia);
+
+    solC.resetaSol();
+    solC.copia(solBest);
+    igLoop(3000);
+
+    cout<<"mip+IG: "<<solBest.distancia<<"\n";
 
     // Fim MIP model
 
     clock_t end = clock();
     const double cpuMip = double(end-start)/CLOCKS_PER_SEC;
+
+
 
     //cout<<"\tDist: "<<solBest.distancia<<"\n\n";
 

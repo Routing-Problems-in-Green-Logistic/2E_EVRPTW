@@ -8,7 +8,8 @@
 
 // Parametros para inst de 100 clientes:
 // --alphaSeg 0.05 --betaPrim 0.75 --difBest 0.05 --numItIG 2500 --torneio 1 --taxaRm 0.25
-// 1455
+// MIP:
+// --alphaSeg 0.35 --betaPrim 0.15 --difBest 0.03 --numItIG 3000 --torneio 1 --taxaRm 0.2 --fatNumCh 3 --mip_presolve -1 --mip_cuts 1 --mip_restTempo 1 --mip_gap 0.00
 
 // Parametros para inst menor de 15 clientes:
 // --alphaSeg 0.9 --betaPrim 0.9 --difBest 0.03 --numItIG 2500 --torneio 0 --taxaRm 0.6
@@ -60,7 +61,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    const string commite = "38c802041c2d1c0aceab56fd76ba176bb24fbc18";
+    const string commite = "1c9da9719b11f5bd6f3a4d4f2833873af0d9c74e";
     parametros.commit = commite;
     clock_t startA = clock();
 

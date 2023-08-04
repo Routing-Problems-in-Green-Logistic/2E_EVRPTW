@@ -729,6 +729,9 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
         ERRO();
     }
 
+    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+        solucao.vetClientesAtend[i] = Int8(1);
+
 }
 
 void ModeloNs::setSolIniMip(GRBModel &model,
