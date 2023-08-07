@@ -27,6 +27,7 @@ public:
     bool checkDistence(const Instancia &instance, double *dist, std::string &str);
     void copia(Route &route);
     void resetaRoute();
+    void atualizaTotalDemand(const Instancia &instancia);
 
     BoostC::vector<RouteNo> rota;
     int routeSize = 2;

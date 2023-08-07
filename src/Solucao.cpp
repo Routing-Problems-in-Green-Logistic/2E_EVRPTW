@@ -202,10 +202,11 @@ bool Solucao::checkSolution(std::string &erro, const Instancia &inst)
         }
 
         double dist = 0.0;
+        double demandaRoute = 0.0;
 
         if(!route.checkDistence(inst, &dist, aux))
         {
-            erro += "ERRO, TRUCK "+std::to_string(t)+":: " + aux;
+            erro += "ERRO, TRUCK "+std::to_string(t)+":: \n" + aux;
             erroB = true;
             break;
         }
@@ -679,4 +680,10 @@ bool Solucao::ehSplit(const Instancia &instancia)const
     }
 
     return false;
+}
+
+void Solucao::atualizaDemandaRoute(const Instancia &instancia)
+{
+    for(Route &route:primeiroNivel)
+        route.atualizaTotalDemand(instancia);
 }

@@ -597,7 +597,7 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
             paramEntrada.paramIg.difBest     = std::stod(getKey("--difBest"));
             paramEntrada.paramIg.torneio     = bool(std::stoi(getKey("--torneio")));
             paramEntrada.paramIg.taxaRm      = std::stod(getKey("--taxaRm"));
-            paramEntrada.paramIg.fatorNumChamadas = std::stod(getKey("--fatNumCh"));
+            paramEntrada.paramIg.fatorNumCh = std::stod(getKey("--fatNumCh"));
 
             //paramEntrada.paramIg.fileSaida   = string(getKey("--fileSaida"));
 
@@ -901,7 +901,7 @@ std::string ParametrosIG::printParam()
     saida += "\ndifBest \t\t " + std::to_string(difBest);
     saida += "\ntaxaEvRm \t\t " + to_string(taxaRm);
     saida += "\nfileSaida \t\t "+ fileSaida;
-    saida += "\nfatorNumCh \t\t " + to_string(fatorNumChamadas);
+    saida += "\nfatorNumCh \t\t " + to_string(fatorNumCh);
 
 
     return saida;

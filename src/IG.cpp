@@ -32,7 +32,7 @@ using namespace ModeloNs;
 
 typedef std::unordered_set<NS_VetorHash::VetorHash, NS_VetorHash::VetorHash::HashFunc> SetVetorHash;
 
-#define PRINT_IG        TRUE
+#define PRINT_IG        FALSE
 #define WRITE_SOL_PRINT FALSE
 
 
@@ -49,7 +49,7 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
 
 
     //ParametrosIG parametrosIg(parametros.paramIgFile);
-    ParametrosIG parametrosIg = parametros.paramIg;
+    const ParametrosIG &parametrosIg = parametros.paramIg;
 
     // Zera variaveis globais
     VarAuxiliaresIgNs::num_sumQuantCand     = 0;
@@ -197,6 +197,13 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
         }
     }
 
+
+    int ultimaA             = 0;
+    int ultimaABest         = 0;
+    int numSolG             = 1;
+    int numFuncDestroi      = 0;
+
+    /*
     const int numEvN_Vazias  = temp;
     const int estrategia     = (instancia.numClients > 15) ? Int8(Est100):Int8(Est15);
     const double difMax      = 0.1;
@@ -206,15 +213,8 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     int numEvRmCorrente      = numEvRmMin;
     const int numClientesRm  = max(int(NS_Auxiliary::upperVal(parametrosIg.taxaRm*instancia.numClients)), 1);
 
-    int ultimaA             = 0;
-    int ultimaABest         = 0;
-    int numSolG             = 1;
-    int numFuncDestroi      = 0;
+
     const int numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)))*parametrosIg.fatorNumChamadas;
-    //cout<<"numChamadasDestroi: "<<numChamadasDestroi0<<"\n";
-
-    //auto funcAtualNumChamDest0 = [&](){numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)));};
-
     const bool torneio = parametrosIg.torneio;
 
     int tempTipoConst = CONSTRUTIVO1;
@@ -222,12 +222,10 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
         tempTipoConst = parametrosIg.tipoConstrutivo15;
 
     const int tipoConst = tempTipoConst;
+    */
 
 
-    //const Int8 estrategia = Int8(0);
-
-
-#if PRINT_IG
+/*#if PRINT_IG
 
     cout<<"ParametrosIG: \n"<<parametrosIg.printParam()<<"\n\n";
 
@@ -238,7 +236,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     cout<<"Estrategia: "<<int(estrategia)<<"\n";
     cout << "ALFA: " << alfaSeg << "\nBETA: " << betaPrim << "\n";
     cout<<"TORNEIO: "<<torneio<<"\n\n";
-#endif
+#endif*/
 
 
     // Quarda o numero de inviabilidades
@@ -602,8 +600,29 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
 
     Solucao solC_copia(instancia);
 
-    auto igLoop = [&](const int numIt)
+    auto igLoop = [&](const int numIt, const ParametrosIG &parametrosIg)
     {
+
+        const int numEvN_Vazias  = temp;
+        const int estrategia     = (instancia.numClients > 15) ? Int8(Est100):Int8(Est15);
+        const double difMax      = 0.1;
+        const float alfaSeg      = parametrosIg.alfaSeg;         // Segundo Nivel
+        const float betaPrim     = parametrosIg.betaPrim;        // Primeiro  Nivel
+        const int numEvRmMin     = min(int(parametrosIg.taxaRm * numEvN_Vazias + 1), numEvN_Vazias);
+        int numEvRmCorrente      = numEvRmMin;
+        const int numClientesRm  = max(int(NS_Auxiliary::upperVal(parametrosIg.taxaRm*instancia.numClients)), 1);
+
+
+        const int numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)))*parametrosIg.fatorNumCh;
+        const bool torneio = parametrosIg.torneio;
+
+        int tempTipoConst = CONSTRUTIVO1;
+        if(estrategia == Est15)
+            tempTipoConst = parametrosIg.tipoConstrutivo15;
+
+        const int tipoConst = tempTipoConst;
+
+
         for(int i = 0; i < numIt; ++i)
         {
 
@@ -616,15 +635,8 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
             }
 #endif
 
-/*        if(instancia.numSats > 1 && numSatRm == 1 && (i-ultimaA) == 500)
-        {
-            numSatRm = 2;
-            cout<<"numSatRm: "<<numSatRm<<"\n\a\a\a";
-        }*/
-
             const double dif = (solC.distancia - solBest.distancia) / solBest.distancia;
 
-            //if((i-ultimaA) % numItSemMelhoraResetSolC == 0 && i!=ultimaA)
             if(dif > parametrosIg.difBest)
             {
                 //solC = Solucao(instancia);
@@ -780,7 +792,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
 
     }; // END igLoop
 
-    igLoop(parametros.numItTotal);
+    igLoop(parametros.numItTotal, parametrosIg);
 
     //cout<<"FIM IG\n";
 
@@ -792,8 +804,12 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     modelo(instancia, hashRotaEv, solBest, parametros.parametrosMip);
     const double distMip = solBest.distancia;
     solBest.todasRotasEvAtualizadas();
-    rvnd(solBest, instancia, betaPrim, vetMvValor, vetMvValor1Nivel);
-    cout<<"mip: "<<solBest.distancia<<"\n";
+    rvnd(solBest, instancia, parametrosIg.betaPrim, vetMvValor, vetMvValor1Nivel);
+
+    clock_t end = clock();
+
+    const double distMipVnd = solBest.distancia;
+    //cout<<"mip: "<<solBest.distancia<<"\n";
     solBest.todasRotasEvAtualizadas();
     solBest.resetaIndiceEv(instancia);
 
@@ -810,13 +826,22 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
 
     solC.resetaSol();
     solC.copia(solBest);
-    igLoop(3000);
 
-    cout<<"mip+IG: "<<solBest.distancia<<"\n";
+    ParametrosIG parametrosIg1 = parametrosIg;
+
+    parametrosIg1.alfaSeg       = 0.05;
+    parametrosIg1.betaPrim      = 0.8;
+    parametrosIg1.difBest       = 0.015;
+    parametrosIg1.torneio       = false;
+    parametrosIg1.taxaRm        = 0.15;
+    parametrosIg1.fatorNumCh    = 2;
+
+    igLoop(3000, parametrosIg1);
+
+    //cout<<"mip+IG: "<<solBest.distancia<<"\n";
 
     // Fim MIP model
 
-    clock_t end = clock();
     const double cpuMip = double(end-start)/CLOCKS_PER_SEC;
 
 
@@ -859,7 +884,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     funcAddParaSaidaDouble("distIg", distIg);
     funcAddParaSaidaDouble("distIgMip", distMip);
     funcAddParaSaidaDouble("cpuMip", cpuMip);
-
+    funcAddParaSaidaDouble("distMipVnd", distMipVnd);
 
     auto funcAddParaSaidaInt = [&](string &&strParm, int val)
     {

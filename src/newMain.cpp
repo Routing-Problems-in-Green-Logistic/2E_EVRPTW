@@ -130,6 +130,9 @@ int main(int argc, char* argv[])
     }
     catch(const char *erro)
     {
+        cerr<<"SEMENTE: "<< parametros.semente<<"\n";
+
+        return -1;
 
         if(ValBestNs::distBest <= 0.0)
         {
@@ -137,6 +140,7 @@ int main(int argc, char* argv[])
         }
         else
         {
+
             clock_t end = clock();
             double tempo = double(end-startA)/CLOCKS_PER_SEC;
             escreveDistFile(ValBestNs::distBest, tempo, parametros.paramIg.fileSaida);

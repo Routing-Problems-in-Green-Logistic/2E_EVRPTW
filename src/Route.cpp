@@ -65,6 +65,20 @@ void Route::print(std::string &str)
 bool Route::checkDistence(const Instancia &instance, double *dist, string &str)
 {
 
+    double sumDemanda = 0.0;
+    for(int sat = instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
+        sumDemanda += satelliteDemand[sat];
+
+    if(sumDemanda != totalDemand)
+    {
+        if(abs(sumDemanda-totalDemand) >= TOLERANCIA_DEMANDA)
+        {
+            str += "ERRO, demanda";
+            str += "calculado: " + to_string(sumDemanda) + "\n"+"rota: "+ to_string(totalDemand)+"\n\n";
+            return false;
+        }
+    }
+
     *dist = 0.0;
 
 
@@ -129,4 +143,12 @@ void Route::resetaRoute()
     totalDistence = 0.0;
     totalDemand = 0.0;
     std::fill(satelliteDemand.begin(), satelliteDemand.end(), 0.0);
+}
+
+void Route::atualizaTotalDemand(const Instancia &instancia)
+{
+    totalDemand = 0.0;
+
+    for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+        totalDemand += satelliteDemand[sat];
 }

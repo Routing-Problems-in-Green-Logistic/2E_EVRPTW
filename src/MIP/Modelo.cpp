@@ -159,6 +159,11 @@ void ModeloNs::setParametrosModelo(GRBModel &model, NS_parametros::ParametrosMip
 
     model.set(GRB_DoubleParam_MIPGap, paramMip.mipGap);
     //model.set(GRB_IntParam_MIPFocus, GRB_MIPFOCUS_BESTBOUND);
+
+/*    model.set(GRB_IntParam_PoolSolutions, 100);
+    model.set(GRB_DoubleParam_PoolGap, 0.01);
+    model.set(GRB_IntParam_PoolSearchMode, 2);*/
+
 }
 
 // $\textbf{Min}$:  $z = \sum\limits_{r \in Rota} D_r . y_r$  + $\sum\limits_{(i,j) \in A1} Dist_{(i,j)} . x_{(i,j)}$
@@ -720,6 +725,8 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
     //cout<<"*****************************************************\n\nApos testar todas os EVs\n";
 
     //solucao.print(instancia);
+
+    solucao.atualizaDemandaRoute(instancia);
 
     strErro = "";
     if(!solucao.checkSolution(strErro, instancia))

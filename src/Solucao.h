@@ -35,6 +35,7 @@ public:
     void resetaIndiceEv(Instancia &instancia);
 
     bool ehSplit(const Instancia &instancia)const;
+    void atualizaDemandaRoute(const Instancia &instancia);
 
     // Possui numSat + 1 !!
     BoostC::vector<Satelite> satelites;
