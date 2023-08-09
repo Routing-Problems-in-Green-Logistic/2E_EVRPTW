@@ -838,7 +838,7 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
                     break;
 
                     string satStr;
-                    sol.satelites[satTemp].print(satStr, instance);
+                    sol.satelites[satTemp].print(satStr, instance, false);
                     sol.print(instance);
                     throw "ERRO!";
                 }

@@ -84,7 +84,7 @@ bool Satelite::checkSatellite(std::string &erro, const Instancia &Inst)
     return true;
 }
 
-void Satelite::print(std::string &str, const Instancia &instance)
+void Satelite::print(std::string &str, const Instancia &instance, const bool somenteNo)
 {
     str += "SATELLITE ID: "+ std::to_string(sateliteId)+"\n\n";
     int i=0;
@@ -94,12 +94,12 @@ void Satelite::print(std::string &str, const Instancia &instance)
         if(evRoute.getDemand() > 0)
         {
             str += "\tROTA ID: " + std::to_string(evRoute.idRota) + ".:  ";
-            evRoute.print(str, instance, false);
+            evRoute.print(str, instance, somenteNo);
             str += "\n";
         }
     }
 
-    str += "Dist: " + to_string(distancia) + "; Demanda: " + to_string(demanda);
+    str += "Dist: " + NS_Auxiliary::float_to_string(distancia, 2) + "; Demanda: " + to_string(int(demanda));
     str += "\n\n";
 }
 

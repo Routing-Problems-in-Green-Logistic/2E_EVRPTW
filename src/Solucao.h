@@ -17,7 +17,7 @@ public:
     int getNSatelites() const;
     Satelite* getSatelite(int index);
     bool checkSolution(std::string &erro, const Instancia &inst);
-    void print(std::string &saida, const Instancia &instance);
+    void print(std::string &saida, const Instancia &instance, const bool somenteNo);
     void print(const Instancia& Inst);
     void printPlot(std::string &saida, const Instancia &instance);
     void atualizaVetSatTempoChegMax(const Instancia &instance);

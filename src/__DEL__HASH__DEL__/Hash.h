@@ -112,7 +112,7 @@ namespace NS_Hash
                     {
                         if(tabHash[i].val != nullptr)
                         {
-                            tabHash[i].val->print();
+                            tabHash[i].val->print(<#initializer#>, <#initializer#>, false);
                             cout<<"dell "<<i<<"\n";
                             delete tabHash[i].val;
                             tabHash[i].val = nullptr;

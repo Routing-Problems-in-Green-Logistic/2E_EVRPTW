@@ -462,7 +462,7 @@ void EvRoute::print(std::string &strRota, const Instancia &instance, const bool 
         }
     }
 
-    strRota += "\nDistance: " + to_string(distancia) + "; Demanda: " + to_string(demanda) + "\n";
+    strRota += "\n\tDistance: " + NS_Auxiliary::float_to_string(distancia, 2) + "; Demanda: " + to_string(int(demanda)) + "\n";
 
 }
 

@@ -3,6 +3,7 @@
 //
 
 #include <boost/format.hpp>
+#include <fstream>
 #include "Auxiliary.h"
 
 const double DOUBLE_INF = std::numeric_limits<double>::infinity();
@@ -30,4 +31,20 @@ string NS_Auxiliary::float_to_string(double num, int numCasas)
 {
     const string fmt = "%."+std::to_string(numCasas)+"f";
     return string(str(boost::format(fmt) % (num)));
+}
+
+void NS_Auxiliary::escreveStrEmArquivo(const std::string &string, const std::string &&nomeArq, ios::openmode openmode)
+{
+    std::fstream file;
+    file.open(nomeArq, openmode);
+
+    if(!file.is_open())
+    {
+        std::cerr << "Erro ao abrir arquivo: " << nomeArq << "\n";
+        std::cerr << strerror(errno) << "\n\n";
+        ERRO_();
+    }
+
+    file<<string;
+    file.close();
 }

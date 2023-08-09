@@ -70,6 +70,7 @@ using namespace std;
 
 #define PRINT_DEBUG(inicio, texto) cout<<inicio<<"DEBUG: "<<texto<<"  FILE: "<<__PRETTYFILE__<<"  FUNC: "<<__PRETTY_FUNCTION__<<"  LINHA: "<<__LINE__<<"\n";
 #define ERRO() throw "ERRO";
+#define ERRO_() PRINT_DEBUG("",""); throw "ERRO";
 
 extern const double DOUBLE_INF;
 
@@ -281,6 +282,8 @@ namespace NS_Auxiliary
     void criaDiretorio(const string& caminho);
     string float_to_string(float num, int numCasas);
     string float_to_string(double num, int numCasas);
+    void escreveStrEmArquivo(const std::string &string, const std::string &&nomeArq, ios::openmode openmode);
+
 
     template<typename T>
     void vetSetAll(BoostC::vector<T> &vet, T val, int size=-1)

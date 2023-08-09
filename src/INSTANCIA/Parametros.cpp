@@ -54,7 +54,7 @@ void NS_parametros::escreveSolCompleta(Parametros &paramEntrada, Solucao &sol, I
     //cout<<"DIRETORIO: "<<caminho<<" criado\n";
 
     string saida;
-    sol.print(saida, instancia);
+    sol.print(saida, instancia, false);
     string strSaida = caminho+paramEntrada.nomeInstancia+"_EXE_"+ to_string(paramEntrada.execucaoAtual)+".txt";
 
     std::ofstream outfile;

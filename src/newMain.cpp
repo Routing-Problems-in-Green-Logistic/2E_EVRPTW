@@ -29,7 +29,7 @@
 #include "k_means.h"
 #include "Vnd.h"
 #include "VetorHash.h"
-#include "HASH/Hash.h"
+//#include "HASH/Hash.h"
 #include "Grasp.h"
 #include "Construtivo.h"
 #include "IG.h"
@@ -42,7 +42,7 @@ using namespace N_PreProcessamento;
 using namespace N_Aco;
 using namespace N_k_means;
 using namespace NS_VetorHash;
-using namespace NS_Hash;
+//using namespace NS_Hash;
 using namespace NameS_IG;
 
 
@@ -60,6 +60,7 @@ namespace N_gamb
 
 int main(int argc, char* argv[])
 {
+
     Parametros parametros;
     const string commite = "ce6dee83f70e11ca74a8bf69c2d8f893c55a3e3a";
     parametros.commit = commite;

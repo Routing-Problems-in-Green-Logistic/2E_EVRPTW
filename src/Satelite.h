@@ -46,7 +46,7 @@ public:
     int getNRoutes() const;
     EvRoute& getRoute(int i);
     bool checkSatellite(std::string &erro, const Instancia &Inst);
-    void print(std::string &str, const Instancia &instance);
+    void print(std::string &str, const Instancia &instance, const bool somenteNo);
     void print(const Instancia &instance);
     void copia(Satelite &satelite);
     void recalculaDist();

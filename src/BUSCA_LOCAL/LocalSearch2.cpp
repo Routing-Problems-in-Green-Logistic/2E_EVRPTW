@@ -1231,7 +1231,7 @@ bool NS_LocalSearch2::mvShifitEvs_interRotasInterSats(Solucao &solucao, Instanci
                     //cout<<"Rota alterada: "<<strRota<<"\n\n";
 
                     string strSol;
-                    tempSolucao.print(strSol, instancia);
+                    tempSolucao.print(strSol, instancia, false);
                     //cout<<"Nova SOLUCAO: "<<strSol<<"\n";
 
                     solucao.copia(tempSolucao);

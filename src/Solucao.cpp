@@ -330,7 +330,7 @@ bool Solucao::checkSolution(std::string &erro, const Instancia &inst)
 
 }
 
-void Solucao::print(std::string &saida, const Instancia &instance)
+void Solucao::print(std::string &saida, const Instancia &instance, const bool somenteNo)
 {
 /*    saida += "satTempoChegMax: ";
 
@@ -346,7 +346,7 @@ void Solucao::print(std::string &saida, const Instancia &instance)
 
     for(int sat = instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
     {
-        satelites[sat].print(saida, instance);
+        satelites[sat].print(saida, instance, somenteNo);
     }
 
 
