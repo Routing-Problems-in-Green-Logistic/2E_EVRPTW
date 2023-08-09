@@ -50,11 +50,15 @@ namespace ModeloNs
                        const ublas::matrix<std::list<int>> &matRotasCliSat,
                        NS_parametros::ParametrosMip paramMip);
 
-    void recuperaSolucao(GRBModel &modelo,
-                         VariaveisNs::Variaveis &variaveis,
-                         Solucao &solucao,
-                         const Instancia &instancia,
-                         const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv);
+    void recuperaSolucao(GRBModel &modelo, VariaveisNs::Variaveis &variaveis, Solucao &solucao, Instancia &instancia,
+                         const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv, const bool Xn);
+
+    void recuperaK_Solucoes(GRBModel &modelo,
+                            VariaveisNs::Variaveis &variaveis,
+                            Solucao &solucao,
+                            Instancia &instancia,
+                            const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
+                            std::list<std::unique_ptr<Solucao>> &listSolucoes);
 
     void setParametrosModelo(GRBModel &model, NS_parametros::ParametrosMip paramMip);
 

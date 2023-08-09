@@ -125,7 +125,14 @@ void ModeloNs::modelo(Instancia &instancia, const SetVetorHash &hashSolSet, Solu
         model.optimize();
         //model.write("modelo.sol");
 
-        recuperaSolucao(model, variaveis, solModelo, instancia, vetRotasEv);
+        recuperaSolucao(model, variaveis, solModelo, instancia, vetRotasEv, false);
+        std::list<std::unique_ptr<Solucao>> listPtrSol;
+        recuperaK_Solucoes(model, variaveis, solModelo, instancia, vetRotasEv, listPtrSol);
+
+        int k=0;
+        for(auto &ptr:listPtrSol)
+            cout<<"Sol k="<<k++<<": "<<ptr->distancia<<"\n";
+
         //cout<<"Solucao IG: "<<solucao.distancia<<"\n";
 
         clock_t clockEnd = clock();
@@ -157,12 +164,13 @@ void ModeloNs::setParametrosModelo(GRBModel &model, NS_parametros::ParametrosMip
     model.set(GRB_IntParam_Presolve, paramMip.presolve);
     model.set(GRB_IntParam_Cuts, paramMip.cuts);
 
-    model.set(GRB_DoubleParam_MIPGap, paramMip.mipGap);
+    model.set(GRB_DoubleParam_MIPGap, 0.0);//paramMip.mipGap);
     //model.set(GRB_IntParam_MIPFocus, GRB_MIPFOCUS_BESTBOUND);
 
-/*    model.set(GRB_IntParam_PoolSolutions, 100);
-    model.set(GRB_DoubleParam_PoolGap, 0.01);
-    model.set(GRB_IntParam_PoolSearchMode, 2);*/
+
+    model.set(GRB_IntParam_PoolSolutions, 100);
+    model.set(GRB_DoubleParam_PoolGap, paramMip.mipGap);//0.01);
+    model.set(GRB_IntParam_PoolSearchMode, 2);
 
 }
 
@@ -510,15 +518,16 @@ void ModeloNs::criaRestVar_T(const Instancia &instancia,
 }
 
 
-void ModeloNs::recuperaSolucao(GRBModel &modelo,
-                               VariaveisNs::Variaveis &variaveis,
-                               Solucao &solucao,
-                               const Instancia &instancia,
-                               const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv)
+void
+ModeloNs::recuperaSolucao(GRBModel &modelo,
+                          VariaveisNs::Variaveis &variaveis,
+                          Solucao &solucao, Instancia &instancia,
+                          const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
+                          const bool Xn)
 {
     solucao.resetaSol();
 
-    variaveis.setVetDoubleAttr_X(modelo);
+    variaveis.setVetDoubleAttr_X(modelo, Xn);
 
     BoostC::vector<int> rotasEvPorSat(instancia.numSats+1, 0);
     BoostC::vector<int> vetClienteAtend(instancia.numNos, 0);
@@ -578,7 +587,7 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
             evRouteSol.routeSize -= 1;
 
             // Verifica se existe uma rs duplicada
-            if(evRouteSol[i - 1].cliente == evRouteSol[i].cliente)
+            if(evRouteSol[i-1].cliente == evRouteSol[i].cliente)
             {
                 shiftVectorClienteEsq(evRouteSol.route, i, evRouteSol.routeSize);
                 evRouteSol.routeSize -= 1;
@@ -741,6 +750,34 @@ void ModeloNs::recuperaSolucao(GRBModel &modelo,
 
 }
 
+
+void ModeloNs::recuperaK_Solucoes(GRBModel &modelo,
+                                  VariaveisNs::Variaveis &variaveis,
+                                  Solucao &solucao,
+                                  Instancia &instancia,
+                                  const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
+                                  std::list<std::unique_ptr<Solucao>> &listSolucoes)
+{
+    const int numSol = modelo.get(GRB_IntAttr_SolCount);
+    cout<<"Numero de Solucoes: "<<numSol<<"\n";
+    if(numSol <= 1)
+        return;
+
+    for(int k=0; k < numSol; ++k)
+    {
+        modelo.set(GRB_IntParam_SolutionNumber, k);
+        variaveis.setVetDoubleAttr_X(modelo, true);
+        auto solPtr = std::make_unique<Solucao>(instancia);
+        recuperaSolucao(modelo, variaveis, *solPtr.get(), instancia, vetRotasEv, true);
+
+        if(k == 1)
+            solPtr->print(instancia);
+
+        listSolucoes.push_back(std::move(solPtr));
+    }
+
+}
+
 void ModeloNs::setSolIniMip(GRBModel &model,
                             const Solucao &solucao,
                             const int idRotaEvSolIni,
@@ -755,10 +792,8 @@ void ModeloNs::setSolIniMip(GRBModel &model,
     for(int i=idRotaEvSolIni; i < variaveis.vetY.getNum(); ++i)
         variaveis.vetY(i).set(GRB_DoubleAttr_Start, 1.0);
 
-    if(solucao.ehSplit(instancia))
-    {
+    if(solEhSplit)
         return;
-    }
 
     for(int cv=0; cv < instancia.numTruck; ++cv)
     {

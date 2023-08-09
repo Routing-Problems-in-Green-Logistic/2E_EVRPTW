@@ -87,7 +87,7 @@ namespace VariaveisNs
         void setUB_LB(double ub, double lb);
         void printVars();
 
-        void setVetDoubleAttr_X(GRBModel &model);
+        void setVetDoubleAttr_X(GRBModel &model, bool X_n);
         void setAttr_Start0();
 
     };
@@ -151,7 +151,7 @@ namespace VariaveisNs
         void setUB_LB(double ub, double lb, int i);
         void printVars();
 
-        void setVetDoubleAttr_X(GRBModel &model);
+        void setVetDoubleAttr_X(GRBModel &model, bool Xn);
         void setAttr_Start0();
     };
 
@@ -187,7 +187,7 @@ namespace VariaveisNs
 
         Variaveis(const Instancia &instancia, GRBModel &modelo, const BoostC::vector<RotaEvMip> &vetRotasEv);
         ~Variaveis()=default;
-        void setVetDoubleAttr_X(GRBModel &model);
+        void setVetDoubleAttr_X(GRBModel &model, bool Xn);
         void setAttr_Start0();
     };
 

@@ -139,13 +139,13 @@ VariaveisNs::Variaveis::Variaveis(const Instancia &instancia, GRBModel &modelo, 
 
 }
 
-void Variaveis::setVetDoubleAttr_X(GRBModel &model)
+void Variaveis::setVetDoubleAttr_X(GRBModel &model, bool Xn)
 {
-    matrix_x.setVetDoubleAttr_X(model);
-    matrixDem.setVetDoubleAttr_X(model);
-    vetZ.setVetDoubleAttr_X(model);
-    vetY.setVetDoubleAttr_X(model);
-    vetT.setVetDoubleAttr_X(model);
+    matrix_x.setVetDoubleAttr_X(model, Xn);
+    matrixDem.setVetDoubleAttr_X(model, Xn);
+    vetZ.setVetDoubleAttr_X(model, Xn);
+    vetY.setVetDoubleAttr_X(model, Xn);
+    vetT.setVetDoubleAttr_X(model, Xn);
 }
 
 void Variaveis::setAttr_Start0()
@@ -391,10 +391,15 @@ MatrixGRBVar::~MatrixGRBVar()
     vetDoubleAttr_X = nullptr;
 }
 
-void MatrixGRBVar::setVetDoubleAttr_X(GRBModel &model)
+void MatrixGRBVar::setVetDoubleAttr_X(GRBModel &model, bool X_n)
 {
     delete []vetDoubleAttr_X;
-    vetDoubleAttr_X = model.get(GRB_DoubleAttr_X, vetVar, numCol * numLin);
+
+    if(X_n)
+        vetDoubleAttr_X  = model.get(GRB_DoubleAttr_Xn, vetVar, numCol * numLin);
+    else
+        vetDoubleAttr_X = model.get(GRB_DoubleAttr_X, vetVar, numCol * numLin);
+
 }
 
 void MatrixGRBVar::setAttr_Start0()
@@ -410,10 +415,14 @@ void MatrixGRBVar::setAttr_Start0()
 }
 
 
-void VectorGRBVar::setVetDoubleAttr_X(GRBModel &model)
+void VectorGRBVar::setVetDoubleAttr_X(GRBModel &model, bool Xn)
 {
     delete []vetDoubleAttr_X;
-    vetDoubleAttr_X = model.get(GRB_DoubleAttr_X, vetVar, num);
+
+    if(Xn)
+        vetDoubleAttr_X = model.get(GRB_DoubleAttr_Xn, vetVar, num);
+    else
+        vetDoubleAttr_X = model.get(GRB_DoubleAttr_X, vetVar, num);
 }
 
 void VectorGRBVar::setAttr_Start0()

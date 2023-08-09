@@ -80,4 +80,4 @@ target_link_libraries(run LINK_PUBLIC ${Boost_LIBRARIES})
 
 target_link_libraries(run gurobi_c++)
 target_link_libraries(run gurobi)
-
+#target_link_libraries(run -libtcmalloc)
