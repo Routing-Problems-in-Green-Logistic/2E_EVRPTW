@@ -18,11 +18,8 @@ using namespace NS_viabRotaEv;
 using namespace NS_VetorHash;
 using namespace NS_Auxiliary;
 
-void ModeloNs::modelo(Instancia &instancia,
-                      const SetVetorHash &hashSolSet,
-                      Solucao &solucao,
-                      NS_parametros::ParametrosMip paramMip,
-                      std::list<std::unique_ptr<Solucao>> &listPtrSol)
+void ModeloNs::modelo(Instancia &instancia, const SetVetorHash &hashSolSet, Solucao &solucao,
+                      NS_parametros::ParametrosMip paramMip)
 {
     //cout<<"Solucao IG: "<<solucao.distancia<<"\n";
 
@@ -129,18 +126,12 @@ void ModeloNs::modelo(Instancia &instancia,
         //model.write("modelo.sol");
 
         recuperaSolucao(model, variaveis, solModelo, instancia, vetRotasEv, false);
-        recuperaK_Solucoes(model, variaveis, solModelo, instancia, vetRotasEv, listPtrSol);
-
-        //criaDiretorio("k_Solucoes");
+        //std::list<std::unique_ptr<Solucao>> listPtrSol;
+        //recuperaK_Solucoes(model, variaveis, solModelo, instancia, vetRotasEv, listPtrSol);
 
 /*        int k=0;
         for(auto &ptr:listPtrSol)
-        {
-            string solk;
-            ptr->print(solk, instancia, true);
-            escreveStrEmArquivo(solk, "k_Solucoes/"+ to_string(k)+"_sol.txt", ios::out);
-            //cout << "Sol k=" << k++ << ": " << ptr->distancia << "\n";
-        }*/
+            cout<<"Sol k="<<k++<<": "<<ptr->distancia<<"\n";*/
 
         //cout<<"Solucao IG: "<<solucao.distancia<<"\n";
 
@@ -177,9 +168,9 @@ void ModeloNs::setParametrosModelo(GRBModel &model, NS_parametros::ParametrosMip
     //model.set(GRB_IntParam_MIPFocus, GRB_MIPFOCUS_BESTBOUND);
 
 
-    model.set(GRB_IntParam_PoolSolutions, 1000);
+/*    model.set(GRB_IntParam_PoolSolutions, 100);
     model.set(GRB_DoubleParam_PoolGap, paramMip.mipGap);//0.01);
-    model.set(GRB_IntParam_PoolSearchMode, 2);
+    model.set(GRB_IntParam_PoolSearchMode, 2);*/
 
 }
 
@@ -775,9 +766,13 @@ void ModeloNs::recuperaK_Solucoes(GRBModel &modelo,
     for(int k=0; k < numSol; ++k)
     {
         modelo.set(GRB_IntParam_SolutionNumber, k);
-        //variaveis.setVetDoubleAttr_X(modelo, true);
+        variaveis.setVetDoubleAttr_X(modelo, true);
         auto solPtr = std::make_unique<Solucao>(instancia);
         recuperaSolucao(modelo, variaveis, *solPtr.get(), instancia, vetRotasEv, true);
+
+        if(k == 1)
+            solPtr->print(instancia);
+
         listSolucoes.push_back(std::move(solPtr));
     }
 

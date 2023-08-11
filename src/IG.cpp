@@ -403,8 +403,8 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
 
         int rmClientes = 0;
 
-        string strSol;
-        sol.print(strSol, instancia, false);
+        //string strSol;
+        //sol.print(strSol, instancia);
 
         while(rmClientes != numClientes)
         {
@@ -533,7 +533,6 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
                 string rotaStr;
                 evRoute.print(rotaStr, instancia, true);
                 cout<<"ROTA: "<<rotaStr<<"\n\n";
-                cout<<"Sol: \n"<<strSol<<"\n";
                 cout<<"debug: "<<strDebug<<"\n\n";
                 cout<<"Tempo saida sat: "<<instancia.vetTempoSaida[itRotaInfo.satId]<<"\n\n";
 
@@ -794,28 +793,14 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
 
     igLoop(parametros.numItTotal, parametrosIg);
 
-    {
-        string rotasEv;
-        for(auto &rota:hashRotaEv)
-        {
-            rotasEv += NS_Auxiliary::printVector(rota.vet, rota.vet.size());
-            rotasEv += "\n";
-        }
-
-        NS_Auxiliary::escreveStrEmArquivo(rotasEv, "rotas.txt", ios::out);
-        cout<<"rotas.txt\n";
-    }
-
     //cout<<"FIM IG\n";
 
     const double distIg = solBest.distancia;
 
     clock_t start = clock();
 
-    std::list<std::unique_ptr<Solucao>> listPtrSol;
-
     // Inicio MIP model
-    modelo(instancia, hashRotaEv, solBest, parametros.parametrosMip, listPtrSol);
+    modelo(instancia, hashRotaEv, solBest, parametros.parametrosMip);
     const double distMip = solBest.distancia;
     solBest.todasRotasEvAtualizadas();
     rvnd(solBest, instancia, parametrosIg.betaPrim, vetMvValor, vetMvValor1Nivel);
@@ -827,8 +812,19 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     solBest.todasRotasEvAtualizadas();
     solBest.resetaIndiceEv(instancia);
 
+    string erroo;
+    if(!solBest.checkSolution(erroo, instancia))
+    {
+        cout<<"ERRO, solucao inviavel\n";
+        cout<<erroo<<"\n";
+        PRINT_DEBUG("", "");
+        ERRO();
+    }
 
     //solBest.print(instancia);
+
+    solC.resetaSol();
+    solC.copia(solBest);
 
     ParametrosIG parametrosIg1 = parametrosIg;
 
@@ -839,48 +835,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     parametrosIg1.taxaRm        = 0.15;
     parametrosIg1.fatorNumCh    = 2;
 
-    /*
-    solC.resetaSol();
-    solC.copia(solBest);
     igLoop(3000, parametrosIg1);
-     */
-
-    Solucao solBestAll(instancia);
-    solBestAll.copia(solBest);
-
-    cout<<"listPtrSol: "<<listPtrSol.size()<<"\n";
-
-    for(auto &ptr:listPtrSol)
-    {
-        Solucao &solucao = (*ptr);
-        solBest.resetaSol();
-        solC.resetaSol();
-
-        solBest.copia(solucao);
-        solC.copia(solucao);
-
-        rvnd(solBest, instancia, parametrosIg.betaPrim, vetMvValor, vetMvValor1Nivel);
-        const double distO = solucao.distancia;
-
-        igLoop(30, parametrosIg1);
-
-        if(NS_Auxiliary::menor(solBest.distancia, distO))
-            cout<<NS_Auxiliary::float_to_string(distO, 2)<<" -> "<<NS_Auxiliary::float_to_string(solBest.distancia, 2)<<"\n";
-
-        if(NS_Auxiliary::menor(solBest.distancia, solBestAll.distancia))
-        {
-            cout<<"update sol\n";
-            solBestAll.resetaSol();
-            solBestAll.copia(solBest);
-        }
-
-        cout<<NS_Auxiliary::float_to_string(distO, 2)<<" -> "<<NS_Auxiliary::float_to_string(solBest.distancia,2)<<"\n";
-    }
-
-
-
-    solBest.resetaSol();
-    solBest.copia(solBestAll);
 
     //cout<<"mip+IG: "<<solBest.distancia<<"\n";
 
