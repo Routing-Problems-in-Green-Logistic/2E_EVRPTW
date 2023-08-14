@@ -687,11 +687,11 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
             {
                 if(tipoConst == CONSTRUTIVO1)
                     NS_Construtivo3::construtivo(solC, instancia, alfaSeg, betaPrim, matClienteSat, true, false, false,
-                                                 &vetInviabilidate, torneio);
+                                                 &vetInviabilidate, torneio, Split);
 
                 else
                     NS_Construtivo4::construtivo(solC, instancia, alfaSeg, betaPrim, matClienteSat, true, false, false,
-                                                 &vetInviabilidate, torneio);
+                                                 &vetInviabilidate, torneio, Split);
 
             }
 
@@ -705,6 +705,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
 
             } else
             {
+
                 string strSolConst;
                 string strErro;
                 if(!solC.checkSolution(strErro, instancia))
@@ -733,6 +734,15 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
                 //solC.print(strSolAntes, instancia);
 
                 rvnd(solC, instancia, betaPrim, vetMvValor, vetMvValor1Nivel);
+
+/*                if(solC.ehSplit(instancia))
+                {
+                    cout << "Solucao com split\n";
+                    string strSol;
+                    solC.print(strSol, instancia, true);
+                    cout<<strSol<<"\n\n";
+                    ERRO_();
+                }*/
 
                 string erro;
                 if(!solC.checkSolution(erro, instancia))
@@ -836,14 +846,13 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     parametrosIg1.fatorNumCh    = 2;
 
     igLoop(3000, parametrosIg1);
+    const int split1Best = solBest.ehSplit(instancia);
 
     //cout<<"mip+IG: "<<solBest.distancia<<"\n";
 
     // Fim MIP model
 
     const double cpuMip = double(end-start)/CLOCKS_PER_SEC;
-
-
 
     //cout<<"\tDist: "<<solBest.distancia<<"\n\n";
 
@@ -871,6 +880,16 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     const double mediaCliRm     = double(VarAuxiliaresIgNs::sumQuantCliRm)/VarAuxiliaresIgNs::num_sumQuantCliRm;
 
     funcAddParaSaidaDouble("numSol", numSolG);
+
+
+    double demTotal = 0.0;
+    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+        demTotal += instancia.vectCliente[i].demanda;
+
+    int numMin = NS_Auxiliary::upperVal(demTotal/instancia.getTruckCap(instancia.getFirstTruckIndex()));
+    const int split0 = (numMin < instancia.numTruck);
+    funcAddParaSaidaDouble("split0Inst", split0);
+    funcAddParaSaidaDouble("split1Best", split1Best);
 
     /*
     funcAddParaSaidaDouble("fatorSolCorr", fatorSolCorr);

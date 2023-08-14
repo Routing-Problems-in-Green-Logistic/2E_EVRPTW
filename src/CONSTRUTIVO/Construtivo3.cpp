@@ -648,7 +648,9 @@ bool NS_Construtivo3::visitAllClientes(BoostC::vector<int8_t> &visitedClients, c
 
 }
 
-void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float betaPrim, bool listaRestTam, bool solStart)
+void
+NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float betaPrim, bool listaRestTam,
+                                          bool solStart, const bool split)
 {
     if(!solStart)
         sol.reseta1Nivel(instance);
@@ -660,14 +662,6 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
     int satId = 1;
     demandaNaoAtendidaSat.push_back(0.0);
 
-
-/*    {
-
-        Route &route = sol.primeiroNivel[0];
-        string strRota;
-        std::cout<<"ROUTE 0: ";
-        route.print(strRota);
-    }*/
 
     for(int sat=instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
     {
@@ -684,11 +678,6 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
         }
     }
 
-/*    cout<<"Demanda nao atendida: ";
-    for(int sat = instance.getFirstSatIndex(); sat <= instance.getEndSatIndex(); ++sat)
-        cout<<sat<<": "<<demandaNaoAtendidaSat[sat]<<"; ";
-
-    cout<<"\n\n";*/
 
     const int NumSatMaisDep = sol.getNSatelites()+1;
 
@@ -709,6 +698,8 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
                 // Percorre todas as rotas
                 for(int rotaId = 0; rotaId < sol.primeiroNivel.size(); ++rotaId)
                 {
+                    static const double truckCap = instance.getTruckCap(rotaId);
+
                     Route &route = sol.primeiroNivel[rotaId];
 
                     // Verifica se route ja atende esse satelite
@@ -722,8 +713,10 @@ void NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
                         double capacidade = instance.getTruckCap(rotaId) - route.totalDemand;
                         double demandaAtendida = capacidade;
 
-                        if(demandaNaoAtendidaSat.at(sat) < capacidade)
-                            demandaAtendida = demandaNaoAtendidaSat.at(sat);
+                        if(demandaNaoAtendidaSat[sat] < capacidade)
+                            demandaAtendida = demandaNaoAtendidaSat[sat];   // Leva toda a demanda
+                        else if(!split && demandaNaoAtendidaSat[sat] < truckCap)
+                            continue;
 
 
                         CandidatoVeicComb candidato(rotaId, sat, demandaAtendida, DOUBLE_MAX);
@@ -1065,7 +1058,8 @@ void NS_Construtivo3::setSatParaCliente(Instancia &instancia, vector<int> &vetSa
  */
 void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const float alfaSeg, const float betaPrim,
                                   const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil,
-                                  bool print, BoostC::vector<int> *vetInviabilidate, const bool torneio)
+                                  bool print, BoostC::vector<int> *vetInviabilidate, const bool torneio,
+                                  const bool split)
 {
 
 
@@ -1090,14 +1084,15 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
     //satUtilizados[3] = 0;
 
 
-    bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alfaSeg, matClienteSat, listaRestTam, satUtilizados, print, *vetInviabilidate, torneio);
+    bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alfaSeg, matClienteSat, listaRestTam, satUtilizados, print,
+                                                  *vetInviabilidate, torneio);
 
-    ublas::matrix<int> matClienteSat2 = matClienteSat;
+    const ublas::matrix<int> &matClienteSat2 = matClienteSat;
     const int zero_max = max(1, instancia.numSats-2);
 
     if(segundoNivel)
     {
-        construtivoPrimeiroNivel(sol, instancia, betaPrim, listaRestTam, false);
+        construtivoPrimeiroNivel(sol, instancia, betaPrim, listaRestTam, false, split);
 
         if(!sol.viavel && instancia.numSats > 2)
         {
@@ -1155,7 +1150,7 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
                 if(segundoNivel)
                 {
                     //std::cout<<"1 NIVEL INVIAVEL!!!\n\n";
-                    construtivoPrimeiroNivel(sol, instancia, betaPrim, listaRestTam, false);
+                    construtivoPrimeiroNivel(sol, instancia, betaPrim, listaRestTam, false, split);
                 }
                 else
                 {

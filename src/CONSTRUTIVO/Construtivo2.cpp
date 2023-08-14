@@ -253,7 +253,7 @@ void NS_Construtivo2::construtivo2(Solucao &sol, Instancia &instancia, const flo
 
     if(segundoNivel)
     {
-        construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam);
+        construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam, true);
 
         if(!sol.viavel && instancia.numSats > 2)
         {
@@ -312,7 +312,7 @@ cout<<"\n\n";
                 segundoNivel = construtivo2SegundoNivelEV(sol, instancia, alpha, matClienteSat2, listaRestTam, beta, satUtilizados);
                 if(segundoNivel)
                 {
-                    construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam);
+                    construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam, true);
                 }
                 else
                 {

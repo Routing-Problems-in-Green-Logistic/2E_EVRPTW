@@ -52,6 +52,7 @@ void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosS
 void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const Parametros &parametros);
 void escreveDistFile(double dist, double tempo, const std::string &file);
 
+
 namespace N_gamb
 {
     BoostC::vector<NS_vnd::MvValor> vetMvValor;
@@ -71,12 +72,12 @@ int main(int argc, char* argv[])
 
         if(argc == 1)
         {
-            cout<<"NUMERO DE ARGUMENTOS EH INSUFICIENTE.\n";
-            cout<<"COMMITE: "<<commite<<"\n";
-            cout<<"COMPILADO EM: "<<__DATE__<<", "<<__TIME__<<".\n";
-            cout<<"\nDESCRICAO IG: "<<NameS_IG::strDescricaoIg<<"\n\n";
+            cerr<<"NUMERO DE ARGUMENTOS EH INSUFICIENTE.\n";
+            cerr<<"COMMITE: "<<commite<<"\n";
+            cerr<<"COMPILADO EM: "<<__DATE__<<", "<<__TIME__<<".\n";
+            //cout<<"\nDESCRICAO IG: "<<NameS_IG::strDescricaoIg<<"\n\n";
 
-            cout<<string(argv[0])<<"\n";
+            cerr<<string(argv[0])<<"\n";
             exit(-1);
         }
 

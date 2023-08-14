@@ -78,6 +78,9 @@ typedef int8_t Int8;
 
 #define SIZE_ENUM_INV 6
 
+
+const bool Split = false;
+
 namespace NS_Auxiliary
 {
 

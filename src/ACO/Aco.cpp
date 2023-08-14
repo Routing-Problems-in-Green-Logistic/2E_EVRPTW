@@ -997,7 +997,7 @@ bool N_Aco::acoSol(Instancia &instancia, AcoParametros &acoPar, AcoEstatisticas 
             }
 
             //cout << "TODOS OS SAT VIAVEIS\n";
-            NS_Construtivo::construtivoPrimeiroNivel(solucao, instancia, param.vetAlfa[0], false);
+            NS_Construtivo::construtivoPrimeiroNivel(solucao, instancia, param.vetAlfa[0], false, true);
 
             if(solucao.viavel)
             {

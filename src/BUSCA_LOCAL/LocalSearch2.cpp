@@ -586,7 +586,7 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
                                 //solucaoAux.distSat();
 
                                 solucaoAux.resetaPrimeiroNivel(instancia);
-                                construtivoPrimeiroNivel(solucaoAux, instancia, beta, false);
+                                construtivoPrimeiroNivel(solucaoAux, instancia, beta, false, Split);
 
                                 if(solucaoAux.viavel)
                                 {
@@ -1215,7 +1215,7 @@ bool NS_LocalSearch2::mvShifitEvs_interRotasInterSats(Solucao &solucao, Instanci
                 tempSolucao.distancia     += evRouteTempOutro.distancia;
 
                 tempSolucao.reseta1Nivel(instancia);
-                NS_Construtivo::construtivoPrimeiroNivel(tempSolucao, instancia, beta, false);
+                NS_Construtivo::construtivoPrimeiroNivel(tempSolucao, instancia, beta, false, Split);
 
                 if(!tempSolucao.viavel)
                 {   //cout<<"Primeiro nivel inviavel\n";

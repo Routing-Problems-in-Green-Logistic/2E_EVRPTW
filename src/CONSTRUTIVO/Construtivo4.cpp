@@ -651,7 +651,8 @@ bool NS_Construtivo4::visitAllClientes(BoostC::vector<int8_t> &visitedClients, c
 
 }
 
-void NS_Construtivo4::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float betaPrim, bool listaRestTam)
+void
+NS_Construtivo4::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float betaPrim, bool listaRestTam, const bool split)
 {
     sol.reseta1Nivel(instance);
     //cout<<"*******************************INICIO CONSTRUTIVO3 1º NIVEL*******************************\n\n";
@@ -710,7 +711,8 @@ void NS_Construtivo4::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance
 
                         if(demandaNaoAtendidaSat.at(i) < capacidade)
                             demandaAtendida = demandaNaoAtendidaSat.at(i);
-
+                        else if(!split)
+                            continue;
 
                         CandidatoVeicComb candidato(rotaId, i, demandaAtendida, DOUBLE_MAX);
 
@@ -1047,7 +1049,8 @@ void NS_Construtivo4::setSatParaCliente(Instancia &instancia, vector<int> &vetSa
  */
 void NS_Construtivo4::construtivo(Solucao &sol, Instancia &instancia, const float alfaSeg, const float betaPrim,
                                   const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil,
-                                  bool print, BoostC::vector<int> *vetInviabilidate, const bool torneio)
+                                  bool print, BoostC::vector<int> *vetInviabilidate, const bool torneio,
+                                  const bool split)
 {
 
 
@@ -1080,7 +1083,7 @@ void NS_Construtivo4::construtivo(Solucao &sol, Instancia &instancia, const floa
 
     if(segundoNivel)
     {
-        construtivoPrimeiroNivel(sol, instancia, betaPrim, listaRestTam);
+        construtivoPrimeiroNivel(sol, instancia, betaPrim, listaRestTam, split);
 
         if(!sol.viavel && instancia.numSats > 2)
         {
@@ -1138,7 +1141,7 @@ void NS_Construtivo4::construtivo(Solucao &sol, Instancia &instancia, const floa
                 if(segundoNivel)
                 {
                     //std::cout<<"1 NIVEL INVIAVEL!!!\n\n";
-                    construtivoPrimeiroNivel(sol, instancia, betaPrim, listaRestTam);
+                    construtivoPrimeiroNivel(sol, instancia, betaPrim, listaRestTam, split);
                 }
                 else
                 {

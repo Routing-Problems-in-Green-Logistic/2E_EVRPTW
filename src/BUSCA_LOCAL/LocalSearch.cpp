@@ -15,6 +15,7 @@ using namespace NS_viabRotaEv;
 #define PRINT_MV_SHIFIT_INTRA FALSE
 #define PRINT_MV_2OPT FALSE
 
+
 void NS_LocalSearch::getMov(const int movId, string &mov)
 {
     switch(movId)
@@ -1693,7 +1694,7 @@ cout<<"nova evRoute0: "<<strRota<<"\n\n";*/
                             {
                                 solucaoAux.recalculaDistSat(instancia);
                                 solucaoAux.resetaPrimeiroNivel(instancia);
-                                construtivoPrimeiroNivel(solucaoAux, instancia, beta, false);
+                                construtivoPrimeiroNivel(solucaoAux, instancia, beta, false, Split);
 
                                 if(solucaoAux.viavel)
                                 {
@@ -2451,7 +2452,7 @@ cout<<"nova evRoute1: "<<strRota1<<"\n";
                                 {
                                     solucaoAux.recalculaDistSat(instancia);
                                     solucaoAux.resetaPrimeiroNivel(instancia);
-                                    construtivoPrimeiroNivel(solucaoAux, instancia, beta, false);
+                                    construtivoPrimeiroNivel(solucaoAux, instancia, beta, false, Split);
 
                                     if(solucaoAux.viavel)
                                     {

@@ -366,7 +366,7 @@ bool NS_Construtivo::visitAllClientes(BoostC::vector<int8_t> &visitedClients, co
 
 }
 
-void NS_Construtivo::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam)
+void NS_Construtivo::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float beta, bool listaRestTam, const bool split)
 {
 
     // Cria o vetor com a demanda de cada satellite
@@ -391,18 +391,20 @@ void NS_Construtivo::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance,
         std::list<CandidatoVeicComb> listaCandidatos;
 
         // Percorre os satellites
-        for(int i=1; i < NumSatMaisDep; ++i)
+        for(int sat=1; sat < NumSatMaisDep; ++sat)
         {
-            Satelite &satelite = sol.satelites.at(i);
+            Satelite &satelite = sol.satelites.at(sat);
 
             // Verifica se a demanda não atendida eh positiva
-            if(demandaNaoAtendidaSat.at(i) > 0.0)
+            if(demandaNaoAtendidaSat[sat] > 0.0)
             {
 
                 // Percorre todas as rotas
                 for(int rotaId = 0; rotaId < sol.primeiroNivel.size(); ++rotaId)
                 {
-                    Route &route = sol.primeiroNivel.at(rotaId);
+                    static const double truckCap = instance.getTruckCap(rotaId);
+
+                    Route &route = sol.primeiroNivel[rotaId];
 
                     // Verifica se veiculo esta 100% da capacidade
                     if(route.totalDemand < instance.getTruckCap(rotaId))
@@ -411,11 +413,13 @@ void NS_Construtivo::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance,
                         double capacidade = instance.getTruckCap(rotaId) - route.totalDemand;
                         double demandaAtendida = capacidade;
 
-                        if(demandaNaoAtendidaSat.at(i) < capacidade)
-                            demandaAtendida = demandaNaoAtendidaSat.at(i);
+                        if(demandaNaoAtendidaSat.at(sat) < capacidade)
+                            demandaAtendida = demandaNaoAtendidaSat[sat];
+                        else if(!split && demandaNaoAtendidaSat[sat] < truckCap)
+                            continue;
 
 
-                        CandidatoVeicComb candidato(rotaId, i, demandaAtendida, DOUBLE_MAX);
+                        CandidatoVeicComb candidato(rotaId, sat, demandaAtendida, DOUBLE_MAX);
 
                         // Percorre todas as posicoes da rota
                         for(int p=0; (p+1) < route.routeSize; ++p)
@@ -428,19 +432,19 @@ void NS_Construtivo::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance,
 
                             // Calcula o incremento da distancia (Sempre positivo, desigualdade triangular)
                             incrementoDist -= instance.getDistance(clienteP.satellite, clientePP.satellite);
-                            incrementoDist = incrementoDist + instance.getDistance(clienteP.satellite, i) + instance.getDistance(i, clientePP.satellite);
+                            incrementoDist = incrementoDist + instance.getDistance(clienteP.satellite, sat) + instance.getDistance(sat, clientePP.satellite);
 
                             if(incrementoDist < candidato.incrementoDistancia)
                             {
 
                                 // Calcula o tempo de chegada e verifica a janela de tempo
-                                const double tempoChegCand = clienteP.tempoChegada + instance.getDistance(clienteP.satellite, i);
+                                const double tempoChegCand = clienteP.tempoChegada + instance.getDistance(clienteP.satellite, sat);
 
                                 bool satViavel = true;
 
                                 if(verificaViabilidadeSatelite(tempoChegCand, satelite, instance, false))
                                 {
-                                    double tempoChegTemp = tempoChegCand + instance.getDistance(i, clientePP.satellite);
+                                    double tempoChegTemp = tempoChegCand + instance.getDistance(sat, clientePP.satellite);
 
                                     // Verificar viabilidade dos outros satelites
                                     for(int t=p+1; (t+1) < (route.routeSize); ++t)
@@ -746,7 +750,7 @@ void NS_Construtivo::setSatParaCliente(Instancia &instancia, vector<int> &vetSat
  */
 void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float alpha, const float beta,
                                  const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil,
-                                 bool print, BoostC::vector<int> *vetInviabilidate)
+                                 bool print, BoostC::vector<int> *vetInviabilidate, const bool split)
 {
     BoostC::vector<int> satUtilizados(instancia.numSats+1, 0);
     BoostC::vector<int> clientesSat(instancia.getEndClientIndex()+1, 0);
@@ -769,7 +773,7 @@ void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float
 
     if(segundoNivel)
     {
-        construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam);
+        construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam, split);
 
         if(!sol.viavel && instancia.numSats > 2)
         {
@@ -814,7 +818,7 @@ void NS_Construtivo::construtivo(Solucao &sol, Instancia &instancia, const float
                                                          satUtilizados, false, vetInviabilidate);
                 if(segundoNivel)
                 {
-                    construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam);
+                    construtivoPrimeiroNivel(sol, instancia, beta, listaRestTam, split);
                 }
                 else
                 {
