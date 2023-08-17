@@ -64,6 +64,8 @@ using namespace std;
 
 #define TEMPO_FUNC_VIABILIZA_ROTA_EV TRUE
 
+#define AJUSTE_DE_PARAMETRO FALSE
+
 #include <string.h>
 
 #define __PRETTYFILE__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)

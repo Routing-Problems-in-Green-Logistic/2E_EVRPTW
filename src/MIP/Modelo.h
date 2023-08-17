@@ -30,7 +30,8 @@ namespace ModeloNs
     void criaRestParaRotasEVs(const Instancia &instancia,
                               GRBModel &modelo,
                               VariaveisNs::Variaveis &variaveis,
-                              const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv);
+                              const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv,
+                              const NS_parametros::ParametrosMip &paramMip);
 
     void criaRestVar_X(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis);
 
@@ -48,7 +49,7 @@ namespace ModeloNs
                        const ublas::matrix<int> &matrixSat,
                        const BoostC::vector<int> &vetNumRotasSat,
                        const ublas::matrix<std::list<int>> &matRotasCliSat,
-                       NS_parametros::ParametrosMip paramMip);
+                       const NS_parametros::ParametrosMip &paramMip);
 
     void recuperaSolucao(GRBModel &modelo, VariaveisNs::Variaveis &variaveis, Solucao &solucao, Instancia &instancia,
                          const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv, const bool Xn);

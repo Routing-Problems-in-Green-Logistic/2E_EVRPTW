@@ -21,6 +21,11 @@ using namespace NS_Auxiliary;
 void ModeloNs::modelo(Instancia &instancia, const SetVetorHash &hashSolSet, Solucao &solucao,
                       NS_parametros::ParametrosMip paramMip)
 {
+
+    string solStr;
+    solucao.print(solStr, instancia, true);
+    cout<<solStr<<"\n";
+
     //cout<<"Solucao IG: "<<solucao.distancia<<"\n";
 
     //cout<<"Hash size: "<<hashSolSet.size()<<"\n\n";
@@ -114,16 +119,14 @@ void ModeloNs::modelo(Instancia &instancia, const SetVetorHash &hashSolSet, Solu
         Variaveis variaveis(instancia, model, vetRotasEv);
 
         criaFuncObj(instancia, model, variaveis, vetRotasEv);
-        criaRestParaRotasEVs(instancia, model, variaveis, vetRotasEv);
+        criaRestParaRotasEVs(instancia, model, variaveis, vetRotasEv, paramMip);
         criaRestVar_X(instancia, model, variaveis);
         criaRestVar_Dem(instancia, model, variaveis, matrixSat, vetNumRotasSat, vetRotasEv);
         criaRestVar_T(instancia, model, variaveis, vetRotasEv, matrixSat, vetNumRotasSat, matRotasCliSat, paramMip);
         setSolIniMip(model, solucao, idRotaEvSolIni, variaveis, instancia);
 
         model.update();
-        //model.write("modelo.lp");
         model.optimize();
-        //model.write("modelo.sol");
 
         recuperaSolucao(model, variaveis, solModelo, instancia, vetRotasEv, false);
         //std::list<std::unique_ptr<Solucao>> listPtrSol;
@@ -215,7 +218,8 @@ void ModeloNs::criaFuncObj(const Instancia &instancia,
 void ModeloNs::criaRestParaRotasEVs(const Instancia &instancia,
                                     GRBModel &modelo,
                                     VariaveisNs::Variaveis &variaveis,
-                                    const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv)
+                                    const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv,
+                                    const NS_parametros::ParametrosMip &paramMip)
 {
     // Pre processamento, cria para cada cliente as rotas que o possuem
     ublas::matrix<int> matrix(instancia.numClients, variaveis.vetY.getNum());
@@ -258,6 +262,8 @@ void ModeloNs::criaRestParaRotasEVs(const Instancia &instancia,
 
     // 1º Restricao: $\sum\limits_{r\in Rota} Atend_r^i . y_r = 1$     $\forall i \in V_c$
 
+    const char tipoRest = (paramMip.restTempo==0)? GRB_GREATER_EQUAL : GRB_EQUAL;
+
     for(int i=firstClientIndex; i <= endClientIndex; ++i)
     {
         const int convI = funcConveteClienteIdex(i);
@@ -269,7 +275,7 @@ void ModeloNs::criaRestParaRotasEVs(const Instancia &instancia,
             linExpr += variaveis.vetY(r);
         }
 
-        modelo.addConstr(linExpr, GRB_EQUAL, 1.0, "RotasEv_rest0_"+ to_string(i));
+        modelo.addConstr(linExpr, tipoRest, 1.0, "RotasEv_rest0_"+ to_string(i));
     }
 
     // 2º Restricao: $\sum\limits_{r' \in Rotas^i} y_r \leq z_i . |EV|$  $\forall i \in V_s$
@@ -378,30 +384,37 @@ void ModeloNs::criaRestVar_Dem(const Instancia &instancia,
     // 7º Restricao: $\sum\limits_{j \in V_s^0, j \not= i} dem_{(j,i)}-\sum\limits_{j \in V_s^0, j \not= i} dem_{(i,j)}=
     //                 \sum\limits_{r' \in Rotas^i} Q_{r'}.y_{r'}$$\forall i \in V_s$
 
-    for(int i=1; i <= instancia.numSats; ++i)
+    for(int sat=1; sat <= instancia.numSats; ++sat)
     {
         GRBLinExpr linExpr;
 
         for(int j=0; j <= instancia.numSats; ++j)
         {
-            if(i!=j)
-                linExpr += variaveis.matrixDem(i,j);
+            if(sat != j)
+                linExpr += variaveis.matrixDem(sat, j);
         }
 
 
         for(int j=0; j <= instancia.numSats; ++j)
         {
-            if(i!=j)
-                linExpr += -variaveis.matrixDem(j,i);
+            if(sat != j)
+                linExpr += -variaveis.matrixDem(j, sat);
         }
 
-        for(int idR=0; idR < vetNumRotasSat[i]; ++idR)
+        GRBLinExpr linExpr1;
+        for(int idR=0; idR < vetNumRotasSat[sat]; ++idR)
         {
-            const int r = matrixSat(i, idR);
-            linExpr += -vetRotasEv[r].evRoute.demanda*variaveis.vetY(r);
+            const int r = matrixSat(sat, idR);
+            linExpr1 += -vetRotasEv[r].evRoute.demanda*variaveis.vetY(r);
         }
 
-        modelo.addConstr(linExpr, '=', 0, "VarDem_rest0_"+ to_string(i));
+        linExpr += linExpr1;
+        GRBLinExpr linExpr2 = linExpr1;
+        //modelo.addConstr(variaveis.vetDemSat(sat)==-linExpr2);
+        linExpr2 += variaveis.vetZ(sat);
+
+        modelo.addConstr(linExpr, '=', 0, "VarDem_rest0_"+ to_string(sat));
+        modelo.addConstr(linExpr2, GRB_LESS_EQUAL, 0.0, "VarZ_rest0_"+ to_string(sat));
     }
 
 
@@ -436,7 +449,7 @@ void ModeloNs::criaRestVar_T(const Instancia &instancia,
                              const ublas::matrix<int> &matrixSat,
                              const BoostC::vector<int> &vetNumRotasSat,
                              const ublas::matrix<std::list<int>> &matRotasCliSat,
-                             const NS_parametros::ParametrosMip paramMip)
+                             const NS_parametros::ParametrosMip &paramMip)
 {
     variaveis.vetT.setUB_LB(0.0, 0.0, 0);
 
@@ -741,6 +754,17 @@ ModeloNs::recuperaSolucao(GRBModel &modelo,
     if(!solucao.checkSolution(strErro, instancia))
     {
         cout << "Sol inviavel!\n" << strErro << "\n";
+        string strSol;
+        solucao.print(strSol, instancia, true);
+        cout<<strSol<<"\n";
+
+        double demTotal = 0.0;
+        for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+            demTotal += instancia.vectCliente[i].demanda;
+
+        int numMin = NS_Auxiliary::upperVal(demTotal/instancia.getTruckCap(instancia.getFirstTruckIndex()));
+        cout<<"Num Min Trucks: "<<numMin<<"\n\n";
+
         PRINT_DEBUG("", "");
         ERRO();
     }

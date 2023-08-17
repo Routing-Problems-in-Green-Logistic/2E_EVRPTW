@@ -836,16 +836,18 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     solC.resetaSol();
     solC.copia(solBest);
 
-    ParametrosIG parametrosIg1 = parametrosIg;
 
+    /*
+    ParametrosIG parametrosIg1 = parametrosIg;
     parametrosIg1.alfaSeg       = 0.05;
     parametrosIg1.betaPrim      = 0.8;
     parametrosIg1.difBest       = 0.015;
     parametrosIg1.torneio       = false;
     parametrosIg1.taxaRm        = 0.15;
     parametrosIg1.fatorNumCh    = 2;
+     */
 
-    igLoop(3000, parametrosIg1);
+    igLoop(100, parametrosIg);
     const int split1Best = solBest.ehSplit(instancia);
 
     //cout<<"mip+IG: "<<solBest.distancia<<"\n";

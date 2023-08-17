@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 {
 
     Parametros parametros;
-    const string commite = "ce6dee83f70e11ca74a8bf69c2d8f893c55a3e3a";
+    const string commite = "4ffc0ced8eccac582746329dcc38708ed68e7fc8";
     parametros.commit = commite;
     clock_t startA = clock();
 
