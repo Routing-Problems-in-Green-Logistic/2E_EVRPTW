@@ -42,10 +42,16 @@ std::string NameS_IG::strDescricaoIg = "";
         //"Teste do construtivo(Construtivo2) com torneio para numero de clientes == 100\nALFA: 0.6";
 
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
-                                  const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
+                                  ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
                                   BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida,
                                   NS_parametros::Parametros &parametros)
 {
+
+    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
+    {
+        for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
+            matClienteSat(i, sat) = 1;
+    }
 
 
     //ParametrosIG parametrosIg(parametros.paramIgFile);

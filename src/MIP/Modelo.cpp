@@ -21,13 +21,12 @@ using namespace NS_Auxiliary;
 void ModeloNs::modelo(Instancia &instancia, const SetVetorHash &hashSolSet, Solucao &solucao,
                       NS_parametros::ParametrosMip paramMip)
 {
-
+/*
     string solStr;
     solucao.print(solStr, instancia, true);
     cout<<solStr<<"\n";
-
+*/
     //cout<<"Solucao IG: "<<solucao.distancia<<"\n";
-
     //cout<<"Hash size: "<<hashSolSet.size()<<"\n\n";
 
     clock_t clockStart = clock();

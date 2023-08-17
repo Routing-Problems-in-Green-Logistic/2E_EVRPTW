@@ -122,11 +122,18 @@ int main(int argc, char* argv[])
         //std::chrono::duration<double> tempoAux = end - start;
         double tempo = double(end-start)/CLOCKS_PER_SEC;
 
-        setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
-        saida(parametros, parametrosSaida, best, instancia);
-
-        //escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
-
+//#if !AJUSTE_DE_PARAMETRO
+        if constexpr(!AjusteDeParametro)
+        {
+            setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
+            saida(parametros, parametrosSaida, best, instancia);
+        }
+        else
+        {
+//#else
+            escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
+        }
+//#endif
         
 
     }
@@ -189,7 +196,7 @@ void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosS
 
     BoostC::vector<int> vetSatAtendCliente(instancia.numNos, -1);
     BoostC::vector<int> satUtilizado(instancia.numSats+1, 0);
-    const ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
+    ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
     Solucao *solGrasp = iteratedGreedy(instancia, parametrosGrasp, estatisticas, matClienteSat, N_gamb::vetMvValor,
                                        N_gamb::vetMvValor1Nivel, parametrosSaida, parametros);
     best.copia(*solGrasp);

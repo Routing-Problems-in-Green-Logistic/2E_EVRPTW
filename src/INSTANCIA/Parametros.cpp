@@ -587,6 +587,8 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
                 else
                 {
                     cout<<"Erro, parametro: "<<key<<" faltando !\n";
+                    cout<<paramEntrada.getParametros()<<"\n\n";
+
                     throw "ERRO";
                 }
             };
@@ -597,45 +599,56 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
             paramEntrada.paramIg.difBest     = std::stod(getKey("--difBest"));
             paramEntrada.paramIg.torneio     = bool(std::stoi(getKey("--torneio")));
             paramEntrada.paramIg.taxaRm      = std::stod(getKey("--taxaRm"));
-            paramEntrada.paramIg.fatorNumCh = std::stod(getKey("--fatNumCh"));
-
-            //paramEntrada.paramIg.fileSaida   = string(getKey("--fileSaida"));
+            paramEntrada.paramIg.fatorNumCh  = std::stod(getKey("--fatNumCh"));
 
 
-
-            paramEntrada.execucaoAtual       = std::stoi(getKey("--execAtual"));
-            paramEntrada.numExecucoesTotais  = std::stoi(getKey("--execTotal"));
-            paramEntrada.resultadoCSV        = getKey("--resulCSV");
-            paramEntrada.caminhoPasta        = getKey("--pasta");
-
-            if(mapParam.count("--seed") > 0)
+//#if !AJUSTE_DE_PARAMETRO
+            if constexpr(!AjusteDeParametro)
             {
-                paramEntrada.semente = std::stoll(mapParam["--seed"]);
-                semente = true;
+                paramEntrada.execucaoAtual      = std::stoi(getKey("--execAtual"));
+                paramEntrada.numExecucoesTotais = std::stoi(getKey("--execTotal"));
+                paramEntrada.resultadoCSV       = getKey("--resulCSV");
+                paramEntrada.caminhoPasta       = getKey("--pasta");
+
+                if(mapParam.count("--seed") > 0)
+                {
+                    paramEntrada.semente = std::stoll(getKey("--seed"));
+                    semente = true;
+                } else
+                    semente = false;
+
+
+                if(mapParam.count("--mip_presolve"))
+                    paramEntrada.parametrosMip.presolve     = std::stoi(getKey("--mip_presolve"));
+
+                if(mapParam.count("--mip_cuts"))
+                    paramEntrada.parametrosMip.cuts         = std::stoi(getKey("--mip_cuts"));
+
+                if(mapParam.count("--mip_gap"))
+                    paramEntrada.parametrosMip.mipGap       = std::stod(getKey("--mip_gap"));
+
+                if(mapParam.count("--mip_outputFlag"))
+                    paramEntrada.parametrosMip.outputFlag   = std::stoi(getKey("--mip_outputFlag"));
+
+                if(mapParam.count("--mip_restTempo"))
+                    paramEntrada.parametrosMip.restTempo    = std::stoi(getKey("--mip_restTempo"));
+
             }
             else
-                semente = false;
-
-            if(mapParam.count("--mip_presolve"))
-                paramEntrada.parametrosMip.presolve = std::stoi(getKey("--mip_presolve"));
-
-            if(mapParam.count("--mip_cuts"))
-                paramEntrada.parametrosMip.cuts = std::stoi(getKey("--mip_cuts"));
-
-            if(mapParam.count("--mip_gap"))
-                paramEntrada.parametrosMip.mipGap = std::stod(getKey("--mip_gap"));
-
-            if(mapParam.count("--mip_outputFlag"))
-                paramEntrada.parametrosMip.outputFlag = std::stoi(getKey("--mip_outputFlag"));
-
-            if(mapParam.count("--mip_restTempo"))
-                paramEntrada.parametrosMip.restTempo = std::stoi(getKey("--mip_restTempo"));
-
-            //paramEntrada.parametrosMip.print();
-
+            {
+//#else
+                semente = true;
+                paramEntrada.semente                    = std::stoll(getKey("--seed"));
+                paramEntrada.paramIg.fileSaida          = string(getKey("--fileSaida"));
+                paramEntrada.parametrosMip.presolve     = std::stoi(getKey("--mip_presolve"));
+                paramEntrada.parametrosMip.cuts         = std::stoi(getKey("--mip_cuts"));
+                paramEntrada.parametrosMip.mipGap       = std::stod(getKey("--mip_gap"));
+                paramEntrada.parametrosMip.outputFlag   = 0;
+                paramEntrada.parametrosMip.restTempo    = std::stoi(getKey("--mip_restTempo"));
+            }
+//#endif
 
         }
-
 
         if(!semente)
             paramEntrada.semente = duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
@@ -768,8 +781,25 @@ ParametrosSaida NS_parametros::getParametros()
 
 string NS_parametros::Parametros::getParametros()
 {
-    string saida = "OPCOES VALIDAS: \n\t--seed: semente \n\t--pasta: pasta onde os resultados serao guardados \n\t--execTotal: numero de execucoes totais"
-                   "  \n\t--execAtual: execucao atual \n\t--resulCSV: nome do arquivo csv para escrever os resultados consolidados \n\t --mt: metodo((Grasp ou G) para GRASP, (ACO)\n\t --numItTotal: numero total de iteracoes\n\n";
+
+    string saida = "\nPARAMETROS: \n"
+                   "\t--seed: \tsemente (opcional)\n"
+                   "\t--pasta: \tpasta onde os resultados serao guardados \n"
+                   "\t--execTotal: \tnumero de execucoes totais \n"
+                   "\t--execAtual: \texecucao atual \n"
+                   "\t--resulCSV: \tnome do arquivo csv para escrever os resultados consolidados \n"
+                   "\t--numItIG: \tnumero total de iteracoes do IG \n"
+                   "\t--alphaSeg: \tparametro alpha \n"
+                   "\t--betaPrim \tparametro beta \n"
+                   "\t--difBest \tparametro difBest \n"
+                   "\t--torneio \tparametro torneio \n"
+                   "\t--taxaRm \tparametro taxaRm\n"
+                   "\t--mip_presolve \n "
+                   "\t--mip_cuts \n"
+                   "\t--mip_gap \n"
+                   "\t--mip_restTempo\n\n";
+
+
     return saida;
 }
 
