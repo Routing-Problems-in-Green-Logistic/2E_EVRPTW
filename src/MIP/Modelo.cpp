@@ -17,10 +17,14 @@ using namespace VariaveisNs;
 using namespace NS_viabRotaEv;
 using namespace NS_VetorHash;
 using namespace NS_Auxiliary;
+using namespace NS_parametros;
 
-void ModeloNs::modelo(Instancia &instancia, const SetVetorHash &hashSolSet, Solucao &solucao,
-                      NS_parametros::ParametrosMip paramMip)
+void ModeloNs::modelo(Instancia &instancia,
+                      const SetVetorHash &hashSolSet,
+                      Solucao &solucao,
+                      ParametrosMip paramMip)
 {
+
 /*
     string solStr;
     solucao.print(solStr, instancia, true);

@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 {
 
     Parametros parametros;
-    const string commite = "4ffc0ced8eccac582746329dcc38708ed68e7fc8";
+    const string commite = "6cb9a24c85d3970fc1bb23989f66743e09dadbb2";
     parametros.commit = commite;
     clock_t startA = clock();
 
@@ -72,12 +72,15 @@ int main(int argc, char* argv[])
 
         if(argc == 1)
         {
+
+
             cerr<<"NUMERO DE ARGUMENTOS EH INSUFICIENTE.\n";
             cerr<<"COMMITE: "<<commite<<"\n";
             cerr<<"COMPILADO EM: "<<__DATE__<<", "<<__TIME__<<".\n";
             //cout<<"\nDESCRICAO IG: "<<NameS_IG::strDescricaoIg<<"\n\n";
 
-            cerr<<string(argv[0])<<"\n";
+            cout<<"\n\n"<<parametros.getParametros()<<"\n\n";
+
             exit(-1);
         }
 
