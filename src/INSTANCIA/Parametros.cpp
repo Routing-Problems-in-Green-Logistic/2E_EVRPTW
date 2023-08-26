@@ -194,7 +194,6 @@ void NS_parametros::escreveResultadosAcumulados(Parametros &paramEntrada, Parame
 
     if(!outfile.is_open())
     {
-
         cout << "ERRO, NAO FOI POSSIVEL ABRIR O ARQUIVO: " << fileStr << "\nErro: " << strerror(errno) << "\n\n";
         throw "ERRO";
     }
@@ -605,10 +604,12 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
 //#if !AJUSTE_DE_PARAMETRO
             if constexpr(!AjusteDeParametro)
             {
-                paramEntrada.execucaoAtual      = std::stoi(getKey("--execAtual"));
-                paramEntrada.numExecucoesTotais = std::stoi(getKey("--execTotal"));
+                //paramEntrada.execucaoAtual      = std::stoi(getKey("--execAtual"));
+                //paramEntrada.numExecucoesTotais = std::stoi(getKey("--execTotal"));
                 paramEntrada.resultadoCSV       = getKey("--resulCSV");
-                paramEntrada.caminhoPasta       = getKey("--pasta");
+                //paramEntrada.caminhoPasta     = getKey("--pasta");
+                paramEntrada.fileNum            = getKey("--fileNum");
+
 
                 if(mapParam.count("--seed") > 0)
                 {
@@ -616,7 +617,6 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
                     semente = true;
                 } else
                     semente = false;
-
 
                 if(mapParam.count("--mip_presolve"))
                     paramEntrada.parametrosMip.presolve     = std::stoi(getKey("--mip_presolve"));
@@ -935,6 +935,35 @@ std::string ParametrosIG::printParam()
 
 
     return saida;
+}
+
+void  NS_parametros::saidaNew(Solucao &sol, Instancia &instancia, double tempoCpu, const string &resultCsv, const string &fileNum)
+{
+
+    bool exists = std::filesystem::exists(resultCsv);
+    std::ofstream outCsv;
+    outCsv.open(resultCsv, std::ios_base::app);
+
+    if(!outCsv.is_open())
+    {
+        cout << "ERRO, NAO FOI POSSIVEL ABRIR O ARQUIVO: " << resultCsv << "\nErro: " << strerror(errno) << "\n\n";
+        throw "ERRO";
+    }
+
+    if(!exists)
+        outCsv<<"dist, tempoCpu\n";
+
+    outCsv<<sol.distancia<<", "<<tempoCpu<<"\n";
+    outCsv.close();
+
+    std::fstream fstreamNum(fileNum, std::ios_base::in);
+    int num;
+    fstreamNum>>num;
+    fstreamNum.close();
+
+    std::ofstream outNum(fileNum, std::ios_base::out);
+    outNum<<num+1;
+    outNum.close();
 }
 
 

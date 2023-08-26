@@ -81,16 +81,18 @@ print("Num config: ", len(config))
 configPd = pd.DataFrame(config, columns=["config"])
 
 
-config = [""]
+configParam = [""]
+configValue = [0.0]
 
 for paramNome in parametros:
 	paramList = parametrosDomi[paramNome]
 
 	for val in paramList:
-		string = paramNome + ": " + str(val)
-		config.append(string)
+		configParam.append(paramNome)
+		configValue.append(float(val))
 
-configPd["dif"] = config
+configPd["difParam"] = configParam
+configPd["difValue"] = configValue
 
 print(configPd)
 

@@ -128,8 +128,9 @@ int main(int argc, char* argv[])
 //#if !AJUSTE_DE_PARAMETRO
         if constexpr(!AjusteDeParametro)
         {
-            setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
-            saida(parametros, parametrosSaida, best, instancia);
+            //setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
+            //saida(parametros, parametrosSaida, best, instancia);
+            saidaNew(best, instancia, tempo, parametros.resultadoCSV, parametros.fileNum);
         }
         else
         {

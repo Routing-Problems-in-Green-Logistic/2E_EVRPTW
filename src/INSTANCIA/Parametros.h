@@ -93,6 +93,7 @@ namespace NS_parametros
         int execucaoAtual      = -1;                // --execAtual 0 ; 0, ..., num-1
         int numItTotal         = 1000;              // --numItTotal
         string resultadoCSV    = "resultados.csv";  // --resulCSV
+        string fileNum        = "fileNum";          // --fileNum
         string instancia;
         string nomeInstancia;
         string data;
@@ -254,6 +255,7 @@ namespace NS_parametros
     void escreveResultadosAcumulados(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol);
     void consolidaResultados(Parametros &paramEntrada, ParametrosSaida &paramSaida);
     void saida(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol, Instancia &instancia);
+    void saidaNew(Solucao &sol, Instancia &instancia, double tempoCpu, const string &resultCsv, const string &fileNum);
     string getNomeInstancia(string str);
     void caregaParametros(Parametros &paramEntrada, int argc, char* argv[]);
     ParametrosSaida getParametros();
