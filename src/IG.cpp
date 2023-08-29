@@ -853,7 +853,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     parametrosIg1.fatorNumCh    = 2;
      */
 
-    //igLoop(100, parametrosIg);
+    igLoop(100, parametrosIg);
     const int split1Best = solBest.ehSplit(instancia);
 
     //cout<<"mip+IG: "<<solBest.distancia<<"\n";
