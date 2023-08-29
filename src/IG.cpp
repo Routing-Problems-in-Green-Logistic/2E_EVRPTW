@@ -844,6 +844,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
 
 
     /*
+     *
     ParametrosIG parametrosIg1 = parametrosIg;
     parametrosIg1.alfaSeg       = 0.05;
     parametrosIg1.betaPrim      = 0.8;
