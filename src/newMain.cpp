@@ -58,7 +58,6 @@ namespace N_gamb
 
 int main(int argc, char* argv[])
 {
-
     Parametros parametros;
     const string commite = "ed17673d31cf8701e94228bd7f7b6203f16602b5";
     parametros.commit = commite;
@@ -104,8 +103,6 @@ int main(int argc, char* argv[])
 
         if(best.viavel)
         {
-
-
             string erro;
             if(!best.checkSolution(erro, instancia))
             {
@@ -122,27 +119,20 @@ int main(int argc, char* argv[])
         //std::chrono::duration<double> tempoAux = end - start;
         double tempo = double(end-start)/CLOCKS_PER_SEC;
 
-//#if !AJUSTE_DE_PARAMETRO
         if constexpr(!AjusteDeParametro)
-        {
-            //setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
-            //saida(parametros, parametrosSaida, best, instancia);
             saidaNew(best, instancia, tempo, parametros);
-        }
         else
-        {
-//#else
             escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
-        }
-//#endif
-        
+
 
     }
     catch(const char *erro)
     {
-        cerr<<"SEMENTE: "<< parametros.semente<<"\n";
-
-        return -1;
+        if constexpr(!AjusteDeParametro)
+        {
+            cerr << "SEMENTE: " << parametros.semente << "\n";
+            return -1;
+        }
 
         if(ValBestNs::distBest <= 0.0)
         {
@@ -150,7 +140,6 @@ int main(int argc, char* argv[])
         }
         else
         {
-
             clock_t end = clock();
             double tempo = double(end-startA)/CLOCKS_PER_SEC;
             escreveDistFile(ValBestNs::distBest, tempo, parametros.paramIg.fileSaida);

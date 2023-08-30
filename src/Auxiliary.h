@@ -69,7 +69,7 @@ using namespace std;
 #define TEMPO_FUNC_VIABILIZA_ROTA_EV TRUE
 
 #define AJUSTE_DE_PARAMETRO FALSE
-constexpr const bool AjusteDeParametro = false;
+constexpr const bool AjusteDeParametro = true;
 
 #include <string.h>
 
