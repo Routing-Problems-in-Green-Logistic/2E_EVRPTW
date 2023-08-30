@@ -80,12 +80,12 @@ namespace NameS_Grasp
 
         int numIteGrasp                     = 0;         // Numero de itracoes para o grasp
         int iteracoesCalProb                = 50;        // Numero de iteracoes para calcular a prob de inserir uma rota: sat ... EST ... CLIENTE ... EST ... sat
-        BoostC::vector<float> vetAlfa;
+        Vector<float> vetAlfa;
         int numAtualProbReativo             = 50;        // Numero de iteracoes para atualizar a probabilidade do reativo
         int numMaxClie                      = 0;         // Numero maximo de clientes(que NAO conseguem ser inseridos com heur) adicionados a solucao
         float paramFuncSetSatParaCliente    = 0.1;       // Percentual de sat a ser considerados na funcao GreedyAlgNS::setSatParaCliente
         Parametros()=default;
-        Parametros(int numIteGrasp_, int iteracoesCalProb_, const BoostC::vector<float> &vetAlfa_, int numAtualProbReativo_, int numMaxClie_, float paramFuncSetSatParaCliente_)
+        Parametros(int numIteGrasp_, int iteracoesCalProb_, const Vector<float> &vetAlfa_, int numAtualProbReativo_, int numMaxClie_, float paramFuncSetSatParaCliente_)
         {
             numIteGrasp                 = numIteGrasp_;
             iteracoesCalProb            = iteracoesCalProb_;
@@ -97,8 +97,8 @@ namespace NameS_Grasp
     };*/
 
     Solucao *grasp(Instancia &instance, ParametrosGrasp &parametros, Estatisticas &estat, const bool retPrimeiraSol,
-                   const ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
-                   BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida);
+                   const Matrix<int> &matClienteSat, Vector<NS_vnd::MvValor> &vetMvValor,
+                   Vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida);
 
 
     double getDistMaisPenalidade(Solucao &sol, Instancia &instancia);

@@ -75,8 +75,8 @@ namespace NS_vnd
 
     };
 
-     void rvnd(Solucao &solution, Instancia &instance, float beta, BoostC::vector<MvValor> &vetMvValor, BoostC::vector<MvValor> &vetMvValor1Nivel);
-     void rvnd2(Solucao &solution, Instancia &instance, float beta, BoostC::vector<MvValor> &vetMvValor, BoostC::vector<MvValor> &vetMvValor1Nivel);
+     void rvnd(Solucao &solution, Instancia &instance, float beta, Vector<MvValor> &vetMvValor, Vector<MvValor> &vetMvValor1Nivel);
+     void rvnd2(Solucao &solution, Instancia &instance, float beta, Vector<MvValor> &vetMvValor, Vector<MvValor> &vetMvValor1Nivel);
 }
 
 #endif //INC_2E_EVRP_VND_H

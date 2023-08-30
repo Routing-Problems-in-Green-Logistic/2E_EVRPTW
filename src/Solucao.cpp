@@ -1,5 +1,3 @@
-#include <boost/format.hpp>
-#include <boost/numeric/ublas/assignment.hpp>
 #include "Solucao.h"
 #include "Auxiliary.h"
 
@@ -27,7 +25,7 @@ Solucao::Solucao(Instancia &inst)
         satTempoChegMax.emplace_back(-1.0);
 
     //vetClientesAtend.reserve(1+Inst.getNSats()+Inst.getN_RechargingS()+Inst.getNClients());
-    vetClientesAtend = BoostC::vector<int8_t>(1 + inst.getNSats() + inst.getN_RechargingS() + inst.getNClients());
+    vetClientesAtend = Vector<int8_t>(1 + inst.getNSats() + inst.getN_RechargingS() + inst.getNClients());
 
     // Clientes
     std::fill((vetClientesAtend.begin() + inst.getFirstClientIndex()), vetClientesAtend.end(), 0);
@@ -43,14 +41,14 @@ Solucao::Solucao(Instancia &inst)
 
     inicializaVetClientesAtend(inst);
 
-    vetMatSatEvMv = BoostC::vector<ublas::matrix<int>>((inst.numSats+1), ublas::matrix<int>(inst.numEv, NUM_MV, 0));
+    vetMatSatEvMv = Vector<Matrix<int>>((inst.numSats+1), Matrix<int>(inst.numEv, NUM_MV, 0));
 
 }
 
 
 void Solucao::resetaPrimeiroNivel(Instancia &instancia)
 {
-    primeiroNivel = BoostC::vector<Route>(numTrucksMax, Route(instancia));
+    primeiroNivel = Vector<Route>(numTrucksMax, Route(instancia));
     distancia = 0.0;
 
     for(Satelite &sat:satelites)
@@ -179,7 +177,7 @@ bool Solucao::checkSolution(std::string &erro, const Instancia &inst)
 
     // Verifica se as demandas dos satelites sao atendidas
 
-    BoostC::vector<double> satelliteDemand;
+    Vector<double> satelliteDemand;
     satelliteDemand.reserve(inst.getNSats() + 1);
 
     for(int i=0; i < inst.getNSats() + 1; ++i)
@@ -452,7 +450,7 @@ void Solucao::rotaEvAtualizada(const int sat, const int ev)
 void Solucao::inicializaVetClientesAtend(Instancia &instance)
 {
 
-    vetClientesAtend = BoostC::vector<int8_t>(1 + instance.getNSats() + instance.getN_RechargingS() + instance.getNClients());
+    vetClientesAtend = Vector<int8_t>(1 + instance.getNSats() + instance.getN_RechargingS() + instance.getNClients());
 
     for(int i = 0; i < instance.getFirstClientIndex(); ++i)
         vetClientesAtend[i] = -1;
@@ -533,7 +531,7 @@ void Solucao::todasRotasEvAtualizadas()
 {
 
 #if UTILIZA_MAT_MV
-    vetMatSatEvMv = BoostC::vector<ublas::matrix<int>>((numSats+1), ublas::matrix<int>(numEvMax, NUM_MV, 0));
+    vetMatSatEvMv = Vector<Matrix<int>>((numSats+1), Matrix<int>(numEvMax, NUM_MV, 0));
 
     for(auto it:vetMatSatEvMv)
     {
@@ -542,7 +540,7 @@ void Solucao::todasRotasEvAtualizadas()
 #endif
 }
 
-void Solucao::resetaSat(int satId, Instancia &instancia, BoostC::vector<int> &vetClienteDel)
+void Solucao::resetaSat(int satId, Instancia &instancia, Vector<int> &vetClienteDel)
 {
 
     if(satId >= 1 && satId <= instancia.getEndSatIndex())
@@ -551,7 +549,7 @@ void Solucao::resetaSat(int satId, Instancia &instancia, BoostC::vector<int> &ve
         satelites[satId].distancia = 0.0;
         satelites[satId].demanda   = 0.0;
 
-        vetClienteDel = BoostC::vector<int>(instancia.getEndClientIndex()+1, 0);
+        vetClienteDel = Vector<int>(instancia.getEndClientIndex()+1, 0);
 
         Satelite &satelite = satelites[satId];
 
@@ -660,7 +658,7 @@ void Solucao::printPlot(string &saida, const Instancia &instance)
 
 bool Solucao::ehSplit(const Instancia &instancia)const
 {
-    static BoostC::vector<int> vetSat(instancia.numSats+1);
+    static Vector<int> vetSat(instancia.numSats+1);
     NS_Auxiliary::vetSetAll(vetSat, 0);
     int sat=0;
 

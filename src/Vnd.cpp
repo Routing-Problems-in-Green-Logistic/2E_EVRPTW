@@ -26,7 +26,7 @@ double NS_TimeMV::vetTempoCpuMV[NUM_MV];
  * @param vetMvValor1Nivel      0: MV_EV_SHIFIT_INTER_ROTAS_INTER_SAT; 1: MV_EV_SWAP_INTER_ROTAS_INTER_SAT
  */
 
-void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, BoostC::vector<MvValor> &vetMvValor, BoostC::vector<MvValor> &vetMvValor1Nivel)
+void NS_vnd::rvnd(Solucao &solution, Instancia &instance, const float beta, Vector<MvValor> &vetMvValor, Vector<MvValor> &vetMvValor1Nivel)
 {
 
     static bool iniVetTempoCpuMV = false;

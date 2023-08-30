@@ -13,8 +13,8 @@
 #include "../Solucao.h"
 #include "../ViabilizadorRotaEv.h"
 #include <list>
-#include <boost/container/vector.hpp>
-namespace BoostC = boost::container;
+
+
 
 
 namespace NS_Construtivo4
@@ -115,25 +115,25 @@ namespace NS_Construtivo4
     };
 
     bool construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alfaSeg,
-                                   const ublas::matrix<int> &matClienteSat, bool listaRestTam,
-                                   const BoostC::vector<int> &satUtilizados, bool print,
-                                   BoostC::vector<int> &vetInviabilidade, const bool torneio);
+                                   const Matrix<int> &matClienteSat, bool listaRestTam,
+                                   const Vector<int> &satUtilizados, bool print,
+                                   Vector<int> &vetInviabilidade, const bool torneio);
 
     void construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, const float betaPrim, bool listaRestTam,
                                   const bool split);
     void construtivo(Solucao &Sol, Instancia &instancia, const float alfaSeg, const float betaPrim,
-                     const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil, bool print,
-                     BoostC::vector<int> *vetInviabilidate, const bool torneio, const bool split);
-    bool visitAllClientes(BoostC::vector<int8_t> &visitedClients, const Instancia &instance);
-    bool existeDemandaNaoAtendida(BoostC::vector<double> &demandaNaoAtendida);
+                     const Matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil, bool print,
+                     Vector<int> *vetInviabilidate, const bool torneio, const bool split);
+    bool visitAllClientes(Vector<int8_t> &visitedClients, const Instancia &instance);
+    bool existeDemandaNaoAtendida(Vector<double> &demandaNaoAtendida);
 
     bool canInsert(EvRoute &evRoute, int cliente, Instancia &instance, CandidatoEV &candidatoEv, const int satelite,
-                   const double tempoSaidaSat, EvRoute &evRouteAux, BoostC::vector<int> &vetInviabilidade);
+                   const double tempoSaidaSat, EvRoute &evRouteAux, Vector<int> &vetInviabilidade);
     bool canInsertSemBateria(EvRoute &evRoute, int node, const Instancia &Instance, CandidatoEV &insertion);
     bool insert(EvRoute &evRoute, CandidatoEV & insertion, const Instancia &instance, const double tempoSaidaSat, Solucao &sol);
     bool verificaViabilidadeSatelite(double tempoChegada, Satelite &satelite, const Instancia &instance, bool modficaSatelite);
 
-    BoostC::vector<double> calculaTempoSaidaInicialSat(Instancia &instance, const float beta);
+    Vector<double> calculaTempoSaidaInicialSat(Instancia &instance, const float beta);
     void setSatParaCliente(Instancia &instancia, vector<int> &vetSatAtendCliente, vector<int> &satUtilizado, ParametrosGrasp &param);
 }
 

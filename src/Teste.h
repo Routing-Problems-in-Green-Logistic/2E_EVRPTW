@@ -5,9 +5,10 @@
 #ifndef INC_2E_EVRP_TESTE_H
 #define INC_2E_EVRP_TESTE_H
 
+/*
 #include "Auxiliary.h"
 #include "Instancia.h"
-#include <boost/format.hpp>
+
 
 namespace NameTeste
 {
@@ -42,10 +43,6 @@ namespace NameTeste
             {
                 string saida;
 
-/*                saida += nome + "_distMedia; " + (boost::format("%.2f S") %(somaDist / n)).str() + "; ";
-                saida += nome + "_tempo; " + (boost::format("%.2f S") % float(somaTempo)).str() + "; ";
-                saida += nome + "_best; " + (boost::format("%.2f S") %(best)).str() + "; ";*/
-
                 saida += (boost::format("%.2f ") %(somaDist / n)).str() + ";" + (boost::format("%.2f S") % float(somaTempo)).str()+ ";" + (boost::format("%.2f ") %(best)).str() +
                         "; " + to_string(int(n));
                 //cout<<somaTempo<<"\n";
@@ -61,5 +58,6 @@ namespace NameTeste
     void testeMovimentos(string &saida, const Instancia &instance, long semente, int k);
 
 }
+*/
 
 #endif //INC_2E_EVRP_TESTE_H

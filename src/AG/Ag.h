@@ -9,8 +9,8 @@
 #ifndef PLOTSOLUTION_PRIMEIRO_NIVEL_PY_AG_H
 #define PLOTSOLUTION_PRIMEIRO_NIVEL_PY_AG_H
 
-#include <boost/container/vector.hpp>
-namespace BoostC = boost::container;
+
+
 #include "Instancia.h"
 #include "../Solucao.h"
 
@@ -30,8 +30,8 @@ namespace NS_Ag
     struct RandomKey
     {
 
-        BoostC::vector<RandomNo> vetRandom;
-        BoostC::vector<RandomNo> vetDecod;
+        Vector<RandomNo> vetRandom;
+        Vector<RandomNo> vetDecod;
         double val = 0.0;
 
         explicit RandomKey(Instancia &instancia);
@@ -41,8 +41,8 @@ namespace NS_Ag
 
     };
 
-    void decodificaSol(Instancia &instancia, RandomKey &randKey, Satelite &sat, const BoostC::vector<int> &vetSatAtendCliente, const double tempoSaida);
-    bool atendeTodosOsClientes(const BoostC::vector<int> &vetClienteAtend);
+    void decodificaSol(Instancia &instancia, RandomKey &randKey, Satelite &sat, const Vector<int> &vetSatAtendCliente, const double tempoSaida);
+    bool atendeTodosOsClientes(const Vector<int> &vetClienteAtend);
 }
 
 #endif //PLOTSOLUTION_PRIMEIRO_NIVEL_PY_AG_H

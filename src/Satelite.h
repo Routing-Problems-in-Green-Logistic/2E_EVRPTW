@@ -1,8 +1,8 @@
 #ifndef INC_2E_EVRP_SATELITE_H
 #define INC_2E_EVRP_SATELITE_H
 
-#include <boost/container/vector.hpp>
-namespace BoostC = boost::container;
+
+
 #include "EvRoute.h"
 #include "Instancia.h"
 
@@ -53,13 +53,13 @@ public:
     void recalculaDemanda();        // Parte do principio de que as cargas nas rotas estao corretas
     bool vazio();
     int numEv();
-    double excluiSatelite(Instancia &instancia, BoostC::vector<int8_t> &vetClientesAtend);
+    double excluiSatelite(Instancia &instancia, Vector<int8_t> &vetClientesAtend);
     void resetaSat();
 
-    BoostC::vector<EvRoute> vetEvRoute;
+    Vector<EvRoute> vetEvRoute;
 
     // O vetor deve estar ordenado antes de ser utilizado
-    //BoostC::vector<TempoSaidaEvRoute> vetTempoSaidaEvRoute;
+    //Vector<TempoSaidaEvRoute> vetTempoSaidaEvRoute;
     //void sortVetTempoSaidaEvRoute(){std::sort(vetTempoSaidaEvRoute.begin(), vetTempoSaidaEvRoute.end());};
 
     int tamVetEvRoute = -1;
@@ -69,7 +69,7 @@ public:
 
 
     // O vetor deve estar ordenado antes de ser utilizado
-    //BoostC::vector<TempoSaidaEvRoute> vetTempoSaidaEvRoute;
+    //Vector<TempoSaidaEvRoute> vetTempoSaidaEvRoute;
     //void sortVetTempoSaidaEvRoute(){std::sort(vetTempoSaidaEvRoute.begin(), vetTempoSaidaEvRoute.end());};
 
 };

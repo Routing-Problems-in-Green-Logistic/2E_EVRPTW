@@ -196,7 +196,7 @@ void Satelite::recalculaDemanda()
     }
 }
 
-double Satelite::excluiSatelite(Instancia &instancia, BoostC::vector<int8_t> &vetClientesAtend)
+double Satelite::excluiSatelite(Instancia &instancia, Vector<int8_t> &vetClientesAtend)
 {
 
     const double distTemp = distancia;

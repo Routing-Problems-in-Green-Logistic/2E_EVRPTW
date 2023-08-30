@@ -36,7 +36,7 @@ void ModeloNs::modelo(Instancia &instancia,
     clock_t clockStart = clock();
 
 
-    BoostC::vector<RotaEvMip> vetRotasEv(hashSolSet.size(), RotaEvMip(instancia.evRouteSizeMax, instancia));
+    Vector<RotaEvMip> vetRotasEv(hashSolSet.size(), RotaEvMip(instancia.evRouteSizeMax, instancia));
     auto itHashSol = hashSolSet.begin();
     for(int i=0; i < hashSolSet.size(); ++i)
     {
@@ -45,7 +45,7 @@ void ModeloNs::modelo(Instancia &instancia,
     }
 
 
-    //BoostC::vector<RotaEvMip> vetRotasEv;
+    //Vector<RotaEvMip> vetRotasEv;
     //vetRotasEv.reserve(instancia.numEv);
 
     const int idRotaEvSolIni = vetRotasEv.size();
@@ -78,8 +78,8 @@ void ModeloNs::modelo(Instancia &instancia,
 
 
     //cria para cada sat o num de rotas existentes
-    BoostC::vector<int> vetNumRotasSat(instancia.numSats+1, 0);
-    ublas::matrix<std::list<int>> matRotasCliSat(instancia.numNos, (instancia.numSats+1));
+    Vector<int> vetNumRotasSat(instancia.numSats+1, 0);
+    Matrix<std::list<int>> matRotasCliSat(instancia.numNos, (instancia.numSats+1));
 
     for(int r=0; r < vetRotasEv.size(); ++r)
     {
@@ -96,7 +96,7 @@ void ModeloNs::modelo(Instancia &instancia,
 
 
     // Armazena os indices das rotas para cada satelite
-    ublas::matrix<int> matrixSat(instancia.numSats+1, maiorElem(vetNumRotasSat, vetNumRotasSat.size()));
+    Matrix<int> matrixSat(instancia.numSats+1, maiorElem(vetNumRotasSat, vetNumRotasSat.size()));
     std::fill(vetNumRotasSat.begin(), vetNumRotasSat.end(), 0);
 
     for(int r=0; r < vetRotasEv.size(); ++r)
@@ -184,7 +184,7 @@ void ModeloNs::setParametrosModelo(GRBModel &model, NS_parametros::ParametrosMip
 void ModeloNs::criaFuncObj(const Instancia &instancia,
                            GRBModel &modelo,
                            VariaveisNs::Variaveis &variaveis,
-                           const BoostC::vector<RotaEvMip> &vetRotaEv)
+                           const Vector<RotaEvMip> &vetRotaEv)
 {
     GRBLinExpr obj;
 
@@ -221,13 +221,13 @@ void ModeloNs::criaFuncObj(const Instancia &instancia,
 void ModeloNs::criaRestParaRotasEVs(const Instancia &instancia,
                                     GRBModel &modelo,
                                     VariaveisNs::Variaveis &variaveis,
-                                    const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv,
+                                    const Vector<VariaveisNs::RotaEvMip> &vetRotaEv,
                                     const NS_parametros::ParametrosMip &paramMip)
 {
     // Pre processamento, cria para cada cliente as rotas que o possuem
-    ublas::matrix<int> matrix(instancia.numClients, variaveis.vetY.getNum());
-    BoostC::vector<int> vetNumRotas(instancia.numClients, 0);
-    BoostC::vector<int> vetNumRotasSat(instancia.numSats+1, 0);
+    Matrix<int> matrix(instancia.numClients, variaveis.vetY.getNum());
+    Vector<int> vetNumRotas(instancia.numClients, 0);
+    Vector<int> vetNumRotasSat(instancia.numSats+1, 0);
 
     const int firstClientIndex = instancia.getFirstClientIndex();
     const int endClientIndex   = instancia.getEndClientIndex();
@@ -252,7 +252,7 @@ void ModeloNs::criaRestParaRotasEVs(const Instancia &instancia,
     }
 
     // Armazena os indices das rotas para cada satelite
-    ublas::matrix<int> matrixSat(instancia.numSats+1, maiorElem(vetNumRotasSat, vetNumRotasSat.size()));
+    Matrix<int> matrixSat(instancia.numSats+1, maiorElem(vetNumRotasSat, vetNumRotasSat.size()));
     std::fill(vetNumRotasSat.begin(), vetNumRotasSat.end(), 0);
 
     for(int r=0; r < vetRotaEv.size(); ++r)
@@ -379,9 +379,9 @@ void ModeloNs::criaRestVar_X(const Instancia &instancia,
 void ModeloNs::criaRestVar_Dem(const Instancia &instancia,
                                GRBModel &modelo,
                                VariaveisNs::Variaveis &variaveis,
-                               const ublas::matrix<int> &matrixSat,
-                               const BoostC::vector<int> &vetNumRotasSat,
-                               const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv)
+                               const Matrix<int> &matrixSat,
+                               const Vector<int> &vetNumRotasSat,
+                               const Vector<VariaveisNs::RotaEvMip> &vetRotasEv)
 {
 
     // 7º Restricao: $\sum\limits_{j \in V_s^0, j \not= i} dem_{(j,i)}-\sum\limits_{j \in V_s^0, j \not= i} dem_{(i,j)}=
@@ -448,10 +448,10 @@ void ModeloNs::criaRestVar_Dem(const Instancia &instancia,
 void ModeloNs::criaRestVar_T(const Instancia &instancia,
                              GRBModel &modelo,
                              VariaveisNs::Variaveis &variaveis,
-                             const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
-                             const ublas::matrix<int> &matrixSat,
-                             const BoostC::vector<int> &vetNumRotasSat,
-                             const ublas::matrix<std::list<int>> &matRotasCliSat,
+                             const Vector<VariaveisNs::RotaEvMip> &vetRotasEv,
+                             const Matrix<int> &matrixSat,
+                             const Vector<int> &vetNumRotasSat,
+                             const Matrix<std::list<int>> &matRotasCliSat,
                              const NS_parametros::ParametrosMip &paramMip)
 {
     variaveis.vetT.setUB_LB(0.0, 0.0, 0);
@@ -538,15 +538,15 @@ void
 ModeloNs::recuperaSolucao(GRBModel &modelo,
                           VariaveisNs::Variaveis &variaveis,
                           Solucao &solucao, Instancia &instancia,
-                          const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
+                          const Vector<VariaveisNs::RotaEvMip> &vetRotasEv,
                           const bool Xn)
 {
     solucao.resetaSol();
 
     variaveis.setVetDoubleAttr_X(modelo, Xn);
 
-    BoostC::vector<int> rotasEvPorSat(instancia.numSats+1, 0);
-    BoostC::vector<int> vetClienteAtend(instancia.numNos, 0);
+    Vector<int> rotasEvPorSat(instancia.numSats+1, 0);
+    Vector<int> vetClienteAtend(instancia.numNos, 0);
     bool solmultCli = false;
 
     // Copias as rotas EVs para solucao
@@ -626,7 +626,7 @@ ModeloNs::recuperaSolucao(GRBModel &modelo,
 
 
     int proxCV = 0;
-    BoostC::vector<double> tempoSaidaEv(instancia.numSats+1, -DOUBLE_MAX);
+    Vector<double> tempoSaidaEv(instancia.numSats+1, -DOUBLE_MAX);
 
     solucao.distancia = 0.0;
 
@@ -782,7 +782,7 @@ void ModeloNs::recuperaK_Solucoes(GRBModel &modelo,
                                   VariaveisNs::Variaveis &variaveis,
                                   Solucao &solucao,
                                   Instancia &instancia,
-                                  const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
+                                  const Vector<VariaveisNs::RotaEvMip> &vetRotasEv,
                                   std::list<std::unique_ptr<Solucao>> &listSolucoes)
 {
     const int numSol = modelo.get(GRB_IntAttr_SolCount);

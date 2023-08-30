@@ -5,13 +5,17 @@
 #ifndef INC_2E_EVRP_AUXILIARY_H
 #define INC_2E_EVRP_AUXILIARY_H
 
-#include <boost/container/vector.hpp>
-namespace BoostC = boost::container;
+
+//
 #include <iostream>
 #include <cfloat>
 #include <limits>
 #include <cmath>
 #include <sys/stat.h>
+#include "safe_vector.h"
+#include "safe_matrix.h"
+#include  <algorithm>
+#include <memory>
 
 using namespace std;
 
@@ -79,6 +83,13 @@ extern const double DOUBLE_INF;
 
 typedef int8_t Int8;
 
+
+constexpr const int8_t Int8_true  = Int8(1);
+constexpr const int8_t Int8_false = Int8(0);
+
+
+typedef Vector<Int8> VectorBool;
+
 #define SIZE_ENUM_INV 6
 
 
@@ -107,7 +118,7 @@ namespace NS_Auxiliary
      *
      */
 
-    void shiftVectorDir(BoostC::vector<T> &vector, const int pos, const int quant, const int sizeVector)
+    void shiftVectorDir(Vector<T> &vector, const int pos, const int quant, const int sizeVector)
     {
 
         if(((sizeVector-1)+quant) >= vector.size())
@@ -124,7 +135,7 @@ namespace NS_Auxiliary
     }
 
     template<typename T>
-    void shiftVectorClienteDir(BoostC::vector<T> &vector, const int pos, const int quant, const int sizeVector)
+    void shiftVectorClienteDir(Vector<T> &vector, const int pos, const int quant, const int sizeVector)
     {
 
         for(int i=sizeVector-1; i >= pos; --i)
@@ -134,7 +145,7 @@ namespace NS_Auxiliary
     }
 
     template<typename T>
-    void shiftVectorClienteEsq(BoostC::vector<T> &vector, const int pos, const int sizeVector)
+    void shiftVectorClienteEsq(Vector<T> &vector, const int pos, const int sizeVector)
     {
 
         for(int i=pos; (i+1) < sizeVector; ++i)
@@ -143,7 +154,7 @@ namespace NS_Auxiliary
     }
 
     template<typename T>
-    void copiaVector(BoostC::vector<T> &vector, BoostC::vector<T> &vectorDest, const int n)
+    void copiaVector(Vector<T> &vector, Vector<T> &vectorDest, const int n)
     {
         if(n > vector.size() || n > vectorDest.size())
             throw "ERRO";
@@ -153,7 +164,7 @@ namespace NS_Auxiliary
     }
 
     template<typename T>
-    int64_t buscaBinaria(const BoostC::vector<T> &vector, T &ele, const int64_t tam)
+    int64_t buscaBinaria(const Vector<T> &vector, T &ele, const int64_t tam)
     {
         if(tam <= 0)
             return -1;
@@ -189,7 +200,7 @@ namespace NS_Auxiliary
 
 
     template<typename T>
-    string printVector(const BoostC::vector<T> &vector, const int64_t tam)
+    string printVector(const Vector<T> &vector, const int64_t tam)
     {
         string str;
         for(int i=0; i < tam; ++i)
@@ -200,7 +211,7 @@ namespace NS_Auxiliary
 
 
     template<typename T>
-    void printVectorCout(const BoostC::vector<T> &vector, const int64_t tam)
+    void printVectorCout(const Vector<T> &vector, const int64_t tam)
     {
 
         for(int i=0; i < tam; ++i)
@@ -211,7 +222,7 @@ namespace NS_Auxiliary
 
 
     template<typename T>
-    string printVectorStr(const BoostC::vector<T> &vector, const int64_t tam)
+    string printVectorStr(const Vector<T> &vector, const int64_t tam)
     {
         string str;
 
@@ -223,7 +234,7 @@ namespace NS_Auxiliary
 
 
     template<typename T>
-    T menorElem(const BoostC::vector<T> &vector, const size_t tam)
+    T menorElem(const Vector<T> &vector, const size_t tam)
     {
         T menor = vector[0];
         for(int i=1; i < tam; ++i)
@@ -237,7 +248,7 @@ namespace NS_Auxiliary
 
 
     template<typename T>
-    T maiorElem(const BoostC::vector<T> &vector, const size_t tam)
+    T maiorElem(const Vector<T> &vector, const size_t tam)
     {
         T maior = vector[0];
         for(int i=1; i < tam; ++i)
@@ -292,7 +303,7 @@ namespace NS_Auxiliary
 
 
     template<typename T>
-    void vetSetAll(BoostC::vector<T> &vet, T val, int size=-1)
+    void vetSetAll(Vector<T> &vet, T val, int size=-1)
     {
         const int tam = max(size, int(vet.size()));
         for(int i=0; i < tam; ++i)

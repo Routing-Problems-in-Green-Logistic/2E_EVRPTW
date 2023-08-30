@@ -1,11 +1,10 @@
 #ifndef INC_2E_EVRP_SOLUCAO_H
 #define INC_2E_EVRP_SOLUCAO_H
-#include <boost/container/vector.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
+
 #include "Satelite.h"
 
-namespace BoostC = boost::container;
-using namespace boost::numeric;
+
+
 
 class Solucao
 {
@@ -30,7 +29,7 @@ public:
     int numSatVazios();
     int getNumEvNaoVazios();
     void resetaSol();
-    void resetaSat(int satId, Instancia &instancia, BoostC::vector<int> &vetClienteDel);    // Somente o sat eh alterado, 1 nivel nao se altera
+    void resetaSat(int satId, Instancia &instancia, Vector<int> &vetClienteDel);    // Somente o sat eh alterado, 1 nivel nao se altera
     void reseta1Nivel(Instancia &instancia);
     void resetaIndiceEv(Instancia &instancia);
 
@@ -38,23 +37,23 @@ public:
     void atualizaDemandaRoute(const Instancia &instancia);
 
     // Possui numSat + 1 !!
-    BoostC::vector<Satelite> satelites;
+    Vector<Satelite> satelites;
 
     // Guarda o ultimo tempo de chegada do veiculo do 1° nivel
-    BoostC::vector<double> satTempoChegMax;
+    Vector<double> satTempoChegMax;
     int numTrucksMax = -1;
     int numEvMax     = -1;
     int numEv        = 0;                   // Num Ev utilizados
     int numSats      = 1;
     bool viavel      = true;
-    BoostC::vector<Route> primeiroNivel;
+    Vector<Route> primeiroNivel;
     double distancia = 0.0;
-    BoostC::vector<int8_t> vetClientesAtend;
+    Vector<int8_t> vetClientesAtend;
 
     int ultimaA = -1;
 
 
-    BoostC::vector<ublas::matrix<int>> vetMatSatEvMv;  // Sat, ev, mv
+    Vector<Matrix<int>> vetMatSatEvMv;  // Sat, ev, mv
     /*
      * Se vetMatSatEvMv[1](0,0) (sat 1, ev 0, mv 0) = 1:
      *

@@ -47,10 +47,10 @@ namespace NameS_IG
     };
 
     Solucao* iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
-                            ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
-                            BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida, NS_parametros::Parametros &parametros);
+                            Matrix<int> &matClienteSat, Vector<NS_vnd::MvValor> &vetMvValor,
+                            Vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida, NS_parametros::Parametros &parametros);
 
-    void printVetDadosIg(BoostC::vector<DadosIg> &vetDadosIg, NS_parametros::Parametros &parametros);
+    void printVetDadosIg(Vector<DadosIg> &vetDadosIg, NS_parametros::Parametros &parametros);
     void atualizaTempoSaidaInstancia(Solucao &solucao, Instancia &instancia);
 
     extern std::string strDescricaoIg;

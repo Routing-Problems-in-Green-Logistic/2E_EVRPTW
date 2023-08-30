@@ -4,17 +4,12 @@
 #define INSTANCE_H
 
 #include <iostream>
-#include <boost/container/vector.hpp>
-namespace BoostC = boost::container;
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/triangular.hpp>
 #include "../Auxiliary.h"
 #include "../common.h"
-#include <boost/format.hpp>
 
 //#include "PreProcessamento.h"
 
-using namespace boost::numeric;
+//
 
 #define TESTE_JANELA_TEMPO(tempoCheg, cliente, instancia) (tempoCheg <= instancia.vectCliente[cliente].fimJanelaTempo) || \
                                                         (abs(tempo - instancia.vectCliente[cliente].fimJanelaTempo) <= TOLERANCIA_JANELA_TEMPO)
@@ -30,7 +25,7 @@ struct VeiculoInst
 
     explicit VeiculoInst(double _cap):eletrico(false), capacidade(_cap), capacidadeBateria(-1.0), taxaRecarga(-1.0), taxaConsumoDist(-1.0){}
     VeiculoInst(double _cap, double _capBat, double _taxaR, double _taxaC):eletrico(true), capacidade(_cap), capacidadeBateria(_capBat), taxaRecarga(_taxaR), taxaConsumoDist(_taxaC){}
-
+    VeiculoInst()=delete;
 };
 
 struct ClienteInst
@@ -130,10 +125,10 @@ public:
 
 
     // Considerando dist(i,j) == dist(j,i) !!
-    ublas::matrix<double> matDist;
+    Matrix<double> matDist;
 
-    BoostC::vector<VeiculoInst> vectVeiculo;           // veic a combustao + veic EV
-    BoostC::vector<ClienteInst> vectCliente;           // deposito, satellites, estacoes e clientes
+    Vector<VeiculoInst> vectVeiculo;           // veic a combustao + veic EV
+    Vector<ClienteInst> vectCliente;           // deposito, satellites, estacoes e clientes
 
     int numSats, numClients, numRechargingS, numEv, numTruck;
     int numNos; // deposito + numSats + numRechargingS + numClients
@@ -141,12 +136,12 @@ public:
 
     int evRouteSizeMax = -1;
 
-    ublas::triangular_matrix<int*, ublas::lower> matEstacao; // matriz eh triangular inferior: i >= j
+    Matrix<int*> matEstacao; // matriz eh triangular inferior: i >= j
 
     int numEstacoesPorArco=-1;
     double penalizacaoDistEv = 0.0;
     double penalizacaoDistComb = 0.0;
-    BoostC::vector<double> vetTempoSaida;
+    Vector<double> vetTempoSaida;
     bool bestInsViabRotaEv = false;
 
     // Guarda o menor caminho de cada cliente para todos os sat; tam: numSat+1; shortestPath EH VETOR !! VETOR !!
@@ -156,7 +151,7 @@ public:
     vector<vector<DistSatelite>> vetVetDistClienteSatelite;
 
     // Guarda para cada sat os sat mais proximos
-    BoostC::vector<BoostC::vector<DistSatelite>> vetVetDistSatSat;
+    Vector<Vector<DistSatelite>> vetVetDistSatSat;
 
 
     // Guarda para cada par (sat, RS)  se eh possivel voltar ao sat
@@ -180,14 +175,14 @@ public:
 
     int numIteGrasp                     = 0;         // Numero de itracoes para o grasp
     int iteracoesCalProb                = 50;        // Numero de iteracoes para calcular a prob de inserir uma rota: sat ... EST ... CLIENTE ... EST ... sat
-    BoostC::vector<float> vetAlfa;
+    Vector<float> vetAlfa;
     int numAtualProbReativo             = 50;        // Numero de iteracoes para atualizar a probabilidade do reativo
     int numMaxClie                      = 0;         // Numero maximo de clientes(que NAO conseguem ser inseridos com heur) adicionados a solucao
     float paramFuncSetSatParaCliente    = 0.1;       // Percentual de sat a ser considerados na funcao GreedyAlgNS::setSatParaCliente
     int probCorte                       = 45;        // Probabilidade de corte para add rota sat <est> cliente <est> sat
     int numItSemMelhora                 = 400;       // Numero de iteracoes sem melhora para encerrar a execucao do grasp
     ParametrosGrasp()=default;
-    ParametrosGrasp(int numIteGrasp_, int iteracoesCalProb_, const BoostC::vector<float> &vetAlfa_, int numAtualProbReativo_, int numMaxClie_, float paramFuncSetSatParaCliente_, int numItSemMelhora_)
+    ParametrosGrasp(int numIteGrasp_, int iteracoesCalProb_, const Vector<float> &vetAlfa_, int numAtualProbReativo_, int numMaxClie_, float paramFuncSetSatParaCliente_, int numItSemMelhora_)
     {
         numIteGrasp                 = numIteGrasp_;
         iteracoesCalProb            = iteracoesCalProb_;

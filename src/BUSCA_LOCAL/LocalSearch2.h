@@ -31,8 +31,8 @@ namespace NS_LocalSearch2
     int cross(Instancia &instancia, EvRoute &evRoute0, int posEvRoute0, EvRoute &evRoute1, int posEvRoute1, EvRoute &evRouteAux0,
               EvRoute &evRouteAux1, double tempoSaidaSatRoute0, double tempoSaidaSatRoute1);
 
-    void copiaCliente(const BoostC::vector<EvNo> &vet0, BoostC::vector<EvNo> &vetDest, int tam, int ini=0);
-    int copiaCliente(const BoostC::vector<EvNo> &vet0, BoostC::vector<EvNo> &vetDest, int iniVet0, int fimVet0, int iniVetDest);
+    void copiaCliente(const Vector<EvNo> &vet0, Vector<EvNo> &vetDest, int tam, int ini=0);
+    int copiaCliente(const Vector<EvNo> &vet0, Vector<EvNo> &vetDest, int iniVet0, int fimVet0, int iniVetDest);
 
     template<typename Func>
     bool mvInterRotasIntraSat(Solucao &solucao, Instancia &instancia, EvRoute &evRouteAux0, EvRoute &evRouteAux1, Func func, const int mv)
@@ -308,7 +308,7 @@ namespace NS_LocalSearch2
     class VetRotaTempoCh
     {
     public:
-        BoostC::vector<RotaTempoCh> vet;
+        Vector<RotaTempoCh> vet;
         VetRotaTempoCh()
         {
             vet.reserve(2);

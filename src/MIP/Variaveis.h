@@ -165,7 +165,7 @@ namespace VariaveisNs
 
         EvRoute evRoute;
         double tempoSaidaMax;
-        BoostC::vector<Int8> vetAtend;      // indica se um cliente eh atendido
+        Vector<Int8> vetAtend;      // indica se um cliente eh atendido
         int sat;
 
         RotaEvMip(const Instancia &instancia, const NS_VetorHash::VetorHash &vetorHash);
@@ -185,7 +185,7 @@ namespace VariaveisNs
         MatrixGRBVar matrixDem;
         VectorGRBVar vetY, vetZ, vetT;
 
-        Variaveis(const Instancia &instancia, GRBModel &modelo, const BoostC::vector<RotaEvMip> &vetRotasEv);
+        Variaveis(const Instancia &instancia, GRBModel &modelo, const Vector<RotaEvMip> &vetRotasEv);
         ~Variaveis()=default;
         void setVetDoubleAttr_X(GRBModel &model, bool Xn);
         void setAttr_Start0();

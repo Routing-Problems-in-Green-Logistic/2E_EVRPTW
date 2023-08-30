@@ -2,8 +2,8 @@
 #define ROUTE_H
 
 #include "INSTANCIA/Instancia.h"
-#include <boost/container/vector.hpp>
-namespace BoostC = boost::container;
+
+
 #include <iostream>
 
 class RouteNo
@@ -29,7 +29,7 @@ public:
     void resetaRoute();
     void atualizaTotalDemand(const Instancia &instancia);
 
-    BoostC::vector<RouteNo> rota;
+    Vector<RouteNo> rota;
     int routeSize = 2;
     int routeSizeMax = -1;
 
@@ -38,7 +38,7 @@ public:
 
     // Armazena a demanda levada pelo veiculo de cada satellite.
     // Possui uma entrada para cada satellite da instancia + deposito!
-    BoostC::vector<double> satelliteDemand;
+    Vector<double> satelliteDemand;
 };
 
 #endif

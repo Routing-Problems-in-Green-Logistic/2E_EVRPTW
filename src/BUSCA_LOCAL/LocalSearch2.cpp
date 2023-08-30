@@ -1039,14 +1039,14 @@ cout<<"\t\tNAO FOI POSSIVEL VIABILIZAR NOVA ROTA0\n\n";
 
 }
 
-void NS_LocalSearch2::copiaCliente(const BoostC::vector<EvNo> &vet0, BoostC::vector<EvNo> &vetDest, const int tam, const int ini)
+void NS_LocalSearch2::copiaCliente(const Vector<EvNo> &vet0, Vector<EvNo> &vetDest, const int tam, const int ini)
 {
     for(int i=ini; i < tam; ++i)
         vetDest[i].cliente = vet0[i].cliente;
 }
 
 
-int NS_LocalSearch2::copiaCliente(const BoostC::vector<EvNo> &vet0, BoostC::vector<EvNo> &vetDest, const int iniVet0, const int fimVet0, const int iniVetDest)
+int NS_LocalSearch2::copiaCliente(const Vector<EvNo> &vet0, Vector<EvNo> &vetDest, const int iniVet0, const int fimVet0, const int iniVetDest)
 {
     int iVet0    = iniVet0;
     int iVetDest = iniVetDest;

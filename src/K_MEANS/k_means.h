@@ -52,11 +52,11 @@ namespace N_k_means
         }
     };
 
-    void converteClientes(Instancia &instancia, BoostC::vector<Ponto> &vetPonto);
-    ublas::matrix<int> k_means(Instancia &instancia, BoostC::vector<int> &vetSatAtendCliente, BoostC::vector<int> &satUtilizado, bool seed);
-    void printVetPonto(const BoostC::vector<Ponto> &vetPonto);
-    BoostC::vector<double> calculaRaioSatSeedK_means(Instancia &instance);
-    void converteMatClusterMatSat(const ublas::matrix<int> &matEntrada, ublas::matrix<int> &matSaida, Instancia &instancia);
+    void converteClientes(Instancia &instancia, Vector<Ponto> &vetPonto);
+    Matrix<int> k_means(Instancia &instancia, Vector<int> &vetSatAtendCliente, Vector<int> &satUtilizado, bool seed);
+    void printVetPonto(const Vector<Ponto> &vetPonto);
+    Vector<double> calculaRaioSatSeedK_means(Instancia &instance);
+    void converteMatClusterMatSat(const Matrix<int> &matEntrada, Matrix<int> &matSaida, Instancia &instancia);
 
 }
 

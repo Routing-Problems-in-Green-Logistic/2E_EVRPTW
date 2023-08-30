@@ -14,15 +14,15 @@
 #include "../mersenne-twister.h"
 #include "../K_MEANS/k_means.h"
 #include <iostream>
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/format.hpp>
+Matrix
+
 
 #define PRINT_0 FALSE
 #define PRINT_GRAPS FALSE
 #define PRINT_MAT_FERM FALSE
 
 using namespace std;
-using namespace boost::numeric;
+
 
 /* ******************************************************************************************************
  * ******************************************************************************************************
@@ -36,7 +36,7 @@ using namespace boost::numeric;
  * ******************************************************************************************************
  */
 bool N_Aco::aco(Instancia &instance, AcoParametros &acoPar, AcoEstatisticas &acoEst, int sateliteId, Satelite &satBest,
-                const BoostC::vector<int> &vetSatAtendCliente, ParametrosGrasp &param, const Solucao *solGrasp,
+                const Vector<int> &vetSatAtendCliente, ParametrosGrasp &param, const Solucao *solGrasp,
                 const int numEVs)
 {
 
@@ -59,8 +59,8 @@ cout<<"sol grasp inviavel\n";
 #endif
 
 
-    ublas::matrix<double> matFeromonio(instance.numNos, instance.numNos, 0.01);
-    ublas::matrix<double> matAtualFeromonio(instance.numNos, instance.numNos);
+    Matrix<double> matFeromonio(instance.numNos, instance.numNos, 0.01);
+    Matrix<double> matAtualFeromonio(instance.numNos, instance.numNos);
 
     //matFeromonio += matIncrementoFerm;
 
@@ -106,8 +106,8 @@ printMatFerom(-1);
     Ant antBest(instance, sateliteId, true);
     antBest.clientesNaoAtend = instance.numClients;
 
-    BoostC::vector<Proximo> vetProximo(1+instance.numClients+instance.numRechargingS);
-    BoostC::vector<Proximo> vetProximoAux(1+instance.numClients+instance.numRechargingS);
+    Vector<Proximo> vetProximo(1+instance.numClients+instance.numRechargingS);
+    Vector<Proximo> vetProximoAux(1+instance.numClients+instance.numRechargingS);
 
     for(int iteracao = 0; iteracao < acoPar.numIteracoes; ++iteracao)
     {
@@ -119,7 +119,7 @@ printMatFerom(-1);
 #if PRINT_0 == TRUE
 cout<<"ITE: "<<iteracoes<<"\n";
 #endif
-        BoostC::vector<Ant> vetAnt(acoPar.numAnts, Ant(instance, sateliteId));
+        Vector<Ant> vetAnt(acoPar.numAnts, Ant(instance, sateliteId));
 
         int antCount = 0;
         for(Ant &ant:vetAnt)
@@ -594,7 +594,7 @@ void N_Aco::atualizaClienteJ(EvRoute &evRoute, const int pos, const int clienteJ
  * @param tempoSaidaI
  * @return
  */
-bool N_Aco::clienteJValido(Instancia &instancia, const int i, const int j, const double bat, const BoostC::vector<int8_t> &vetNosAtend, const int sat, const double tempoSaidaI)
+bool N_Aco::clienteJValido(Instancia &instancia, const int i, const int j, const double bat, const Vector<int8_t> &vetNosAtend, const int sat, const double tempoSaidaI)
 {
 
     // TEMPO ??
@@ -709,8 +709,8 @@ cout<<j<<": ok\n";
 }
 
 
-void N_Aco::atualizaFeromonio(ublas::matrix<double> &matFeromonio, ublas::matrix<double> &matAtualFeromonio, Instancia &instancia, const AcoParametros &acoParam,
-                              const Ant &antBest, const BoostC::vector<Ant> &vetAnt)
+void N_Aco::atualizaFeromonio(Matrix<double> &matFeromonio, Matrix<double> &matAtualFeromonio, Instancia &instancia, const AcoParametros &acoParam,
+                              const Ant &antBest, const Vector<Ant> &vetAnt)
 {
 
     double feromMax = 1.0/antBest.satelite.distancia;
@@ -785,7 +785,7 @@ cout<<"FEROMONIO MAX: "<<feromMax<<"\n";
 
 }
 
-void N_Aco::evaporaFeromonio(ublas::matrix<double> &matFeromonio, const BoostC::vector<int> &vetSat, Instancia &instancia, const AcoParametros &acoParam, const double feromMin)
+void N_Aco::evaporaFeromonio(Matrix<double> &matFeromonio, const Vector<int> &vetSat, Instancia &instancia, const AcoParametros &acoParam, const double feromMin)
 {
 
     static const double ro_1 = 1.0-acoParam.ro;
@@ -817,13 +817,13 @@ bool N_Aco::acoSol(Instancia &instancia, AcoParametros &acoPar, AcoEstatisticas 
 
     //cout<<"NUM EVs: "<<instancia.numEv<<"\n";
 
-    BoostC::vector<int> vetSatAtendCliente(instancia.numNos, -1);
-    BoostC::vector<int> satUtilizado(instancia.numSats+1, 0);
-    BoostC::vector<int> numEvPorSat(instancia.numSats+1, 0);
-    BoostC::vector<double> cargaPorSat(instancia.numSats+1, 0);
+    Vector<int> vetSatAtendCliente(instancia.numNos, -1);
+    Vector<int> satUtilizado(instancia.numSats+1, 0);
+    Vector<int> numEvPorSat(instancia.numSats+1, 0);
+    Vector<double> cargaPorSat(instancia.numSats+1, 0);
 
 
-    const ublas::matrix<int> matClienteSat =  N_k_means::k_means(instancia, vetSatAtendCliente, satUtilizado, false);
+    const Matrix<int> matClienteSat =  N_k_means::k_means(instancia, vetSatAtendCliente, satUtilizado, false);
 
     for(int sol = 0; sol < acoPar.numSol; ++sol)
     {
@@ -836,7 +836,7 @@ bool N_Aco::acoSol(Instancia &instancia, AcoParametros &acoPar, AcoEstatisticas 
 
         if(!solGrasp->viavel)
         {
-                BoostC::vector<int> vetClienteAtend(instancia.numNos, 0);
+                Vector<int> vetClienteAtend(instancia.numNos, 0);
 
                 for(int sat=instancia.getFirstSatIndex(); sat <= instancia.getEndSatIndex(); ++sat)
                 {

@@ -20,8 +20,8 @@ using namespace NS_Construtivo2;
 
 
 // Roteamento dos veiculos eletricos
-bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instancia, const float alpha, const ublas::matrix<int> &matClienteSat,
-                                                 bool listaRestTam, const float beta, const BoostC::vector<int> &satUtilizados)
+bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instancia, const float alpha, const Matrix<int> &matClienteSat,
+                                                 bool listaRestTam, const float beta, const Vector<int> &satUtilizados)
 {
 
     if(sol.numEv == sol.numEvMax)
@@ -29,10 +29,10 @@ bool NS_Construtivo2::construtivo2SegundoNivelEV(Solucao &sol, Instancia &instan
 
     //cout<<"**********************************************CONSTRUTIVO2**********************************************\n\n";
 
-    BoostC::vector <int8_t> &visitedClients = sol.vetClientesAtend;
+    Vector <int8_t> &visitedClients = sol.vetClientesAtend;
 
     // Indice: igual a do cliente
-    BoostC::vector<int8_t> vetClientesVisitados = BoostC::vector<int8_t>(visitedClients);
+    Vector<int8_t> vetClientesVisitados = Vector<int8_t>(visitedClients);
 
 /*
 cout<<"VET CLIENTES VISITADOS: \n";
@@ -41,11 +41,11 @@ for(int i=0; i < visitedClients.size(); ++i)
 cout<<"\n\n";
 */
 
-    const BoostC::vector<double> &vetTempoSaida = instancia.vetTempoSaida;
+    const Vector<double> &vetTempoSaida = instancia.vetTempoSaida;
     EvRoute evRouteAux(-1, -1, instancia.getEvRouteSizeMax(), instancia);
 
     //std::list <CandidatoEV> listaCandidatos;
-    BoostC::vector<CandidatoEV> vetCandidatos;
+    Vector<CandidatoEV> vetCandidatos;
     std::list<int> clientesSemCandidato;
 
     //instancia.vetVetDistClienteSatelite
@@ -92,7 +92,7 @@ cout<<"\t\t\tROTA: "<<str<<"\n\n";
 
         // Cliente Selecionando
 
-        vetCandidatos = BoostC::vector<CandidatoEV>();
+        vetCandidatos = Vector<CandidatoEV>();
         vetCandidatos.reserve(instancia.numEv+instancia.numSats);
 
         // Candidato eh <cliente, ev> sendo a insercao mais barata de cada ev
@@ -223,15 +223,15 @@ cout<<"*********************************\n\n";
 }
 
 void NS_Construtivo2::construtivo2(Solucao &sol, Instancia &instancia, const float alpha, const float beta,
-                                   const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil)
+                                   const Matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil)
 {
 
 //cout<<"INICIO CONSTRUTIVO2\n\n";
 
     //instancia.vetVetDistClienteSatelite
 
-    BoostC::vector<int> satUtilizados(instancia.numSats+1, 0);
-    BoostC::vector<int> clientesSat(instancia.getEndClientIndex()+1, 0);
+    Vector<int> satUtilizados(instancia.numSats+1, 0);
+    Vector<int> clientesSat(instancia.getEndClientIndex()+1, 0);
 
 
     if(!iniSatUtil)
@@ -248,7 +248,7 @@ void NS_Construtivo2::construtivo2(Solucao &sol, Instancia &instancia, const flo
     bool segundoNivel = construtivo2SegundoNivelEV(sol, instancia, alpha, matClienteSat, listaRestTam, beta, satUtilizados);
 
 
-    ublas::matrix<int> matClienteSat2 = matClienteSat;
+    Matrix<int> matClienteSat2 = matClienteSat;
     const int zero_max = max(1, instancia.numSats-2);
 
     if(segundoNivel)
@@ -260,13 +260,13 @@ void NS_Construtivo2::construtivo2(Solucao &sol, Instancia &instancia, const flo
             //cout<<"CARGAS: ";
             int numSatZero = 0;
 
-            BoostC::vector<double> vetCargaSat;
+            Vector<double> vetCargaSat;
 
             while(!sol.viavel)
             {
 
                 //cout<<"CARGAS: ";
-                vetCargaSat = BoostC::vector<double>(1 + instancia.numSats, 0.0);
+                vetCargaSat = Vector<double>(1 + instancia.numSats, 0.0);
 
                 for(int i = 1; i <= instancia.getEndSatIndex(); ++i)
                 {

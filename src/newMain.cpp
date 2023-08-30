@@ -24,7 +24,6 @@
 #include <fstream>
 #include "Parametros.h"
 #include "Instancia.h"
-#include "Aco.h"
 #include "PreProcessamento.h"
 #include "k_means.h"
 #include "Vnd.h"
@@ -39,14 +38,12 @@ using namespace std;
 using namespace NS_parametros;
 using namespace NameS_Grasp;
 using namespace N_PreProcessamento;
-using namespace N_Aco;
 using namespace N_k_means;
 using namespace NS_VetorHash;
 //using namespace NS_Hash;
 using namespace NameS_IG;
 
 
-void aco(Instancia &instancia, Parametros &parametros, ParametrosGrasp &parm, Solucao &best);
 void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida);
 void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida);
 void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const Parametros &parametros);
@@ -55,8 +52,8 @@ void escreveDistFile(double dist, double tempo, const std::string &file);
 
 namespace N_gamb
 {
-    BoostC::vector<NS_vnd::MvValor> vetMvValor;
-    BoostC::vector<NS_vnd::MvValor> vetMvValor1Nivel;
+    Vector<NS_vnd::MvValor> vetMvValor;
+    Vector<NS_vnd::MvValor> vetMvValor1Nivel;
 }
 
 int main(int argc, char* argv[])
@@ -164,14 +161,6 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-void aco(Instancia &instancia, Parametros &parametros, ParametrosGrasp &parm, Solucao &best)
-{
-    //cout<<"ACO\n\n";
-    AcoParametros acoParm;
-    AcoEstatisticas acoEst;
-    N_Aco::acoSol(instancia, acoParm, acoEst, parm, best);
-}
-
 void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida)
 {
     //cout<<"GRASP\n\n";
@@ -180,9 +169,9 @@ void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, Parametr
     setParamGrasp(instancia, parametrosGrasp, parametros);
     Estatisticas estatisticas;
 
-    BoostC::vector<int> vetSatAtendCliente(instancia.numNos, -1);
-    BoostC::vector<int> satUtilizado(instancia.numSats+1, 0);
-    const ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
+    Vector<int> vetSatAtendCliente(instancia.numNos, -1);
+    Vector<int> satUtilizado(instancia.numSats+1, 0);
+    const Matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
     Solucao *solGrasp = grasp(instancia, parametrosGrasp, estatisticas, false, matClienteSat, N_gamb::vetMvValor,
                               N_gamb::vetMvValor1Nivel, parametrosSaida);
     best.copia(*solGrasp);
@@ -198,9 +187,9 @@ void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosS
     setParamGrasp(instancia, parametrosGrasp, parametros);
     Estatisticas estatisticas;
 
-    BoostC::vector<int> vetSatAtendCliente(instancia.numNos, -1);
-    BoostC::vector<int> satUtilizado(instancia.numSats+1, 0);
-    ublas::matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
+    Vector<int> vetSatAtendCliente(instancia.numNos, -1);
+    Vector<int> satUtilizado(instancia.numSats+1, 0);
+    Matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
     Solucao *solGrasp = iteratedGreedy(instancia, parametrosGrasp, estatisticas, matClienteSat, N_gamb::vetMvValor,
                                        N_gamb::vetMvValor1Nivel, parametrosSaida, parametros);
     best.copia(*solGrasp);
@@ -210,8 +199,9 @@ void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosS
 
 void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const Parametros &parametros)
 {
-    const BoostC::vector<float> vetAlfa{0.05, 0.07, 0.1, 0.15, 0.2, 0.3, 0.35, 0.4, 0.5, 0.6};
-    //const BoostC::vector<float> vetAlfa{0.1, 0.3, 0.5, 0.9};
+    const std::vector<float> vetAlfaTemp{0.05, 0.07, 0.1, 0.15, 0.2, 0.3, 0.35, 0.4, 0.5, 0.6};
+    const Vector<float> vetAlfa(vetAlfaTemp);
+    //const Vector<float> vetAlfa{0.1, 0.3, 0.5, 0.9};
     int num = min(instancia.getN_Evs() / 2, 8);
     if(num == 0)
         num = 1;

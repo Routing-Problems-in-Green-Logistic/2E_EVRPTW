@@ -27,7 +27,7 @@
 #include "Vnd.h"
 #include <chrono>
 #include <iomanip>
-#include <boost/format.hpp>
+
 #include <filesystem>
 #include "Teste.h"
 #include "Grasp.h"
@@ -160,8 +160,8 @@ int main(int argc, char* argv[])
         double tempo = 0.0;
         //instance.print();
 
-        //const BoostC::vector<float> vetAlfa{0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.9};
-        const BoostC::vector<float> vetAlfa{0.1, 0.3, 0.5, 0.7, 0.9};
+        //const Vector<float> vetAlfa{0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.9};
+        const Vector<float> vetAlfa{0.1, 0.3, 0.5, 0.7, 0.9};
 
 
         int num = min(instance.getN_Evs()/2, 8);
@@ -345,7 +345,7 @@ int main(int argc, char* argv[])
     dijkstraSatCli(instancia);
     instancia.calculaVetVoltaRS_sat();
 
-    const BoostC::vector<float> vetAlfa{0.1, 0.3, 0.5, 0.7, 0.9};
+    const Vector<float> vetAlfa{0.1, 0.3, 0.5, 0.7, 0.9};
     int num = min(instancia.getN_Evs() / 2, 8);
     if(num == 0)
         num = 1;
@@ -461,7 +461,7 @@ int main(int argc, char* argv[])
     }
 
 
-    const BoostC::vector<float> vetAlfa{0.1, 0.3, 0.5, 0.7, 0.9};
+    const Vector<float> vetAlfa{0.1, 0.3, 0.5, 0.7, 0.9};
     int num = min(instancia.getN_Evs()/2, 8);
     if(num == 0)
         num = 1;
@@ -1111,8 +1111,8 @@ Instance* getInstanceFromFile(std::string &fileName){
     std::string line;
     stringstream ss, ssaux, ssaux2;
     int nSats=0, nClients=0, nRS=0;
-    BoostC::vector<float> demands;
-    BoostC::vector<std::pair<float, float>> coordinates;
+    Vector<float> demands;
+    Vector<std::pair<float, float>> coordinates;
     while(getline(file, line)){
         // std::cout << line << std::endl;
         // std::cout << "first char: " << line[0] << std::endl;
@@ -1153,7 +1153,7 @@ Instance* getInstanceFromFile(std::string &fileName){
     ssaux2 >> evBattery;
     //cout << ".";
     file.close();
-    BoostC::vector<BoostC::vector<double>> distMat(demands.size(), BoostC::vector<double>(demands.size(), -1));
+    Vector<Vector<double>> distMat(demands.size(), Vector<double>(demands.size(), -1));
     for(int i = 0; i < distMat.size(); i++){
         for(int j = 0; j < distMat.size(); j++){
             distMat[i][j] = distance(coordinates[i], coordinates[j]);

@@ -42,8 +42,8 @@ std::string NameS_IG::strDescricaoIg = "";
         //"Teste do construtivo(Construtivo2) com torneio para numero de clientes == 100\nALFA: 0.6";
 
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
-                                  ublas::matrix<int> &matClienteSat, BoostC::vector<NS_vnd::MvValor> &vetMvValor,
-                                  BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida,
+                                  Matrix<int> &matClienteSat, Vector<NS_vnd::MvValor> &vetMvValor,
+                                  Vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida,
                                   NS_parametros::Parametros &parametros)
 {
 
@@ -246,7 +246,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
 
 
     // Quarda o numero de inviabilidades
-    BoostC::vector<int> vetInviabilidate(SIZE_ENUM_INV, 0);
+    Vector<int> vetInviabilidate(SIZE_ENUM_INV, 0);
 
     // Escolhe aleatoriamente numRotas nao vazias e as removem da solucao
     auto funcDestroi0 = [&](Solucao &sol, const int numRotas)
@@ -379,7 +379,7 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
         }
 
 #if UTILIZA_MAT_MV
-        //sol.vetMatSatEvMv[sat] =  ublas::matrix<int>(instancia.numEv, NUM_MV, 0);
+        //sol.vetMatSatEvMv[sat] =  Matrix<int>(instancia.numEv, NUM_MV, 0);
         sol.todasRotasEvAtualizadas();
 #endif
         sol.reseta1Nivel(instancia);
@@ -596,7 +596,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
         return true;
     };
 
-    BoostC::vector<DadosIg> vetDadosIg;
+    Vector<DadosIg> vetDadosIg;
     vetDadosIg.reserve(parametros.numItTotal);
 
     bool escreveSol = false;
@@ -946,7 +946,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     return solPtr;
 }
 
-void NameS_IG::printVetDadosIg(BoostC::vector<DadosIg> &vetDadosIg, NS_parametros::Parametros &parametros)
+void NameS_IG::printVetDadosIg(Vector<DadosIg> &vetDadosIg, NS_parametros::Parametros &parametros)
 {
     if(vetDadosIg[0].solConst < 0.0)
     {
@@ -1026,7 +1026,7 @@ void NameS_IG::printVetDadosIg(BoostC::vector<DadosIg> &vetDadosIg, NS_parametro
 void NameS_IG::atualizaTempoSaidaInstancia(Solucao &solucao, Instancia &instancia)
 {
 
-    BoostC::vector<double> &vetTempoSaida = instancia.vetTempoSaida;
+    Vector<double> &vetTempoSaida = instancia.vetTempoSaida;
     for(int sat=1; sat <= instancia.numSats; ++sat)
     {
         vetTempoSaida[sat] = max(solucao.satTempoChegMax[sat], vetTempoSaida[sat]);

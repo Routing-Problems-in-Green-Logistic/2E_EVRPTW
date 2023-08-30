@@ -353,7 +353,7 @@ void NS_parametros::consolidaResultados(Parametros &paramEntrada, ParametrosSaid
                     std::ifstream lerCap;
                     lerCap.open(paramEntrada.caminhoPasta + "/temp.txt", ios::in);
 
-                    BoostC::vector<string> cabec;
+                    Vector<string> cabec;
 
                     for(int i=0; i < paramSaida.mapNoSaida.size(); ++i)
                     {
@@ -805,7 +805,7 @@ string NS_parametros::Parametros::getParametros()
 
 void NS_parametros::NoSaida::getVal(string &saidaStr)
 {
-    BoostC::vector<double> vectorSaida(listVal.size());
+    Vector<double> vectorSaida(listVal.size());
     std::copy(listVal.begin(), listVal.end(), vectorSaida.begin());
     double min = DOUBLE_MAX;
     double max = DOUBLE_MIN;
@@ -855,7 +855,7 @@ void NS_parametros::NoSaida::getVal(string &saidaStr)
                 for(const double i:vectorSaida)
                     std += pow(i-avg, double(2));
 
-                std = sqrt(std/vectorSaida.size());
+                std = std::sqrt(double(std/vectorSaida.size()));
                 saidaStr += NS_Auxiliary::float_to_string(std, numCasas) + " \t ";
                 break;
 

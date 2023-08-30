@@ -25,12 +25,12 @@ namespace ModeloNs
     void criaFuncObj(const Instancia &instancia,
                      GRBModel &modelo,
                      VariaveisNs::Variaveis &variaveis,
-                     const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv);
+                     const Vector<VariaveisNs::RotaEvMip> &vetRotaEv);
 
     void criaRestParaRotasEVs(const Instancia &instancia,
                               GRBModel &modelo,
                               VariaveisNs::Variaveis &variaveis,
-                              const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotaEv,
+                              const Vector<VariaveisNs::RotaEvMip> &vetRotaEv,
                               const NS_parametros::ParametrosMip &paramMip);
 
     void criaRestVar_X(const Instancia &instancia, GRBModel &modelo, VariaveisNs::Variaveis &variaveis);
@@ -38,27 +38,27 @@ namespace ModeloNs
     void criaRestVar_Dem(const Instancia &instancia,
                          GRBModel &modelo,
                          VariaveisNs::Variaveis &variaveis,
-                         const ublas::matrix<int> &matrixSat,
-                         const BoostC::vector<int> &vetNumRotasSat,
-                         const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv);
+                         const Matrix<int> &matrixSat,
+                         const Vector<int> &vetNumRotasSat,
+                         const Vector<VariaveisNs::RotaEvMip> &vetRotasEv);
 
     void criaRestVar_T(const Instancia &instancia,
                        GRBModel &modelo,
                        VariaveisNs::Variaveis &variaveis,
-                       const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
-                       const ublas::matrix<int> &matrixSat,
-                       const BoostC::vector<int> &vetNumRotasSat,
-                       const ublas::matrix<std::list<int>> &matRotasCliSat,
+                       const Vector<VariaveisNs::RotaEvMip> &vetRotasEv,
+                       const Matrix<int> &matrixSat,
+                       const Vector<int> &vetNumRotasSat,
+                       const Matrix<std::list<int>> &matRotasCliSat,
                        const NS_parametros::ParametrosMip &paramMip);
 
     void recuperaSolucao(GRBModel &modelo, VariaveisNs::Variaveis &variaveis, Solucao &solucao, Instancia &instancia,
-                         const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv, const bool Xn);
+                         const Vector<VariaveisNs::RotaEvMip> &vetRotasEv, const bool Xn);
 
     void recuperaK_Solucoes(GRBModel &modelo,
                             VariaveisNs::Variaveis &variaveis,
                             Solucao &solucao,
                             Instancia &instancia,
-                            const BoostC::vector<VariaveisNs::RotaEvMip> &vetRotasEv,
+                            const Vector<VariaveisNs::RotaEvMip> &vetRotasEv,
                             std::list<std::unique_ptr<Solucao>> &listSolucoes);
 
     void setParametrosModelo(GRBModel &model, NS_parametros::ParametrosMip paramMip);

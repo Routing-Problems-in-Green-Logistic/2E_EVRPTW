@@ -14,6 +14,7 @@
 #include <utility>
 #include <map>
 #include <chrono>
+#include <csignal>
 #include "../Solucao.h"
 #include "../Vnd.h"
 
@@ -116,7 +117,7 @@ namespace NS_parametros
 
         string nome;
         char tipo = SAIDA_TIPO_FLOAT;
-        BoostC::vector<int> saidaExec;
+        Vector<int> saidaExec;
         list<double> listVal;
         uint64_t semente=0;
 
@@ -151,7 +152,7 @@ namespace NS_parametros
         {
             nome = outro.nome;
             tipo = outro.tipo;
-            saidaExec = BoostC::vector<int>(outro.saidaExec);
+            saidaExec = Vector<int>(outro.saidaExec);
             listVal = list<double>(outro.listVal);
         }
 
@@ -161,7 +162,7 @@ namespace NS_parametros
             tipo = tipo_;
         }
 
-        NoSaida(string nome_, char tipo_, BoostC::vector<int> &saidaExec_)
+        NoSaida(string nome_, char tipo_, Vector<int> &saidaExec_)
         {
             nome = std::move(nome_);
             tipo = tipo_;
@@ -261,7 +262,7 @@ namespace NS_parametros
     ParametrosSaida getParametros();
 
     template <typename T>
-    void setParametrosSaida(ParametrosSaida &parametrosSaida, const Parametros &parametros, Solucao &best, T start, T end, BoostC::vector<NS_vnd::MvValor> &vetMvValor, BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel)
+    void setParametrosSaida(ParametrosSaida &parametrosSaida, const Parametros &parametros, Solucao &best, T start, T end, Vector<NS_vnd::MvValor> &vetMvValor, Vector<NS_vnd::MvValor> &vetMvValor1Nivel)
     {
 
         parametrosSaida.setTempo(start, end);

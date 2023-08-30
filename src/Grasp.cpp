@@ -43,14 +43,14 @@ const bool ListaRestTam = true;
  * @return
  */
 Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, Estatisticas &estat,
-                             const bool retPrimeiraSol, const ublas::matrix<int> &matClienteSat,
-                             BoostC::vector<NS_vnd::MvValor> &vetMvValor, BoostC::vector<NS_vnd::MvValor> &vetMvValor1Nivel,
+                             const bool retPrimeiraSol, const Matrix<int> &matClienteSat,
+                             Vector<NS_vnd::MvValor> &vetMvValor, Vector<NS_vnd::MvValor> &vetMvValor1Nivel,
                              NS_parametros::ParametrosSaida &parametrosSaida)
 {
 
 //cout<<"Primeiro cliente: "<<instance.getFirstClientIndex()<<"\n";
 
-    vetMvValor1Nivel = BoostC::vector<MvValor>(2);
+    vetMvValor1Nivel = Vector<MvValor>(2);
 
     vetMvValor1Nivel[0].mv = MV_EV_SHIFIT_INTER_ROTAS_INTER_SAT;
     vetMvValor1Nivel[1].mv = MV_EV_SWAP_INTER_ROTAS_INTER_SAT;
@@ -95,20 +95,20 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     double custoBest1Nivel = gulCusto1Nivel;
 
     //Vetores para o reativo
-    BoostC::vector<double> vetorProbabilidade2Nivel(tamAlfa, 100.0/tamAlfa);
-    BoostC::vector<double> vetorProbabilidade1Nivel(tamAlfa, 100.0/tamAlfa);
+    Vector<double> vetorProbabilidade2Nivel(tamAlfa, 100.0/tamAlfa);
+    Vector<double> vetorProbabilidade1Nivel(tamAlfa, 100.0/tamAlfa);
 
-    BoostC::vector<int>    vetorFrequencia2Nivel(tamAlfa, 0);
-    BoostC::vector<int>    vetorFrequencia1Nivel(tamAlfa, 0);
+    Vector<int>    vetorFrequencia2Nivel(tamAlfa, 0);
+    Vector<int>    vetorFrequencia1Nivel(tamAlfa, 0);
 
-    BoostC::vector<double> solucaoAcumulada2Nivel(tamAlfa, 0.0);
-    BoostC::vector<double> solucaoAcumulada1Nivel(tamAlfa, 0.0);
+    Vector<double> solucaoAcumulada2Nivel(tamAlfa, 0.0);
+    Vector<double> solucaoAcumulada1Nivel(tamAlfa, 0.0);
 
-    BoostC::vector<double> vetorMedia2Nivel(tamAlfa, 0.0);
-    BoostC::vector<double> vetorMedia1Nivel(tamAlfa, 0.0);
+    Vector<double> vetorMedia2Nivel(tamAlfa, 0.0);
+    Vector<double> vetorMedia1Nivel(tamAlfa, 0.0);
 
-    BoostC::vector<double> proporcao2Nivel(tamAlfa, 0.0);
-    BoostC::vector<double> proporcao1Nivel(tamAlfa, 0.0);
+    Vector<double> proporcao2Nivel(tamAlfa, 0.0);
+    Vector<double> proporcao1Nivel(tamAlfa, 0.0);
 
     auto atualizaProb = [&]()
     {
@@ -178,8 +178,8 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     };
 
     // Guarda o numero de vezes que o cliente i NAO a parece na solucao
-    BoostC::vector<QuantCliente> vetQuantCliente(instance.getNClients());
-    BoostC::vector<QuantCliente> vetQuantProb0;
+    Vector<QuantCliente> vetQuantCliente(instance.getNClients());
+    Vector<QuantCliente> vetQuantProb0;
 
     for(int i=instance.getFirstClientIndex(); i <= instance.getEndClientIndex(); ++i)
         vetQuantCliente[convIndClienteVet(i)].cliente = i;
@@ -193,7 +193,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     int addRotaClienteProbIgual = 0;
     int clienteAdd = -1;
 
-    vetMvValor = BoostC::vector<MvValor>(NUM_MV_LS);
+    vetMvValor = Vector<MvValor>(NUM_MV_LS);
     for(int i=0; i < NUM_MV_LS; ++i)
         vetMvValor[i].mv = i;
 
@@ -206,7 +206,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
     bool iniRS = false;
 
     // Guarda os ev que sao inicializados com RS RS
-    ublas::matrix<int> matrixSatEv(instance.numSats+1, instance.numEv, 0);
+    Matrix<int> matrixSatEv(instance.numSats+1, instance.numEv, 0);
 
     for(int i=0; i < parametros.numIteGrasp; ++i)
     {
@@ -277,7 +277,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             if(vetQuantCliente[0].prob != 100)
             {
 
-                BoostC::vector<int> vetSatRotaInicializada(1+(instance.numSats*instance.numEv), 0);
+                Vector<int> vetSatRotaInicializada(1+(instance.numSats*instance.numEv), 0);
 
                 do
                 {
@@ -361,11 +361,11 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
             segundaEst = true;
 
-            BoostC::vector<int> vetRS_uti(instance.getEndRS_index()+1, 0);
+            Vector<int> vetRS_uti(instance.getEndRS_index()+1, 0);
             std::fill(vetRS_uti.begin(), vetRS_uti.begin()+instance.getFirstRS_index(), -1);
 
-            matrixSatEv = ublas::zero_matrix<int>(instance.numSats+1, instance.numEv);
-
+            //matrixSatEv = ublas::zero_matrix<int>(instance.numSats+1, instance.numEv);
+            matrixSatEv.setVal(0);
             int numRs = 0;
 
 
@@ -817,15 +817,17 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
 std::string NameS_Grasp::converteDouble(double num, int numCasas)
 {
-    std::string format =  "%."+ std::to_string(numCasas)+"f";
-    return str(boost::format(format.c_str())%num);
+    static char buf[10000];
+    std::snprintf(buf, 10000, "%.*f", numCasas, num);
+    return string(buf);
 }
 
 
 std::string NameS_Grasp::converteFloat(float num, int numCasas)
 {
-    std::string format =  "%."+ std::to_string(numCasas)+"f";
-    return str(boost::format(format.c_str())%num);
+    static char buf[10000];
+    std::snprintf(buf, 10000, "%.*f", numCasas, num);
+    return string(buf);
 }
 
 double NameS_Grasp::getPenalidade2Nivel(Solucao &sol, Instancia &instancia, float f)
@@ -945,7 +947,7 @@ double NameS_Grasp::getDistMaisPenalidade(Solucao &sol, Instancia &instancia)
 void NameS_Grasp::inicializaSol(Solucao &sol, Instancia &instance)
 {
 
-    BoostC::vector<EstDist> vetEstDist(instance.getN_RechargingS());
+    Vector<EstDist> vetEstDist(instance.getN_RechargingS());
     EvRoute evRoute(-1, instance.getFirstEvIndex(), instance.getEvRouteSizeMax(), instance);
 
     for(int i=instance.getFirstSatIndex(); i <= instance.getEndSatIndex(); ++i)

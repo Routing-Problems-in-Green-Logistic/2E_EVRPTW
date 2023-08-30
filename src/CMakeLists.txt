@@ -4,6 +4,15 @@ project(2E_EVRP)
 
 enable_language(CXX)
 
+IF(${VAR_DEBUG})
+    add_definitions(-DVAR_DEBUG=1)
+    add_definitions(-DVAR_VECTOR_SANITY_CHECK=1)
+
+ELSE()
+    add_definitions(-DVAR_DEBUG=0)
+    add_definitions(-DVAR_VECTOR_SANITY_CHECK=0)
+ENDIF()
+
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 set(CMAKE_BUILD_TYPE "Release")
 
@@ -23,7 +32,7 @@ link_directories($ENV{GUROBI_HOME}/lib)
 
 
 include_directories(INSTANCIA)
-include_directories(ACO)
+#include_directories(ACO)
 include_directories(K_MEANS)
 include_directories(CONSTRUTIVO)
 include_directories(BUSCA_LOCAL)
@@ -33,6 +42,9 @@ include_directories(MIP)
 set(SOURCES
         INSTANCIA/Parametros.cpp
         INSTANCIA/Instance.cpp
+        INSTANCIA/safe_matrix.h
+        INSTANCIA/safe_vector.h
+        INSTANCIA/sefe_array.h
         CONSTRUTIVO/Construtivo.cpp
         CONSTRUTIVO/Construtivo2.cpp
         CONSTRUTIVO/Construtivo3.cpp
@@ -40,7 +52,7 @@ set(SOURCES
         BUSCA_LOCAL/LocalSearch.cpp
         BUSCA_LOCAL/LocalSearch2.cpp
         MIP/Modelo.cpp
-        ACO/Aco.cpp
+        #ACO/Aco.cpp
         K_MEANS/k_means.cpp
         newMain.cpp
         Satelite.cpp
@@ -75,8 +87,6 @@ set(SOURCES
 
 
 add_executable(run ${SOURCES})# INSTANCIA/ParametrosEntrada.cpp INSTANCIA/ParametrosEntrada.h)
-
-target_link_libraries(run LINK_PUBLIC ${Boost_LIBRARIES})
 
 target_link_libraries(run gurobi_c++)
 target_link_libraries(run gurobi)

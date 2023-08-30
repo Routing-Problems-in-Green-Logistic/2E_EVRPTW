@@ -2,7 +2,7 @@
 // Created by ****** on 19/11/2021.
 //
 
-#include <boost/format.hpp>
+
 #include <fstream>
 #include "Auxiliary.h"
 
@@ -23,14 +23,16 @@ void NS_Auxiliary::criaDiretorio(const string& caminho)
 
 string NS_Auxiliary::float_to_string(float num, int numCasas)
 {
-    const string fmt = "%."+std::to_string(numCasas)+"f";
-    return string(str(boost::format(fmt) % (num)));
+    static char buf[10000];
+    std::snprintf(buf, 10000, "%.*f", numCasas, num);
+    return string(buf);
 }
 
 string NS_Auxiliary::float_to_string(double num, int numCasas)
 {
-    const string fmt = "%."+std::to_string(numCasas)+"f";
-    return string(str(boost::format(fmt) % (num)));
+    static char buf[10000];
+    std::snprintf(buf, 10000, "%.*f", numCasas, num);
+    return string(buf);
 }
 
 void NS_Auxiliary::escreveStrEmArquivo(const std::string &string, const std::string &&nomeArq, ios::openmode openmode)

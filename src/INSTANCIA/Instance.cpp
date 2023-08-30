@@ -3,7 +3,7 @@
 #include <cmath>
 #include "Instancia.h"
 #include <fstream>
-#include <boost/format.hpp>
+
 #include "../Auxiliary.h"
 #include "../CONSTRUTIVO/Construtivo.h"
 #include "../PreProcessamento.h"
@@ -159,7 +159,6 @@ Instancia::Instancia(const std::string &str, const std::string &nome_)
         file>>cap;
         getline(file, lixo);
         vectVeiculo.emplace_back(cap);
-
     }
 
     for(int i=0; i < numEv; ++i)
@@ -188,7 +187,7 @@ Instancia::Instancia(const std::string &str, const std::string &nome_)
     }
 
     // Cria matriz de distancia
-    matDist.resize(numNos, numNos, false);
+    matDist = Matrix<double>(numNos, numNos);
 
 /*    cout<<"DEP: "<<getDepotIndex()<<"\nSAT ID INICIO: "<<getFirstSatIndex()<<"\nSAT ID FIM: "<<getEndSatIndex();
     cout<<"\nEST ID INICIO: "<<getFirstRechargingSIndex()<<"\nEST ID FIM: "<<getEndRechargingSIndex()<<"\n";
@@ -227,11 +226,9 @@ Instancia::Instancia(const std::string &str, const std::string &nome_)
     numEstacoesPorArco = min(numRechargingS, NUM_MAX_EST_POR_ARC);
 
     int tamMat = 1 + numClients + numRechargingS + numSats;
-    matEstacao.resize(tamMat, tamMat, false);
+    matEstacao = Matrix<int*>(tamMat, tamMat, nullptr);
 
-
-
-    BoostC::vector<EstMaisProx> vetEstMaisProx(numRechargingS);
+    Vector<EstMaisProx> vetEstMaisProx(numRechargingS);
 
     for(int i= getFirstRS_index(); i <= getEndClientIndex(); ++i)
     {
@@ -278,7 +275,7 @@ Instancia::Instancia(const std::string &str, const std::string &nome_)
 
     penalizacaoDistEv   = calculaPenalizacaoDistEv();
     penalizacaoDistComb = calculaPenalizacaoDistComb();
-    vetTempoSaida = BoostC::vector<double>(1+numSats, 0.0);
+    vetTempoSaida = Vector<double>(1+numSats, 0.0);
 
     for(int i=1; i <= getEndSatIndex(); ++i)
         vetTempoSaida[i] = getDistance(0, i);
@@ -332,7 +329,7 @@ void Instancia::calculaVetVoltaRS_sat()
     vetVetDistSatSat.resize(numSats+1);
     for(int sat=getFirstSatIndex(); sat <= getEndSatIndex(); ++sat)
     {
-        BoostC::vector<DistSatelite> &vetDistSat = vetVetDistSatSat[sat];
+        Vector<DistSatelite> &vetDistSat = vetVetDistSatSat[sat];
         vetDistSat.resize(numSats-1);
         //cout<<"Sat("<<sat<<"): ";
 

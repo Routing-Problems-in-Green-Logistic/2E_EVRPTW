@@ -111,7 +111,7 @@ void MatrixGRBVar::inicializa(GRBModel &model, int numLin_, int numCol_, const s
 
 }
 
-VariaveisNs::Variaveis::Variaveis(const Instancia &instancia, GRBModel &modelo, const BoostC::vector<RotaEvMip> &vetRotasEv)
+VariaveisNs::Variaveis::Variaveis(const Instancia &instancia, GRBModel &modelo, const Vector<RotaEvMip> &vetRotasEv)
 {
     numVertices = instancia.numSats+1;
 
@@ -228,7 +228,7 @@ void VectorGRBVar::inicializa(GRBModel &model, int num_, const string &&nome, ch
 RotaEvMip::RotaEvMip(const Instancia &instancia, const NS_VetorHash::VetorHash &vetorHash):evRoute(vetorHash.vet[0], -1, instancia.evRouteSizeMax, instancia)
 {
     inicializado = true;
-    vetAtend = BoostC::vector<Int8>(instancia.numNos, Int8(0));
+    vetAtend = Vector<Int8>(instancia.numNos, Int8(0));
 
     // Copia rota
     evRoute[0].cliente = vetorHash.vet[0];
@@ -292,7 +292,7 @@ void RotaEvMip::inicializa(const Instancia &instancia, const VetorHash &vetorHas
     }
 
     inicializado = true;
-    vetAtend = BoostC::vector<Int8>(instancia.numNos, Int8(0));
+    vetAtend = Vector<Int8>(instancia.numNos, Int8(0));
 
     // Copia rota
     evRoute[0].cliente    = vetorHash.vet[0];
@@ -356,7 +356,7 @@ void RotaEvMip::inicializa(const Instancia &instancia, const VetorHash &vetorHas
 RotaEvMip::RotaEvMip(const Instancia &instancia, const EvRoute &evRoute_):evRoute(evRoute_)
 {
     inicializado = true;
-    vetAtend = BoostC::vector<Int8>(instancia.numNos, Int8(0));
+    vetAtend = Vector<Int8>(instancia.numNos, Int8(0));
 
     for(int i=1; i < evRoute.routeSize; ++i)
     {

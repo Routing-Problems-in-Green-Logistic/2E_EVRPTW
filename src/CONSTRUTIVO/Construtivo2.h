@@ -36,11 +36,11 @@ namespace NS_Construtivo2
         }
     };
 
-    bool construtivo2SegundoNivelEV(Solucao &sol, Instancia &instancia, const float alpha, const ublas::matrix<int> &matClienteSat,
-                                    bool listaRestTam, const float beta, const BoostC::vector<int> &satUtilizados);
+    bool construtivo2SegundoNivelEV(Solucao &sol, Instancia &instancia, const float alpha, const Matrix<int> &matClienteSat,
+                                    bool listaRestTam, const float beta, const Vector<int> &satUtilizados);
 
     void construtivo2(Solucao &Sol, Instancia &instancia, const float alpha, const float beta,
-                      const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil);
+                      const Matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil);
 
 }
 

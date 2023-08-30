@@ -1,3 +1,4 @@
+/*
 const int Tam =10000;
 
 #include <chrono>
@@ -10,7 +11,7 @@ const int Tam =10000;
 using namespace NameTeste;
 using namespace NS_Construtivo;
 
-/*
+
 
 void NameTeste::testeMovimentos(string &saida, const Instance &instance, long semente, int k)
 {

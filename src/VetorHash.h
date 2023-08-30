@@ -61,14 +61,14 @@ namespace NS_VetorHash
     public:
 
         bool tipoRota = true;   // Se falso, entao eh uma solucao completa
-        BoostC::vector<int> vet;   // Vetor guarda a rota ou a solucao
+        Vector<int> vet;   // Vetor guarda a rota ou a solucao
         std::size_t valHash = 0;
 
         explicit VetorHash(Solucao &solucao, Instancia &instancia)
         {
             tipoRota = false;
 
-            BoostC::vector<NoEvRoute> vetNoEvRoute;
+            Vector<NoEvRoute> vetNoEvRoute;
             vetNoEvRoute.reserve(instancia.numEv*instancia.numSats);
 
             for(Satelite &satelite:solucao.satelites)
@@ -91,7 +91,7 @@ namespace NS_VetorHash
             if(n > 0)
             {
 
-                vet = BoostC::vector<int>();
+                vet = Vector<int>();
                 vet.reserve(n);
 
                 for(NoEvRoute &noEvRoute: vetNoEvRoute)
@@ -108,7 +108,7 @@ namespace NS_VetorHash
         explicit VetorHash(const EvRoute &evRoute)
         {
 
-            vet = BoostC::vector<int>(evRoute.routeSize);
+            vet = Vector<int>(evRoute.routeSize);
 
             for(int i=0; i < evRoute.routeSize; ++i)
                 vet[i] = evRoute.route[i].cliente;

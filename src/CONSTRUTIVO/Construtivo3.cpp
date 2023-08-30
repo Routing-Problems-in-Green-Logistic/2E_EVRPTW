@@ -18,7 +18,7 @@ using namespace NS_Construtivo3;
 using namespace std;
 using namespace NS_Auxiliary;
 using namespace NS_viabRotaEv;
-using namespace boost::numeric;
+
 
 #define PRINT_DEBUG_CONST FALSE
 
@@ -26,9 +26,9 @@ typedef std::list<CandidatoEV>::iterator ItListCand;
 
 // Roteamento dos veiculos eletricos
 bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instance, const float alfaSeg,
-                                                const ublas::matrix<int> &matClienteSat, bool listaRestTam,
-                                                const BoostC::vector<int> &satUtilizados, bool print,
-                                                BoostC::vector<int> &vetInviabilidade, const bool torneio)
+                                                const Matrix<int> &matClienteSat, bool listaRestTam,
+                                                const Vector<int> &satUtilizados, bool print,
+                                                Vector<int> &vetInviabilidade, const bool torneio)
 {
 #if PRINT_DEBUG_CONST
     print = true;
@@ -37,12 +37,12 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
     cout<<"TEMPO SAIDA SAT 2: "<<instance.vetTempoSaida[2]<<"\n";
 #endif
 
-    BoostC::vector<int8_t> &visitedClients = sol.vetClientesAtend;
+    Vector<int8_t> &visitedClients = sol.vetClientesAtend;
 
     const int FistIdClient  = instance.getFirstClientIndex();
     const int LastIdClient  = instance.getEndClientIndex();
     const auto ItEnd        = visitedClients.begin() + instance.getNSats() + instance.getNClients();
-    const BoostC::vector<double> &vetTempoSaida = instance.vetTempoSaida;
+    const Vector<double> &vetTempoSaida = instance.vetTempoSaida;
     EvRoute evRouteAux(-1, -1, instance.getEvRouteSizeMax(), instance);
 
     std::list<CandidatoEV> listaCandidatos;
@@ -57,11 +57,11 @@ bool NS_Construtivo3::construtivoSegundoNivelEV(Solucao &sol, Instancia &instanc
 
 
     // POSSUI SOMENTE O NUMERO DE CLIENTES! UTILIZAR transformaIdCliente
-    //BoostC::vector<std::list<ItListCand>> vetCliItListCand(instance.getNClients(), std::list<ItListCand>());
+    //Vector<std::list<ItListCand>> vetCliItListCand(instance.getNClients(), std::list<ItListCand>());
 
     //COLUNAS DA MATRIZ POSSUEM SOMENTE A QUANTIDADE DE CLIENTES!!  UTILIZAR transformaIdCliente
-    static BoostC::vector<ublas::matrix<ItListCand>> matCandidato(1 + instance.getNSats());
-    std::fill(matCandidato.begin(), matCandidato.end(), ublas::matrix<ItListCand>(numLinhasMat, numColMat, listaCandidatos.end()));
+    static Vector<Matrix<ItListCand>> matCandidato(1 + instance.getNSats());
+    std::fill(matCandidato.begin(), matCandidato.end(), Matrix<ItListCand>(numLinhasMat, numColMat, listaCandidatos.end()));
 
     auto criaListaCandidatosP_Cliente = [&](const int cliente, const bool numEvMax) -> std::list<CandidatoEV>
     {
@@ -632,7 +632,7 @@ cout<<"CLIENTE("<<*itCliente<<") SEM CANDIDADO, REAVALIADO: \n";
 }
 
 
-bool NS_Construtivo3::visitAllClientes(BoostC::vector<int8_t> &visitedClients, const Instancia &instance)
+bool NS_Construtivo3::visitAllClientes(Vector<int8_t> &visitedClients, const Instancia &instance)
 {
 
     int i=instance.getFirstClientIndex();
@@ -657,7 +657,7 @@ NS_Construtivo3::construtivoPrimeiroNivel(Solucao &sol, Instancia &instance, con
 
     //cout<<"*******************************INICIO CONSTRUTIVO3 1º NIVEL*******************************\n\n";
     // Cria o vetor com a demanda de cada satellite
-    BoostC::vector<double> demandaNaoAtendidaSat;
+    Vector<double> demandaNaoAtendidaSat;
     demandaNaoAtendidaSat.reserve(sol.getNSatelites()+1);
     int satId = 1;
     demandaNaoAtendidaSat.push_back(0.0);
@@ -992,7 +992,7 @@ bool NS_Construtivo3::verificaViabilidadeSatelite(const double tempoChegada, Sat
 
 
 
-bool NS_Construtivo3::existeDemandaNaoAtendida(BoostC::vector<double> &demandaNaoAtendida)
+bool NS_Construtivo3::existeDemandaNaoAtendida(Vector<double> &demandaNaoAtendida)
 {
     for(double dem:demandaNaoAtendida)
     {
@@ -1057,14 +1057,14 @@ void NS_Construtivo3::setSatParaCliente(Instancia &instancia, vector<int> &vetSa
  * @param iniSatUtil      Indica se os satelites devem ser zerados de acordo com a sol parcial (Para utilizacao do IG)
  */
 void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const float alfaSeg, const float betaPrim,
-                                  const ublas::matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil,
-                                  bool print, BoostC::vector<int> *vetInviabilidate, const bool torneio,
+                                  const Matrix<int> &matClienteSat, bool listaRestTam, bool iniSatUtil,
+                                  bool print, Vector<int> *vetInviabilidate, const bool torneio,
                                   const bool split)
 {
 
 
-    BoostC::vector<int> satUtilizados(instancia.numSats+1, 0);
-    BoostC::vector<int> clientesSat(instancia.getEndClientIndex()+1, 0);
+    Vector<int> satUtilizados(instancia.numSats+1, 0);
+    Vector<int> clientesSat(instancia.getEndClientIndex()+1, 0);
 
     if(!iniSatUtil)
         std::fill(satUtilizados.begin()+1, satUtilizados.end(), 1);
@@ -1087,7 +1087,7 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
     bool segundoNivel = construtivoSegundoNivelEV(sol, instancia, alfaSeg, matClienteSat, listaRestTam, satUtilizados, print,
                                                   *vetInviabilidate, torneio);
 
-    const ublas::matrix<int> &matClienteSat2 = matClienteSat;
+    const Matrix<int> &matClienteSat2 = matClienteSat;
     const int zero_max = max(1, instancia.numSats-2);
 
     if(segundoNivel)
@@ -1104,7 +1104,7 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
             //cout<<"CARGAS: ";
             int numSatZero = 0;
 
-            BoostC::vector<double> vetCargaSat;
+            Vector<double> vetCargaSat;
 
             while(!sol.viavel)
             {
@@ -1113,7 +1113,7 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
                     (*vetInviabilidate)[Inv_1_Nivel] += 1;
 
                 //cout<<"CARGAS: ";
-                vetCargaSat = BoostC::vector<double>(1 + instancia.numSats, 0.0);
+                vetCargaSat = Vector<double>(1 + instancia.numSats, 0.0);
 
                 for(int i = 1; i <= instancia.getEndSatIndex(); ++i)
                 {
@@ -1178,7 +1178,7 @@ void NS_Construtivo3::construtivo(Solucao &sol, Instancia &instancia, const floa
 
 
 bool NS_Construtivo3::canInsert(EvRoute &evRoute, int cliente, Instancia &instance, CandidatoEV &candidatoEv, const int satelite,
-                                const double tempoSaidaSat, EvRoute &evRouteAux, BoostC::vector<int> &vetInviabilidade)
+                                const double tempoSaidaSat, EvRoute &evRouteAux, Vector<int> &vetInviabilidade)
 {
 
     double demand = instance.getDemand(cliente);
@@ -1292,15 +1292,15 @@ bool NS_Construtivo3::canInsert(EvRoute &evRoute, int cliente, Instancia &instan
     return viavel;
 }
 
-BoostC::vector<double> NS_Construtivo3::calculaTempoSaidaInicialSat(Instancia &instance, const float beta)
+Vector<double> NS_Construtivo3::calculaTempoSaidaInicialSat(Instancia &instance, const float beta)
 {
 
     const int NumSatMaisDep = instance.getNSats()+1;
 
-    BoostC::vector<double> vetTempoSaida(NumSatMaisDep, 0.0);
-    BoostC::vector<int> vetSatAtendido(NumSatMaisDep, 0);
+    Vector<double> vetTempoSaida(NumSatMaisDep, 0.0);
+    Vector<int> vetSatAtendido(NumSatMaisDep, 0);
 
-    auto existeSatNaoAtendido = [&](BoostC::vector<int> &vetSatAtendido)
+    auto existeSatNaoAtendido = [&](Vector<int> &vetSatAtendido)
     {
         for(int i=1; i <= instance.getEndSatIndex(); ++i)
         {

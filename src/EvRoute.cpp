@@ -1,5 +1,5 @@
 #include <cfloat>
-#include <boost/format.hpp>
+
 #include "EvRoute.h"
 #include "Auxiliary.h"
 #include "ViabilizadorRotaEv.h"
@@ -450,8 +450,9 @@ void EvRoute::print(std::string &strRota, const Instancia &instance, const bool 
             else
                 strRota += to_string(route[i].cliente) + "([";
 
-            //strRota += to_string(route[i].tempoCheg) + ";" + to_string(route[i].tempoSaida) + "] BT: " + to_string(route[i].bateriaRestante) + "\t";
-            strRota += str(boost::format("%.1f;%.1f] BT: %.1f)") % route[i].tempoCheg % route[i].tempoSaida % route[i].bateriaRestante) + "\t";
+            strRota += float_to_string(route[i].tempoCheg,1) + ";" + float_to_string(route[i].tempoSaida,1) + "] BT: " +
+                    float_to_string(route[i].bateriaRestante,1) + "\t";
+            //strRota += str(boost::format("%.1f;%.1f] BT: %.1f)") % route[i].tempoCheg % route[i].tempoSaida % route[i].bateriaRestante) + "\t";
         }
         else
         {
