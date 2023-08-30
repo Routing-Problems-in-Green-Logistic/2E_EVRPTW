@@ -128,13 +128,21 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
 
     };
 
+
+    /*
     SetVetorHash hashSolSetCorrente;    // Solucao Corrente
     int numSolCorrente = 0;
-
     SetVetorHash hashSolSetConst;       // Apos construtivo
     SetVetorHash hashSolSetVnd;         // Apos vnd
+    */
 
     SetVetorHash hashRotaEv;            // Hash de rotasEv
+
+    if(instancia.numClients >= 30)
+        hashRotaEv.reserve(15000);
+    else
+        hashRotaEv.reserve(50);
+
 
     auto funcAddRotasHash = [](const Instancia &instancia, SetVetorHash &hash, const Solucao &solucao)
     {
@@ -208,41 +216,6 @@ cout<<"GRASP: "<<solBest.distancia<<"\n\n";
     int ultimaABest         = 0;
     int numSolG             = 1;
     int numFuncDestroi      = 0;
-
-    /*
-    const int numEvN_Vazias  = temp;
-    const int estrategia     = (instancia.numClients > 15) ? Int8(Est100):Int8(Est15);
-    const double difMax      = 0.1;
-    const float alfaSeg      = parametrosIg.alfaSeg;         // Segundo Nivel
-    const float betaPrim     = parametrosIg.betaPrim;        // Primeiro  Nivel
-    const int numEvRmMin     = min(int(parametrosIg.taxaRm * numEvN_Vazias + 1), numEvN_Vazias);
-    int numEvRmCorrente      = numEvRmMin;
-    const int numClientesRm  = max(int(NS_Auxiliary::upperVal(parametrosIg.taxaRm*instancia.numClients)), 1);
-
-
-    const int numChamadasDestroi0 = int(NS_Auxiliary::upperVal(numEvN_Vazias/float(numEvRmCorrente)))*parametrosIg.fatorNumChamadas;
-    const bool torneio = parametrosIg.torneio;
-
-    int tempTipoConst = CONSTRUTIVO1;
-    if(estrategia == Est15)
-        tempTipoConst = parametrosIg.tipoConstrutivo15;
-
-    const int tipoConst = tempTipoConst;
-    */
-
-
-/*#if PRINT_IG
-
-    cout<<"ParametrosIG: \n"<<parametrosIg.printParam()<<"\n\n";
-
-    cout<<"destroi0 num chamadas: "<<numChamadasDestroi0<<"\n";
-    cout<<"num rotas removidas min: "<<numEvRmMin<<"\n";
-    cout<<"num rotas nao vazias: "<<numEvN_Vazias<<"\n";
-    cout<<"num clientes removidos: "<<numClientesRm<<"\n";
-    cout<<"Estrategia: "<<int(estrategia)<<"\n";
-    cout << "ALFA: " << alfaSeg << "\nBETA: " << betaPrim << "\n";
-    cout<<"TORNEIO: "<<torneio<<"\n\n";
-#endif*/
 
 
     // Quarda o numero de inviabilidades
@@ -652,8 +625,9 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
             if(escreveSol)
                 solC.printPlot(strSolC, instancia);
 
-            hashSolSetCorrente.insert(VetorHash(solC, instancia));
-            numSolCorrente += 1;
+            //hashSolSetCorrente.insert(VetorHash(solC, instancia));
+            //numSolCorrente += 1;
+
             DadosIg dadosIg;
 
             dadosIg.it = i;
@@ -726,7 +700,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
                     throw "ERRO";
                 }
 
-                hashSolSetConst.insert(VetorHash(solC, instancia));
+                //hashSolSetConst.insert(VetorHash(solC, instancia));
                 numSolConstVia += 1;
 
                 funcAddRotasHash(instancia, hashRotaEv, solC);
@@ -765,7 +739,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
                     throw "ERRO";
                 }
 
-                hashSolSetVnd.insert(VetorHash(solC, instancia));
+                //hashSolSetVnd.insert(VetorHash(solC, instancia));
                 funcAddRotasHash(instancia, hashRotaEv, solC);
 
                 dadosIg.solVnd = solC.distancia;
@@ -813,120 +787,65 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
 
     const double distIg = solBest.distancia;
 
-    clock_t start = clock();
-
-    // Inicio MIP model
-    modelo(instancia, hashRotaEv, solBest, parametros.parametrosMip);
-    const double distMip = solBest.distancia;
-    solBest.todasRotasEvAtualizadas();
-    rvnd(solBest, instancia, parametrosIg.betaPrim, vetMvValor, vetMvValor1Nivel);
-
-    clock_t end = clock();
-
-    const double distMipVnd = solBest.distancia;
-    //cout<<"mip: "<<solBest.distancia<<"\n";
-    solBest.todasRotasEvAtualizadas();
-    solBest.resetaIndiceEv(instancia);
-
-    string erroo;
-    if(!solBest.checkSolution(erroo, instancia))
+    if(parametros.mip)
     {
-        cout<<"ERRO, solucao inviavel\n";
-        cout<<erroo<<"\n";
-        PRINT_DEBUG("", "");
-        ERRO();
+        clock_t start = clock();
+
+        // Inicio MIP model
+        modelo(instancia, hashRotaEv, solBest, parametros.parametrosMip);
+        const double distMip = solBest.distancia;
+        solBest.todasRotasEvAtualizadas();
+        rvnd(solBest, instancia, parametrosIg.betaPrim, vetMvValor, vetMvValor1Nivel);
+
+        clock_t end = clock();
+
+        const double distMipVnd = solBest.distancia;
+        //cout<<"mip: "<<solBest.distancia<<"\n";
+        solBest.todasRotasEvAtualizadas();
+        solBest.resetaIndiceEv(instancia);
+
+        string erroo;
+        if(!solBest.checkSolution(erroo, instancia))
+        {
+            cout << "ERRO, solucao inviavel\n";
+            cout << erroo << "\n";
+            PRINT_DEBUG("", "");
+            ERRO();
+        }
+
+        //solBest.print(instancia);
+
+        solC.resetaSol();
+        solC.copia(solBest);
+
+
+        /*
+         *
+        ParametrosIG parametrosIg1 = parametrosIg;
+        parametrosIg1.alfaSeg       = 0.05;
+        parametrosIg1.betaPrim      = 0.8;
+        parametrosIg1.difBest       = 0.015;
+        parametrosIg1.torneio       = false;
+        parametrosIg1.taxaRm        = 0.15;
+        parametrosIg1.fatorNumCh    = 2;
+         */
+
+        igLoop(100, parametrosIg);
+        const int split1Best = solBest.ehSplit(instancia);
+
+        //cout<<"mip+IG: "<<solBest.distancia<<"\n";
+
+        // Fim MIP model
+
+        const double cpuMip = double(end - start) / CLOCKS_PER_SEC;
     }
 
-    //solBest.print(instancia);
-
-    solC.resetaSol();
-    solC.copia(solBest);
-
-
     /*
-     *
-    ParametrosIG parametrosIg1 = parametrosIg;
-    parametrosIg1.alfaSeg       = 0.05;
-    parametrosIg1.betaPrim      = 0.8;
-    parametrosIg1.difBest       = 0.015;
-    parametrosIg1.torneio       = false;
-    parametrosIg1.taxaRm        = 0.15;
-    parametrosIg1.fatorNumCh    = 2;
-     */
-
-    igLoop(100, parametrosIg);
-    const int split1Best = solBest.ehSplit(instancia);
-
-    //cout<<"mip+IG: "<<solBest.distancia<<"\n";
-
-    // Fim MIP model
-
-    const double cpuMip = double(end-start)/CLOCKS_PER_SEC;
-
-    //cout<<"\tDist: "<<solBest.distancia<<"\n\n";
-
-    double fatorSolCorr = (double(hashSolSetCorrente.size())/numSolCorrente) * 100;
-    if(numSolCorrente == 0)
-        fatorSolCorr = 0.0;
-
-    double fatorSolConst = (double(hashSolSetConst.size())/numSolConstVia) * 100;
-    if(numSolConstVia == 0)
-        fatorSolConst = 0.0;
-
-    double fatorSolVnd = (double(hashSolSetVnd.size())/numSolConstVia) * 100;
-    if(numSolConstVia == 0)
-        fatorSolVnd = 0.0;
-
-    auto funcAddParaSaidaDouble = [&](string &&strParm, double val)
-    {
-        parametrosSaida.mapNoSaida[strParm] = NS_parametros::NoSaida(strParm);
-        parametrosSaida.mapNoSaida[strParm].addSaida(SAIDA_EXEC_VAL);
-        parametrosSaida.mapNoSaida[strParm](val);
-    };
-
-
-    const double mediaQuantCand = double(VarAuxiliaresIgNs::sumQuantCand)/VarAuxiliaresIgNs::num_sumQuantCand;
-    const double mediaCliRm     = double(VarAuxiliaresIgNs::sumQuantCliRm)/VarAuxiliaresIgNs::num_sumQuantCliRm;
-
     funcAddParaSaidaDouble("numSol", numSolG);
-
-
-    double demTotal = 0.0;
-    for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
-        demTotal += instancia.vectCliente[i].demanda;
-
-    int numMin = NS_Auxiliary::upperVal(demTotal/instancia.getTruckCap(instancia.getFirstTruckIndex()));
-    const int split0 = (numMin < instancia.numTruck);
-    funcAddParaSaidaDouble("split0Inst", split0);
-    funcAddParaSaidaDouble("split1Best", split1Best);
-
-    /*
-    funcAddParaSaidaDouble("fatorSolCorr", fatorSolCorr);
-    funcAddParaSaidaDouble("fatorSolConst", fatorSolConst);
-    funcAddParaSaidaDouble("fatorSolVnd", fatorSolVnd);
-    funcAddParaSaidaDouble("mediaQuantCand", mediaQuantCand);
-    funcAddParaSaidaDouble("mediaCliRm", mediaCliRm);
-    */
-
     funcAddParaSaidaDouble("distIg", distIg);
     funcAddParaSaidaDouble("distIgMip", distMip);
     funcAddParaSaidaDouble("cpuMip", cpuMip);
     funcAddParaSaidaDouble("distMipVnd", distMipVnd);
-
-    auto funcAddParaSaidaInt = [&](string &&strParm, int val)
-    {
-        parametrosSaida.mapNoSaida[strParm] = NS_parametros::NoSaida(strParm, SAIDA_TIPO_INT);
-        parametrosSaida.mapNoSaida[strParm].addSaida(SAIDA_EXEC_VAL);
-        parametrosSaida.mapNoSaida[strParm](val);
-    };
-
-    /*
-    funcAddParaSaidaInt("invCarga", vetInviabilidate[NS_Auxiliary::Inv_Carga]);
-    funcAddParaSaidaInt("invTw", vetInviabilidate[NS_Auxiliary::Inv_tw]);
-    funcAddParaSaidaInt("invBat", vetInviabilidate[NS_Auxiliary::Inv_bat]);
-    funcAddParaSaidaInt("inv1Nivel", vetInviabilidate[NS_Auxiliary::Inv_1_Nivel]);
-    funcAddParaSaidaInt("inv1NivelUnico", vetInviabilidate[NS_Auxiliary::Inv_1_Nivel_unico]);
-    funcAddParaSaidaInt("invNaoRs", vetInviabilidate[NS_Auxiliary::Inv_nao_ev_rs]);
     */
 
     string erro;

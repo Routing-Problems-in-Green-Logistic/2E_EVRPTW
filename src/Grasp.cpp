@@ -849,14 +849,15 @@ double NameS_Grasp::getPenalidade2Nivel(Solucao &sol, Instancia &instancia, floa
         return 0.0;
     else
     {
-        //cout<<"2º NIVEL INVIAVEL\n";
-        return f * num * penalidade;
+        //return f * num * penalidade;
+        return num*penalidade;
     }
 }
 
-
 double NameS_Grasp::getPenalidade1Nivel(Solucao &sol, Instancia &instance, float f)
 {
+    return 0.0;
+
     double cargaVeic = 0.0;
     double cargaSat  = 0.0;
 

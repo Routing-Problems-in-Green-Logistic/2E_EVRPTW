@@ -435,16 +435,29 @@ int* Instancia::getEstacoes(const int clienteI, const int clienteJ)
 
 double Instancia::calculaPenalizacaoDistEv()
 {
-
+    /*
     double dist = 0.0;
-
     for(int sat=getFirstSatIndex(); sat <= getEndSatIndex(); ++sat)
     {
         for(int j=getFirstClientIndex(); j <= getEndClientIndex(); ++j)
             dist += 2.0* getDistance(sat, j);
     }
+    */
 
-    return dist;
+
+    double dist = -DOUBLE_MAX;
+
+    for(int i=0; i < numNos; ++i)
+    {
+        for(int j=i+1; j < numNos; ++j)
+        {
+            const double tempDist = getDistance(i,j);
+            if(tempDist > dist)
+                dist = tempDist;
+        }
+    }
+
+    return 2*dist;
 }
 
 double Instancia::calculaPenalizacaoDistComb()

@@ -601,6 +601,9 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
             paramEntrada.paramIg.fatorNumCh  = std::stod(getKey("--fatNumCh"));
 
 
+            if(mapParam.count("--mip") > 0)
+                paramEntrada.mip = bool(std::stoi(getKey("--mip")));
+
 //#if !AJUSTE_DE_PARAMETRO
             if constexpr(!AjusteDeParametro)
             {
@@ -616,38 +619,37 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
                     paramEntrada.semente = std::stoll(getKey("--seed"));
                     semente = true;
                 } else
+                {
+                    paramEntrada.fileSeed = getKey("--fileSeed");
                     semente = false;
+                }
 
-                if(mapParam.count("--mip_presolve"))
-                    paramEntrada.parametrosMip.presolve     = std::stoi(getKey("--mip_presolve"));
+                if(paramEntrada.mip)
+                {
+                    paramEntrada.parametrosMip.presolve = std::stoi(getKey("--mip_presolve"));
+                    paramEntrada.parametrosMip.cuts = std::stoi(getKey("--mip_cuts"));
+                    paramEntrada.parametrosMip.mipGap = std::stod(getKey("--mip_gap"));
+                    paramEntrada.parametrosMip.restTempo = std::stoi(getKey("--mip_restTempo"));
 
-                if(mapParam.count("--mip_cuts"))
-                    paramEntrada.parametrosMip.cuts         = std::stoi(getKey("--mip_cuts"));
-
-                if(mapParam.count("--mip_gap"))
-                    paramEntrada.parametrosMip.mipGap       = std::stod(getKey("--mip_gap"));
-
-                if(mapParam.count("--mip_outputFlag"))
-                    paramEntrada.parametrosMip.outputFlag   = std::stoi(getKey("--mip_outputFlag"));
-
-                if(mapParam.count("--mip_restTempo"))
-                    paramEntrada.parametrosMip.restTempo    = std::stoi(getKey("--mip_restTempo"));
-
+                    if(mapParam.count("--mip_outputFlag"))
+                        paramEntrada.parametrosMip.outputFlag = std::stoi(getKey("--mip_outputFlag"));
+                }
             }
             else
             {
-//#else
                 semente = true;
                 paramEntrada.semente                    = std::stoll(getKey("--seed"));
                 paramEntrada.paramIg.fileSaida          = string(getKey("--fileSaida"));
-                paramEntrada.parametrosMip.presolve     = std::stoi(getKey("--mip_presolve"));
-                paramEntrada.parametrosMip.cuts         = std::stoi(getKey("--mip_cuts"));
-                paramEntrada.parametrosMip.mipGap       = std::stod(getKey("--mip_gap"));
-                paramEntrada.parametrosMip.outputFlag   = 0;
-                paramEntrada.parametrosMip.restTempo    = std::stoi(getKey("--mip_restTempo"));
-            }
-//#endif
 
+                if(paramEntrada.mip)
+                {
+                    paramEntrada.parametrosMip.presolve = std::stoi(getKey("--mip_presolve"));
+                    paramEntrada.parametrosMip.cuts = std::stoi(getKey("--mip_cuts"));
+                    paramEntrada.parametrosMip.mipGap = std::stod(getKey("--mip_gap"));
+                    paramEntrada.parametrosMip.outputFlag = 0;
+                    paramEntrada.parametrosMip.restTempo = std::stoi(getKey("--mip_restTempo"));
+                }
+            }
         }
 
         if(!semente)
@@ -784,16 +786,16 @@ string NS_parametros::Parametros::getParametros()
 
     string saida = "\nPARAMETROS: \n"
                    "\t--seed: \tsemente (opcional)\n"
-                   "\t--pasta: \tpasta onde os resultados serao guardados \n"
-                   "\t--execTotal: \tnumero de execucoes totais \n"
-                   "\t--execAtual: \texecucao atual \n"
                    "\t--resulCSV: \tnome do arquivo csv para escrever os resultados consolidados \n"
+                   "\t--fileNum: \tnome do arquivo para escrever o numero de execucoes\n"
+                   "\t--fileSeed: \tnome do arquivo para escrever a semente\n"
                    "\t--numItIG: \tnumero total de iteracoes do IG \n"
                    "\t--alphaSeg: \tparametro alpha \n"
                    "\t--betaPrim \tparametro beta \n"
                    "\t--difBest \tparametro difBest \n"
                    "\t--torneio \tparametro torneio \n"
                    "\t--taxaRm \tparametro taxaRm\n"
+                   "\t--mip: \t\texecuta mip\n"
                    "\t--mip_presolve \n "
                    "\t--mip_cuts \n"
                    "\t--mip_gap \n"
@@ -937,8 +939,30 @@ std::string ParametrosIG::printParam()
     return saida;
 }
 
-void  NS_parametros::saidaNew(Solucao &sol, Instancia &instancia, double tempoCpu, const string &resultCsv, const string &fileNum)
+void NS_parametros::saidaNew(Solucao &sol, Instancia &instancia, double tempoCpu, const Parametros &parametros)
 {
+    if(!sol.viavel)
+    {
+        cerr<<"\tNao foi possivel gerar uma solucao viavel\n";
+        throw "ERRO";
+    }
+
+    string erro;
+
+    if(!sol.checkSolution(erro, instancia))
+    {
+        cerr<<"Solucao nao eh viavel\nERRO!\n\n";
+        string strSol;
+        sol.print(strSol, instancia, false);
+        cerr<<"Solucao:\n\n"<<strSol<<"\n\n";
+        cerr<<"ERRO:\n\t"<<erro<<"\n\n";
+        throw "ERRO";
+    }
+
+
+    const string resultCsv = parametros.resultadoCSV;
+    const string &fileNum  = parametros.fileNum;
+    const string &fileSeed = parametros.fileSeed;
 
     bool exists = std::filesystem::exists(resultCsv);
     std::ofstream outCsv;
@@ -956,14 +980,37 @@ void  NS_parametros::saidaNew(Solucao &sol, Instancia &instancia, double tempoCp
     outCsv<<sol.distancia<<", "<<tempoCpu<<"\n";
     outCsv.close();
 
-    std::fstream fstreamNum(fileNum, std::ios_base::in);
-    int num;
-    fstreamNum>>num;
-    fstreamNum.close();
+    exists = std::filesystem::exists(fileNum);
+
+    int num = 0;
+
+    if(exists)
+    {
+        std::fstream fstreamNum(fileNum, std::ios_base::in);
+        fstreamNum >> num;
+        fstreamNum.close();
+    }
 
     std::ofstream outNum(fileNum, std::ios_base::out);
     outNum<<num+1;
     outNum.close();
+
+    if(fileSeed.empty())
+        return;
+
+    exists = std::filesystem::exists(fileSeed);
+    std::ofstream seedOf;
+
+    if(!exists)
+    {
+        seedOf.open(fileSeed, std::ios_base::out);
+        seedOf << "seed\n";
+    }
+    else
+        seedOf.open(fileSeed, std::ios_base::app);
+
+    seedOf<<to_string(parametros.semente)<<"\n";
+    seedOf.close();
 }
 
 

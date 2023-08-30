@@ -16,7 +16,7 @@ ENDIF()
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 set(CMAKE_BUILD_TYPE "Release")
 
-set(CMAKE_CXX_FLAGS "-g3 -O3")
+set(CMAKE_CXX_FLAGS "-O3")
 #set(CMAKE_CXX_FLAGS "-march=native")
 
 #set(CMAKE_CXX_FLAGS "-g3 -ggdb")

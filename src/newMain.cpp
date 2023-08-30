@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
         {
             //setParametrosSaida(parametrosSaida, parametros, best, start, end, N_gamb::vetMvValor, N_gamb::vetMvValor1Nivel);
             //saida(parametros, parametrosSaida, best, instancia);
-            saidaNew(best, instancia, tempo, parametros.resultadoCSV, parametros.fileNum);
+            saidaNew(best, instancia, tempo, parametros);
         }
         else
         {
