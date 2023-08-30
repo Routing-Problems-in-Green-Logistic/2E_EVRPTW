@@ -204,6 +204,7 @@ void ModeloNs::criaFuncObj(const Instancia &instancia,
         }
     }
 
+
     modelo.setObjective(obj, GRB_MINIMIZE);
 }
 
