@@ -170,7 +170,7 @@ void ModeloNs::setParametrosModelo(GRBModel &model, NS_parametros::ParametrosMip
     model.set(GRB_IntParam_Presolve, paramMip.presolve);
     model.set(GRB_IntParam_Cuts, paramMip.cuts);
 
-    model.set(GRB_DoubleParam_MIPGap, 0.0);//paramMip.mipGap);
+    model.set(GRB_DoubleParam_MIPGap, paramMip.mipGap);
     //model.set(GRB_IntParam_MIPFocus, GRB_MIPFOCUS_BESTBOUND);
 
 
