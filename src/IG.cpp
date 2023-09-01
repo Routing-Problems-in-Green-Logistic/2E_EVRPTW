@@ -44,7 +44,7 @@ std::string NameS_IG::strDescricaoIg = "";
 Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &parametrosGrasp, NameS_Grasp::Estatisticas &estat,
                                   Matrix<int> &matClienteSat, Vector<NS_vnd::MvValor> &vetMvValor,
                                   Vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida,
-                                  NS_parametros::Parametros &parametros)
+                                  NS_parametros::Parametros &parametros, string &cabecalho, string &valores)
 {
 
     for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
@@ -838,6 +838,8 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
         // Fim MIP model
 
         const double cpuMip = double(end - start) / CLOCKS_PER_SEC;
+        cabecalho += "distMip, cpuMip";
+        valores   += converteDouble(distMip, 3) + ", "+ converteDouble(cpuMip, 3);
     }
 
     /*

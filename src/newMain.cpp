@@ -45,7 +45,7 @@ using namespace NameS_IG;
 
 
 void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida);
-void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida);
+void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida, string &cabecalho, string &valores);
 void setParamGrasp(Instancia &instancia, ParametrosGrasp &parametrosGrasp, const Parametros &parametros);
 void escreveDistFile(double dist, double tempo, const std::string &file);
 
@@ -92,11 +92,12 @@ int main(int argc, char* argv[])
         Solucao best(instancia);
 
         ParametrosSaida parametrosSaida = getParametros();
+        string cabecalho, valores;
 
         //auto start = std::chrono::high_resolution_clock::now();
         clock_t start = clock();
 
-        ig(instancia, parametros, best, parametrosSaida);
+        ig(instancia, parametros, best, parametrosSaida, cabecalho, valores);
 
         clock_t end = clock();
         //auto end = std::chrono::high_resolution_clock::now();
@@ -120,7 +121,7 @@ int main(int argc, char* argv[])
         double tempo = double(end-start)/CLOCKS_PER_SEC;
 
         if constexpr(!AjusteDeParametro)
-            saidaNew(best, instancia, tempo, parametros);
+            saidaNew(best, instancia, tempo, parametros, cabecalho, valores);
         else
             escreveDistFile(best.distancia, tempo, parametros.paramIg.fileSaida);
 
@@ -169,7 +170,7 @@ void grasp(Instancia &instancia, Parametros &parametros, Solucao &best, Parametr
 
 }
 
-void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida)
+void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosSaida &parametrosSaida, string &cabecalho, string &valores)
 {
 
     ParametrosGrasp parametrosGrasp;
@@ -180,7 +181,7 @@ void ig(Instancia &instancia, Parametros &parametros, Solucao &best, ParametrosS
     Vector<int> satUtilizado(instancia.numSats+1, 0);
     Matrix<int> matClienteSat =  k_means(instancia, vetSatAtendCliente, satUtilizado, false);
     Solucao *solGrasp = iteratedGreedy(instancia, parametrosGrasp, estatisticas, matClienteSat, N_gamb::vetMvValor,
-                                       N_gamb::vetMvValor1Nivel, parametrosSaida, parametros);
+                                       N_gamb::vetMvValor1Nivel, parametrosSaida, parametros, cabecalho, valores);
     best.copia(*solGrasp);
 
     delete solGrasp;

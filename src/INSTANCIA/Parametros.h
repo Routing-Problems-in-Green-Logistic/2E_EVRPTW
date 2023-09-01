@@ -96,6 +96,8 @@ namespace NS_parametros
         string resultadoCSV    = "resultados.csv";  // --resulCSV
         string fileNum         = "fileNum";          // --fileNum
         string fileSeed        = "";                // --fileSeed
+        string fileSol         = "";                // --fileSol
+        string fileSolPrint    = "";                // --fileSolPrint
         bool mip               = true;              // --mip
         string instancia;
         string nomeInstancia;
@@ -253,12 +255,12 @@ namespace NS_parametros
         }
     };
 
-    void escreveSolCompleta(Parametros &paramEntrada, Solucao &sol, Instancia &instancia);
-    void escreveSolParaPrint(Parametros &paramEntrada, Solucao &sol, Instancia &instancia);
+    void escreveSolCompleta(const Parametros &paramEntrada, Solucao &sol, Instancia &instancia, const string &file);
+    void escreveSolParaPrint(const Parametros &paramEntrada, Solucao &sol, Instancia &instancia, const string &file);
     void escreveResultadosAcumulados(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol);
     void consolidaResultados(Parametros &paramEntrada, ParametrosSaida &paramSaida);
-    void saida(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol, Instancia &instancia);
-    void saidaNew(Solucao &sol, Instancia &instancia, double tempoCpu, const Parametros &parametros);
+    //void saida(Parametros &paramEntrada, ParametrosSaida &paramSaida, Solucao &sol, Instancia &instancia);
+    void saidaNew(Solucao &sol, Instancia &instancia, double tempoCpu, const Parametros &parametros, string &cabecalho, string &valores);
     string getNomeInstancia(string str);
     void caregaParametros(Parametros &paramEntrada, int argc, char* argv[]);
     ParametrosSaida getParametros();
