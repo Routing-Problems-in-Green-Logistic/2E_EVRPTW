@@ -47,6 +47,11 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
                              Vector<NS_vnd::MvValor> &vetMvValor, Vector<NS_vnd::MvValor> &vetMvValor1Nivel,
                              NS_parametros::ParametrosSaida &parametrosSaida)
 {
+    if(parametros.numIteGrasp < parametros.iteracoesCalProb)
+        parametros.numIteGrasp = 4*parametros.iteracoesCalProb;
+
+    //cout<<"Grasp\n";
+    //cout<<"numIt: "<<parametros.numIteGrasp<<"\n\n";
 
 //cout<<"Primeiro cliente: "<<instance.getFirstClientIndex()<<"\n";
 
@@ -85,8 +90,6 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
         {
             temp += 2.0*instance.getDistance(0, sat);
         }
-
-        temp *= 1.2;
     }
 
     const double gulCusto1Nivel = temp;
@@ -151,10 +154,10 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             vetorProbabilidade2Nivel[i] = 100.0 * (proporcao2Nivel[i] / somaProporcoes2Nivel);
             vetorProbabilidade1Nivel[i] = 100.0 * (proporcao1Nivel[i] / somaProporcoes1Nivel);
 
-            //cout<<vetorProbabilidade2Nivel[i]<<"\t";
+            cout<<vetorProbabilidade2Nivel[i]<<"\t";
         }
 
-        //cout<<"\n\n****************************\n\n";
+        cout<<"\n\n****************************\n\n";
 
         for(int i=0; i < tamAlfa; ++i)
         {
@@ -215,10 +218,10 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             cout<<"ULTIMA ITERACAO\n\n";*/
 
 
-        /*
-        if(i>0 && (i%100)==0)
-            cout<<"ITERACAO: "<<i<<"\n";
-        */
+
+        //if(i>0 && (i%100)==0)
+        //    cout<<"ITERACAO: "<<i<<"\n";
+
 
         Solucao sol(instance);
 
@@ -586,7 +589,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
 
         if(!sol.viavel)
         {
-            double penal1Nivel = getPenalidade1Nivel(sol, instance, fator1Nivel);
+            double penal1Nivel = gulCusto1Nivel;
 
             double aux = sol.distancia + getPenalidade2Nivel(sol, instance, fator)+penal1Nivel;
 
@@ -599,7 +602,7 @@ Solucao * NameS_Grasp::grasp(Instancia &instance, ParametrosGrasp &parametros, E
             solucaoAcumulada2Nivel[posAlfa] += aux;
             vetorFrequencia2Nivel[posAlfa] += 1;
 
-            aux = sol.getDist1Nivel() + penal1Nivel;
+            aux = penal1Nivel;
 
             if(aux < custoBest1Nivel)
                 custoBest1Nivel = aux;

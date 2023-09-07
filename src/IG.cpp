@@ -46,6 +46,7 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
                                   Vector<NS_vnd::MvValor> &vetMvValor1Nivel, NS_parametros::ParametrosSaida &parametrosSaida,
                                   NS_parametros::Parametros &parametros, string &cabecalho, string &valores)
 {
+    //parametros.mip = false;
 
     for(int i=instancia.getFirstClientIndex(); i <= instancia.getEndClientIndex(); ++i)
     {
@@ -182,7 +183,9 @@ Solucao* NameS_IG::iteratedGreedy(Instancia &instancia, ParametrosGrasp &paramet
     Solucao *solG = grasp(instancia, parametrosGrasp, estat, true, matClienteSat, vetMvValor, vetMvValor1Nivel, parametrosSaidaGrasp);
 
     if(!solG->viavel)
+    {   cout<<"Construtivo retornou nullptr\n";
         return nullptr;
+    }
 
     rvnd(*solG, instancia, 0.4, vetMvValor, vetMvValor1Nivel);
 
@@ -786,6 +789,7 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     //cout<<"FIM IG\n";
 
     const double distIg = solBest.distancia;
+    const int numRotas = hashRotaEv.size();
 
     if(parametros.mip)
     {
@@ -838,9 +842,10 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
         // Fim MIP model
 
         const double cpuMip = double(end - start) / CLOCKS_PER_SEC;
-        cabecalho += "distMip, cpuMip";
-        valores   += converteDouble(distMip, 3) + ", "+ converteDouble(cpuMip, 3);
+        cabecalho += "distMip, cpuMip, distIg, numRotasEv";
+        valores   += converteDouble(distMip, 3) + ", "+ converteDouble(cpuMip, 3) + ", " + converteDouble(distIg, 3) + ", " + to_string(numRotas);
     }
+
 
     /*
     funcAddParaSaidaDouble("numSol", numSolG);

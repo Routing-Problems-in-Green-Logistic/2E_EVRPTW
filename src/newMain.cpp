@@ -59,7 +59,7 @@ namespace N_gamb
 int main(int argc, char* argv[])
 {
     Parametros parametros;
-    const string commite = "ed17673d31cf8701e94228bd7f7b6203f16602b5";
+    const string commite = "040572ac065ea620da71c2ac906e82b3f4165e5d";
     parametros.commit = commite;
     clock_t startA = clock();
 
