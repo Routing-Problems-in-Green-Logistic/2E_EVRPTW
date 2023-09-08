@@ -791,6 +791,9 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
     const double distIg = solBest.distancia;
     const int numRotas = hashRotaEv.size();
 
+    cabecalho += "numRotasEv, sem";
+    valores   += to_string(numRotas) + ", " + to_string(parametros.semente);
+
     if(parametros.mip)
     {
         clock_t start = clock();
@@ -823,17 +826,6 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
         solC.copia(solBest);
 
 
-        /*
-         *
-        ParametrosIG parametrosIg1 = parametrosIg;
-        parametrosIg1.alfaSeg       = 0.05;
-        parametrosIg1.betaPrim      = 0.8;
-        parametrosIg1.difBest       = 0.015;
-        parametrosIg1.torneio       = false;
-        parametrosIg1.taxaRm        = 0.15;
-        parametrosIg1.fatorNumCh    = 2;
-         */
-
         igLoop(100, parametrosIg);
         const int split1Best = solBest.ehSplit(instancia);
 
@@ -842,18 +834,10 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
         // Fim MIP model
 
         const double cpuMip = double(end - start) / CLOCKS_PER_SEC;
-        cabecalho += "distMip, cpuMip, distIg, numRotasEv";
-        valores   += converteDouble(distMip, 3) + ", "+ converteDouble(cpuMip, 3) + ", " + converteDouble(distIg, 3) + ", " + to_string(numRotas);
+        cabecalho += ", distMip, cpuMip, distIg";
+        valores   += ", "+converteDouble(distMip, 3) + ", "+ converteDouble(cpuMip, 3) + ", " + converteDouble(distIg, 3);
     }
 
-
-    /*
-    funcAddParaSaidaDouble("numSol", numSolG);
-    funcAddParaSaidaDouble("distIg", distIg);
-    funcAddParaSaidaDouble("distIgMip", distMip);
-    funcAddParaSaidaDouble("cpuMip", cpuMip);
-    funcAddParaSaidaDouble("distMipVnd", distMipVnd);
-    */
 
     string erro;
     if(!solBest.checkSolution(erro, instancia))
