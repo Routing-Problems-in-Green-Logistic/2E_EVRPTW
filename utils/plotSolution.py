@@ -40,7 +40,7 @@ fig = plt.figure(dpi=800)
 ax = fig.gca()
 
 
-#plt.grid(visible=True, alpha=0.3)
+plt.grid(visible=True, alpha=0.3)
 #plt.legend(prop={'size': 6})
 #plt.legend()
 plt.xlabel("x")
@@ -119,7 +119,7 @@ y = [float(x) for x in coord['y'].values]
 demand = [float(x) for x in coord['demanda'].values]
 demand = demand[1:]
 
-plt.gca().set_aspect('equal', adjustable='box')
+#plt.gca().set_aspect('equal', adjustable='box', share=True)
 
 
 for i in range(len(nodeId)):
@@ -147,7 +147,7 @@ for i in range(len(nodeId)):
     if nodeType[i] == 'D':
         marker = 's'
         color = '#ff0000'
-    plt.scatter(x[i], y[i], c=color, marker=marker, s=15, zorder= 5, edgecolors='#222222')
+    plt.scatter(x[i], y[i], c=color, marker=marker, s=60, zorder= 5, edgecolors='#222222')
 
 
 #print('*******************************************')
@@ -164,8 +164,9 @@ for route in routes:
     tipoRota = '-'
 
     print(route)
-    if route[1] <= numSat:
-        tipoRota = '-.'
+    
+    #if route[1] <= numSat:
+    #    tipoRota = '-.'
 
     print('tipo: ', tipoRota)
     for i in range(0, len(route)-1):

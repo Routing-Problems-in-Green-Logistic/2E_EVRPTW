@@ -716,36 +716,30 @@ std::cout<<"SOLUCAO ANTES: \n"<<solStr<<"\n";
                 string strSolAntes;
                 //solC.print(strSolAntes, instancia);
 
-                rvnd(solC, instancia, betaPrim, vetMvValor, vetMvValor1Nivel);
-
-/*                if(solC.ehSplit(instancia))
+                if(parametrosIg.execRvnd)
                 {
-                    cout << "Solucao com split\n";
-                    string strSol;
-                    solC.print(strSol, instancia, true);
-                    cout<<strSol<<"\n\n";
-                    ERRO_();
-                }*/
+                    rvnd(solC, instancia, betaPrim, vetMvValor, vetMvValor1Nivel);
 
-                string erro;
-                if(!solC.checkSolution(erro, instancia))
-                {
-                    PRINT_DEBUG("", "");
-                    cout << "ERRO APOS NOVO MV, IG\n";
-                    cout << erro << "\n\n";
-                    erro = "";
-                    solC.print(erro, instancia, false);
-                    cout << erro;
-                    cout << "######################################################\n\n";
-                    cout << "Sol antes rvnd: " << strSolAntes;
 
-                    throw "ERRO";
+                    string erro;
+                    if(!solC.checkSolution(erro, instancia))
+                    {
+                        PRINT_DEBUG("", "");
+                        cout << "ERRO APOS NOVO MV, IG\n";
+                        cout << erro << "\n\n";
+                        erro = "";
+                        solC.print(erro, instancia, false);
+                        cout << erro;
+                        cout << "######################################################\n\n";
+                        cout << "Sol antes rvnd: " << strSolAntes;
+
+                        throw "ERRO";
+                    }
+
+                    //hashSolSetVnd.insert(VetorHash(solC, instancia));
+                    funcAddRotasHash(instancia, hashRotaEv, solC);
+                    dadosIg.solVnd = solC.distancia;
                 }
-
-                //hashSolSetVnd.insert(VetorHash(solC, instancia));
-                funcAddRotasHash(instancia, hashRotaEv, solC);
-
-                dadosIg.solVnd = solC.distancia;
             }
 
 

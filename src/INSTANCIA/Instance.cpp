@@ -127,7 +127,7 @@ int Instancia::getNNodes() const {
 Instancia::Instancia(const std::string &str, const std::string &nome_)
 {
     nome = nome_;
-
+// numEstacoesPorArco
     std::ifstream file;
     file.open(str);
 

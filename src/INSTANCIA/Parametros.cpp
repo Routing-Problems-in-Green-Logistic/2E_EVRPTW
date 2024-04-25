@@ -155,6 +155,16 @@ void NS_parametros::caregaParametros(Parametros &paramEntrada, int argc, char* a
             if(mapParam.count("--mip") > 0)
                 paramEntrada.mip = bool(std::stoi(getKey("--mip")));
 
+            if(mapParam.count("--rvnd") > 0)
+                paramEntrada.paramIg.execRvnd = bool(std::stoi(getKey("--rvnd")));
+
+            if(mapParam.count("--tempoMaxCpu") > 0)
+            {
+                paramEntrada.paramIg.tempoCpuMax      = std::stof(getKey("--tempoMaxCpu"));
+                paramEntrada.paramIg.tempoCpuMaxAtivo = true;
+            }
+
+
 //#if !AJUSTE_DE_PARAMETRO
             if constexpr(!AjusteDeParametro)
             {

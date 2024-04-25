@@ -25,6 +25,8 @@ ax = fig.gca()
 
 
 plt.grid(visible=True, alpha=0.3)
+plt.xlabel("x")
+plt.ylabel("y")
 
 print('len(sys.argv): ', len(sys.argv))
 
@@ -67,8 +69,8 @@ demand = [float(x) for x in coord['demand'].values]
 
 for i in range(len(nodeId)):
     
-    if i == 0:
-        continue
+    #if i == 0:
+    #    continue
         
     #if demand[i] != 0.0:
     #    continue       
@@ -93,7 +95,7 @@ for i in range(len(nodeId)):
         color = '#ff0000'
 
                 #plt.annotate(round(dist), mean((x[i], y[i]), (y[j],y[j])), color='b')
-    plt.scatter(x[i], y[i], c=color, marker=marker, s=25, zorder= 5, edgecolors='#222222')
+    plt.scatter(x[i], y[i], c=color, marker=marker, s=60, zorder= 5, edgecolors='#222222')
 #plt.plot(x, y)
 
 
@@ -112,4 +114,4 @@ for name in glob(path + "/route*.csv"):
         drawArrow(x[i-1], x[i], y[i-1], y[i], 0.3, col)
         """
 
-plt.savefig('plotInstance' + '.png')
+plt.savefig('plotInstance' + '.pdf')

@@ -14,12 +14,10 @@ ELSE()
 ENDIF()
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
-set(CMAKE_BUILD_TYPE "Release")
+#set(CMAKE_BUILD_TYPE "Release")
 
-set(CMAKE_CXX_FLAGS "-O3")
-#set(CMAKE_CXX_FLAGS "-march=native")
-
-#set(CMAKE_CXX_FLAGS "-g3 -ggdb")
+# -c -g -p -save-temps
+set(CMAKE_CXX_FLAGS "-O3")#-g2 -ggdb2 -O3")
 #set(CMAKE_BUILD_TYPE Debug)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D __FILENAME__='\"$(subst  ${CMAKE_SOURCE_DIR}/,,$(abspath $<))\"'")
@@ -90,4 +88,5 @@ add_executable(run ${SOURCES})# INSTANCIA/ParametrosEntrada.cpp INSTANCIA/Parame
 
 target_link_libraries(run gurobi_c++)
 target_link_libraries(run gurobi)
+#target_link_libraries(run profiler)
 #target_link_libraries(run -libtcmalloc)

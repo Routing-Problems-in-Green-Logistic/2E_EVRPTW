@@ -121,12 +121,13 @@ namespace NS_VetorHash
         void calculaValHash()
         {
             // Funcao retirada de: https://cseweb.ucsd.edu/~kube/cls/100/Lectures/lec16/lec16-16.html
-
+            // ELF Hash algorithms
             valHash = 0;
             for(int i=0; i < vet.size(); ++i)
-            {
+            {   //         valHash * 16
                 valHash = (valHash<<4) + vet[i];
                 uint64_t g = valHash & 0xF0000000L;
+
                 if(g != 0)
                     valHash ^= g >> 24;
                 valHash &= ~g;

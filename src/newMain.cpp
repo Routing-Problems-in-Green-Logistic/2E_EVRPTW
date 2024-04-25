@@ -129,6 +129,7 @@ int main(int argc, char* argv[])
     }
     catch(const char *erro)
     {
+
         if constexpr(!AjusteDeParametro)
         {
             cerr << "SEMENTE: " << parametros.semente << "\n";
@@ -145,6 +146,13 @@ int main(int argc, char* argv[])
             double tempo = double(end-startA)/CLOCKS_PER_SEC;
             escreveDistFile(ValBestNs::distBest, tempo, parametros.paramIg.fileSaida);
         }
+
+        exit(-1);
+    }
+    catch(exception &e)
+    {
+        cout<<e.what()<<"\n";
+        return -1;
     }
 
 
